@@ -5,7 +5,7 @@ function superPetCareApp() {
         // Trạng thái xác thực & Điều hướng
         isLoggedIn: false, // Mặc định khi vào là Khách chưa đăng nhập
         currentRole: 'customer', // Mặc định hiển thị giao diện khách hàng
-        activeCustomerTab: 'home', // 'home' | 'petshare' | 'products' | 'services' | 'faq' | 'legal' | 'profile'
+        activeCustomerTab: 'home', // 'home' | 'petshare' | 'shop' | 'booking' | 'orders' | 'profile' | 'faq' | 'legal'
         get currentTab() { return this.activeCustomerTab; },
         set currentTab(val) { this.activeCustomerTab = val; },
 
@@ -14,14 +14,26 @@ function superPetCareApp() {
         set adminTab(val) { this.activeAdminTab = val; },
 
         adminTimeFilter: 'all', // 'all' | 'today' | '7days' | 'month' | 'quarter'
-        globalBranch: 'all', // 'all' | 'HN' | 'Q7' | 'BT'
+        globalBranch: 'all', // 'all' | 'HN' | 'Q1' | 'Q7' | 'BT'
         currentOrderTypeTab: 'all',
         showLowStockOnly: false,
         sidebarOpen: false,
 
-        // Bộ lọc & Tìm kiếm
+        // Thông báo hệ thống Admin
+        showAdminNotifications: false,
+        adminNotifications: [
+            { id: 1, type: 'order', icon: 'fa-solid fa-receipt', title: 'Đơn hàng mới thanh toán', desc: 'Khách hàng Nguyễn Phương Thảo vừa thanh toán đơn ORD-8821 qua VietQR (700.000đ)', time: '2 phút trước', read: false },
+            { id: 2, type: 'appointment', icon: 'fa-solid fa-calendar-check', title: 'Lịch hẹn mới được đặt', desc: 'Lịch Spa Cắt tỉa bé Bơ (Corgi) lúc 09:30 ngày 21/10 tại CN Quận 7 đã được ghi nhận', time: '15 phút trước', read: false },
+            { id: 3, type: 'warning', icon: 'fa-solid fa-triangle-exclamation', title: 'Cảnh báo tồn kho an toàn', desc: 'Sản phẩm "Gel Dinh Dưỡng Virbac Nutri-plus" tại CN Quận 7 sắp hết hàng (còn 6 tuýp)', time: '35 phút trước', read: false },
+            { id: 4, type: 'service', icon: 'fa-solid fa-stethoscope', title: 'Cập nhật trạng thái dịch vụ', desc: 'Lịch hẹn APT-1088 đã được Bác sĩ chuyển sang trạng thái: Đang tiếp khách', time: '1 giờ trước', read: false },
+            { id: 5, type: 'system', icon: 'fa-solid fa-shield-cat', title: 'Hệ sinh thái PetCare360', desc: 'Hoàn tất chu kỳ tính điểm & cập nhật đặc quyền thành viên 6 tháng định kỳ Q4/2026', time: '2 giờ trước', read: false }
+        ],
+
+        // Bộ lọc & Tìm kiếm Khách hàng & Admin
         searchQuery: '',
-        filterCategory: 'all',
+        filterCategory: 'all', // 'all' | 'Thức ăn & Dinh dưỡng' | 'Phụ kiện & Vệ sinh' | 'Thuốc & Y tế'
+        filterServiceCategory: 'all', // 'all' | 'Y Tế & Chăm Sóc Sức Khỏe' | 'Cấp Cứu & Điều Trị Chuyên Sâu' | 'Spa & Làm Đẹp' | 'Lưu Trú & Tiện Ích'
+        serviceSearchQuery: '',
         filterArticleCat: 'all',
         searchArticleQuery: '',
         productSearchQuery: '',
@@ -69,6 +81,9 @@ function superPetCareApp() {
         loginPassword: '',
         loginError: '',
 
+        // Lỗi form thêm thú cưng
+        petFormError: '',
+
         // Hồ sơ người dùng
         customerProfile: {
             name: 'Nguyễn Phương Thảo',
@@ -112,28 +127,41 @@ function superPetCareApp() {
             }
         ],
 
-        // 3 Thú cưng chi tiết kèm sổ sức khỏe
+        // 3 Thú cưng chi tiết đầy đủ 4 nhóm thông tin
         pets: [
             {
                 id: 1,
                 name: 'Bơ (Butter)',
                 type: 'Chó',
+                species: 'Chó',
                 breed: 'Corgi Pembroke Welsh',
                 gender: 'Đực',
-                age: '2 tuổi',
-                weight: '11.5 kg',
+                age: '2 tuổi (15/04/2024)',
+                weight: '11.5',
                 chipId: '900118000452311',
                 chip: '900118000452311',
                 avatar: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=400&q=80',
                 image: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=400&q=80',
-                allergies: 'Không ghi nhận dị ứng thuốc, nhạy cảm với thức ăn chứa nhiều mỡ động vật.',
+                appearance: 'Lông vàng trắng ngắn mượt, tai to dựng đứng, đuôi cộc tròn, ngực trắng yếm đôi',
+                health: 'Khỏe mạnh, vừa hoàn thành điều trị viêm kẽ móng chân',
+                allergies: 'Không dị ứng thuốc, nhạy cảm với thức ăn chứa nhiều mỡ động vật',
+                lastVaccine: 'Vắc-xin 7 bệnh chó Nobivac (15/01/2026)',
+                nextVaccine: '15/01/2027 (Nhắc lại hàng năm)',
+                diet: 'Hạt Royal Canin Mini Adult (80g/ngày), trộn 1/2 hộp Pate Monge gà tây, ăn 2 bữa/ngày',
+                habits: 'Thích đi dạo công viên 17h chiều, thích bắt bóng tennis, rất quấn chủ',
+                personality: 'Năng động, thân thiện, sủa cảnh giác người lạ gõ cửa, sợ tiếng máy sấy to',
+                ownerName: 'Nguyễn Phương Thảo',
+                ownerPhone: '0988 123 456',
+                ownerAddress: 'Căn hộ 12.04 Tòa Park 6, Vinhomes Central Park, Bình Thạnh, TP.HCM',
+                ownerEmergency: '0912 345 678 (Chồng - Anh Hoàng)',
+                isDefault: true,
                 vaccines: [
                     { name: 'Vắc-xin 7 bệnh chó (Nobivac DHPPi + L4)', date: '15/01/2026', doctor: 'ThS.BS Nguyễn Minh Quân', nextDate: '15/01/2027', status: 'Đã hoàn thành' },
                     { name: 'Phòng ngừa dại (Rabisin)', date: '15/01/2026', doctor: 'ThS.BS Nguyễn Minh Quân', nextDate: '15/01/2027', status: 'Đã hoàn thành' },
                     { name: 'Xổ giun định kỳ & Nhỏ gáy Advocate', date: '01/03/2026', doctor: 'BS Đỗ Hoàng Nam', nextDate: '01/06/2026', status: 'Sắp tới hạn' }
                 ],
                 medicalHistory: [
-                    { date: '10/02/2026', diagnosis: 'Viêm da kẽ ngón chân do ẩm ướt', treatment: 'Vệ sinh dung dịch Chlorhexidine 2%, bôi kem kháng viêm 5 ngày', notes: 'Giữ chân khô ráo sau khi đi dạo' },
+                    { date: '10/02/2026', diagnosis: 'Viêm da kẽ ngón chân do ẩm ướt', treatment: 'Vệ sinh Chlorhexidine 2%, bôi kem kháng viêm 5 ngày', notes: 'Giữ chân khô ráo sau khi đi dạo' },
                     { date: '05/11/2025', diagnosis: 'Khám sức khỏe tổng quát & Siêu âm ổ bụng', treatment: 'Chỉ số gan thận bình thường, thể trạng khỏe mạnh', notes: 'Bổ sung thêm glucosamine hỗ trợ cột sống ngắn' }
                 ]
             },
@@ -141,42 +169,68 @@ function superPetCareApp() {
                 id: 2,
                 name: 'Mochi',
                 type: 'Mèo',
+                species: 'Mèo',
                 breed: 'Anh Lông Ngắn (Silver Shaded)',
                 gender: 'Cái',
-                age: '1.5 tuổi',
-                weight: '4.2 kg',
+                age: '1.5 tuổi (20/10/2024)',
+                weight: '4.2',
                 chipId: '900118000789123',
                 chip: '900118000789123',
                 avatar: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=400&q=80',
                 image: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=400&q=80',
-                allergies: 'Dị ứng phấn hoa nhẹ, nhạy cảm với thuốc gây mê nhóm ketamine (đã ghi nhận trong hồ sơ mổ).',
+                appearance: 'Lông ánh bạc silver shaded dày mịn, mắt xanh lục bảo to tròn, mũi hồng',
+                health: 'Đã triệt sản nội soi, vết mổ liền đẹp, cân nặng ổn định',
+                allergies: 'Dị ứng phấn hoa nhẹ, nhạy cảm với thuốc gây mê nhóm ketamine',
+                lastVaccine: 'Vắc-xin 4 bệnh mèo Purevax (20/12/2025)',
+                nextVaccine: '20/12/2026',
+                diet: 'Hạt Royal Canin Kitten & Sterilised (60g/ngày), thưởng 1 thanh Ciao Churu lúc 20h',
+                habits: 'Thích nằm sưởi nắng ban công, cào móng trên trụ đay, ngủ cùng chủ buổi tối',
+                personality: 'Điềm đạm, ít kêu, thích được gãi cằm, hay trốn dưới gầm giường khi nhà có khách lạ',
+                ownerName: 'Nguyễn Phương Thảo',
+                ownerPhone: '0988 123 456',
+                ownerAddress: 'Căn hộ 12.04 Tòa Park 6, Vinhomes Central Park, Bình Thạnh, TP.HCM',
+                ownerEmergency: '0912 345 678 (Chồng - Anh Hoàng)',
+                isDefault: false,
                 vaccines: [
                     { name: 'Vắc-xin 4 bệnh mèo (Purevax RCPCh)', date: '20/12/2025', doctor: 'BS Trần Thu Hà', nextDate: '20/12/2026', status: 'Đã hoàn thành' },
                     { name: 'Vắc-xin phòng dại (Rabisin)', date: '20/12/2025', doctor: 'BS Trần Thu Hà', nextDate: '20/12/2026', status: 'Đã hoàn thành' }
                 ],
                 medicalHistory: [
-                    { date: '12/10/2025', diagnosis: 'Phẫu thuật triệt sản nội soi vi phẫu', treatment: 'Hồi phục hoàn toàn sau 48h, vết mổ liền đẹp không sẹo', notes: 'Đã cắt chỉ, chế độ dinh dưỡng hạt Sterilised' }
+                    { date: '12/10/2025', diagnosis: 'Phẫu thuật triệt sản nội soi vi phẫu', treatment: 'Hồi phục hoàn toàn sau 48h, chỉ tự tiêu', notes: 'Đã lành sẹo đẹp, chế độ dinh dưỡng hạt Sterilised' }
                 ]
             },
             {
                 id: 3,
                 name: 'Đậu Đậu',
                 type: 'Chó',
-                breed: 'Poodle Tiny màu Nâu Đỏ',
+                species: 'Chó',
+                breed: 'Poodle Tiny',
                 gender: 'Đực',
-                age: '3 tuổi',
-                weight: '3.6 kg',
+                age: '3 tuổi (08/06/2023)',
+                weight: '3.6',
                 chipId: '900118000994120',
                 chip: '900118000994120',
                 avatar: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=400&q=80',
                 image: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=400&q=80',
-                allergies: 'Tiền sử dị ứng thức ăn chứa đạm bò (bị đỏ tai và gãi ngứa).',
+                appearance: 'Lông nâu đỏ xoăn tít bồng bềnh, dáng nhỏ nhắn, chân ngắn đáng yêu',
+                health: 'Răng miệng sạch mảng bám, mắt sáng không bị ố vàng khóe mắt',
+                allergies: 'Tiền sử dị ứng đạm thịt bò (ngứa và đỏ tai)',
+                lastVaccine: 'Vắc-xin 7 bệnh Nobivac (05/08/2025)',
+                nextVaccine: '05/08/2026',
+                diet: 'Hạt dinh dưỡng hữu cơ không thịt bò, bổ sung rau củ tươi luộc chín',
+                habits: 'Thích được bế ẵm, thích mặc áo len mùa đông, thích đuổi laser',
+                personality: 'Thông minh, hoạt bát, hay làm trò xin ăn, thích chơi đùa với trẻ nhỏ',
+                ownerName: 'Nguyễn Phương Thảo',
+                ownerPhone: '0988 123 456',
+                ownerAddress: 'Căn hộ 12.04 Tòa Park 6, Vinhomes Central Park, Bình Thạnh, TP.HCM',
+                ownerEmergency: '0912 345 678 (Chồng - Anh Hoàng)',
+                isDefault: false,
                 vaccines: [
                     { name: 'Vắc-xin 7 bệnh chó (Nobivac DHPPi)', date: '05/08/2025', doctor: 'ThS.BS Nguyễn Minh Quân', nextDate: '05/08/2026', status: 'Đã hoàn thành' },
                     { name: 'Phòng dại Rabisin', date: '05/08/2025', doctor: 'ThS.BS Nguyễn Minh Quân', nextDate: '05/08/2026', status: 'Đã hoàn thành' }
                 ],
                 medicalHistory: [
-                    { date: '14/01/2026', diagnosis: 'Lấy cao răng siêu âm & đánh bóng răng', treatment: 'Vệ sinh mảng bám vôi răng độ 2, xịt keo ong khử khuẩn', notes: 'Duy trì gặm thanh sạch răng hàng ngày' }
+                    { date: '14/01/2026', diagnosis: 'Lấy cao răng siêu âm & đánh bóng răng', treatment: 'Vệ sinh vôi răng độ 2, xịt keo ong khử khuẩn', notes: 'Duy trì gặm thanh sạch răng hàng ngày' }
                 ]
             }
         ],
@@ -185,8 +239,9 @@ function superPetCareApp() {
         get myPets() { return this.pets; },
         set myPets(val) { this.pets = val; },
 
-        // 12 Sản phẩm chi tiết
+        // 12 SẢN PHẨM PHÂN LOẠI CHÍNH XÁC THEO 3 DANH MỤC
         products: [
+            // Danh mục 1: Thức ăn & Dinh dưỡng (6 sản phẩm)
             {
                 id: 1,
                 sku: 'PET-FD01',
@@ -197,12 +252,12 @@ function superPetCareApp() {
                 reviews: 184,
                 reviewsCount: 184,
                 sold: 1420,
-                stock: 95,
-                stockHN: 40,
-                stockQ7: 35,
-                stockBT: 20,
-                category: 'Thức ăn khô',
-                categoryAdmin: 'Thức ăn khô',
+                stockQ1: 35,
+                stockBT: 28,
+                stockQ7: 42,
+                q1: 35, bt: 28, q7: 42,
+                category: 'Thức ăn & Dinh dưỡng',
+                categoryAdmin: 'Thức ăn & Dinh dưỡng',
                 img: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&w=500&q=80',
                 image: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&w=500&q=80',
                 desc: 'Hạt dinh dưỡng cao cấp dành cho chó trưởng thành giống nhỏ từ 10 tháng đến 8 tuổi. Giúp duy trì cân nặng lý tưởng nhờ hàm lượng L-carnitine tối ưu và hỗ trợ sức khỏe răng miệng tối đa.',
@@ -220,12 +275,12 @@ function superPetCareApp() {
                 reviews: 216,
                 reviewsCount: 216,
                 sold: 1890,
-                stock: 120,
-                stockHN: 50,
-                stockQ7: 45,
-                stockBT: 25,
-                category: 'Thức ăn khô',
-                categoryAdmin: 'Thức ăn khô',
+                stockQ1: 45,
+                stockBT: 30,
+                stockQ7: 50,
+                q1: 45, bt: 30, q7: 50,
+                category: 'Thức ăn & Dinh dưỡng',
+                categoryAdmin: 'Thức ăn & Dinh dưỡng',
                 img: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=500&q=80',
                 image: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=500&q=80',
                 desc: 'Công thức đặc chế cho mèo con từ 4 đến 12 tháng tuổi. Bổ sung hệ dưỡng chất tăng cường hệ miễn dịch tự nhiên, DHA phát triển não bộ và protein dễ tiêu hóa LIP.',
@@ -243,12 +298,12 @@ function superPetCareApp() {
                 reviews: 92,
                 reviewsCount: 92,
                 sold: 530,
-                stock: 45,
-                stockHN: 20,
+                stockQ1: 18,
+                stockBT: 12,
                 stockQ7: 15,
-                stockBT: 10,
-                category: 'Thức ăn khô',
-                categoryAdmin: 'Thức ăn khô',
+                q1: 18, bt: 12, q7: 15,
+                category: 'Thức ăn & Dinh dưỡng',
+                categoryAdmin: 'Thức ăn & Dinh dưỡng',
                 img: 'https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?auto=format&fit=crop&w=500&q=80',
                 image: 'https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?auto=format&fit=crop&w=500&q=80',
                 desc: 'Dòng thức ăn sinh học chuẩn tự nhiên cao cấp bậc nhất thế giới, chứa 85% thành phần từ gia cầm thả vườn, cá hoang dã và trứng tươi nguyên quả. Không ngũ cốc.',
@@ -266,12 +321,12 @@ function superPetCareApp() {
                 reviews: 135,
                 reviewsCount: 135,
                 sold: 1120,
-                stock: 80,
-                stockHN: 35,
-                stockQ7: 30,
-                stockBT: 15,
-                category: 'Pate & Treats',
-                categoryAdmin: 'Pate & Treats',
+                stockQ1: 30,
+                stockBT: 25,
+                stockQ7: 35,
+                q1: 30, bt: 25, q7: 35,
+                category: 'Thức ăn & Dinh dưỡng',
+                categoryAdmin: 'Thức ăn & Dinh dưỡng',
                 img: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?auto=format&fit=crop&w=500&q=80',
                 image: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?auto=format&fit=crop&w=500&q=80',
                 desc: 'Pate thịt tươi nấu chậm từ nước Ý với các vị gà tây, cá hồi, thịt bò kết hợp rau củ tươi. Không phẩm màu, không chất bảo quản hóa học.',
@@ -289,12 +344,12 @@ function superPetCareApp() {
                 reviews: 410,
                 reviewsCount: 410,
                 sold: 3400,
-                stock: 250,
-                stockHN: 100,
-                stockQ7: 90,
-                stockBT: 60,
-                category: 'Pate & Treats',
-                categoryAdmin: 'Pate & Treats',
+                stockQ1: 85,
+                stockBT: 65,
+                stockQ7: 95,
+                q1: 85, bt: 65, q7: 95,
+                category: 'Thức ăn & Dinh dưỡng',
+                categoryAdmin: 'Thức ăn & Dinh dưỡng',
                 img: 'https://images.unsplash.com/photo-1533738363-b7f9aef128ce?auto=format&fit=crop&w=500&q=80',
                 image: 'https://images.unsplash.com/photo-1533738363-b7f9aef128ce?auto=format&fit=crop&w=500&q=80',
                 desc: 'Treat dạng kem số 1 tại Nhật Bản, vị thơm ngon cuốn hút mọi chú mèo. Cung cấp nước dồi dào ngừa sỏi thận và chiết xuất trà xanh giảm mùi hôi chất thải.',
@@ -304,6 +359,125 @@ function superPetCareApp() {
             },
             {
                 id: 6,
+                sku: 'PET-MD03',
+                name: 'Gel Dinh Dưỡng Bổ Sung Năng Lượng & Vitamin Nutri-plus Gel',
+                brand: 'Virbac (Pháp)',
+                price: 295000,
+                rating: 5.0,
+                reviews: 260,
+                reviewsCount: 260,
+                sold: 2150,
+                stockQ1: 2,
+                stockBT: 2,
+                stockQ7: 2,
+                q1: 2, bt: 2, q7: 2, // Tổng tồn kho = 6 (Dưới 10 để demo cảnh báo sắp hết hàng)
+                category: 'Thức ăn & Dinh dưỡng',
+                categoryAdmin: 'Thức ăn & Dinh dưỡng',
+                img: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=500&q=80',
+                image: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=500&q=80',
+                desc: 'Thực phẩm bổ sung năng lượng cao cấp chứa đầy đủ vitamin nhóm B, A, D, E và các khoáng chất thiết yếu cho thú cưng đang dưỡng bệnh, sau phẫu thuật hoặc mẹ mang thai/cho con bú.',
+                description: 'Thực phẩm bổ sung năng lượng cao cấp chứa đầy đủ vitamin.',
+                ingredients: 'Vitamin A, D3, E, B1, B2, B6, B12, Nicotinamide, Canxi Pantothenate, Axit Folic, Sắt, Mangan, Magiê.',
+                usage: 'Cho ăn trực tiếp hoặc trộn vào thức ăn. Liều lượng: 1-2 muỗng cà phê/5kg thể trọng.'
+            },
+
+            // Danh mục 2: Phụ kiện & Vệ sinh (4 sản phẩm)
+            {
+                id: 7,
+                sku: 'PET-VS01',
+                name: 'Cát Đậu Nành Tofu Cature Kháng Khuẩn Tự Nhiên (Hương Trà Xanh 6L)',
+                brand: 'Cature (Mỹ)',
+                price: 165000,
+                rating: 4.8,
+                reviews: 280,
+                reviewsCount: 280,
+                sold: 2890,
+                stockQ1: 60,
+                stockBT: 45,
+                stockQ7: 75,
+                q1: 60, bt: 45, q7: 75,
+                category: 'Phụ kiện & Vệ sinh',
+                categoryAdmin: 'Phụ kiện & Vệ sinh',
+                img: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=500&q=80',
+                image: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=500&q=80',
+                desc: '100% bã đậu nành tự nhiên vón cục siêu tốc trong 3 giây, kiểm soát mùi hôi vượt trội, tan hoàn toàn trong nước xả bồn cầu cực kỳ tiện lợi và thân thiện môi trường.',
+                description: '100% bã đậu nành tự nhiên vón cục siêu tốc trong 3 giây.',
+                ingredients: 'Sợi đậu nành hữu cơ, tinh bột ngô tự nhiên, chiết xuất lá trà xanh diệt khuẩn.',
+                usage: 'Đổ cát vào khay vệ sinh độ dày khoảng 5-7cm. Dọn các cục vón hàng ngày.'
+            },
+            {
+                id: 8,
+                sku: 'PET-VS02',
+                name: 'Sữa Tắm Trị Nấm & Khử Mùi Hôi Cho Thú Cưng Davis Chlorhexidine 4%',
+                brand: 'Davis (Mỹ)',
+                price: 340000,
+                rating: 4.9,
+                reviews: 145,
+                reviewsCount: 145,
+                sold: 980,
+                stockQ1: 22,
+                stockBT: 18,
+                stockQ7: 25,
+                q1: 22, bt: 18, q7: 25,
+                category: 'Phụ kiện & Vệ sinh',
+                categoryAdmin: 'Phụ kiện & Vệ sinh',
+                img: 'https://images.unsplash.com/photo-1535294435445-d7249524ef2e?auto=format&fit=crop&w=500&q=80',
+                image: 'https://images.unsplash.com/photo-1535294435445-d7249524ef2e?auto=format&fit=crop&w=500&q=80',
+                desc: 'Sữa tắm dược liệu đặc trị viêm da, nấm da, vi khuẩn và mùi hôi khó chịu trên chó mèo. Chứa hoạt chất Chlorhexidine Gluconate 4% được các bác sĩ da liễu thú y khuyên dùng.',
+                description: 'Sữa tắm dược liệu đặc trị viêm da, nấm da, vi khuẩn.',
+                ingredients: 'Chlorhexidine Gluconate 4.0%, chất tạo bọt dịu nhẹ từ dừa, tinh dầu dưỡng ẩm da.',
+                usage: 'Làm ướt lông, thoa dầu tắm tạo bọt và xoa bóp đều trong 5-10 phút rồi xả sạch với nước.'
+            },
+            {
+                id: 9,
+                sku: 'PET-PK01',
+                name: 'Balo Phi Thuyền Vận Chuyển Thú Cưng Thông Khí Đa Chiều VIP',
+                brand: 'PetCare Pro',
+                price: 490000,
+                rating: 4.7,
+                reviews: 86,
+                reviewsCount: 86,
+                sold: 620,
+                stockQ1: 15,
+                stockBT: 10,
+                stockQ7: 12,
+                q1: 15, bt: 10, q7: 12,
+                category: 'Phụ kiện & Vệ sinh',
+                categoryAdmin: 'Phụ kiện & Vệ sinh',
+                img: 'https://images.unsplash.com/photo-1522276498395-f4f68f7f8454?auto=format&fit=crop&w=500&q=80',
+                image: 'https://images.unsplash.com/photo-1522276498395-f4f68f7f8454?auto=format&fit=crop&w=500&q=80',
+                desc: 'Balo vận chuyển thú cưng cao cấp chất liệu nhựa ABS cứng cáp chống va đập, nắp trong suốt tầm nhìn rộng, hệ thống 9 lỗ thoáng khí và đệm lót êm ái cho bé dưới 8kg.',
+                description: 'Balo vận chuyển thú cưng cao cấp chất liệu nhựa ABS cứng cáp.',
+                ingredients: 'Nhựa ABS an toàn thực phẩm, vải Oxford 900D chống thấm, lưới thép không gỉ.',
+                usage: 'Phù hợp khi chở bé đi tiêm phòng, du lịch hoặc dạo phố an toàn tuyệt đối.'
+            },
+            {
+                id: 10,
+                sku: 'PET-PK02',
+                name: 'Trụ Cào Móng Cây Cat Tree 3 Tầng Kèm Nhà Cầu Ngủ Mèo',
+                brand: 'CozyPet',
+                price: 680000,
+                rating: 4.9,
+                reviews: 64,
+                reviewsCount: 64,
+                sold: 410,
+                stockQ1: 10,
+                stockBT: 8,
+                stockQ7: 14,
+                q1: 10, bt: 8, q7: 14,
+                category: 'Phụ kiện & Vệ sinh',
+                categoryAdmin: 'Phụ kiện & Vệ sinh',
+                img: 'https://images.unsplash.com/photo-1545249390-6bdfa286032f?auto=format&fit=crop&w=500&q=80',
+                image: 'https://images.unsplash.com/photo-1545249390-6bdfa286032f?auto=format&fit=crop&w=500&q=80',
+                desc: 'Cây cào móng cao cấp quấn dây đay sisal tự nhiên bền chắc, khung gỗ ép công nghiệp chịu lực, bọc vải nhung mềm mịn giúp mèo xả stress và bảo vệ sofa nội thất gia đình.',
+                description: 'Cây cào móng cao cấp quấn dây đay sisal tự nhiên bền chắc.',
+                ingredients: 'Gỗ chịu lực MDF, dây thừng Sisal tự nhiên, vải nỉ lông cừu nhân tạo.',
+                usage: 'Đặt tại góc phòng khách nơi mèo thường xuyên qua lại hoặc gần cửa sổ đón nắng.'
+            },
+
+            // Danh mục 3: Thuốc & Y tế (2 sản phẩm)
+            {
+                id: 11,
                 sku: 'PET-MD01',
                 name: 'Thuốc Trị Ve Rận & Tẩy Giun NexGard Spectra (Dạng Viên Nhai Thịt Bò)',
                 brand: 'Boehringer Ingelheim (Pháp)',
@@ -312,10 +486,10 @@ function superPetCareApp() {
                 reviews: 320,
                 reviewsCount: 320,
                 sold: 2100,
-                stock: 75,
-                stockHN: 30,
-                stockQ7: 25,
-                stockBT: 20,
+                stockQ1: 30,
+                stockBT: 25,
+                stockQ7: 35,
+                q1: 30, bt: 25, q7: 35,
                 category: 'Thuốc & Y tế',
                 categoryAdmin: 'Thuốc & Y tế',
                 img: 'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?auto=format&fit=crop&w=500&q=80',
@@ -326,7 +500,7 @@ function superPetCareApp() {
                 usage: 'Cho chó nhai trực tiếp như bánh thưởng. Dùng định kỳ 1 viên/tháng cho cún từ 8 tuần tuổi.'
             },
             {
-                id: 7,
+                id: 12,
                 sku: 'PET-MD02',
                 name: 'Tuýp Nhỏ Gáy Phòng Trị Ký Sinh Trùng Toàn Diện Cho Mèo Revolution Plus',
                 brand: 'Zoetis (Mỹ)',
@@ -335,10 +509,10 @@ function superPetCareApp() {
                 reviews: 198,
                 reviewsCount: 198,
                 sold: 1650,
-                stock: 88,
-                stockHN: 40,
-                stockQ7: 30,
-                stockBT: 18,
+                stockQ1: 38,
+                stockBT: 28,
+                stockQ7: 42,
+                q1: 38, bt: 28, q7: 42,
                 category: 'Thuốc & Y tế',
                 categoryAdmin: 'Thuốc & Y tế',
                 img: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=500&q=80',
@@ -347,158 +521,28 @@ function superPetCareApp() {
                 description: 'Dược chất thế hệ mới tiêu diệt 6 loại ký sinh trùng trên mèo.',
                 ingredients: 'Selamectin và Sarolaner nồng độ cao an toàn cho mèo từ 8 tuần tuổi.',
                 usage: 'Vạch lông sau gáy mèo và bóp hết tuýp thuốc trực tiếp lên da.'
-            },
-            {
-                id: 8,
-                sku: 'PET-VS01',
-                name: 'Cát Đậu Nành Tofu Cature Kháng Khuẩn Tự Nhiên (Hương Trà Xanh 6L)',
-                brand: 'Cature (Mỹ)',
-                price: 165000,
-                rating: 4.8,
-                reviews: 280,
-                reviewsCount: 280,
-                sold: 2890,
-                stock: 190,
-                stockHN: 80,
-                stockQ7: 70,
-                stockBT: 40,
-                category: 'Vệ sinh & Khử mùi',
-                categoryAdmin: 'Vệ sinh & Khử mùi',
-                img: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=500&q=80',
-                image: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=500&q=80',
-                desc: '100% bã đậu nành tự nhiên vón cục siêu tốc trong 3 giây, kiểm soát mùi hôi vượt trội, tan hoàn toàn trong nước xả bồn cầu cực kỳ tiện lợi và thân thiện môi trường.',
-                description: '100% bã đậu nành tự nhiên vón cục siêu tốc trong 3 giây.',
-                ingredients: 'Sợi đậu nành hữu cơ, tinh bột ngô tự nhiên, chiết xuất lá trà xanh diệt khuẩn.',
-                usage: 'Đổ cát vào khay vệ sinh độ dày khoảng 5-7cm. Dọn các cục vón hàng ngày.'
-            },
-            {
-                id: 9,
-                sku: 'PET-VS02',
-                name: 'Sữa Tắm Trị Nấm & Khử Mùi Hôi Cho Thú Cưng Davis Chlorhexidine 4%',
-                brand: 'Davis (Mỹ)',
-                price: 340000,
-                rating: 4.9,
-                reviews: 145,
-                reviewsCount: 145,
-                sold: 980,
-                stock: 60,
-                stockHN: 25,
-                stockQ7: 20,
-                stockBT: 15,
-                category: 'Vệ sinh & Khử mùi',
-                categoryAdmin: 'Vệ sinh & Khử mùi',
-                img: 'https://images.unsplash.com/photo-1535294435445-d7249524ef2e?auto=format&fit=crop&w=500&q=80',
-                image: 'https://images.unsplash.com/photo-1535294435445-d7249524ef2e?auto=format&fit=crop&w=500&q=80',
-                desc: 'Sữa tắm dược liệu đặc trị viêm da, nấm da, vi khuẩn và mùi hôi khó chịu trên chó mèo. Chứa hoạt chất Chlorhexidine Gluconate 4% được các bác sĩ da liễu thú y khuyên dùng.',
-                description: 'Sữa tắm dược liệu đặc trị viêm da, nấm da, vi khuẩn.',
-                ingredients: 'Chlorhexidine Gluconate 4.0%, chất tạo bọt dịu nhẹ từ dừa, tinh dầu dưỡng ẩm da.',
-                usage: 'Làm ướt lông, thoa dầu tắm tạo bọt và xoa bóp đều trong 5-10 phút rồi xả sạch với nước.'
-            },
-            {
-                id: 10,
-                sku: 'PET-PK01',
-                name: 'Balo Phi Thuyền Vận Chuyển Thú Cưng Thông Khí Đa Chiều VIP',
-                brand: 'PetCare Pro',
-                price: 490000,
-                rating: 4.7,
-                reviews: 86,
-                reviewsCount: 86,
-                sold: 620,
-                stock: 35,
-                stockHN: 15,
-                stockQ7: 12,
-                stockBT: 8,
-                category: 'Phụ kiện & Đồ chơi',
-                categoryAdmin: 'Phụ kiện & Đồ chơi',
-                img: 'https://images.unsplash.com/photo-1522276498395-f4f68f7f8454?auto=format&fit=crop&w=500&q=80',
-                image: 'https://images.unsplash.com/photo-1522276498395-f4f68f7f8454?auto=format&fit=crop&w=500&q=80',
-                desc: 'Balo vận chuyển thú cưng cao cấp chất liệu nhựa ABS cứng cáp chống va đập, nắp trong suốt tầm nhìn rộng, hệ thống 9 lỗ thoáng khí và đệm lót êm ái cho bé dưới 8kg.',
-                description: 'Balo vận chuyển thú cưng cao cấp chất liệu nhựa ABS cứng cáp.',
-                ingredients: 'Nhựa ABS an toàn thực phẩm, vải Oxford 900D chống thấm, lưới thép không gỉ.',
-                usage: 'Phù hợp khi chở bé đi tiêm phòng, du lịch hoặc dạo phố an toàn tuyệt đối.'
-            },
-            {
-                id: 11,
-                sku: 'PET-PK02',
-                name: 'Trụ Cào Móng Cây Cat Tree 3 Tầng Kèm Nhà Cầu Ngủ Mèo',
-                brand: 'CozyPet',
-                price: 680000,
-                rating: 4.9,
-                reviews: 64,
-                reviewsCount: 64,
-                sold: 410,
-                stock: 28,
-                stockHN: 12,
-                stockQ7: 10,
-                stockBT: 6,
-                category: 'Phụ kiện & Đồ chơi',
-                categoryAdmin: 'Phụ kiện & Đồ chơi',
-                img: 'https://images.unsplash.com/photo-1545249390-6bdfa286032f?auto=format&fit=crop&w=500&q=80',
-                image: 'https://images.unsplash.com/photo-1545249390-6bdfa286032f?auto=format&fit=crop&w=500&q=80',
-                desc: 'Cây cào móng cao cấp quấn dây đay sisal tự nhiên bền chắc, khung gỗ ép công nghiệp chịu lực, bọc vải nhung mềm mịn giúp mèo xả stress và bảo vệ sofa nội thất gia đình.',
-                description: 'Cây cào móng cao cấp quấn dây đay sisal tự nhiên bền chắc.',
-                ingredients: 'Gỗ chịu lực MDF, dây thừng Sisal tự nhiên, vải nỉ lông cừu nhân tạo.',
-                usage: 'Đặt tại góc phòng khách nơi mèo thường xuyên qua lại hoặc gần cửa sổ đón nắng.'
-            },
-            {
-                id: 12,
-                sku: 'PET-MD03',
-                name: 'Gel Dinh Dưỡng Bổ Sung Năng Lượng & Vitamin Nutri-plus Gel',
-                brand: 'Virbac (Pháp)',
-                price: 295000,
-                rating: 5.0,
-                reviews: 260,
-                reviewsCount: 260,
-                sold: 2150,
-                stock: 92,
-                stockHN: 40,
-                stockQ7: 32,
-                stockBT: 20,
-                category: 'Thuốc & Y tế',
-                categoryAdmin: 'Thuốc & Y tế',
-                img: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=500&q=80',
-                image: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=500&q=80',
-                desc: 'Thực phẩm bổ sung năng lượng cao cấp chứa đầy đủ vitamin nhóm B, A, D, E và các khoáng chất thiết yếu cho thú cưng đang dưỡng bệnh, sau phẫu thuật hoặc mẹ mang thai/cho con bú.',
-                description: 'Thực phẩm bổ sung năng lượng cao cấp chứa đầy đủ vitamin.',
-                ingredients: 'Vitamin A, D3, E, B1, B2, B6, B12, Nicotinamide, Canxi Pantothenate, Axit Folic, Sắt, Mangan, Magiê.',
-                usage: 'Cho ăn trực tiếp hoặc trộn vào thức ăn. Liều lượng: 1-2 muỗng cà phê/5kg thể trọng.'
             }
         ],
 
-        // 12 Dịch vụ chuẩn y khoa & làm đẹp
+        // 12 DỊCH VỤ PHÂN LOẠI CHÍNH XÁC THEO 4 DANH MỤC YÊU CẦU
         services: [
+            // Nhóm 1: Y Tế & Chăm Sóc Sức Khỏe (5 dịch vụ)
             {
                 id: 1,
-                name: 'Gói Spa & Grooming Cắt Tỉa Lông Tạo Kiểu Toàn Diện',
-                price: 350000,
-                duration: '120 - 150 phút',
-                expert: 'Master Groomer & Kỹ thuật viên cao cấp',
-                doctor: 'Master Groomer & KTV cao cấp',
-                category: 'Spa & Làm đẹp',
-                img: 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&w=600&q=80',
-                image: 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&w=600&q=80',
-                desc: 'Gói chăm sóc sắc đẹp đẳng cấp nhất cho bé cưng: tắm sục ozone thải độc da, sấy chải bông phồng, cắt móng mài góc tròn, vệ sinh nhổ lông tai và cắt tỉa lông tạo kiểu theo chuẩn dáng giống loài.',
-                description: 'Gói chăm sóc sắc đẹp đẳng cấp nhất cho bé cưng.',
-                steps: [
-                    { title: 'Kiểm tra da lông & tư vấn form dáng', desc: 'Kiểm tra tình trạng búi lông, ve rận, nấm và tư vấn dáng cắt tỉa phù hợp.' },
-                    { title: 'Vệ sinh sơ bộ chuyên sâu', desc: 'Cắt mài móng không chảy máu, nhổ sạch lông tai, cạo lông đệm chân và vệ sinh hậu môn.' },
-                    { title: 'Tắm bồn sục Ozone thư giãn 2 lần', desc: 'Dùng dầu gội hữu cơ nhập khẩu khử mùi, massage giải tỏa căng thẳng và ủ xả phục hồi lông.' },
-                    { title: 'Sấy ion âm & chải tơi lông chuyên nghiệp', desc: 'Sấy gió ấm bảo vệ da, chải gỡ rối hoàn toàn và đánh bông lớp lông lót.' },
-                    { title: 'Cắt tỉa tạo kiểu nghệ thuật & xịt tinh dầu', desc: 'Master Groomer tỉa thủ công từng góc cạnh sắc sảo và xịt tinh dầu dưỡng lông.' }
-                ]
-            },
-            {
-                id: 2,
                 name: 'Khám Sức Khỏe Tổng Quát & Tầm Soát Bệnh Lý Thú Cưng',
                 price: 250000,
                 duration: '45 - 60 phút',
                 expert: 'ThS. Bác sĩ Thú y chuyên khoa Nội',
                 doctor: 'ThS. BS Nguyễn Minh Quân',
-                category: 'Khám & Điều trị',
+                category: 'Y Tế & Chăm Sóc Sức Khỏe',
                 img: 'https://images.unsplash.com/photo-1628009368231-7bb7cfcb0def?auto=format&fit=crop&w=600&q=80',
                 image: 'https://images.unsplash.com/photo-1628009368231-7bb7cfcb0def?auto=format&fit=crop&w=600&q=80',
                 desc: 'Quy trình kiểm tra toàn diện 12 cơ quan trọng yếu: tim phổi, răng miệng, mắt tai, ổ bụng, xương khớp, huyết áp và kiểm tra ký sinh trùng da lông.',
                 description: 'Quy trình kiểm tra toàn diện 12 cơ quan trọng yếu.',
+                rating: 4.9,
+                reviewsCount: 312,
+                icon: 'fa-solid fa-stethoscope',
+                tags: ['12 cơ quan', 'Khám lâm sàng', 'Sổ sức khỏe'],
                 steps: [
                     { title: 'Thu thập tiền sử bệnh & cân đo chỉ số sinh tồn', desc: 'Đo thân nhiệt, huyết áp, cân nặng, nhịp tim và nghe phổi bằng ống nghe chuyên dụng.' },
                     { title: 'Khám lâm sàng chi tiết mắt - tai - miệng', desc: 'Nội soi ống tai, kiểm tra giác mạc và đánh giá mức độ vôi răng hay viêm nướu.' },
@@ -508,17 +552,21 @@ function superPetCareApp() {
                 ]
             },
             {
-                id: 3,
+                id: 2,
                 name: 'Tiêm Chủng Vắc-xin Phòng Bệnh Đa Giá Nhập Khẩu (Chó & Mèo)',
                 price: 220000,
                 duration: '30 phút',
                 expert: 'Bác sĩ Thú y chính quy',
                 doctor: 'BS Trần Thu Hà',
-                category: 'Tiêm chủng & Phòng dịch',
+                category: 'Y Tế & Chăm Sóc Sức Khỏe',
                 img: 'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?auto=format&fit=crop&w=600&q=80',
                 image: 'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?auto=format&fit=crop&w=600&q=80',
                 desc: 'Tiêm phòng vắc-xin chính hãng (Nobivac, Zoetis) phòng 7 bệnh nguy hiểm trên chó và 4 bệnh trên mèo. Được lưu trữ trong hệ thống tủ lạnh bảo quản chuẩn GSP y tế.',
                 description: 'Tiêm phòng vắc-xin chính hãng lưu trữ chuẩn GSP y tế.',
+                rating: 5.0,
+                reviewsCount: 450,
+                icon: 'fa-solid fa-syringe',
+                tags: ['Chuẩn GSP', 'Khám sàng lọc', 'Bảo hiểm phản vệ'],
                 steps: [
                     { title: 'Khám sàng lọc trước tiêm', desc: 'Đo thân nhiệt và xác nhận thể trạng hoàn toàn khỏe mạnh, không sốt, không ủ bệnh.' },
                     { title: 'Kiểm tra tem mã lô & hạn sử dụng vắc-xin', desc: 'Khách hàng trực tiếp đối chiếu tem niêm phong và hạn sử dụng của lọ thuốc.' },
@@ -528,137 +576,21 @@ function superPetCareApp() {
                 ]
             },
             {
-                id: 4,
-                name: 'Cấp Cứu Thú Y 24/7 & Hồi Sức Tích Cực (ICU)',
-                price: 500000,
-                duration: 'Phục vụ 24/24h',
-                expert: 'Đội ngũ Bác sĩ Cấp cứu & Ngoại khoa thường trực',
-                doctor: 'BS Đỗ Hoàng Nam (Đội trưởng ICU)',
-                category: 'Cấp cứu 24/7',
-                img: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=600&q=80',
-                image: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=600&q=80',
-                desc: 'Phòng cấp cứu vô trùng trang bị máy thở oxy cao áp, máy sốc tim, monitor theo dõi huyết động học và đội xe cấp cứu cơ động đón tận nhà bất kể ngày đêm.',
-                description: 'Phòng cấp cứu vô trùng trang bị máy thở oxy cao áp 24/7.',
-                steps: [
-                    { title: 'Tiếp nhận khẩn cấp & phân loại bệnh tình (Triage)', desc: 'Xác định nhanh tình trạng suy hô hấp, xuất huyết, ngộ độc hay đa chấn thương.' },
-                    { title: 'Thiết lập đường truyền tĩnh mạch & hỗ trợ oxy', desc: 'Đặt catheter ven ngay lập tức, truyền dịch cân bằng điện giải và thở oxy buồng kín.' },
-                    { title: 'Xét nghiệm cấp cứu tại giường & Chụp X-quang/Siêu âm', desc: 'Đọc kết quả khí máu và hình ảnh chẩn đoán trong vòng 5-10 phút.' },
-                    { title: 'Phẫu thuật khẩn cấp hoặc điều trị nội trú ICU', desc: 'Chuyển thẳng vào phòng mổ áp lực dương hoặc lồng hồi sức kiểm soát nhiệt ẩm.' },
-                    { title: 'Báo cáo diễn tiến sức khỏe liên tục cho gia đình', desc: 'Cập nhật tình trạng qua Zalo/Camera giám sát lồng bệnh 24/24.' }
-                ]
-            },
-            {
-                id: 5,
-                name: 'Khách Sạn Thú Cưng Pet Hotel Đẳng Cấp 5 Sao (Có Camera 24/7)',
-                price: 200000,
-                duration: 'Tính theo ngày (24 giờ)',
-                expert: 'Quản gia thú cưng & Bác sĩ túc trực',
-                doctor: 'KTV Quản gia Pet Hotel',
-                category: 'Khách sạn thú cưng',
-                img: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=600&q=80',
-                image: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=600&q=80',
-                desc: 'Phòng lưu trú riêng biệt máy lạnh 24/7, lọc không khí ion âm diệt khuẩn. Khách hàng có tài khoản xem camera riêng của phòng bé bất kỳ lúc nào.',
-                description: 'Phòng lưu trú riêng biệt máy lạnh 24/7 kèm camera xem trực tiếp.',
-                steps: [
-                    { title: 'Tiếp nhận & kiểm tra sức khỏe ban đầu', desc: 'Xác nhận sổ tiêm ngừa, kiểm tra ve rận và lập thực đơn ăn uống theo thói quen của bé.' },
-                    { title: 'Nhận phòng VIP riêng biệt khử khuẩn bằng tia UV', desc: 'Trang bị nệm êm ái, khay cát riêng biệt và đồ chơi yêu thích.' },
-                    { title: 'Chế độ dinh dưỡng 3 bữa tiêu chuẩn quốc tế', desc: 'Phục vụ hạt cao cấp Royal Canin/Orijen kèm pate tươi nấu trong ngày.' },
-                    { title: 'Giờ vận động vui chơi sân vườn 2 lần/ngày', desc: 'Nhân viên dắt bé dạo chơi và tương tác tại khu vận động trong nhà sạch sẽ.' },
-                    { title: 'Báo cáo video & nhật ký chăm sóc hàng ngày', desc: 'Gửi clip ăn uống, sinh hoạt và tặng gói tắm sấy trước khi check-out đón về.' }
-                ]
-            },
-            {
-                id: 6,
-                name: 'Lấy Cao Răng Siêu Âm Không Đau & Đánh Bóng Men Răng',
-                price: 320000,
-                duration: '60 phút',
-                expert: 'Bác sĩ Nha khoa Thú y',
-                doctor: 'BS Nha khoa Thú y',
-                category: 'Khám & Điều trị',
-                img: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=600&q=80',
-                image: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=600&q=80',
-                desc: 'Sử dụng đầu rung siêu âm tần số cao bóc tách nhẹ nhàng mảng bám vôi răng dưới nướu, chữa dứt điểm viêm lợi và mùi hôi miệng kéo dài.',
-                description: 'Đầu rung siêu âm tần số cao bóc tách mảng bám không đau.',
-                steps: [
-                    { title: 'Thăm khám mức độ viêm nướu & tiền mê nhẹ', desc: 'Tiền mê an toàn bằng khí mê Isoflurane giúp bé nằm yên không lo sợ.' },
-                    { title: 'Lấy mảng bám bằng máy siêu âm nước ấm', desc: 'Làm sạch triệt để từng kẽ răng và túi nha chu mà không mòn men răng.' },
-                    { title: 'Đánh bóng bề mặt răng bằng paste nha khoa', desc: 'Tạo bề mặt nhẵn bóng ngăn ngừa thức ăn và vi khuẩn tái bám dính.' },
-                    { title: 'Xịt gel kháng khuẩn sinh học thảo dược', desc: 'Làm dịu mô nướu, hỗ trợ tái tạo niêm mạc miệng tổn thương.' },
-                    { title: 'Hướng dẫn chủ nuôi chăm sóc răng tại nhà', desc: 'Tư vấn loại gel đánh răng enzym và đồ gặm làm sạch mảng bám.' }
-                ]
-            },
-            {
-                id: 7,
-                name: 'Tắm Trị Liệu Trị Nấm & Viêm Da Chuyên Sâu Bằng Dược Thảo',
-                price: 280000,
-                duration: '90 phút',
-                expert: 'Kỹ thuật viên Da liễu Thú y',
-                doctor: 'KTV Da liễu Thú y',
-                category: 'Spa & Làm đẹp',
-                img: 'https://images.unsplash.com/photo-1535294435445-d7249524ef2e?auto=format&fit=crop&w=600&q=80',
-                image: 'https://images.unsplash.com/photo-1535294435445-d7249524ef2e?auto=format&fit=crop&w=600&q=80',
-                desc: 'Phác đồ điều trị dứt điểm các bệnh lý da liễu: nấm Microsporum, viêm da Demodex, viêm nang lông có mủ và vảy gàu ngứa ngáy dữ dội.',
-                description: 'Phác đồ điều trị dứt điểm các bệnh lý da liễu và nấm ngứa.',
-                steps: [
-                    { title: 'Cạo sạch vùng lông tổn thương khu trú', desc: 'Tạo sự thông thoáng để thuốc tiếp xúc trực tiếp vào ổ nấm/vi khuẩn.' },
-                    { title: 'Tắm xả bằng nước ấm ion hóa loại bỏ tế bào chết', desc: 'Làm mềm vảy gàu và rửa trôi chất nhờn tích tụ trên bề mặt da.' },
-                    { title: 'Ủ dầu tắm dược liệu trị nấm Davis Chlorhexidine 15 phút', desc: 'Hoạt chất thấm sâu tiêu diệt bào tử nấm và vi khuẩn gây mủ.' },
-                    { title: 'Ngâm bồn thảo dược phục hồi hàng rào bảo vệ da', desc: 'Chiết xuất yến mạch và tràm trà giúp giảm ngứa tức thì.' },
-                    { title: 'Sấy khô bằng lồng sấy gió nhẹ & xịt dưỡng ẩm', desc: 'Không làm khô rát da, phục hồi nang lông mọc lại nhanh chóng.' }
-                ]
-            },
-            {
-                id: 8,
-                name: 'Phẫu Thuật Triệt Sản Nội Soi An Toàn Vi Phẫu (Chó & Mèo)',
-                price: 650000,
-                duration: '120 phút',
-                expert: 'Bác sĩ Ngoại khoa trưởng ca',
-                doctor: 'BS Ngoại khoa Thú y',
-                category: 'Phẫu thuật ngoại khoa',
-                img: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=600&q=80',
-                image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=600&q=80',
-                desc: 'Phương pháp vi phẫu đường mổ siêu nhỏ (dưới 1cm) hạn chế đau đớn, không chảy máu, khâu thẩm mỹ chỉ tự tiêu không cần quay lại cắt chỉ.',
-                description: 'Phương pháp vi phẫu đường mổ siêu nhỏ chỉ tự tiêu.',
-                steps: [
-                    { title: 'Xét nghiệm máu kiểm tra đông máu & chức năng gan thận', desc: 'Đảm bảo bé đủ điều kiện chịu mê an toàn tuyệt đối 100%.' },
-                    { title: 'Gây mê đa mô thức bằng máy thở Isoflurane hiện đại', desc: 'Theo dõi nhịp tim, nồng độ oxy trong máu liên tục suốt ca mổ.' },
-                    { title: 'Tiến hành phẫu thuật trong phòng vô trùng tuyệt đối', desc: 'Dụng cụ tiệt trùng Autoclave, bác sĩ phẫu thuật mặc áo vô khuẩn.' },
-                    { title: 'Khâu chỉ thẩm mỹ tự tiêu giấu vết mổ', desc: 'Không để lại vết sẹo lồi, thú cưng không cần đeo vòng chống liếm quá lâu.' },
-                    { title: 'Hồi tỉnh tại phòng chăm sóc hậu phẫu êm dịu', desc: 'Tiêm thuốc giảm đau 24h và cấp thuốc uống chống viêm tại nhà.' }
-                ]
-            },
-            {
-                id: 9,
-                name: 'Siêu Âm Màu 4D & Chụp X-Quang Kỹ Thuật Số (DR) Tận Nơi',
-                price: 300000,
-                duration: '40 phút',
-                expert: 'Bác sĩ Chẩn đoán Hình ảnh Thú y',
-                doctor: 'BS CĐHA Thú y',
-                category: 'Chẩn đoán hình ảnh',
-                img: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=600&q=80',
-                image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=600&q=80',
-                desc: 'Máy siêu âm Doppler màu hiện đại chẩn đoán thai kỳ, sỏi bàng quang, khối u và máy X-quang kỹ thuật số liều phóng xạ thấp kiểm tra xương khớp.',
-                description: 'Máy siêu âm Doppler màu hiện đại và X-quang kỹ thuật số.',
-                steps: [
-                    { title: 'Chuẩn bị tư thế và cạo lông vùng kiểm tra', desc: 'Vệ sinh da và bôi gel siêu âm chuyên dụng không gây kích ứng.' },
-                    { title: 'Quét siêu âm Doppler đánh giá chi tiết các tạng', desc: 'Đo kích thước tim thận, kiểm tra tuần hoàn máu và đếm số lượng thai nhi.' },
-                    { title: 'Chụp phim X-quang các tư thế chuẩn', desc: 'Đánh giá dị vật đường tiêu hóa, gãy xương hoặc thoát vị đĩa đệm.' },
-                    { title: 'Hội chẩn hình ảnh với bác sĩ chuyên khoa', desc: 'Phân tích bất thường và lập bản báo cáo chẩn đoán hình ảnh chuẩn xác.' },
-                    { title: 'Trả file ảnh kỹ thuật số chất lượng cao qua App', desc: 'Khách hàng có thể lưu trữ và xem lại hình ảnh trên hồ sơ bệnh án điện tử.' }
-                ]
-            },
-            {
-                id: 10,
+                id: 3,
                 name: 'Xét Nghiệm Máu Tổng Quát 18 Chỉ Số & Test Nhanh Bệnh Truyền Nhiễm',
                 price: 380000,
                 duration: '30 - 45 phút lấy kết quả ngay',
                 expert: 'Kỹ thuật viên Xét nghiệm Y khoa',
                 doctor: 'KTV Xét nghiệm Thú y',
-                category: 'Xét nghiệm chẩn đoán',
+                category: 'Y Tế & Chăm Sóc Sức Khỏe',
                 img: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=600&q=80',
                 image: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=600&q=80',
                 desc: 'Hệ thống máy xét nghiệm huyết học và sinh hóa tự động IDEXX (Mỹ) cho kết quả chính xác 99.9% chỉ trong 15 phút, phát hiện sớm suy thận, viêm tụy, Care, Parvo, FIP.',
                 description: 'Máy xét nghiệm sinh hóa tự động IDEXX Mỹ lấy kết quả sau 15p.',
+                rating: 4.9,
+                reviewsCount: 188,
+                icon: 'fa-solid fa-vial-virus',
+                tags: ['Máy IDEXX Mỹ', '15 phút', 'Độ chính xác 99.9%'],
                 steps: [
                     { title: 'Lấy mẫu máu tĩnh mạch êm ái', desc: 'Kỹ thuật viên thao tác chuẩn xác, lượng máu lấy rất nhỏ không gây mệt cho bé.' },
                     { title: 'Chạy máy huyết học tự động 18 chỉ số (CBC)', desc: 'Kiểm tra bạch cầu (nhiễm trùng), hồng cầu (thiếu máu), tiểu cầu.' },
@@ -668,23 +600,201 @@ function superPetCareApp() {
                 ]
             },
             {
-                id: 11,
+                id: 4,
+                name: 'Siêu Âm Màu 4D & Chụp X-Quang Kỹ Thuật Số (DR) Tận Nơi',
+                price: 300000,
+                duration: '40 phút',
+                expert: 'Bác sĩ Chẩn đoán Hình ảnh Thú y',
+                doctor: 'BS CĐHA Thú y',
+                category: 'Y Tế & Chăm Sóc Sức Khỏe',
+                img: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=600&q=80',
+                image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=600&q=80',
+                desc: 'Máy siêu âm Doppler màu hiện đại chẩn đoán thai kỳ, sỏi bàng quang, khối u và máy X-quang kỹ thuật số liều phóng xạ thấp kiểm tra xương khớp.',
+                description: 'Máy siêu âm Doppler màu hiện đại và X-quang kỹ thuật số.',
+                rating: 4.8,
+                reviewsCount: 142,
+                icon: 'fa-solid fa-x-ray',
+                tags: ['Doppler màu 4D', 'X-quang DR', 'Ảnh số qua App'],
+                steps: [
+                    { title: 'Chuẩn bị tư thế và cạo lông vùng kiểm tra', desc: 'Vệ sinh da và bôi gel siêu âm chuyên dụng không gây kích ứng.' },
+                    { title: 'Quét siêu âm Doppler đánh giá chi tiết các tạng', desc: 'Đo kích thước tim thận, kiểm tra tuần hoàn máu và đếm số lượng thai nhi.' },
+                    { title: 'Chụp phim X-quang các tư thế chuẩn', desc: 'Đánh giá dị vật đường tiêu hóa, gãy xương hoặc thoát vị đĩa đệm.' },
+                    { title: 'Hội chẩn hình ảnh với bác sĩ chuyên khoa', desc: 'Phân tích bất thường và lập bản báo cáo chẩn đoán hình ảnh chuẩn xác.' },
+                    { title: 'Trả file ảnh kỹ thuật số chất lượng cao qua App', desc: 'Khách hàng có thể lưu trữ và xem lại hình ảnh trên hồ sơ bệnh án điện tử.' }
+                ]
+            },
+            {
+                id: 5,
+                name: 'Lấy Cao Răng Siêu Âm Không Đau & Đánh Bóng Men Răng',
+                price: 320000,
+                duration: '60 phút',
+                expert: 'Bác sĩ Nha khoa Thú y',
+                doctor: 'BS Nha khoa Thú y',
+                category: 'Y Tế & Chăm Sóc Sức Khỏe',
+                img: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=600&q=80',
+                image: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=600&q=80',
+                desc: 'Sử dụng đầu rung siêu âm tần số cao bóc tách nhẹ nhàng mảng bám vôi răng dưới nướu, chữa dứt điểm viêm lợi và mùi hôi miệng kéo dài.',
+                description: 'Đầu rung siêu âm tần số cao bóc tách mảng bám không đau.',
+                rating: 4.9,
+                reviewsCount: 210,
+                icon: 'fa-solid fa-tooth',
+                tags: ['Sóng siêu âm', 'Đánh bóng men', 'Khử hôi miệng'],
+                steps: [
+                    { title: 'Thăm khám mức độ viêm nướu & tiền mê nhẹ', desc: 'Tiền mê an toàn bằng khí mê Isoflurane giúp bé nằm yên không lo sợ.' },
+                    { title: 'Lấy mảng bám bằng máy siêu âm nước ấm', desc: 'Làm sạch triệt để từng kẽ răng và túi nha chu mà không mòn men răng.' },
+                    { title: 'Đánh bóng bề mặt răng bằng paste nha khoa', desc: 'Tạo bề mặt nhẵn bóng ngăn ngừa thức ăn và vi khuẩn tái bám dính.' },
+                    { title: 'Xịt gel kháng khuẩn sinh học thảo dược', desc: 'Làm dịu mô nướu, hỗ trợ tái tạo niêm mạc miệng tổn thương.' },
+                    { title: 'Hướng dẫn chủ nuôi chăm sóc răng tại nhà', desc: 'Tư vấn loại gel đánh răng enzym và đồ gặm làm sạch mảng bám.' }
+                ]
+            },
+
+            // Nhóm 2: Cấp Cứu & Điều Trị Chuyên Sâu (3 dịch vụ)
+            {
+                id: 6,
+                name: 'Cấp Cứu Thú Y 24/7 & Hồi Sức Tích Cực (ICU)',
+                price: 500000,
+                duration: 'Phục vụ 24/24h',
+                expert: 'Đội ngũ Bác sĩ Cấp cứu & Ngoại khoa thường trực',
+                doctor: 'BS Đỗ Hoàng Nam (Đội trưởng ICU)',
+                category: 'Cấp Cứu & Điều Trị Chuyên Sâu',
+                img: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=600&q=80',
+                image: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=600&q=80',
+                desc: 'Phòng cấp cứu vô trùng trang bị máy thở oxy cao áp, máy sốc tim, monitor theo dõi huyết động học và đội xe cấp cứu cơ động đón tận nhà bất kể ngày đêm.',
+                description: 'Phòng cấp cứu vô trùng trang bị máy thở oxy cao áp 24/7.',
+                rating: 5.0,
+                reviewsCount: 165,
+                icon: 'fa-solid fa-truck-medical',
+                tags: ['Trực 24/7', 'Thở oxy cao áp', 'Monitor ICU'],
+                steps: [
+                    { title: 'Tiếp nhận khẩn cấp & phân loại bệnh tình (Triage)', desc: 'Xác định nhanh tình trạng suy hô hấp, xuất huyết, ngộ độc hay đa chấn thương.' },
+                    { title: 'Thiết lập đường truyền tĩnh mạch & hỗ trợ oxy', desc: 'Đặt catheter ven ngay lập tức, truyền dịch cân bằng điện giải và thở oxy buồng kín.' },
+                    { title: 'Xét nghiệm cấp cứu tại giường & Chụp X-quang/Siêu âm', desc: 'Đọc kết quả khí máu và hình ảnh chẩn đoán trong vòng 5-10 phút.' },
+                    { title: 'Phẫu thuật khẩn cấp hoặc điều trị nội trú ICU', desc: 'Chuyển thẳng vào phòng mổ áp lực dương hoặc lồng hồi sức kiểm soát nhiệt ẩm.' },
+                    { title: 'Báo cáo diễn tiến sức khỏe liên tục cho gia đình', desc: 'Cập nhật tình trạng qua Zalo/Camera giám sát lồng bệnh 24/24.' }
+                ]
+            },
+            {
+                id: 7,
+                name: 'Phẫu Thuật Triệt Sản Nội Soi An Toàn Vi Phẫu (Chó & Mèo)',
+                price: 650000,
+                duration: '120 phút',
+                expert: 'Bác sĩ Ngoại khoa trưởng ca',
+                doctor: 'BS Ngoại khoa Thú y',
+                category: 'Cấp Cứu & Điều Trị Chuyên Sâu',
+                img: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=600&q=80',
+                image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=600&q=80',
+                desc: 'Phương pháp vi phẫu đường mổ siêu nhỏ (dưới 1cm) hạn chế đau đớn, không chảy máu, khâu thẩm mỹ chỉ tự tiêu không cần quay lại cắt chỉ.',
+                description: 'Phương pháp vi phẫu đường mổ siêu nhỏ chỉ tự tiêu.',
+                rating: 5.0,
+                reviewsCount: 280,
+                icon: 'fa-solid fa-kit-medical',
+                tags: ['Vi phẫu < 1cm', 'Chỉ tự tiêu', 'Gây mê Isoflurane'],
+                steps: [
+                    { title: 'Xét nghiệm máu kiểm tra đông máu & chức năng gan thận', desc: 'Đảm bảo bé đủ điều kiện chịu mê an toàn tuyệt đối 100%.' },
+                    { title: 'Gây mê đa mô thức bằng máy thở Isoflurane hiện đại', desc: 'Theo dõi nhịp tim, nồng độ oxy trong máu liên tục suốt ca mổ.' },
+                    { title: 'Tiến hành phẫu thuật trong phòng vô trùng tuyệt đối', desc: 'Dụng cụ tiệt trùng Autoclave, bác sĩ phẫu thuật mặc áo vô khuẩn.' },
+                    { title: 'Khâu chỉ thẩm mỹ tự tiêu giấu vết mổ', desc: 'Không để lại vết sẹo lồi, thú cưng không cần đeo vòng chống liếm quá lâu.' },
+                    { title: 'Hồi tỉnh tại phòng chăm sóc hậu phẫu êm dịu', desc: 'Tiêm thuốc giảm đau 24h và cấp thuốc uống chống viêm tại nhà.' }
+                ]
+            },
+            {
+                id: 8,
                 name: 'Vật Lý Trị Liệu & Phục Hồi Chức Năng Cột Sống - Khớp',
                 price: 300000,
                 duration: '60 phút',
                 expert: 'Bác sĩ Phục hồi Chức năng Thú y',
                 doctor: 'BS PHCN Thú y',
-                category: 'Phục hồi chức năng',
+                category: 'Cấp Cứu & Điều Trị Chuyên Sâu',
                 img: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=600&q=80',
                 image: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=600&q=80',
                 desc: 'Liệu trình vật lý trị liệu laser giảm đau sâu, thủy trị liệu bồn bơi nước ấm và châm cứu phục hồi phản xạ thần kinh cho các bé bị liệt 2 chân sau, thoái hóa khớp.',
                 description: 'Laser giảm đau sâu, thủy trị liệu và châm cứu phục hồi khớp.',
+                rating: 4.8,
+                reviewsCount: 95,
+                icon: 'fa-solid fa-bone',
+                tags: ['Laser trị liệu', 'Thủy trị liệu', 'Phục hồi khớp'],
                 steps: [
                     { title: 'Đánh giá thang điểm đau & mức độ vận động', desc: 'Kiểm tra phản xạ cơ bắp, độ co duỗi khớp và mức độ tổn thương thần kinh.' },
                     { title: 'Chiếu tia Laser cường độ thấp giảm viêm sâu', desc: 'Tăng cường tuần hoàn máu nuôi dưỡng mô sụn và cắt đứt cơn đau cơ.' },
                     { title: 'Thủy trị liệu (Hydrotherapy) trên máy chạy bộ dưới nước', desc: 'Nước nâng đỡ trọng lượng cơ thể giúp bé tập bước đi mà không áp lực lên xương.' },
                     { title: 'Xoa bóp nắn chỉnh cơ và kéo giãn nhẹ nhàng', desc: 'Chống teo cơ, duy trì độ dẻo dai của gân dây chằng.' },
                     { title: 'Bài tập phục hồi tại nhà cùng chủ nuôi', desc: 'Hướng dẫn các động tác mát-xa và dụng cụ hỗ trợ xe lăn nếu cần thiết.' }
+                ]
+            },
+
+            // Nhóm 3: Spa & Làm Đẹp (2 dịch vụ)
+            {
+                id: 9,
+                name: 'Gói Spa & Grooming Cắt Tỉa Lông Tạo Kiểu Toàn Diện',
+                price: 350000,
+                duration: '120 - 150 phút',
+                expert: 'Master Groomer & Kỹ thuật viên cao cấp',
+                doctor: 'Master Groomer & KTV cao cấp',
+                category: 'Spa & Làm Đẹp',
+                img: 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&w=600&q=80',
+                image: 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&w=600&q=80',
+                desc: 'Gói chăm sóc sắc đẹp đẳng cấp nhất cho bé cưng: tắm sục ozone thải độc da, sấy chải bông phồng, cắt móng mài góc tròn, vệ sinh nhổ lông tai và cắt tỉa lông tạo kiểu theo chuẩn dáng giống loài.',
+                description: 'Gói chăm sóc sắc đẹp đẳng cấp nhất cho bé cưng.',
+                rating: 5.0,
+                reviewsCount: 520,
+                icon: 'fa-solid fa-scissors',
+                tags: ['Chuẩn 5 bước', 'Bồn sục Ozone', 'Tạo kiểu dáng chuẩn'],
+                steps: [
+                    { title: 'Kiểm tra da lông & tư vấn form dáng', desc: 'Kiểm tra tình trạng búi lông, ve rận, nấm và tư vấn dáng cắt tỉa phù hợp.' },
+                    { title: 'Vệ sinh sơ bộ chuyên sâu', desc: 'Cắt mài móng không chảy máu, nhổ sạch lông tai, cạo lông đệm chân và vệ sinh hậu môn.' },
+                    { title: 'Tắm bồn sục Ozone thư giãn 2 lần', desc: 'Dùng dầu gội hữu cơ nhập khẩu khử mùi, massage giải tỏa căng thẳng và ủ xả phục hồi lông.' },
+                    { title: 'Sấy ion âm & chải tơi lông chuyên nghiệp', desc: 'Sấy gió ấm bảo vệ da, chải gỡ rối hoàn toàn và đánh bông lớp lông lót.' },
+                    { title: 'Cắt tỉa tạo kiểu nghệ thuật & xịt tinh dầu', desc: 'Master Groomer tỉa thủ công từng góc cạnh sắc sảo và xịt tinh dầu dưỡng lông.' }
+                ]
+            },
+            {
+                id: 10,
+                name: 'Tắm Trị Liệu Trị Nấm & Viêm Da Chuyên Sâu Bằng Dược Thảo',
+                price: 280000,
+                duration: '90 phút',
+                expert: 'Kỹ thuật viên Da liễu Thú y',
+                doctor: 'KTV Da liễu Thú y',
+                category: 'Spa & Làm Đẹp',
+                img: 'https://images.unsplash.com/photo-1535294435445-d7249524ef2e?auto=format&fit=crop&w=600&q=80',
+                image: 'https://images.unsplash.com/photo-1535294435445-d7249524ef2e?auto=format&fit=crop&w=600&q=80',
+                desc: 'Phác đồ điều trị dứt điểm các bệnh lý da liễu: nấm Microsporum, viêm da Demodex, viêm nang lông có mủ và vảy gàu ngứa ngáy dữ dội.',
+                description: 'Phác đồ điều trị dứt điểm các bệnh lý da liễu và nấm ngứa.',
+                rating: 4.9,
+                reviewsCount: 175,
+                icon: 'fa-solid fa-shower',
+                tags: ['Davis 4%', 'Giảm ngứa tức thì', 'Diệt bào tử nấm'],
+                steps: [
+                    { title: 'Cạo sạch vùng lông tổn thương khu trú', desc: 'Tạo sự thông thoáng để thuốc tiếp xúc trực tiếp vào ổ nấm/vi khuẩn.' },
+                    { title: 'Tắm xả bằng nước ấm ion hóa loại bỏ tế bào chết', desc: 'Làm mềm vảy gàu và rửa trôi chất nhờn tích tụ trên bề mặt da.' },
+                    { title: 'Ủ dầu tắm dược liệu trị nấm Davis Chlorhexidine 15 phút', desc: 'Hoạt chất thấm sâu tiêu diệt bào tử nấm và vi khuẩn gây mủ.' },
+                    { title: 'Ngâm bồn thảo dược phục hồi hàng rào bảo vệ da', desc: 'Chiết xuất yến mạch và tràm trà giúp giảm ngứa tức thì.' },
+                    { title: 'Sấy khô bằng lồng sấy gió nhẹ & xịt dưỡng ẩm', desc: 'Không làm khô rát da, phục hồi nang lông mọc lại nhanh chóng.' }
+                ]
+            },
+
+            // Nhóm 4: Lưu Trú & Tiện Ích (2 dịch vụ)
+            {
+                id: 11,
+                name: 'Khách Sạn Thú Cưng Pet Hotel Đẳng Cấp 5 Sao (Có Camera 24/7)',
+                price: 200000,
+                duration: 'Tính theo ngày (24 giờ)',
+                expert: 'Quản gia thú cưng & Bác sĩ túc trực',
+                doctor: 'KTV Quản gia Pet Hotel',
+                category: 'Lưu Trú & Tiện Ích',
+                img: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=600&q=80',
+                image: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=600&q=80',
+                desc: 'Phòng lưu trú riêng biệt máy lạnh 24/7, lọc không khí ion âm diệt khuẩn. Khách hàng có tài khoản xem camera riêng của phòng bé bất kỳ lúc nào.',
+                description: 'Phòng lưu trú riêng biệt máy lạnh 24/7 kèm camera xem trực tiếp.',
+                rating: 4.9,
+                reviewsCount: 340,
+                icon: 'fa-solid fa-hotel',
+                tags: ['Camera 24/7', 'Điều hòa riêng', 'Dinh dưỡng 3 bữa'],
+                steps: [
+                    { title: 'Tiếp nhận & kiểm tra sức khỏe ban đầu', desc: 'Xác nhận sổ tiêm ngừa, kiểm tra ve rận và lập thực đơn ăn uống theo thói quen của bé.' },
+                    { title: 'Nhận phòng VIP riêng biệt khử khuẩn bằng tia UV', desc: 'Trang bị nệm êm ái, khay cát riêng biệt và đồ chơi yêu thích.' },
+                    { title: 'Chế độ dinh dưỡng 3 bữa tiêu chuẩn quốc tế', desc: 'Phục vụ hạt cao cấp Royal Canin/Orijen kèm pate tươi nấu trong ngày.' },
+                    { title: 'Giờ vận động vui chơi sân vườn 2 lần/ngày', desc: 'Nhân viên dắt bé dạo chơi và tương tác tại khu vận động trong nhà sạch sẽ.' },
+                    { title: 'Báo cáo video & nhật ký chăm sóc hàng ngày', desc: 'Gửi clip ăn uống, sinh hoạt và tặng gói tắm sấy trước khi check-out đón về.' }
                 ]
             },
             {
@@ -694,11 +804,15 @@ function superPetCareApp() {
                 duration: 'Theo lịch hẹn khách đặt',
                 expert: 'Tài xế chuyên trách & Nhân viên an toàn thú cưng',
                 doctor: 'Đội xe Pet Taxi Cơ Động',
-                category: 'Dịch vụ tiện ích',
+                category: 'Lưu Trú & Tiện Ích',
                 img: 'https://images.unsplash.com/photo-1522276498395-f4f68f7f8454?auto=format&fit=crop&w=600&q=80',
                 image: 'https://images.unsplash.com/photo-1522276498395-f4f68f7f8454?auto=format&fit=crop&w=600&q=80',
                 desc: 'Xe ô tô cứu thương & đưa đón thú cưng chuyên dụng, khoang xe rộng rãi có điều hòa mát lạnh, lồng vận chuyển êm ái, dây an toàn chuyên dụng và tài xế am hiểu tâm lý động vật.',
                 description: 'Xe ô tô chuyên dụng đưa đón thú cưng tận nhà an toàn chu đáo.',
+                rating: 4.8,
+                reviewsCount: 160,
+                icon: 'fa-solid fa-taxi',
+                tags: ['Đón tận cửa', 'Lồng chuyên dụng', 'Bật nhạc thiền thư giãn'],
                 steps: [
                     { title: 'Nhận lịch hẹn & xác nhận địa chỉ đón trả', desc: 'Hệ thống gửi định vị xe và thời gian tài xế có mặt chuẩn xác từng phút.' },
                     { title: 'Đón bé tận cửa và kiểm tra dây đeo an toàn', desc: 'Nhân viên đưa bé vào lồng vận chuyển chuyên dụng êm ái và sạch sẽ.' },
@@ -888,7 +1002,7 @@ function superPetCareApp() {
         get faqList() { return this.faqs; },
         set faqList(val) { this.faqs = val; },
 
-        // Lịch hẹn Admin
+        // 8 Lịch hẹn Admin phong phú
         appointments: [
             {
                 id: 'APT-1089',
@@ -896,7 +1010,7 @@ function superPetCareApp() {
                 customerPhone: '0988 123 456',
                 petName: 'Bơ (Butter)',
                 petType: 'Cún Corgi',
-                serviceName: 'Gói Spa & Grooming Cắt Tỉa Lông Toàn Diện',
+                serviceName: 'Gói Spa & Grooming Cắt Tỉa Lông Tạo Kiểu Toàn Diện',
                 date: '2026-10-21',
                 time: '09:30',
                 branch: 'Chi nhánh Quận 7',
@@ -909,7 +1023,7 @@ function superPetCareApp() {
                 customerPhone: '0912 345 678',
                 petName: 'Kem Mút',
                 petType: 'Mèo ALN',
-                serviceName: 'Khám Sức Khỏe Tổng Quát & Tầm Soát',
+                serviceName: 'Khám Sức Khỏe Tổng Quát & Tầm Soát Bệnh Lý Thú Cưng',
                 date: '2026-10-21',
                 time: '10:30',
                 branch: 'Chi nhánh Cầu Giấy',
@@ -922,7 +1036,7 @@ function superPetCareApp() {
                 customerPhone: '0977 888 999',
                 petName: 'Lu Lu',
                 petType: 'Cún Poodle',
-                serviceName: 'Tiêm Chủng Vắc-xin 7 Bệnh Nhập Khẩu',
+                serviceName: 'Tiêm Chủng Vắc-xin Phòng Bệnh Đa Giá Nhập Khẩu',
                 date: '2026-10-20',
                 time: '14:00',
                 branch: 'Chi nhánh Bình Thạnh',
@@ -935,16 +1049,68 @@ function superPetCareApp() {
                 customerPhone: '0903 555 777',
                 petName: 'Miu Miu',
                 petType: 'Mèo Ba Tư',
-                serviceName: 'Lấy Cao Răng Siêu Âm Không Đau',
+                serviceName: 'Lấy Cao Răng Siêu Âm Không Đau & Đánh Bóng Men Răng',
                 date: '2026-10-20',
                 time: '16:00',
                 branch: 'Chi nhánh Quận 7',
                 status: 'Đã đặt hẹn',
-                notes: 'Bé khó tính khi đụng vào miệng, cần tiền mê nhẹ.'
+                notes: 'Bé khó tính khi đụng vào miệng, cần tiền mê nhẹ an toàn.'
+            },
+            {
+                id: 'APT-1085',
+                customerName: 'Đặng Tuấn Anh',
+                customerPhone: '0933 222 111',
+                petName: 'Rocky',
+                petType: 'Chó Golden',
+                serviceName: 'Cấp Cứu Thú Y 24/7 & Hồi Sức Tích Cực (ICU)',
+                date: '2026-10-20',
+                time: '21:15',
+                branch: 'Chi nhánh Quận 1',
+                status: 'Hoàn thành',
+                notes: 'Bé bị sốc nhiệt sau khi chạy bộ, đã hạ sốt và truyền dịch ổn định.'
+            },
+            {
+                id: 'APT-1084',
+                customerName: 'Hoàng Minh Đức',
+                customerPhone: '0903 111 222',
+                petName: 'Bông Lan',
+                petType: 'Mèo Xiêm',
+                serviceName: 'Khách Sạn Thú Cưng Pet Hotel Đẳng Cấp 5 Sao',
+                date: '2026-10-22',
+                time: '08:00',
+                branch: 'Chi nhánh Quận 7',
+                status: 'Đã đặt hẹn',
+                notes: 'Gửi bé 3 ngày, cho ăn pate Ciao vị cá ngừ mỗi tối, gửi clip camera hàng ngày.'
+            },
+            {
+                id: 'APT-1083',
+                customerName: 'Vũ Thùy Linh',
+                customerPhone: '0944 666 888',
+                petName: 'Milu',
+                petType: 'Chó Pug',
+                serviceName: 'Tắm Trị Liệu Trị Nấm & Viêm Da Chuyên Sâu',
+                date: '2026-10-19',
+                time: '15:00',
+                branch: 'Chi nhánh Bình Thạnh',
+                status: 'Hoàn thành',
+                notes: 'Vùng nách và nếp gấp mặt bị đỏ ngứa, dùng dầu tắm Davis 4%.'
+            },
+            {
+                id: 'APT-1082',
+                customerName: 'Đỗ Thị Hạnh',
+                customerPhone: '0918 999 123',
+                petName: 'Lucky',
+                petType: 'Chó Samoyed',
+                serviceName: 'Đưa Đón Thú Cưng Khám Bệnh & Spa (Pet Taxi)',
+                date: '2026-10-19',
+                time: '08:30',
+                branch: 'Chi nhánh Quận 1',
+                status: 'Hủy hẹn',
+                notes: 'Khách bận công tác đột xuất, đã hẹn dời sang tuần sau.'
             }
         ],
 
-        // Đơn hàng Admin
+        // 8 Đơn hàng Admin
         orders: [
             {
                 id: 'ORD-8821',
@@ -972,16 +1138,71 @@ function superPetCareApp() {
                 id: 'ORD-8819',
                 customer: 'Vũ Thùy Linh',
                 date: '2026-10-19',
-                items: 'Cát Đậu Nành Cature 6L (x2), Balo Phi Thuyền',
+                items: 'Cát Đậu Nành Cature 6L (x2), Balo Phi Thuyền VIP',
                 total: 820000,
                 totalAmount: 820000,
                 paymentMethod: 'COD khi nhận hàng',
                 status: 'Hoàn thành',
                 branch: 'BT'
+            },
+            {
+                id: 'ORD-8818',
+                customer: 'Trần Văn Hoàng',
+                date: '2026-10-19',
+                items: 'Viên nhai NexGard Spectra, Hạt Royal Canin Kitten',
+                total: 855000,
+                totalAmount: 855000,
+                paymentMethod: 'Chuyển khoản VietQR',
+                status: 'Đã thanh toán',
+                branch: 'Q1'
+            },
+            {
+                id: 'ORD-8817',
+                customer: 'Lê Thị Mai',
+                date: '2026-10-18',
+                items: 'Trụ Cào Móng Cat Tree 3 Tầng, Pate Ciao Churu',
+                total: 895000,
+                totalAmount: 895000,
+                paymentMethod: 'Ví MoMo',
+                status: 'Hoàn thành',
+                branch: 'Q7'
+            },
+            {
+                id: 'ORD-8816',
+                customer: 'Phạm Quốc Bảo',
+                date: '2026-10-18',
+                items: 'Tuýp nhỏ gáy Revolution Plus, Gel dinh dưỡng Virbac',
+                total: 680000,
+                totalAmount: 680000,
+                paymentMethod: 'COD khi nhận hàng',
+                status: 'Hoàn thành',
+                branch: 'BT'
+            },
+            {
+                id: 'ORD-8815',
+                customer: 'Đặng Tuấn Anh',
+                date: '2026-10-17',
+                items: 'Combo 12 Lon Pate Monge, Cát Cature 6L',
+                total: 585000,
+                totalAmount: 585000,
+                paymentMethod: 'Chuyển khoản VietQR',
+                status: 'Hoàn thành',
+                branch: 'Q1'
+            },
+            {
+                id: 'ORD-8814',
+                customer: 'Đỗ Thị Hạnh',
+                date: '2026-10-17',
+                items: 'Thức Ăn Hạt Orijen Original (2kg)',
+                total: 890000,
+                totalAmount: 890000,
+                paymentMethod: 'Ví VNPay',
+                status: 'Đang vận chuyển',
+                branch: 'Q7'
             }
         ],
 
-        // Khách hàng Admin
+        // 6 Khách hàng Admin với cột Thú Cưng Đang Nuôi chi tiết
         customers: [
             {
                 id: 1,
@@ -990,6 +1211,12 @@ function superPetCareApp() {
                 email: 'phuongthao.petcare@gmail.com',
                 tier: 'Thành viên Vàng',
                 petCount: 3,
+                pets: 'Bơ (Corgi), Mochi (Mèo ALN), Đậu Đậu (Poodle)',
+                petsList: [
+                    { name: 'Bơ', breed: 'Corgi', type: 'Chó' },
+                    { name: 'Mochi', breed: 'Mèo ALN', type: 'Mèo' },
+                    { name: 'Đậu Đậu', breed: 'Poodle', type: 'Chó' }
+                ],
                 spent: 18500000,
                 totalSpent: 18500000,
                 points: 3450,
@@ -1003,6 +1230,11 @@ function superPetCareApp() {
                 email: 'minhduc.dev@gmail.com',
                 tier: 'Thành viên Kim Cương',
                 petCount: 2,
+                pets: 'Bông Lan (Mèo Xiêm), Sushi (Chó Shiba)',
+                petsList: [
+                    { name: 'Bông Lan', breed: 'Mèo Xiêm', type: 'Mèo' },
+                    { name: 'Sushi', breed: 'Shiba Inu', type: 'Chó' }
+                ],
                 spent: 32400000,
                 totalSpent: 32400000,
                 points: 8200,
@@ -1016,15 +1248,82 @@ function superPetCareApp() {
                 email: 'maile.design@gmail.com',
                 tier: 'Thành viên Bạc',
                 petCount: 1,
+                pets: 'Lu Lu (Poodle)',
+                petsList: [
+                    { name: 'Lu Lu', breed: 'Poodle', type: 'Chó' }
+                ],
                 spent: 4500000,
                 totalSpent: 4500000,
                 points: 1250,
                 avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80',
                 createdAt: '05/06/2025'
+            },
+            {
+                id: 4,
+                name: 'Trần Văn Hoàng',
+                phone: '0912 345 678',
+                email: 'hoang.tran@gmail.com',
+                tier: 'Thành viên Vàng',
+                petCount: 2,
+                pets: 'Kem Mút (Mèo ALN), Milo (Pug)',
+                petsList: [
+                    { name: 'Kem Mút', breed: 'Mèo ALN', type: 'Mèo' },
+                    { name: 'Milo', breed: 'Pug', type: 'Chó' }
+                ],
+                spent: 14800000,
+                totalSpent: 14800000,
+                points: 2900,
+                avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80',
+                createdAt: '12/11/2024'
+            },
+            {
+                id: 5,
+                name: 'Phạm Quốc Bảo',
+                phone: '0903 555 777',
+                email: 'bao.pham@vietin.vn',
+                tier: 'Thành viên Bạc',
+                petCount: 1,
+                pets: 'Miu Miu (Mèo Ba Tư)',
+                petsList: [
+                    { name: 'Miu Miu', breed: 'Mèo Ba Tư', type: 'Mèo' }
+                ],
+                spent: 6200000,
+                totalSpent: 6200000,
+                points: 1540,
+                avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=300&q=80',
+                createdAt: '22/02/2025'
+            },
+            {
+                id: 6,
+                name: 'Đặng Tuấn Anh',
+                phone: '0933 222 111',
+                email: 'tuananh.dang@gmail.com',
+                tier: 'Thành viên Kim Cương',
+                petCount: 2,
+                pets: 'Rocky (Golden Retriever), Tom (Mèo Mướp)',
+                petsList: [
+                    { name: 'Rocky', breed: 'Golden', type: 'Chó' },
+                    { name: 'Tom', breed: 'Mèo Mướp', type: 'Mèo' }
+                ],
+                spent: 28900000,
+                totalSpent: 28900000,
+                points: 7450,
+                avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80',
+                createdAt: '18/09/2024'
             }
         ],
 
-        // Doanh thu chi tiết
+        // MOCK DATA 6 THÁNG GẦN NHẤT CHO BIỂU ĐỒ DOANH THU (TRIỆU VNĐ)
+        revenueMonthlyMock: [
+            { month: 'Tháng 5', ecommerceRevenue: 135000000, serviceRevenue: 152000000 },
+            { month: 'Tháng 6', ecommerceRevenue: 148000000, serviceRevenue: 168000000 },
+            { month: 'Tháng 7', ecommerceRevenue: 162000000, serviceRevenue: 185000000 },
+            { month: 'Tháng 8', ecommerceRevenue: 175000000, serviceRevenue: 198000000 },
+            { month: 'Tháng 9', ecommerceRevenue: 190000000, serviceRevenue: 220000000 },
+            { month: 'Tháng 10', ecommerceRevenue: 215000000, serviceRevenue: 245000000 }
+        ],
+
+        // Doanh thu chi tiết theo ngành hàng
         analyticsRevenueCommerce: [
             { category: 'Thức ăn hạt khô', revenue: 145000000, share: 42, growth: '+18.5%' },
             { category: 'Pate & Treats dinh dưỡng', revenue: 68000000, share: 20, growth: '+24.2%' },
@@ -1045,7 +1344,7 @@ function superPetCareApp() {
         bookingItem: null,
         prodModalQty: 1,
 
-        // Forms
+        // Form thêm thú cưng mới (Có hỗ trợ tải ảnh và xác thực đỏ)
         newPetData: {
             name: '',
             type: 'Chó',
@@ -1053,8 +1352,16 @@ function superPetCareApp() {
             gender: 'Đực',
             age: '',
             weight: '',
-            avatar: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=400&q=80',
-            allergies: ''
+            avatar: '',
+            appearance: '',
+            allergies: '',
+            diet: '',
+            habits: '',
+            personality: '',
+            ownerName: 'Nguyễn Phương Thảo',
+            ownerPhone: '0988 123 456',
+            ownerAddress: 'Căn hộ 12.04 Tòa Park 6, Vinhomes Central Park, Bình Thạnh, TP.HCM',
+            ownerEmergency: '0912 345 678 (Chồng)'
         },
 
         newProdForm: {
@@ -1062,17 +1369,17 @@ function superPetCareApp() {
             name: '',
             brand: '',
             price: null,
-            stockHN: 20,
-            stockQ7: 20,
-            stockBT: 10,
-            category: 'Thức ăn khô',
+            stockQ1: 20,
+            stockBT: 15,
+            stockQ7: 25,
+            category: 'Thức ăn & Dinh dưỡng',
             img: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&w=500&q=80',
             desc: ''
         },
 
         restockForm: {
             productId: '',
-            branch: 'HN',
+            branch: 'Q1',
             quantity: 50,
             costPrice: null,
             supplier: '',
@@ -1105,12 +1412,24 @@ function superPetCareApp() {
             return this.cart.reduce((sum, item) => sum + (item.price * (item.qty || 1)), 0);
         },
 
+        // Lọc sản phẩm theo 3 danh mục chính xác
         get filteredProducts() {
             return this.products.filter(p => {
-                const cat = (this.filterCategory || 'all');
-                const matchCat = cat === 'all' || p.category.toLowerCase().includes(cat.toLowerCase());
-                const query = (this.searchQuery || this.productSearchQuery || '').toLowerCase();
-                const matchSearch = !query || p.name.toLowerCase().includes(query) || p.brand.toLowerCase().includes(query);
+                const cat = this.filterCategory || 'all';
+                const matchCat = (cat === 'all') || (p.category === cat);
+                const query = (this.searchQuery || this.productSearchQuery || '').toLowerCase().trim();
+                const matchSearch = !query || p.name.toLowerCase().includes(query) || (p.brand && p.brand.toLowerCase().includes(query));
+                return matchCat && matchSearch;
+            });
+        },
+
+        // Lọc dịch vụ theo 4 danh mục chính xác
+        get filteredServices() {
+            return this.services.filter(s => {
+                const cat = this.filterServiceCategory || 'all';
+                const matchCat = (cat === 'all') || (s.category === cat);
+                const query = (this.serviceSearchQuery || this.searchQuery || '').toLowerCase().trim();
+                const matchSearch = !query || s.name.toLowerCase().includes(query) || (s.desc && s.desc.toLowerCase().includes(query));
                 return matchCat && matchSearch;
             });
         },
@@ -1153,7 +1472,8 @@ function superPetCareApp() {
             return this.products.filter(p => {
                 const q = (this.productSearchQuery || '').toLowerCase();
                 const matchQ = !q || p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q);
-                const matchLow = !this.showLowStockOnly || p.stock <= 30;
+                const totalStock = this.getSafeTotalStock(p);
+                const matchLow = !this.showLowStockOnly || totalStock <= 10;
                 return matchQ && matchLow;
             });
         },
@@ -1161,23 +1481,38 @@ function superPetCareApp() {
         get filteredAdminPets() {
             return this.pets.filter(p => {
                 const q = (this.petSearchQuery || '').toLowerCase();
-                return !q || p.name.toLowerCase().includes(q) || p.breed.toLowerCase().includes(q) || (p.chipId && p.chipId.includes(q));
+                return !q || p.name.toLowerCase().includes(q) || p.breed.toLowerCase().includes(q) || (p.chipId && p.chipId.includes(q)) || (p.ownerName && p.ownerName.toLowerCase().includes(q));
             });
         },
 
         get filteredAdminCustomers() {
             return this.customers.filter(c => {
                 const q = (this.customerSearchQuery || '').toLowerCase();
-                return !q || c.name.toLowerCase().includes(q) || c.phone.includes(q) || c.email.toLowerCase().includes(q);
+                return !q || c.name.toLowerCase().includes(q) || c.phone.includes(q) || c.email.toLowerCase().includes(q) || (c.pets && c.pets.toLowerCase().includes(q));
             });
         },
 
+        // TÍNH TOÁN AN TOÀN TRÁNH NaN DOANH THU
+        get unreadNotificationsCount() {
+            return (this.adminNotifications || []).filter(n => !n.read).length;
+        },
+
+        get totalEcommerceRevenue() {
+            const list = this.revenueMonthlyMock || [];
+            return list.reduce((sum, item) => sum + (Number(item.ecommerceRevenue) || 0), 0);
+        },
+
+        get totalServiceRevenue() {
+            const list = this.revenueMonthlyMock || [];
+            return list.reduce((sum, item) => sum + (Number(item.serviceRevenue) || 0), 0);
+        },
+
         get totalRevenueFiltered() {
-            if (this.adminTimeFilter === 'today') return 12450000;
-            if (this.adminTimeFilter === '7days') return 89200000;
-            if (this.adminTimeFilter === 'month') return 345000000;
-            if (this.adminTimeFilter === 'quarter') return 980000000;
-            return 1245000000;
+            if (this.adminTimeFilter === 'today') return 18500000;
+            if (this.adminTimeFilter === '7days') return 112000000;
+            if (this.adminTimeFilter === 'month') return 460000000;
+            if (this.adminTimeFilter === 'quarter') return 1380000000;
+            return this.totalEcommerceRevenue + this.totalServiceRevenue;
         },
 
         get pendingOrdersCount() {
@@ -1189,17 +1524,26 @@ function superPetCareApp() {
         },
 
         get lowStockCount() {
-            return this.products.filter(p => p.stock <= 30).length;
+            return this.products.filter(p => this.getSafeTotalStock(p) <= 10).length;
         },
 
         get urgentTasksCount() {
             return this.pendingOrdersCount + this.inProgressAppointmentsCount;
         },
 
+        // Helper tính tổng tồn kho an toàn tuyệt đối tránh NaN
+        getSafeTotalStock(p) {
+            const q1 = Number(p.stockQ1 !== undefined ? p.stockQ1 : (p.q1 !== undefined ? p.q1 : 0)) || 0;
+            const bt = Number(p.stockBT !== undefined ? p.stockBT : (p.bt !== undefined ? p.bt : 0)) || 0;
+            const q7 = Number(p.stockQ7 !== undefined ? p.stockQ7 : (p.q7 !== undefined ? p.q7 : 0)) || 0;
+            return q1 + bt + q7;
+        },
+
         // Helper label formatters
         formatCurrency(amount) {
-            if (!amount && amount !== 0) return '0 đ';
-            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+            const num = Number(amount);
+            if (isNaN(num) || (!num && num !== 0)) return '0 đ';
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(num);
         },
 
         formatMoney(amount) {
@@ -1207,7 +1551,7 @@ function superPetCareApp() {
         },
 
         getBranchLabel(code) {
-            if (code === 'HN') return 'Cầu Giấy';
+            if (code === 'HN' || code === 'Q1') return 'Quận 1';
             if (code === 'Q7') return 'Quận 7';
             if (code === 'BT') return 'Bình Thạnh';
             return 'Toàn Hệ Thống';
@@ -1229,12 +1573,100 @@ function superPetCareApp() {
             return status || 'Đã ghi nhận';
         },
 
-        // Khởi tạo app
+        // Khởi tạo app & vẽ biểu đồ doanh thu Chart.js
         initApp() {
             console.log('PetCare360 Unified SuperApp Initialized!');
             if (window.lucide) {
                 window.lucide.createIcons();
             }
+            this.$nextTick(() => {
+                this.renderRevenueChart();
+            });
+        },
+
+        // VẼ BIỂU ĐỒ DOANH THU 6 THÁNG GẦN NHẤT BẰNG CHART.JS
+        renderRevenueChart() {
+            const canvas = document.getElementById('revenueChart');
+            if (!canvas) return;
+
+            // Xóa instance cũ nếu tồn tại
+            if (window.petcareRevenueChartInstance) {
+                window.petcareRevenueChartInstance.destroy();
+                window.petcareRevenueChartInstance = null;
+            }
+
+            const data = this.revenueMonthlyMock || [];
+            if (data.length === 0) return;
+
+            const labels = data.map(d => d.month);
+            // Quy đổi sang Triệu VNĐ: Math.round(revenue / 1000000)
+            const ecomData = data.map(d => Math.round((Number(d.ecommerceRevenue) || 0) / 1000000));
+            const servData = data.map(d => Math.round((Number(d.serviceRevenue) || 0) / 1000000));
+
+            const ctx = canvas.getContext('2d');
+            window.petcareRevenueChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Sản phẩm E-Commerce (Triệu VNĐ)',
+                            data: ecomData,
+                            backgroundColor: '#0d9488', // teal-600
+                            borderColor: '#0f766e',
+                            borderWidth: 1,
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Dịch vụ Y tế & Spa (Triệu VNĐ)',
+                            data: servData,
+                            backgroundColor: '#6366f1', // indigo-500
+                            borderColor: '#4f46e5',
+                            borderWidth: 1,
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                boxWidth: 14,
+                                font: { size: 12, weight: 'bold' }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y + ' Triệu VNĐ';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { size: 11, weight: 'bold' } }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Doanh thu (Triệu VNĐ)',
+                                font: { size: 11, weight: 'bold' }
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value + ' tr';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
         },
 
         // Điều hướng & Auth
@@ -1263,6 +1695,9 @@ function superPetCareApp() {
                 this.loginModalOpen = false;
                 this.loginError = '';
                 alert('Đăng nhập thành công với quyền Quản Trị Viên (Admin PetCare360)!');
+                this.$nextTick(() => {
+                    this.renderRevenueChart();
+                });
             } else {
                 this.isLoggedIn = true;
                 this.currentRole = 'customer';
@@ -1286,11 +1721,34 @@ function superPetCareApp() {
 
         switchAdminTab(tab) {
             this.activeAdminTab = tab;
+            if (tab === 'dashboard' || tab === 'analytics') {
+                this.$nextTick(() => {
+                    this.renderRevenueChart();
+                });
+            }
         },
 
         applyTimeFilter(period) {
             this.adminTimeFilter = period;
             alert('Đã cập nhật bộ lọc thời gian: ' + this.getTimeFilterLabel(period));
+            this.$nextTick(() => {
+                this.renderRevenueChart();
+            });
+        },
+
+        // Quản lý thông báo Admin
+        toggleAdminNotifications() {
+            this.showAdminNotifications = !this.showAdminNotifications;
+        },
+
+        markNotificationRead(id) {
+            const notif = (this.adminNotifications || []).find(n => n.id === id);
+            if (notif) notif.read = true;
+        },
+
+        markAllNotificationsRead() {
+            this.adminNotifications.forEach(n => n.read = true);
+            alert('Đã đánh dấu đọc tất cả thông báo!');
         },
 
         // Modal triggers
@@ -1341,7 +1799,7 @@ function superPetCareApp() {
 
         openNewAppointmentModal() {
             alert('Để tạo lịch hẹn mới cho khách, vui lòng chọn dịch vụ trong danh mục Dịch Vụ.');
-            this.activeCustomerTab = 'services';
+            this.activeCustomerTab = 'booking';
         },
 
         openOrderDetail(order) {
@@ -1473,38 +1931,94 @@ function superPetCareApp() {
             alert('🎉 CHÚC MỪNG QUÝ KHÁCH! Đơn hàng & Lịch hẹn ' + orderId + ' đã được thanh toán thành công! Bạn được cộng thêm ' + earnedPoints + ' điểm thành viên.');
         },
 
-        // Quản lý thú cưng & Hồ sơ
+        // XỬ LÝ TẢI ẢNH THÚ CƯNG TỪ THIẾT BỊ (FILEREADER)
+        handlePetPhotoUpload(event) {
+            const file = event.target.files && event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.newPetData.avatar = e.target.result;
+                    this.petFormError = '';
+                };
+                reader.readAsDataURL(file);
+            }
+        },
+
+        // LƯU HỒ SƠ THÚ CƯNG MỚI (KIỂM TRA CẢNH BÁO ĐỎ NẾU CHƯA ĐỦ THÔNG TIN HOẶC CHƯA TẢI ẢNH)
         saveNewPet() {
-            if (!this.newPetData.name) {
-                alert('Vui lòng nhập tên cho bé!');
+            // Kiểm tra bắt buộc: Phải có ảnh thú cưng, tên, loài, giống, cân nặng
+            if (!this.newPetData.avatar || !this.newPetData.avatar.trim()) {
+                this.petFormError = '⚠️ Vui lòng tải ảnh thú cưng lên để hoàn tất nhận diện bé cưng!';
                 return;
             }
+
+            if (!this.newPetData.name || !this.newPetData.name.trim() || !this.newPetData.breed || !this.newPetData.weight) {
+                this.petFormError = '⚠️ Vui lòng điền đầy đủ các thông tin bắt buộc (Tên bé, loài, giống loài, cân nặng)!';
+                return;
+            }
+
+            this.petFormError = '';
             const newId = this.pets.length + 1;
             const newPet = {
                 id: newId,
-                name: this.newPetData.name,
-                type: this.newPetData.type,
-                breed: this.newPetData.breed || 'Chưa cập nhật',
-                gender: this.newPetData.gender,
-                age: this.newPetData.age || 'Mới nhận nuôi',
-                weight: this.newPetData.weight || '3.0 kg',
+                name: this.newPetData.name.trim(),
+                type: this.newPetData.type || 'Chó',
+                species: this.newPetData.type || 'Chó',
+                breed: this.newPetData.breed.trim() || 'Chưa cập nhật',
+                gender: this.newPetData.gender || 'Đực',
+                age: this.newPetData.age.trim() || 'Mới nhận nuôi',
+                weight: String(this.newPetData.weight).trim(),
                 chipId: '900118000' + Math.floor(100000 + Math.random() * 900000),
                 chip: '900118000' + Math.floor(100000 + Math.random() * 900000),
-                avatar: this.newPetData.avatar || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=400&q=80',
-                image: this.newPetData.avatar || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=400&q=80',
-                allergies: this.newPetData.allergies || 'Không ghi nhận dị ứng.',
+                avatar: this.newPetData.avatar,
+                image: this.newPetData.avatar,
+                appearance: this.newPetData.appearance.trim() || 'Ngoại hình khỏe mạnh, đặc điểm nhận dạng đặc trưng',
+                health: 'Đã hoàn tất kiểm tra lâm sàng ban đầu',
+                allergies: this.newPetData.allergies.trim() || 'Không ghi nhận tiền sử dị ứng thuốc hay thực phẩm',
+                diet: this.newPetData.diet.trim() || 'Thức ăn hạt dinh dưỡng theo độ tuổi, nước uống sạch đầy đủ',
+                habits: this.newPetData.habits.trim() || 'Thích vui chơi, thói quen sinh hoạt ổn định',
+                personality: this.newPetData.personality.trim() || 'Thân thiện, nghe lời chủ nuôi',
+                ownerName: this.newPetData.ownerName.trim() || this.customerProfile.name,
+                ownerPhone: this.newPetData.ownerPhone.trim() || this.customerProfile.phone,
+                ownerAddress: this.newPetData.ownerAddress.trim() || this.customerProfile.address,
+                ownerEmergency: this.newPetData.ownerEmergency.trim() || '1900 6868 (Hotline Cấp cứu)',
+                isDefault: false,
+                lastVaccine: 'Khám lâm sàng ban đầu (' + new Date().toLocaleDateString('vi-VN') + ')',
+                nextVaccine: 'Nhắc lại sau 1 tháng',
                 vaccines: [
-                    { name: 'Khám lâm sàng ban đầu', date: new Date().toLocaleDateString('vi-VN'), doctor: 'ThS.BS Nguyễn Minh Quân', nextDate: 'Hẹn 1 tháng sau', status: 'Đã hoàn thành' }
+                    { name: 'Khám lâm sàng ban đầu & Sổ tiêm', date: new Date().toLocaleDateString('vi-VN'), doctor: 'ThS.BS Nguyễn Minh Quân', nextDate: 'Hẹn 1 tháng sau', status: 'Đã hoàn thành' }
                 ],
                 medicalHistory: [
                     { date: new Date().toLocaleDateString('vi-VN'), diagnosis: 'Tạo hồ sơ thú cưng mới trên hệ thống PetCare360', treatment: 'Khám sàng lọc và tư vấn dinh dưỡng ban đầu', notes: 'Bé ngoan, thể trạng ổn định.' }
                 ]
             };
+
             this.pets.push(newPet);
             this.customerProfile.petCount = this.pets.length;
             this.showAddPetModal = false;
             this.addPetModalOpen = false;
-            alert('Đã thêm hồ sơ bé ' + this.newPetData.name + ' vào tài khoản của bạn thành công!');
+
+            // Reset form
+            this.newPetData = {
+                name: '',
+                type: 'Chó',
+                breed: '',
+                gender: 'Đực',
+                age: '',
+                weight: '',
+                avatar: '',
+                appearance: '',
+                allergies: '',
+                diet: '',
+                habits: '',
+                personality: '',
+                ownerName: this.customerProfile.name,
+                ownerPhone: this.customerProfile.phone,
+                ownerAddress: this.customerProfile.address,
+                ownerEmergency: '0912 345 678'
+            };
+
+            alert('🎉 ĐÃ LƯU HỒ SƠ BÉ CƯNG! Hồ sơ bé ' + newPet.name + ' cùng ảnh chụp đã được hệ thống lưu trữ vĩnh viễn và đồng bộ sang dữ liệu Microchip toàn quốc.');
         },
 
         deletePet(id) {
@@ -1516,6 +2030,7 @@ function superPetCareApp() {
         },
 
         setDefaultPet(id) {
+            this.pets.forEach(p => p.isDefault = (p.id === id));
             alert('Đã đặt làm bé cưng mặc định cho các dịch vụ tiếp theo.');
         },
 
@@ -1551,7 +2066,9 @@ function superPetCareApp() {
                 alert('Vui lòng điền đầy đủ tên sản phẩm và giá bán!');
                 return;
             }
-            const totalStock = (parseInt(this.newProdForm.stockHN) || 0) + (parseInt(this.newProdForm.stockQ7) || 0) + (parseInt(this.newProdForm.stockBT) || 0);
+            const q1 = Number(this.newProdForm.stockQ1) || 20;
+            const bt = Number(this.newProdForm.stockBT) || 15;
+            const q7 = Number(this.newProdForm.stockQ7) || 25;
             this.products.unshift({
                 id: this.products.length + 1,
                 sku: this.newProdForm.sku || 'SKU-' + Math.floor(1000 + Math.random() * 9000),
@@ -1562,12 +2079,12 @@ function superPetCareApp() {
                 reviews: 1,
                 reviewsCount: 1,
                 sold: 0,
-                stock: totalStock || 50,
-                stockHN: parseInt(this.newProdForm.stockHN) || 20,
-                stockQ7: parseInt(this.newProdForm.stockQ7) || 20,
-                stockBT: parseInt(this.newProdForm.stockBT) || 10,
-                category: this.newProdForm.category,
-                categoryAdmin: this.newProdForm.category,
+                stockQ1: q1,
+                stockBT: bt,
+                stockQ7: q7,
+                q1: q1, bt: bt, q7: q7,
+                category: this.newProdForm.category || 'Thức ăn & Dinh dưỡng',
+                categoryAdmin: this.newProdForm.category || 'Thức ăn & Dinh dưỡng',
                 img: this.newProdForm.img || 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&w=500&q=80',
                 image: this.newProdForm.img || 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&w=500&q=80',
                 desc: this.newProdForm.desc || 'Sản phẩm mới nhập kho chính hãng.',
@@ -1588,18 +2105,24 @@ function superPetCareApp() {
             const prod = this.products.find(p => p.id == this.restockForm.productId);
             if (prod) {
                 const addQty = parseInt(this.restockForm.quantity) || 50;
-                prod.stock += addQty;
-                if (this.restockForm.branch === 'HN') prod.stockHN = (prod.stockHN || 0) + addQty;
-                else if (this.restockForm.branch === 'Q7') prod.stockQ7 = (prod.stockQ7 || 0) + addQty;
-                else prod.stockBT = (prod.stockBT || 0) + addQty;
+                if (this.restockForm.branch === 'Q1' || this.restockForm.branch === 'HN') {
+                    prod.stockQ1 = (Number(prod.stockQ1 || prod.q1) || 0) + addQty;
+                    prod.q1 = prod.stockQ1;
+                } else if (this.restockForm.branch === 'Q7') {
+                    prod.stockQ7 = (Number(prod.stockQ7 || prod.q7) || 0) + addQty;
+                    prod.q7 = prod.stockQ7;
+                } else {
+                    prod.stockBT = (Number(prod.stockBT || prod.bt) || 0) + addQty;
+                    prod.bt = prod.stockBT;
+                }
 
                 this.showRestockModal = false;
                 this.restockModalOpen = false;
-                alert('Đã nhập thêm ' + addQty + ' sản phẩm "' + prod.name + '" vào chi nhánh thành công! Tồn kho mới: ' + prod.stock);
+                alert('Đã nhập thêm ' + addQty + ' sản phẩm "' + prod.name + '" vào chi nhánh thành công! Tổng tồn kho mới: ' + this.getSafeTotalStock(prod));
             }
         },
 
-        // Chat
+        // Chat CSKH
         sendChatMessage() {
             const text = (this.newChatMessage || '').trim();
             if (!text) return;
@@ -1645,7 +2168,6 @@ function superPetCareApp() {
             this.sendChatMessage();
         },
 
-        // Các hành động phụ
         setOrderTypeFilter(type) {
             this.currentOrderTypeTab = type;
         },
@@ -1655,15 +2177,17 @@ function superPetCareApp() {
         },
 
         toggleDarkMode() {
-            alert('Hệ thống đang chuyển đổi chế độ hiển thị!');
+            // Deprecated as per user request
         },
 
         refreshChart() {
             alert('Đã cập nhật số liệu biểu đồ phân tích thời gian thực!');
+            this.renderRevenueChart();
         },
 
         scrollToUrgentTasks() {
-            alert('Đang cuộn đến các nhiệm vụ khẩn cấp!');
+            const el = document.getElementById('urgent-tasks-section');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
         }
     };
 }

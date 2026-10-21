@@ -589,48 +589,70 @@ MODALS_HTML = '''<!-- ==================== CÁC MODAL HỆ THỐNG TOÀN DIỆN 
 
     <!-- 8. MODAL THÊM HỒ SƠ THÚ CƯNG (CÓ CHỖ THÊM HÌNH ẢNH THÚ CƯNG) -->
     <div x-show="showAddPetModal || addPetModalOpen" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl border border-slate-100 relative animate-fadeIn">
+        <div class="bg-white rounded-3xl max-w-xl w-full p-6 md:p-8 shadow-2xl border border-slate-100 relative animate-fadeIn max-h-[90vh] overflow-y-auto">
             <button @click="showAddPetModal = false; addPetModalOpen = false;" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center transition-colors">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
 
-            <div class="text-center mb-6">
+            <div class="text-center mb-5">
                 <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto text-emerald-600 text-2xl shadow-sm mb-2">
                     <i class="fa-solid fa-paw"></i>
                 </div>
-                <h3 class="text-xl font-black text-slate-800">Thêm Hồ Sơ Bé Cưng Mới</h3>
-                <p class="text-xs text-slate-500 mt-0.5">Tạo hồ sơ y tế & sổ tiêm phòng điện tử cho bé</p>
+                <h3 class="text-xl font-black text-slate-800">Tạo Hồ Sơ Bé Cưng Toàn Diện</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Định danh vi mạch, y tế tiêm chủng, thói quen và liên hệ chủ nuôi</p>
+            </div>
+
+            <!-- CẢNH BÁO ĐỎ NẾU CHƯA ĐỦ THÔNG TIN HOẶC CHƯA TẢI ẢNH (YÊU CẦU MỤC 5) -->
+            <div x-show="petFormError" x-cloak class="mb-4 p-3.5 bg-rose-50 border-2 border-rose-400 rounded-2xl text-rose-700 text-xs font-bold flex items-center gap-2.5 shadow-sm animate-pulse">
+                <i class="fa-solid fa-triangle-exclamation text-rose-600 text-lg shrink-0"></i>
+                <span x-text="petFormError"></span>
             </div>
 
             <form @submit.prevent="saveNewPet()" class="space-y-4">
-                <!-- Chọn hoặc tải ảnh thú cưng -->
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">
-                        Hình Ảnh Bé Cưng <span class="text-rose-500">*</span>
+                <!-- TẢI ẢNH LÊN HOẶC CHỌN ẢNH CỐ ĐỊNH CHO THÚ CƯNG (YÊU CẦU MỤC 5) -->
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                    <label class="block text-xs font-bold text-slate-800 mb-2">
+                        Ảnh Chân Dung Bé Cưng <span class="text-rose-500">* (Bắt buộc tải ảnh lên để nhận diện bé cưng)</span>
                     </label>
-                    <div class="flex items-center gap-4">
-                        <img :src="newPetData.avatar || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=300&q=80'" class="w-16 h-16 rounded-2xl object-cover border-2 border-emerald-500 shadow-sm shrink-0">
-                        <div class="flex-1 space-y-2">
-                            <input type="text" x-model="newPetData.avatar" placeholder="Dán đường dẫn ảnh hoặc chọn ảnh mẫu bên dưới..." class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                    <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+                        <div class="relative shrink-0">
+                            <img :src="newPetData.avatar || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=300&q=80'" 
+                                 class="w-20 h-20 rounded-2xl object-cover border-2 border-brand-500 shadow-sm bg-white">
+                            <span x-show="newPetData.avatar" class="absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full p-1 text-[9px] shadow">
+                                <i class="fa-solid fa-check"></i>
+                            </span>
+                        </div>
+                        <div class="flex-1 w-full space-y-2">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <label class="px-3.5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold cursor-pointer transition flex items-center gap-1.5 shadow-sm">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i> Tải ảnh từ thiết bị
+                                    <input type="file" accept="image/*" @change="handlePetPhotoUpload()" class="hidden">
+                                </label>
+                                <span class="text-[11px] font-medium" :class="newPetData.avatar ? 'text-emerald-600 font-bold' : 'text-slate-400'" 
+                                      x-text="newPetData.avatar ? '✓ Đã tải ảnh nhận diện' : 'Chưa tải ảnh lên'"></span>
+                            </div>
+                            <input type="text" x-model="newPetData.avatar" placeholder="Hoặc dán đường dẫn ảnh trực tuyến..." class="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            
                             <!-- Preset Avatars -->
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-1.5 pt-0.5">
                                 <span class="text-[10px] text-slate-400 font-bold uppercase">Ảnh mẫu:</span>
-                                <button type="button" @click="newPetData.avatar = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=300&q=80'" class="text-[11px] px-2 py-0.5 bg-slate-100 hover:bg-emerald-100 text-slate-700 rounded-md font-semibold">Cún Corgi</button>
-                                <button type="button" @click="newPetData.avatar = 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=300&q=80'" class="text-[11px] px-2 py-0.5 bg-slate-100 hover:bg-emerald-100 text-slate-700 rounded-md font-semibold">Mèo ALN</button>
-                                <button type="button" @click="newPetData.avatar = 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=300&q=80'" class="text-[11px] px-2 py-0.5 bg-slate-100 hover:bg-emerald-100 text-slate-700 rounded-md font-semibold">Cún Poodle</button>
+                                <button type="button" @click="newPetData.avatar = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=300&q=80'; petFormError = '';" class="text-[10px] px-2 py-0.5 bg-white hover:bg-brand-100 text-slate-700 rounded-md border border-slate-200 font-semibold">Cún Corgi</button>
+                                <button type="button" @click="newPetData.avatar = 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=300&q=80'; petFormError = '';" class="text-[10px] px-2 py-0.5 bg-white hover:bg-brand-100 text-slate-700 rounded-md border border-slate-200 font-semibold">Mèo ALN</button>
+                                <button type="button" @click="newPetData.avatar = 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=300&q=80'; petFormError = '';" class="text-[10px] px-2 py-0.5 bg-white hover:bg-brand-100 text-slate-700 rounded-md border border-slate-200 font-semibold">Cún Poodle</button>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                <!-- 1. THÔNG TIN CƠ BẢN -->
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Tên bé cưng <span class="text-rose-500">*</span></label>
-                        <input type="text" x-model="newPetData.name" required placeholder="Ví dụ: Bơ, Mochi..." class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                        <input type="text" x-model="newPetData.name" required placeholder="Ví dụ: Bơ, Mochi..." class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Loài <span class="text-rose-500">*</span></label>
-                        <select x-model="newPetData.type" required class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                        <select x-model="newPetData.type" required class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500">
                             <option value="Chó">Chó</option>
                             <option value="Mèo">Mèo</option>
                             <option value="Thỏ / Hamster">Thỏ / Hamster</option>
@@ -641,12 +663,12 @@ MODALS_HTML = '''<!-- ==================== CÁC MODAL HỆ THỐNG TOÀN DIỆN 
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Giống loài</label>
-                        <input type="text" x-model="newPetData.breed" placeholder="Ví dụ: Poodle Tiny, British Shorthair..." class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Giống loài <span class="text-rose-500">*</span></label>
+                        <input type="text" x-model="newPetData.breed" required placeholder="Ví dụ: Poodle, Corgi, ALN..." class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Giới tính</label>
-                        <select x-model="newPetData.gender" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Giới tính <span class="text-rose-500">*</span></label>
+                        <select x-model="newPetData.gender" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500">
                             <option value="Đực">Đực</option>
                             <option value="Cái">Cái</option>
                         </select>
@@ -656,24 +678,68 @@ MODALS_HTML = '''<!-- ==================== CÁC MODAL HỆ THỐNG TOÀN DIỆN 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Tuổi / Ngày sinh</label>
-                        <input type="text" x-model="newPetData.age" placeholder="Ví dụ: 1.5 tuổi hoặc 15/04/2023" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                        <input type="text" x-model="newPetData.age" placeholder="Ví dụ: 1.5 tuổi hoặc 15/04/2023" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Cân nặng hiện tại (kg)</label>
-                        <input type="text" x-model="newPetData.weight" placeholder="Ví dụ: 4.2 kg" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Cân nặng hiện tại (kg) <span class="text-rose-500">*</span></label>
+                        <input type="text" x-model="newPetData.weight" required placeholder="Ví dụ: 4.2" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500">
                     </div>
                 </div>
 
+                <!-- NGOẠI HÌNH & NHẬN DẠNG -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Ghi chú sức khỏe / Dị ứng</label>
-                    <textarea x-model="newPetData.allergies" rows="2" placeholder="Ví dụ: Bé nhạy cảm với thịt gà, đã triệt sản tháng trước..." class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"></textarea>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Ngoại hình & Đặc điểm nhận diện nổi bật</label>
+                    <input type="text" x-model="newPetData.appearance" placeholder="Ví dụ: Lông vàng trắng, tai cụp, đuôi xù, mắt 2 màu..." class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+
+                <!-- 2. HỒ SƠ Y TẾ & BỆNH LÝ -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Hồ sơ y tế / Lịch tiêm phòng & Bệnh lý dị ứng</label>
+                    <textarea x-model="newPetData.allergies" rows="2" placeholder="Ví dụ: Đã tiêm 3 mũi 7 bệnh, dị ứng thức ăn có ngũ cốc độn..." class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                </div>
+
+                <!-- 3. THÓI QUEN & DINH DƯỠNG -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Chế độ dinh dưỡng</label>
+                        <input type="text" x-model="newPetData.diet" placeholder="Ví dụ: Hạt Royal Canin + Pate 2 bữa/ngày" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Thói quen & Tính cách</label>
+                        <input type="text" x-model="newPetData.habits" placeholder="Ví dụ: Thích đi dạo, sợ sấy lông, quấn người..." class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                </div>
+
+                <!-- 4. THÔNG TIN CHỦ SỞ HỮU -->
+                <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+                    <span class="text-[11px] font-bold text-slate-800 uppercase tracking-wide block">Thông tin liên hệ chủ sở hữu</span>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Họ tên chủ nuôi</label>
+                            <input type="text" x-model="newPetData.ownerName" placeholder="Nguyễn Hoàng Giang" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">SĐT liên hệ</label>
+                            <input type="text" x-model="newPetData.ownerPhone" placeholder="0909 123 456" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs bg-white">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Địa chỉ nhà</label>
+                            <input type="text" x-model="newPetData.ownerAddress" placeholder="125 Hoàng Quốc Việt, Cầu Giấy, HN" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-rose-600 mb-0.5">SĐT Khẩn cấp 24/7</label>
+                            <input type="text" x-model="newPetData.ownerEmergency" placeholder="0912 345 678" class="w-full px-2.5 py-1.5 rounded-lg border border-rose-200 text-xs bg-white">
+                        </div>
+                    </div>
                 </div>
 
                 <div class="flex items-center gap-3 pt-2">
-                    <button type="button" @click="showAddPetModal = false; addPetModalOpen = false;" class="w-1/3 py-2.5 border border-slate-200 text-slate-600 font-bold rounded-xl text-xs hover:bg-slate-50">
+                    <button type="button" @click="showAddPetModal = false; addPetModalOpen = false; petFormError = '';" class="w-1/3 py-2.5 border border-slate-200 text-slate-600 font-bold rounded-xl text-xs hover:bg-slate-50">
                         Hủy
                     </button>
-                    <button type="submit" class="w-2/3 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow-md shadow-emerald-600/30 transition-all flex items-center justify-center gap-2">
+                    <button type="submit" class="w-2/3 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-md shadow-brand-600/30 transition-all flex items-center justify-center gap-2">
                         <i class="fa-solid fa-paw"></i>
                         <span>Lưu Hồ Sơ Bé Cưng</span>
                     </button>

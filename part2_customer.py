@@ -353,14 +353,14 @@ CUSTOMER_HTML = """
                 </div>
             </div>
 
-            <!-- TAB 3: SẢN PHẨM (ĐỔI TÊN TỪ CỬA HÀNG - YÊU CẦU MỤC 9 & 10) -->
+                        <!-- TAB 3: SẢN PHẨM (12 SẢN PHẨM PHÂN LOẠI 3 DANH MỤC CHÍNH XÁC - YÊU CẦU MỤC 1) -->
             <div x-show="activeCustomerTab === 'shop'" class="space-y-6" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
                     <div class="flex gap-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0 hide-scrollbar">
                         <button @click="filterCategory = 'all'" :class="filterCategory === 'all' ? 'bg-brand-600 text-white font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs whitespace-nowrap transition">Tất cả (<span x-text="products.length"></span>)</button>
-                        <button @click="filterCategory = 'food'" :class="filterCategory === 'food' ? 'bg-brand-600 text-white font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs whitespace-nowrap transition">Thức ăn & Dinh dưỡng</button>
-                        <button @click="filterCategory = 'supplies'" :class="filterCategory === 'supplies' ? 'bg-brand-600 text-white font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs whitespace-nowrap transition">Phụ kiện & Vệ sinh</button>
-                        <button @click="filterCategory = 'medical'" :class="filterCategory === 'medical' ? 'bg-brand-600 text-white font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs whitespace-nowrap transition">Thuốc & Y tế</button>
+                        <button @click="filterCategory = 'Thức ăn & Dinh dưỡng'" :class="(filterCategory === 'Thức ăn & Dinh dưỡng' || filterCategory === 'food') ? 'bg-brand-600 text-white font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs whitespace-nowrap transition">Thức ăn & Dinh dưỡng (6)</button>
+                        <button @click="filterCategory = 'Phụ kiện & Vệ sinh'" :class="(filterCategory === 'Phụ kiện & Vệ sinh' || filterCategory === 'supplies') ? 'bg-brand-600 text-white font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs whitespace-nowrap transition">Phụ kiện & Vệ sinh (4)</button>
+                        <button @click="filterCategory = 'Thuốc & Y tế'" :class="(filterCategory === 'Thuốc & Y tế' || filterCategory === 'medical') ? 'bg-brand-600 text-white font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs whitespace-nowrap transition">Thuốc & Y tế (2)</button>
                     </div>
                     <div class="relative w-full sm:w-64">
                         <input type="text" x-model="searchQuery" placeholder="Tìm kiếm trong 12 sản phẩm..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500">
@@ -375,8 +375,8 @@ CUSTOMER_HTML = """
                             <span x-show="item.discount" class="absolute top-3 right-3 bg-rose-500 text-white font-extrabold text-[10px] px-2 py-0.5 rounded-lg z-10" x-text="'-' + item.discount + '%'"></span>
 
                             <div class="relative aspect-square overflow-hidden bg-slate-100 cursor-pointer" @click="openProductDetail(item)">
-                                <img :src="item.image" :alt="item.name" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                                <span class="absolute top-3 left-3 bg-brand-600 text-white text-[10px] font-bold px-2 py-1 rounded-lg uppercase" x-text="item.categoryName"></span>
+                                <img :src="item.image || item.img" :alt="item.name" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                <span class="absolute top-3 left-3 bg-brand-600 text-white text-[10px] font-bold px-2 py-1 rounded-lg uppercase shadow" x-text="item.category"></span>
                             </div>
                             <div class="p-4 flex-1 flex flex-col justify-between">
                                 <div>
@@ -386,9 +386,9 @@ CUSTOMER_HTML = """
                                             <i class="fa-solid fa-star"></i>
                                         </div>
                                         <span class="font-bold text-slate-800 text-[11px]" x-text="item.rating"></span>
-                                        <span class="text-slate-400 text-[10px]" x-text="'(' + item.sold + ' đã bán)'"></span>
+                                        <span class="text-slate-400 text-[10px]" x-text="'(' + (item.sold || item.reviews || 0) + ' đã bán)'"></span>
                                     </div>
-                                    <p class="text-xs text-slate-500 line-clamp-2 mb-3" x-text="item.description"></p>
+                                    <p class="text-xs text-slate-500 line-clamp-2 mb-3" x-text="item.desc || item.description"></p>
                                 </div>
                                 <div class="flex items-center justify-between pt-2 border-t border-slate-100">
                                     <span class="text-brand-700 font-extrabold text-base" x-text="formatCurrency(item.price)"></span>
@@ -407,26 +407,41 @@ CUSTOMER_HTML = """
                 </div>
             </div>
 
-            <!-- TAB 4: DỊCH VỤ (12 DỊCH VỤ - YÊU CẦU MỤC 8) -->
+            <!-- TAB 4: DỊCH VỤ (12 DỊCH VỤ - 4 DANH MỤC & NÚT + ĐẶT LỊCH - YÊU CẦU MỤC 2 & 4) -->
             <div x-show="activeCustomerTab === 'booking'" class="space-y-6" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0">
                 <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                         <div>
                             <h3 class="text-xl font-black text-slate-800">Dịch Vụ Chăm Sóc & Y Tế Thú Cưng Chuyên Nghiệp (12 Gói)</h3>
-                            <p class="text-xs text-slate-500">Mỗi dịch vụ được thực hiện bởi đội ngũ Bác sĩ Thú y & KTV Spa chứng chỉ quốc tế. Nhấn vào dịch vụ để xem quy trình chi tiết.</p>
+                            <p class="text-xs text-slate-500">Mỗi dịch vụ được thực hiện bởi đội ngũ Bác sĩ Thú y & KTV Spa chứng chỉ quốc tế. Nhấn vào "+ Đặt Lịch" để điền đầy đủ phiếu thông tin đặt lịch dịch vụ.</p>
                         </div>
                         <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 shrink-0">
                             <i class="fa-solid fa-circle-check"></i> Tiêu chuẩn Thú Y 5 Sao
                         </span>
                     </div>
 
-                    <!-- 12 Services Grid -->
+                    <!-- Category Filters & Search Dịch Vụ (4 Danh Mục - Yêu Cầu Mục 2) -->
+                    <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3 pt-2">
+                        <div class="flex gap-2 overflow-x-auto pb-2 md:pb-0 hide-scrollbar">
+                            <button @click="filterServiceCategory = 'all'" :class="filterServiceCategory === 'all' ? 'bg-brand-600 text-white font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-3.5 py-2 rounded-xl text-xs whitespace-nowrap transition">Tất cả (<span x-text="services.length"></span>)</button>
+                            <button @click="filterServiceCategory = 'Y Tế & Chăm Sóc Sức Khỏe'" :class="filterServiceCategory === 'Y Tế & Chăm Sóc Sức Khỏe' ? 'bg-brand-600 text-white font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-3.5 py-2 rounded-xl text-xs whitespace-nowrap transition">Y Tế & Sức Khỏe (5)</button>
+                            <button @click="filterServiceCategory = 'Cấp Cứu & Điều Trị Chuyên Sâu'" :class="filterServiceCategory === 'Cấp Cứu & Điều Trị Chuyên Sâu' ? 'bg-brand-600 text-white font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-3.5 py-2 rounded-xl text-xs whitespace-nowrap transition">Cấp Cứu & Điều Trị (3)</button>
+                            <button @click="filterServiceCategory = 'Spa & Làm Đẹp'" :class="filterServiceCategory === 'Spa & Làm Đẹp' ? 'bg-brand-600 text-white font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-3.5 py-2 rounded-xl text-xs whitespace-nowrap transition">Spa & Làm Đẹp (2)</button>
+                            <button @click="filterServiceCategory = 'Lưu Trú & Tiện Ích'" :class="filterServiceCategory === 'Lưu Trú & Tiện Ích' ? 'bg-brand-600 text-white font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'" class="px-3.5 py-2 rounded-xl text-xs whitespace-nowrap transition">Lưu Trú & Tiện Ích (2)</button>
+                        </div>
+                        <div class="relative w-full md:w-64">
+                            <input type="text" x-model="serviceSearchQuery" placeholder="Tìm kiếm trong 12 dịch vụ..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                        </div>
+                    </div>
+
+                    <!-- 12 Services Grid (Hiển thị đầy đủ thông tin phiếu dịch vụ - Yêu Cầu Mục 4) -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
-                        <template x-for="service in servicesList" :key="service.id">
+                        <template x-for="service in filteredServices" :key="service.id">
                             <div class="border border-slate-200 rounded-2xl overflow-hidden hover:border-brand-500 hover:shadow-md transition bg-white flex flex-col justify-between group">
                                 <div>
                                     <div class="relative aspect-video overflow-hidden bg-slate-100 cursor-pointer" @click="openServiceDetail(service)">
-                                        <img :src="service.image" :alt="service.name" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                        <img :src="service.img || service.image" :alt="service.name" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
                                         <div class="absolute top-3 left-3 w-9 h-9 rounded-xl bg-brand-600/90 backdrop-blur text-white flex items-center justify-center text-sm shadow">
                                             <i :class="service.icon"></i>
                                         </div>
@@ -437,10 +452,31 @@ CUSTOMER_HTML = """
                                         </div>
                                     </div>
 
-                                    <div class="p-4 space-y-2">
+                                    <div class="p-4 space-y-2.5">
+                                        <!-- Danh mục & Thời lượng -->
+                                        <div class="flex items-center justify-between gap-2">
+                                            <span class="bg-teal-50 text-teal-700 text-[10px] font-bold px-2 py-0.5 rounded-md" x-text="service.category"></span>
+                                            <span class="bg-amber-50 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+                                                <i class="fa-regular fa-clock"></i>
+                                                <span x-text="service.duration || '45 - 60 phút'"></span>
+                                            </span>
+                                        </div>
+
                                         <h4 @click="openServiceDetail(service)" class="font-bold text-slate-800 text-base leading-snug hover:text-brand-600 cursor-pointer transition line-clamp-1" x-text="service.name"></h4>
-                                        <p class="text-xs text-slate-500 line-clamp-2" x-text="service.description"></p>
+                                        <p class="text-xs text-slate-500 line-clamp-2" x-text="service.desc || service.description"></p>
                                         
+                                        <!-- Bác sĩ / Kỹ thuật viên & Phòng dịch vụ -->
+                                        <div class="pt-1 text-[11px] text-slate-600 space-y-1 bg-slate-50/70 p-2.5 rounded-xl border border-slate-100">
+                                            <div class="flex items-center gap-1.5 font-medium">
+                                                <i class="fa-solid fa-user-doctor text-brand-600 text-xs"></i>
+                                                <span>Chuyên viên: <strong class="text-slate-800" x-text="service.doctor || service.expert || 'Bác sĩ chuyên khoa'"></strong></span>
+                                            </div>
+                                            <div class="flex items-center gap-1.5 text-slate-500 text-[10px]">
+                                                <i class="fa-solid fa-hospital text-slate-400 text-xs"></i>
+                                                <span>Chi nhánh: Q1, Q7, Bình Thạnh (Tùy chọn khi đặt)</span>
+                                            </div>
+                                        </div>
+
                                         <div class="flex flex-wrap gap-1 pt-1">
                                             <template x-for="tag in service.tags" :key="tag">
                                                 <span class="bg-slate-100 text-slate-600 text-[10px] font-semibold px-2 py-0.5 rounded-md" x-text="tag"></span>
@@ -458,8 +494,9 @@ CUSTOMER_HTML = """
                                         <button @click="openServiceDetail(service)" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition" title="Xem quy trình">
                                             Chi tiết
                                         </button>
-                                        <button @click="addToCart(service)" class="px-3.5 py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow transition flex items-center gap-1 active:scale-95">
-                                            <i class="fa-solid fa-plus"></i> Đặt
+                                        <!-- NÚT '+ ĐẶT LỊCH' THAY CHO '+ ĐẶT' - MỞ MODAL THÔNG TIN ĐẶT LỊCH DỊCH VỤ -->
+                                        <button @click="openBookingModalForService(service)" class="px-3.5 py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow transition flex items-center gap-1.5 active:scale-95" title="Mở phiếu thông tin đặt lịch dịch vụ">
+                                            <i class="fa-solid fa-calendar-check"></i> + Đặt Lịch
                                         </button>
                                     </div>
                                 </div>
@@ -469,7 +506,7 @@ CUSTOMER_HTML = """
                 </div>
             </div>
 
-            <!-- TAB 5: ĐƠN HÀNG (ORDERS) -->
+<!-- TAB 5: ĐƠN HÀNG (ORDERS) -->
             <div x-show="activeCustomerTab === 'orders'" class="space-y-6" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0">
                 <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
                     <div class="flex items-center justify-between mb-6">
@@ -656,53 +693,108 @@ CUSTOMER_HTML = """
                 </div>
 
                 <!-- Pet Profiles Management Section (CÓ CHỖ THÊM HÌNH ẢNH - YÊU CẦU MỤC 7) -->
+                                <!-- HỒ SƠ THÚ CƯNG CỦA BẠN (ĐẦY ĐỦ 4 NHÓM THÔNG TIN: ĐỊNH DANH, NGOẠI HÌNH, Y TẾ, THÓI QUEN & CHỦ NUÔI - YÊU CẦU MỤC 3 & 5) -->
                 <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-6">
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                         <div>
                             <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
                                 <i class="fa-solid fa-paw text-brand-600"></i> Hồ Sơ Thú Cưng Của Bạn (<span x-text="myPets.length"></span> bé)
                             </h3>
-                            <p class="text-xs text-slate-500">Thêm hoặc cập nhật thú cưng tại đây sẽ tự động đồng bộ sang hồ sơ Microchip bên Admin.</p>
+                            <p class="text-xs text-slate-500">Đầy đủ định danh, hình ảnh, ngoại hình, hồ sơ y tế tiêm phòng, thói quen sinh hoạt và thông tin liên hệ chủ sở hữu.</p>
                         </div>
-                        <button @click="addPetModalOpen = true" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs transition flex items-center gap-1.5 shrink-0">
+                        <button @click="showAddPetModal = true; addPetModalOpen = true; petFormError = '';" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs transition flex items-center gap-1.5 shrink-0">
                             <i class="fa-solid fa-plus"></i> Thêm Thú Cưng Mới
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <template x-for="pet in myPets" :key="pet.id">
-                            <div class="border rounded-2xl p-4 transition relative flex flex-col justify-between bg-white shadow-xs hover:border-brand-300"
+                            <div class="border rounded-3xl p-5 transition relative flex flex-col justify-between bg-white shadow-sm hover:border-brand-300 space-y-4"
                                  :class="pet.isDefault ? 'border-brand-500 ring-2 ring-brand-500/10' : 'border-slate-200'">
-                                <div>
-                                    <div class="flex items-center justify-between mb-3">
-                                        <span class="bg-amber-100 text-amber-800 text-[10px] font-extrabold px-2.5 py-0.5 rounded-md uppercase tracking-wider" x-text="pet.species + ' • ' + pet.breed"></span>
-                                        <span x-show="pet.isDefault" class="bg-brand-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                                            <i class="fa-solid fa-check text-[9px]"></i> Mặc định
-                                        </span>
-                                    </div>
-
-                                    <div class="flex items-center gap-4 mb-3">
-                                        <img :src="pet.image" :alt="pet.name" class="w-16 h-16 rounded-2xl object-cover bg-slate-100 border border-slate-100 shrink-0 shadow-xs">
-                                        <div>
-                                            <h4 class="font-extrabold text-slate-800 text-lg leading-tight" x-text="pet.name"></h4>
-                                            <p class="text-xs text-slate-500 mt-1" x-text="pet.age + ' • ' + pet.weight + ' kg'"></p>
-                                            <p class="text-[10px] text-teal-600 font-mono mt-0.5" x-text="'Chip: ' + (pet.chip || 'Chờ gắn')"></p>
+                                <div class="space-y-4">
+                                    <!-- 1. THÔNG TIN CƠ BẢN: ĐỊNH DANH, HÌNH ẢNH & NGOẠI HÌNH -->
+                                    <div class="flex items-start justify-between gap-2 border-b border-slate-100 pb-3">
+                                        <div class="flex items-center gap-3.5">
+                                            <div class="relative shrink-0">
+                                                <img :src="pet.image || pet.avatar" :alt="pet.name" class="w-20 h-20 rounded-2xl object-cover bg-slate-100 border-2 border-brand-500 shadow-sm">
+                                                <span class="absolute -bottom-1 -right-1 bg-brand-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full" x-text="pet.gender || 'Đực'"></span>
+                                            </div>
+                                            <div>
+                                                <div class="flex items-center gap-2">
+                                                    <h4 class="font-black text-slate-800 text-xl leading-tight" x-text="pet.name"></h4>
+                                                    <span x-show="pet.isDefault" class="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full flex items-center gap-1">
+                                                        <i class="fa-solid fa-check text-[9px]"></i> Mặc định
+                                                    </span>
+                                                </div>
+                                                <p class="text-xs font-semibold text-brand-700 mt-0.5" x-text="(pet.species || pet.type) + ' • ' + pet.breed"></p>
+                                                <p class="text-[11px] text-slate-500 mt-0.5" x-text="'Tuổi: ' + pet.age + ' | Cân nặng: ' + pet.weight + ' kg'"></p>
+                                                <p class="text-[10px] text-teal-700 font-mono mt-0.5 bg-teal-50 px-2 py-0.5 rounded-md inline-block" x-text="'Mã Chip: ' + (pet.chip || pet.chipId || 'Chưa gắn')"></p>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div class="bg-slate-50 p-2.5 rounded-xl text-xs text-slate-600 mb-4 border border-slate-100">
-                                        <span class="font-bold text-slate-700">Tình trạng:</span> <span x-text="pet.health"></span>
+                                    <!-- Ngoại hình của bé -->
+                                    <div class="bg-amber-50/50 p-2.5 rounded-xl border border-amber-100 text-xs">
+                                        <div class="font-bold text-amber-900 flex items-center gap-1.5 mb-1">
+                                            <i class="fa-solid fa-eye text-amber-600"></i> Ngoại hình & Đặc điểm nhận diện:
+                                        </div>
+                                        <p class="text-slate-600 leading-relaxed text-[11px]" x-text="pet.appearance || 'Lông sạch sẽ, nhanh nhẹn, mắt sáng, không có vết dị tật'"></p>
+                                    </div>
+
+                                    <!-- 2. HỒ SƠ Y TẾ: LỊCH TIÊM PHÒNG & BỆNH LÝ -->
+                                    <div class="bg-teal-50/50 p-3 rounded-xl border border-teal-100 text-xs space-y-1.5">
+                                        <div class="font-bold text-teal-900 flex items-center gap-1.5">
+                                            <i class="fa-solid fa-notes-medical text-teal-600"></i> Hồ sơ y tế & Tiêm chủng:
+                                        </div>
+                                        <div class="text-[11px] text-slate-700">
+                                            <strong>Lịch tiêm phòng:</strong> <span x-text="pet.vaccine || 'Đã tiêm phòng dại và mũi 7 bệnh đầy đủ theo khuyến nghị'"></span>
+                                        </div>
+                                        <div class="text-[11px] text-slate-700">
+                                            <strong>Bệnh lý & Dị ứng:</strong> <span class="text-rose-600 font-medium" x-text="pet.allergies || pet.health || 'Không ghi nhận tiền sử dị ứng hoặc bệnh lý mãn tính'"></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- 3. THÓI QUEN SINH HOẠT CỦA BÉ -->
+                                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1.5">
+                                        <div class="font-bold text-slate-800 flex items-center gap-1.5">
+                                            <i class="fa-solid fa-bone text-brand-600"></i> Thói quen sinh hoạt & Dinh dưỡng:
+                                        </div>
+                                        <div class="text-[11px] text-slate-600">
+                                            <strong>Chế độ ăn:</strong> <span x-text="pet.diet || 'Ăn hạt dinh dưỡng cao cấp kết hợp pate 2 bữa/ngày'"></span>
+                                        </div>
+                                        <div class="text-[11px] text-slate-600">
+                                            <strong>Thói quen & Tính cách:</strong> <span x-text="(pet.habits || 'Thích đi dạo buổi chiều') + ' — ' + (pet.personality || 'Thân thiện, quấn người')"></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- 4. THÔNG TIN LIÊN HỆ CHI TIẾT CỦA CHỦ SỞ HỮU -->
+                                    <div class="bg-indigo-50/40 p-3 rounded-xl border border-indigo-100 text-xs space-y-1">
+                                        <div class="font-bold text-indigo-900 flex items-center gap-1.5 mb-1">
+                                            <i class="fa-solid fa-user-shield text-indigo-600"></i> Thông tin chủ sở hữu bé cưng:
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-2 text-[11px]">
+                                            <div><strong>Chủ nuôi:</strong> <span x-text="pet.ownerName || customerProfile.name"></span></div>
+                                            <div><strong>SĐT liên hệ:</strong> <span class="text-indigo-700 font-bold" x-text="pet.ownerPhone || customerProfile.phone"></span></div>
+                                        </div>
+                                        <div class="text-[11px] text-slate-600">
+                                            <strong>Địa chỉ:</strong> <span x-text="pet.ownerAddress || customerProfile.address || '125 Hoàng Quốc Việt, Cầu Giấy, Hà Nội'"></span>
+                                        </div>
+                                        <div class="text-[11px] text-rose-600 font-semibold pt-0.5">
+                                            <i class="fa-solid fa-phone-volume mr-1"></i> Khẩn cấp 24/7: <span x-text="pet.ownerEmergency || '0912 345 678 (Bác sĩ cấp cứu riêng)'"></span>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
-                                    <button x-show="!pet.isDefault" @click="setDefaultPet(pet.id)" class="text-xs text-brand-600 hover:text-brand-800 font-bold">
-                                        Đặt làm mặc định
+                                <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                                    <button x-show="!pet.isDefault" @click="setDefaultPet(pet.id)" class="text-xs text-brand-600 hover:text-brand-800 font-bold flex items-center gap-1">
+                                        <i class="fa-regular fa-star"></i> Đặt làm mặc định
                                     </button>
-                                    <span x-show="pet.isDefault" class="text-[11px] text-slate-400 font-medium">Bé đang chọn</span>
+                                    <span x-show="pet.isDefault" class="text-xs text-emerald-600 font-bold flex items-center gap-1">
+                                        <i class="fa-solid fa-circle-check"></i> Đang chọn mặc định
+                                    </span>
 
-                                    <button @click="deletePet(pet.id)" class="text-xs text-slate-300 hover:text-rose-500 p-1">
-                                        <i class="fa-solid fa-trash-can"></i>
+                                    <button @click="deletePet(pet.id)" class="text-xs text-slate-400 hover:text-rose-500 p-1 flex items-center gap-1" title="Xóa hồ sơ">
+                                        <i class="fa-solid fa-trash-can"></i> Xóa
                                     </button>
                                 </div>
                             </div>
@@ -710,7 +802,7 @@ CUSTOMER_HTML = """
                     </div>
                 </div>
 
-                <!-- Address Book Section -->
+<!-- Address Book Section -->
                 <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-6">
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                         <div>

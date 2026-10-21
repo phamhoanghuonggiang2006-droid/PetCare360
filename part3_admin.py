@@ -51,10 +51,46 @@ ADMIN_HTML = """
                     <span class="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold" x-text="urgentTasksCount"></span>
                 </button>
 
-                <button @click="toggleDarkMode()" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300">
-                    <i data-lucide="moon" class="w-5 h-5 hidden dark:block"></i>
-                    <i data-lucide="sun" class="w-5 h-5 block dark:hidden"></i>
-                </button>
+                <!-- NÚT THÔNG BÁO CẬP NHẬT HỆ THỐNG MỚI NHẤT (THAY NÚT MẶT TRỜI - YÊU CẦU MỤC 6 & 7) -->
+                <div class="relative">
+                    <button @click="toggleAdminNotifications()" class="relative p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition" title="Thông báo cập nhật mới nhất">
+                        <i class="fa-solid fa-bell text-lg"></i>
+                        <span x-show="unreadNotificationsCount > 0" class="absolute top-1 right-1 w-4 h-4 bg-rose-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-pulse" x-text="unreadNotificationsCount"></span>
+                    </button>
+
+                    <!-- Dropdown danh sách những cập nhật mới nhất -->
+                    <div x-show="showAdminNotifications" @click.away="showAdminNotifications = false" x-cloak class="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 z-50 overflow-hidden animate-fadeIn">
+                        <div class="p-3.5 bg-gradient-to-r from-teal-600 to-teal-700 text-white flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-bell"></i>
+                                <span class="font-bold text-sm">Cập nhật hệ thống mới nhất</span>
+                            </div>
+                            <button @click="markAllNotificationsRead()" class="text-[11px] underline text-teal-100 hover:text-white font-medium">
+                                Đã đọc tất cả
+                            </button>
+                        </div>
+                        <div class="max-h-80 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700">
+                            <template x-for="item in adminNotifications" :key="item.id">
+                                <div @click="markNotificationRead(item.id)" class="p-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition cursor-pointer flex gap-3 items-start" :class="item.read ? 'opacity-70' : 'bg-teal-50/40 dark:bg-teal-950/20'">
+                                    <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5" :class="item.read ? 'bg-slate-100 dark:bg-slate-700 text-slate-500' : 'bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300'">
+                                        <i :class="item.icon || 'fa-solid fa-bell'"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between">
+                                            <h5 class="text-xs font-bold text-slate-800 dark:text-slate-100" x-text="item.title"></h5>
+                                            <span class="text-[10px] text-slate-400" x-text="item.time"></span>
+                                        </div>
+                                        <p class="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5 leading-snug" x-text="item.desc"></p>
+                                    </div>
+                                    <span x-show="!item.read" class="w-2 h-2 rounded-full bg-teal-500 shrink-0 mt-1.5"></span>
+                                </div>
+                            </template>
+                        </div>
+                        <div class="p-2.5 bg-slate-50 dark:bg-slate-700/50 text-center border-t border-slate-100 dark:border-slate-700">
+                            <span class="text-[11px] text-slate-500 dark:text-slate-400 font-semibold">Tự động đồng bộ thời gian thực 24/7</span>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
 
@@ -205,13 +241,21 @@ ADMIN_HTML = """
                     <!-- Revenue Chart Section -->
                     <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
                         <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-base font-bold text-slate-900 dark:text-white">Biểu đồ Doanh thu (Triệu VNĐ)</h3>
+                            <div>
+                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Biểu đồ Doanh thu (Triệu VNĐ)</h3>
+                                <p class="text-xs text-slate-500">So sánh doanh thu Sản phẩm E-Commerce & Dịch vụ Y tế - Spa 6 tháng gần nhất</p>
+                            </div>
                             <button @click="refreshChart()" class="text-xs text-teal-600 hover:underline flex items-center gap-1 font-semibold">
                                 <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Cập nhật biểu đồ
                             </button>
                         </div>
-                        <div class="h-64">
-                            <canvas id="revenueChart"></canvas>
+                        <!-- FALLBACK UI VÀ CANVAS CHART (YÊU CẦU MỤC 1) -->
+                        <div class="h-64 relative">
+                            <canvas id="revenueChart" x-show="revenueMonthlyMock && revenueMonthlyMock.length > 0"></canvas>
+                            <div x-show="!revenueMonthlyMock || revenueMonthlyMock.length === 0" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-slate-50/50 dark:bg-slate-800 rounded-xl">
+                                <i class="fa-solid fa-chart-column text-4xl mb-2 text-slate-300"></i>
+                                <p class="text-xs font-semibold">Chưa có dữ liệu thống kê doanh thu</p>
+                            </div>
                         </div>
                     </div>
 
@@ -507,12 +551,21 @@ ADMIN_HTML = """
                                             </td>
                                             <td class="p-3"><span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-xs" x-text="p.categoryAdmin || p.category"></span></td>
                                             <td class="p-3 text-right font-bold text-slate-900 dark:text-slate-100" x-text="formatCurrency(p.price)"></td>
-                                            <td class="p-3 text-center" x-text="p.q1"></td>
-                                            <td class="p-3 text-center" x-text="p.bt"></td>
-                                            <td class="p-3 text-center" x-text="p.q7"></td>
-                                            <td class="p-3 text-center font-bold" 
-                                                :class="(p.q1 + p.bt + p.q7) <= 10 ? 'text-red-500 animate-pulse' : 'text-teal-600'" 
-                                                x-text="(p.q1 + p.bt + p.q7)"></td>
+                                            <td class="p-3 text-center font-semibold text-slate-700 dark:text-slate-300" x-text="(p.stockQ1 ?? p.q1 ?? 0)"></td>
+                                            <td class="p-3 text-center font-semibold text-slate-700 dark:text-slate-300" x-text="(p.stockBT ?? p.bt ?? 0)"></td>
+                                            <td class="p-3 text-center font-semibold text-slate-700 dark:text-slate-300" x-text="(p.stockQ7 ?? p.q7 ?? 0)"></td>
+                                            <td class="p-3 text-center">
+                                                <div class="flex items-center justify-center gap-1.5">
+                                                    <span :class="getSafeTotalStock(p) === 0 ? 'text-red-600 font-extrabold' : (getSafeTotalStock(p) < 10 ? 'text-amber-600 font-bold' : 'text-teal-600 font-bold')" 
+                                                          x-text="getSafeTotalStock(p)"></span>
+                                                    <template x-if="getSafeTotalStock(p) === 0">
+                                                        <span class="text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold">Hết hàng</span>
+                                                    </template>
+                                                    <template x-if="getSafeTotalStock(p) > 0 && getSafeTotalStock(p) < 10">
+                                                        <span class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold">Sắp hết</span>
+                                                    </template>
+                                                </div>
+                                            </td>
                                             
                                             <!-- Nút Nhập thêm mở Modal Phiếu Nhập Hàng (Yêu cầu mục 4) -->
                                             <td class="p-3 text-right">
@@ -576,7 +629,18 @@ ADMIN_HTML = """
                                                 <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800" x-text="c.tier"></span>
                                                 <div class="text-[10px] text-slate-400 mt-0.5" x-text="c.points + ' điểm'"></div>
                                             </td>
-                                            <td class="p-3 text-xs max-w-xs truncate" x-text="c.pets"></td>
+                                            <td class="p-3 text-xs">
+                                                <div class="flex flex-wrap gap-1.5 items-center">
+                                                    <template x-for="p in (c.petsList || [])" :key="p.name">
+                                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-teal-50 dark:bg-slate-700 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-800">
+                                                            <i :class="p.type === 'Mèo' ? 'fa-solid fa-cat text-amber-500' : 'fa-solid fa-dog text-teal-600'"></i>
+                                                            <span class="font-bold" x-text="p.name"></span>
+                                                            <span class="text-[9px] text-slate-500 dark:text-slate-400" x-text="'(' + p.breed + ')'"></span>
+                                                        </span>
+                                                    </template>
+                                                    <span x-show="!c.petsList || c.petsList.length === 0" class="text-slate-400 italic text-[11px]" x-text="c.pets || 'Chưa cập nhật'"></span>
+                                                </div>
+                                            </td>
                                             <td class="p-3 text-right font-bold text-teal-600" x-text="formatCurrency(c.spent)"></td>
                                             <td class="p-3 text-right">
                                                 <button @click="openChatWithCustomer(c.name)" class="px-2.5 py-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 rounded text-xs font-semibold mr-1">
@@ -680,12 +744,12 @@ ADMIN_HTML = """
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
                             <span class="text-xs text-slate-500">Doanh thu E-Commerce Sản phẩm</span>
-                            <div class="text-2xl font-bold text-teal-600 dark:text-teal-400 mt-1" x-text="formatCurrency(analyticsRevenueCommerce)"></div>
+                            <div class="text-2xl font-bold text-teal-600 dark:text-teal-400 mt-1" x-text="formatCurrency(totalEcommerceRevenue)"></div>
                             <span class="text-xs text-emerald-600 font-semibold">↑ +21.5% so với cùng kỳ</span>
                         </div>
                         <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
                             <span class="text-xs text-slate-500">Doanh thu Dịch vụ Phòng khám & Spa</span>
-                            <div class="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-1" x-text="formatCurrency(analyticsRevenueService)"></div>
+                            <div class="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-1" x-text="formatCurrency(totalServiceRevenue)"></div>
                             <span class="text-xs text-emerald-600 font-semibold">↑ +15.8% so với cùng kỳ</span>
                         </div>
                         <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
