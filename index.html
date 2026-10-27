@@ -5978,106 +5978,452 @@
         </div>
     </div>
 
-    <!-- 14. MODAL THANH TOÁN (CHECKOUT MODAL - REALTIME CẬP NHẬT QUA ADMIN) -->
-    <div x-show="showCheckoutModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-xl w-full p-6 md:p-8 shadow-2xl border border-slate-100 relative animate-fadeIn">
-            <button @click="showCheckoutModal = false" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center transition-colors">
-                <i class="fa-solid fa-xmark text-lg"></i>
+    <!-- 14. MODAL THANH TOÁN (CHECKOUT MODAL - REALTIME CẬP NHẬT QUA ADMIN & MIXED CART) -->
+    <div x-show="showCheckoutModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-7 shadow-2xl border border-slate-100 relative animate-fadeIn max-h-[92vh] overflow-y-auto custom-scrollbar">
+            <!-- Nút đóng Modal -->
+            <button @click="showCheckoutModal = false" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors z-10">
+                <i class="fa-solid fa-xmark text-base"></i>
             </button>
 
-            <div class="text-center mb-6">
-                <span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-[11px] font-black rounded-full uppercase">Thanh toán an toàn</span>
-                <h3 class="text-2xl font-black text-slate-800 mt-2">Xác Nhận Đơn Hàng & Dịch Vụ</h3>
-                <p class="text-xs text-slate-500 mt-0.5">PetCare360 cam kết bảo mật thông tin & y đức chuẩn mực</p>
+            <!-- Header Modal & Phân loại Giỏ Hàng -->
+            <div class="text-center mb-5 pr-6 pl-6">
+                <!-- Tag phân loại giỏ hàng -->
+                <div class="mb-2">
+                    <span x-show="hasProduct && hasService" class="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[11px] font-black rounded-full uppercase tracking-wider shadow-sm">
+                        <i class="fa-solid fa-layer-group"></i> Giỏ Hàng Hỗn Hợp (Sản Phẩm & Dịch Vụ)
+                    </span>
+                    <span x-show="hasProduct && !hasService" class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-800 text-[11px] font-black rounded-full uppercase tracking-wider">
+                        <i class="fa-solid fa-box-open"></i> Đơn Hàng Mua Sắm Sản Phẩm
+                    </span>
+                    <span x-show="!hasProduct && hasService" class="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-100 text-indigo-800 text-[11px] font-black rounded-full uppercase tracking-wider">
+                        <i class="fa-solid fa-calendar-check"></i> Đặt Lịch Hẹn Dịch Vụ 5 Sao
+                    </span>
+                </div>
+                <h3 class="text-xl sm:text-2xl font-black text-slate-800">Xác Nhận Đơn Hàng & Dịch Vụ</h3>
+                <p class="text-xs text-slate-500 mt-1">Vui lòng kiểm tra thông tin nhận hàng/lịch hẹn và chọn phương thức thanh toán</p>
             </div>
 
             <form @submit.prevent="confirmOrderAndPay()" class="space-y-4">
-                <div class="grid grid-cols-2 gap-3">
+
+                <!-- ==================================================================== -->
+                <!-- YÊU CẦU 2: REFACTOR FORM THÔNG TIN (CONDITIONAL RENDERING) -->
+                <!-- ==================================================================== -->
+
+                <!-- TRƯỜNG HỢP 1: GIỎ CHỈ CÓ SẢN PHẨM VẬT LÝ -->
+                <div x-show="hasProduct && !hasService" class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                    <div class="flex items-center gap-2 pb-2 border-b border-slate-200">
+                        <span class="w-6 h-6 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center text-xs">
+                            <i class="fa-solid fa-truck-fast"></i>
+                        </span>
+                        <div>
+                            <h4 class="text-xs font-black text-slate-800 uppercase tracking-wide">Thông Tin Giao Hàng</h4>
+                            <p class="text-[11px] text-slate-500">Shipper sẽ giao hàng tận nơi đến địa chỉ này</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Họ tên người nhận <span class="text-red-500">*</span></label>
+                            <input type="text" x-model="checkoutForm.name" placeholder="Ví dụ: Nguyễn Hoàng Giang" :required="hasProduct && !hasService" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Số điện thoại shipper liên hệ <span class="text-red-500">*</span></label>
+                            <input type="tel" x-model="checkoutForm.phone" placeholder="0909123456" :required="hasProduct && !hasService" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-white">
+                        </div>
+                    </div>
+
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Họ tên người nhận / đặt lịch</label>
-                        <input type="text" x-model="checkoutForm.name" required class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Địa chỉ chi tiết để shipper giao <span class="text-red-500">*</span></label>
+                        <input type="text" x-model="checkoutForm.address" placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành..." :required="hasProduct && !hasService" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-white">
                     </div>
+
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Số điện thoại liên hệ</label>
-                        <input type="tel" x-model="checkoutForm.phone" required class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Ghi chú giao hàng (Tùy chọn)</label>
+                        <input type="text" x-model="checkoutForm.notes" placeholder="Ví dụ: Giao giờ hành chính, gọi trước khi giao 15 phút..." class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-white">
                     </div>
                 </div>
 
+                <!-- TRƯỜNG HỢP 2: GIỎ CHỈ CÓ DỊCH VỤ (READ-ONLY LỊCH HẸN) -->
+                <div x-show="!hasProduct && hasService" class="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-100 space-y-3">
+                    <div class="flex items-center justify-between pb-2 border-b border-indigo-100">
+                        <div class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs">
+                                <i class="fa-solid fa-calendar-check"></i>
+                            </span>
+                            <div>
+                                <h4 class="text-xs font-black text-indigo-950 uppercase tracking-wide flex items-center gap-2">
+                                    Thông Tin Lịch Hẹn Dịch Vụ
+                                    <span class="px-2 py-0.5 bg-indigo-200/70 text-indigo-800 rounded text-[10px] font-bold normal-case">Chế độ Read-only</span>
+                                </h4>
+                                <p class="text-[11px] text-indigo-700/80">Xác nhận thông tin phục vụ & đưa đón bé cưng</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Người đặt lịch (có thể chỉnh sửa SĐT để cơ sở gọi xác nhận) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Họ tên khách hàng <span class="text-red-500">*</span></label>
+                            <input type="text" x-model="checkoutForm.name" :required="!hasProduct && hasService" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Số điện thoại liên hệ <span class="text-red-500">*</span></label>
+                            <input type="tel" x-model="checkoutForm.phone" :required="!hasProduct && hasService" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white">
+                        </div>
+                    </div>
+
+                    <!-- Khối Read-only xác nhận địa điểm -->
+                    <div class="p-3 bg-white rounded-xl border border-indigo-100 text-xs space-y-2">
+                        <div class="flex items-start gap-2.5">
+                            <i class="fa-solid fa-store text-indigo-600 text-sm mt-0.5"></i>
+                            <div>
+                                <span class="font-bold text-slate-800 block">Địa điểm cơ sở phục vụ (Mặc định):</span>
+                                <span class="text-indigo-900 font-extrabold block">Cơ sở Chính: 88 Nguyễn Thị Minh Khai, Quận 1, TPHCM</span>
+                                <span class="text-[11px] text-slate-500 block">Quý khách vui lòng đưa thú cưng đến đúng giờ đã hẹn để được phục vụ tốt nhất.</span>
+                            </div>
+                        </div>
+
+                        <!-- Xác nhận địa chỉ PetShip nếu có -->
+                        <div x-show="servicePetShipAddress || cart.some(i => i.petShipAddress || (i.bookingDetails && i.bookingDetails.petShip))" class="pt-2 border-t border-slate-100 flex items-start gap-2.5">
+                            <i class="fa-solid fa-van-shuttle text-amber-500 text-sm mt-0.5"></i>
+                            <div>
+                                <span class="font-bold text-amber-900 block text-[11px]">Dịch vụ xe đưa đón PetShip tận nơi:</span>
+                                <span class="text-slate-700 font-semibold block" x-text="servicePetShipAddress || 'Theo địa chỉ đã đăng ký trên hồ sơ'"></span>
+                            </div>
+                        </div>
+
+                        <!-- Tóm tắt các dịch vụ đã chọn -->
+                        <div class="pt-2 border-t border-slate-100">
+                            <span class="text-[11px] font-bold text-indigo-950 block mb-1">Chi tiết các dịch vụ trong đơn:</span>
+                            <div class="space-y-1">
+                                <template x-for="item in cart.filter(i => i.isService)" :key="item.id">
+                                    <div class="flex items-center justify-between text-[11px] text-slate-600 bg-indigo-50/50 px-2.5 py-1 rounded-lg">
+                                        <span class="font-semibold text-slate-800 flex items-center gap-1.5">
+                                            <i class="fa-solid fa-paw text-indigo-500 text-[10px]"></i>
+                                            <span x-text="item.name"></span> (<span class="text-indigo-600 font-bold" x-text="item.selectedPet || 'Bé cưng'"></span>)
+                                        </span>
+                                        <span class="text-slate-500 font-medium" x-text="(item.bookingDate || (item.bookingDetails ? item.bookingDetails.date : 'Hôm nay')) + ' ' + (item.bookingTime || (item.bookingDetails ? item.bookingDetails.slot : ''))"></span>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TRƯỜNG HỢP 3: MIXED CART (HIỂN THỊ RẠCH RÒI 2 KHỐI RIÊNG BIỆT) -->
+                <div x-show="hasProduct && hasService" class="space-y-3">
+                    <!-- KHỐI 1: THÔNG TIN GIAO HÀNG CHO SẢN PHẨM -->
+                    <div class="p-3.5 sm:p-4 rounded-2xl bg-orange-50/50 border border-orange-200 space-y-3">
+                        <div class="flex items-center gap-2 pb-2 border-b border-orange-200/80">
+                            <span class="w-6 h-6 rounded-lg bg-orange-500 text-white flex items-center justify-center text-xs font-bold">1</span>
+                            <div>
+                                <h4 class="text-xs font-black text-orange-950 uppercase tracking-wide">Thông Tin Giao Hàng (Sản Phẩm Vật Lý)</h4>
+                                <p class="text-[11px] text-orange-700">Điền địa chỉ để shipper giao hàng vật lý tận nơi</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Họ tên người nhận hàng <span class="text-red-500">*</span></label>
+                                <input type="text" x-model="checkoutForm.name" placeholder="Ví dụ: Nguyễn Hoàng Giang" :required="hasProduct && hasService" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Số điện thoại shipper gọi <span class="text-red-500">*</span></label>
+                                <input type="tel" x-model="checkoutForm.phone" placeholder="0909123456" :required="hasProduct && hasService" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-white">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Địa chỉ chi tiết để shipper giao hàng <span class="text-red-500">*</span></label>
+                            <input type="text" x-model="checkoutForm.address" placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành..." :required="hasProduct && hasService" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-white">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Ghi chú giao hàng (Tùy chọn)</label>
+                            <input type="text" x-model="checkoutForm.notes" placeholder="Ví dụ: Giao giờ hành chính..." class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-white">
+                        </div>
+                    </div>
+
+                    <!-- KHỐI 2: THÔNG TIN LỊCH HẸN DỊCH VỤ (READ-ONLY) -->
+                    <div class="p-3.5 sm:p-4 rounded-2xl bg-indigo-50/60 border border-indigo-200 space-y-2.5">
+                        <div class="flex items-center justify-between pb-2 border-b border-indigo-200/80">
+                            <div class="flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-xs font-bold">2</span>
+                                <div>
+                                    <h4 class="text-xs font-black text-indigo-950 uppercase tracking-wide flex items-center gap-1.5">
+                                        Thông Tin Lịch Hẹn Dịch Vụ
+                                        <span class="px-2 py-0.5 bg-indigo-200/70 text-indigo-800 rounded text-[10px] font-bold normal-case">Read-only</span>
+                                    </h4>
+                                    <p class="text-[11px] text-indigo-700">Xác nhận địa điểm phục vụ thú cưng</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-white rounded-xl border border-indigo-100 text-xs space-y-2">
+                            <div class="flex items-start gap-2.5">
+                                <i class="fa-solid fa-location-dot text-indigo-600 text-sm mt-0.5"></i>
+                                <div>
+                                    <span class="font-bold text-slate-800 block">Khách sẽ đưa pet đến cơ sở:</span>
+                                    <span class="text-indigo-900 font-extrabold block">Cơ sở Chính: 88 Nguyễn Thị Minh Khai, Quận 1, TPHCM</span>
+                                    <span class="text-[11px] text-slate-500 block">Vui lòng mang thú cưng đến đúng giờ hẹn (hỗ trợ kiểm tra sức khỏe đầu vào miễn phí).</span>
+                                </div>
+                            </div>
+
+                            <!-- PetShip nếu có -->
+                            <div x-show="servicePetShipAddress || cart.some(i => i.petShipAddress || (i.bookingDetails && i.bookingDetails.petShip))" class="pt-2 border-t border-slate-100 flex items-start gap-2.5">
+                                <i class="fa-solid fa-van-shuttle text-amber-500 text-sm mt-0.5"></i>
+                                <div>
+                                    <span class="font-bold text-amber-900 block text-[11px]">Đã đăng ký xe đưa đón PetShip tận nơi:</span>
+                                    <span class="text-slate-700 font-semibold block" x-text="servicePetShipAddress || 'Đưa đón tận nơi theo địa chỉ yêu cầu'"></span>
+                                </div>
+                            </div>
+
+                            <!-- Danh sách dịch vụ trong Mixed Cart -->
+                            <div class="pt-2 border-t border-slate-100">
+                                <span class="text-[11px] font-bold text-indigo-950 block mb-1">Dịch vụ đã đặt:</span>
+                                <div class="space-y-1">
+                                    <template x-for="item in cart.filter(i => i.isService)" :key="item.id">
+                                        <div class="flex items-center justify-between text-[11px] text-slate-600 bg-indigo-50/50 px-2 py-0.5 rounded">
+                                            <span class="font-semibold text-slate-800 flex items-center gap-1.5">
+                                                <i class="fa-solid fa-paw text-indigo-500 text-[10px]"></i>
+                                                <span x-text="item.name"></span> (<span class="text-indigo-600 font-bold" x-text="item.selectedPet || 'Bé cưng'"></span>)
+                                            </span>
+                                            <span class="text-slate-500" x-text="(item.bookingDate || (item.bookingDetails ? item.bookingDetails.date : 'Hôm nay')) + ' ' + (item.bookingTime || (item.bookingDetails ? item.bookingDetails.slot : ''))"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================================================================== -->
+                <!-- YÊU CẦU 1: TÍCH HỢP MÃ QR CHO VÍ MOMO (PAYMENT ACCORDION) -->
+                <!-- ==================================================================== -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Địa chỉ giao hàng / Chi nhánh hẹn</label>
-                    <input type="text" x-model="checkoutForm.address" required class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
-                </div>
+                    <label class="block text-xs font-bold text-slate-700 mb-2 flex items-center justify-between">
+                        <span>Phương thức thanh toán</span>
+                        <span class="text-[11px] text-slate-400 font-normal">Chọn phương thức để xem mã QR</span>
+                    </label>
 
-                <!-- Phương thức thanh toán -->
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-2">Phương thức thanh toán</label>
-                    <div class="space-y-2">
-                        <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50" :class="checkoutForm.paymentMethod === 'cod' ? 'border-emerald-500 bg-emerald-50/30' : ''">
-                            <div class="flex items-center gap-3">
-                                <input type="radio" value="cod" x-model="checkoutForm.paymentMethod" class="text-emerald-600 focus:ring-0">
-                                <div>
-                                    <span class="block text-xs font-bold text-slate-800">Thanh toán khi nhận hàng / tại quầy (COD)</span>
-                                    <span class="block text-[11px] text-slate-500">Tiền mặt hoặc quẹt thẻ POS khi nhân viên phục vụ</span>
+                    <div class="space-y-2.5">
+                        <!-- ACCORDION ITEM 1: VÍ ĐIỆN TỬ MOMO -->
+                        <div class="border rounded-2xl transition-all overflow-hidden" :class="checkoutForm.paymentMethod === 'momo' ? 'border-pink-400 bg-pink-50/20 shadow-sm ring-1 ring-pink-400/30' : 'border-slate-200 hover:border-slate-300'">
+                            <label class="flex items-center justify-between p-3.5 cursor-pointer">
+                                <div class="flex items-center gap-3">
+                                    <input type="radio" value="momo" x-model="checkoutForm.paymentMethod" class="text-pink-600 focus:ring-pink-500 w-4 h-4">
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-xs font-black text-slate-800">Ví điện tử MoMo</span>
+                                            <span class="px-2 py-0.5 bg-pink-100 text-pink-700 text-[10px] font-black rounded-md uppercase">Tự động QR</span>
+                                        </div>
+                                        <span class="block text-[11px] text-slate-500 mt-0.5">Quét mã QR MoMo hoặc qua ứng dụng ngân hàng bất kỳ</span>
+                                    </div>
+                                </div>
+                                <div class="w-8 h-8 rounded-xl bg-pink-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
+                                    mo<br>mo
+                                </div>
+                            </label>
+
+                            <!-- KHUNG MÃ QR MOMO EXPAND (Theo chuẩn ảnh người dùng gửi) -->
+                            <div x-show="checkoutForm.paymentMethod === 'momo'" x-collapse class="px-4 pb-4 pt-1">
+                                <div class="bg-gradient-to-b from-pink-50 to-pink-100/60 rounded-2xl p-4 sm:p-5 border border-pink-200 text-center shadow-inner">
+                                    
+                                    <!-- Header MoMo bên trong thẻ -->
+                                    <div class="flex flex-col items-center justify-center mb-3">
+                                        <div class="w-12 h-12 rounded-2xl bg-[#A50064] text-white flex flex-col items-center justify-center font-black text-[11px] leading-tight shadow-md">
+                                            <span>mo</span>
+                                            <span>mo</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Thẻ QR MoMo có viền hồng bo tròn như ảnh mẫu -->
+                                    <div class="inline-block bg-white p-3 sm:p-4 rounded-3xl border-2 border-pink-300 shadow-lg mx-auto max-w-[260px] sm:max-w-[280px]">
+                                        <img :src="checkoutForm.momoQrImage || 'momo_qr.jpg'" alt="Mã QR Ví MoMo" class="w-48 h-48 sm:w-56 sm:h-56 mx-auto object-contain rounded-xl">
+                                    </div>
+
+                                    <!-- Tên chủ tài khoản & SĐT như file ảnh đã gửi -->
+                                    <div class="mt-3.5 space-y-0.5">
+                                        <h5 class="text-sm sm:text-base font-black text-slate-800 tracking-wider uppercase">PHAM HOANG HUONG GIANG</h5>
+                                        <p class="text-xs font-bold text-slate-500 tracking-widest">*******199</p>
+                                    </div>
+
+                                    <!-- Chi tiết thanh toán: Số tiền & Nội dung chuyển khoản -->
+                                    <div class="mt-3 max-w-sm mx-auto space-y-2 text-xs">
+                                        <div class="p-2.5 bg-white/90 backdrop-blur rounded-xl border border-pink-200 flex items-center justify-between px-3">
+                                            <span class="text-slate-600 font-semibold">Số tiền thanh toán:</span>
+                                            <span class="text-base font-black text-pink-600" x-text="formatCurrency(currentPayment)"></span>
+                                        </div>
+
+                                        <div class="p-2.5 bg-white/90 backdrop-blur rounded-xl border border-pink-200 flex items-center justify-between px-3">
+                                            <span class="text-slate-600 font-semibold">Nội dung CK (Memo):</span>
+                                            <div class="flex items-center gap-1.5">
+                                                <code class="font-mono font-black text-pink-700 bg-pink-50 px-2 py-0.5 rounded border border-pink-200 text-xs" x-text="'PETCARE360 ' + (checkoutForm.orderCode || 'DH8899')"></code>
+                                                <button type="button" @click="navigator.clipboard.writeText('PETCARE360 ' + (checkoutForm.orderCode || 'DH8899')); alert('Đã sao chép nội dung chuyển khoản: PETCARE360 ' + (checkoutForm.orderCode || 'DH8899'))" class="px-2 py-1 bg-pink-100 hover:bg-pink-200 text-pink-800 rounded font-bold text-[10px] transition-colors" title="Sao chép">
+                                                    <i class="fa-regular fa-copy mr-1"></i>Copy
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <p class="text-[11px] text-pink-800/80 font-medium mt-3 flex items-center justify-center gap-1.5">
+                                        <i class="fa-solid fa-bolt text-pink-600"></i>
+                                        <span>Mở ứng dụng <strong>MoMo</strong> hoặc app ngân hàng bất kỳ để quét mã thanh toán tức thì</span>
+                                    </p>
                                 </div>
                             </div>
-                            <i class="fa-solid fa-money-bill-wave text-emerald-600 text-lg"></i>
-                        </label>
+                        </div>
 
-                        <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50" :class="checkoutForm.paymentMethod === 'vietqr' ? 'border-emerald-500 bg-emerald-50/30' : ''">
-                            <div class="flex items-center gap-3">
-                                <input type="radio" value="vietqr" x-model="checkoutForm.paymentMethod" class="text-emerald-600 focus:ring-0">
-                                <div>
-                                    <span class="block text-xs font-bold text-slate-800">Chuyển khoản VietQR Napas 24/7 (Khuyên dùng)</span>
-                                    <span class="block text-[11px] text-slate-500">Quét mã QR tự động xác nhận đơn trong 3 giây</span>
+                        <!-- ACCORDION ITEM 2: VIETQR NAPAS 24/7 (MB BANK) -->
+                        <div class="border rounded-2xl transition-all overflow-hidden" :class="checkoutForm.paymentMethod === 'vietqr' ? 'border-indigo-400 bg-indigo-50/20 shadow-sm ring-1 ring-indigo-400/30' : 'border-slate-200 hover:border-slate-300'">
+                            <label class="flex items-center justify-between p-3.5 cursor-pointer">
+                                <div class="flex items-center gap-3">
+                                    <input type="radio" value="vietqr" x-model="checkoutForm.paymentMethod" class="text-indigo-600 focus:ring-indigo-500 w-4 h-4">
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-xs font-black text-slate-800">Chuyển khoản VietQR Napas 24/7 (MB Bank)</span>
+                                            <span class="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-[10px] font-black rounded-md uppercase">Miễn phí 24/7</span>
+                                        </div>
+                                        <span class="block text-[11px] text-slate-500 mt-0.5">Quét mã QR tự động xác nhận đơn trong 3 giây</span>
+                                    </div>
+                                </div>
+                                <i class="fa-solid fa-qrcode text-indigo-600 text-xl"></i>
+                            </label>
+
+                            <!-- KHUNG MÃ QR VIETQR EXPAND -->
+                            <div x-show="checkoutForm.paymentMethod === 'vietqr'" x-collapse class="px-4 pb-4 pt-1">
+                                <div class="bg-indigo-50/70 rounded-2xl p-4 sm:p-5 border border-indigo-200 text-center shadow-inner">
+                                    <div class="inline-block bg-white p-3 rounded-2xl border border-indigo-200 shadow-md mx-auto">
+                                        <img :src="'https://api.vietqr.io/image/970422-888899996666-compact2.png?amount=' + currentPayment + '&addInfo=PETCARE360%20' + (checkoutForm.orderCode || 'ORDER') + '&accountName=CT%20CP%20PETCARE360%20VIETNAM'" class="w-48 h-48 sm:w-52 sm:h-52 mx-auto rounded-xl object-contain" alt="VietQR MB Bank">
+                                    </div>
+
+                                    <div class="mt-3 max-w-sm mx-auto space-y-1.5 text-xs">
+                                        <div class="flex justify-between items-center py-1 border-b border-indigo-100 text-slate-600">
+                                            <span>Ngân hàng thụ hưởng:</span>
+                                            <strong class="text-slate-800">Quân Đội (MB Bank)</strong>
+                                        </div>
+                                        <div class="flex justify-between items-center py-1 border-b border-indigo-100 text-slate-600">
+                                            <span>Số tài khoản:</span>
+                                            <div class="flex items-center gap-1.5">
+                                                <strong class="font-mono text-indigo-700 font-black text-sm">8888 9999 6666</strong>
+                                                <button type="button" @click="navigator.clipboard.writeText('888899996666'); alert('Đã sao chép STK: 888899996666')" class="px-1.5 py-0.5 bg-indigo-100 text-indigo-800 rounded text-[10px] font-bold">Copy</button>
+                                            </div>
+                                        </div>
+                                        <div class="flex justify-between items-center py-1 border-b border-indigo-100 text-slate-600">
+                                            <span>Chủ tài khoản:</span>
+                                            <strong class="text-slate-800 uppercase">CT CP PETCARE360 VIETNAM</strong>
+                                        </div>
+                                        <div class="flex justify-between items-center py-1 text-slate-600">
+                                            <span>Số tiền:</span>
+                                            <strong class="text-indigo-600 font-black text-sm" x-text="formatCurrency(currentPayment)"></strong>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <i class="fa-solid fa-qrcode text-indigo-600 text-lg"></i>
-                        </label>
+                        </div>
 
-                        <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50" :class="checkoutForm.paymentMethod === 'momo' ? 'border-emerald-500 bg-emerald-50/30' : ''">
-                            <div class="flex items-center gap-3">
-                                <input type="radio" value="momo" x-model="checkoutForm.paymentMethod" class="text-emerald-600 focus:ring-0">
-                                <div>
-                                    <span class="block text-xs font-bold text-slate-800">Ví điện tử MoMo</span>
-                                    <span class="block text-[11px] text-slate-500">Liên kết ví MoMo thanh toán siêu tốc</span>
+                        <!-- ACCORDION ITEM 3: COD (TIỀN MẶT / THẺ KHI NHẬN HÀNG) -->
+                        <div class="border rounded-2xl transition-all overflow-hidden" :class="hasService ? 'opacity-60 bg-slate-100/70 border-slate-200 cursor-not-allowed' : (checkoutForm.paymentMethod === 'cod' ? 'border-emerald-400 bg-emerald-50/20 shadow-sm ring-1 ring-emerald-400/30' : 'border-slate-200 hover:border-slate-300')">
+                            <label class="flex items-center justify-between p-3.5" :class="hasService ? 'cursor-not-allowed' : 'cursor-pointer'">
+                                <div class="flex items-center gap-3">
+                                    <input type="radio" value="cod" :disabled="hasService" x-model="checkoutForm.paymentMethod" class="text-emerald-600 focus:ring-emerald-500 w-4 h-4">
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-xs font-black text-slate-800">Thanh toán khi nhận hàng / tại quầy (COD)</span>
+                                            <span x-show="hasService" class="px-2 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-bold rounded-md">Chỉ áp dụng đơn hàng sản phẩm</span>
+                                        </div>
+                                        <span class="block text-[11px] text-slate-500 mt-0.5" x-text="hasService ? 'Dịch vụ cần đặt cọc online 50% trước để giữ chỗ bác sĩ/phòng sạn' : 'Tiền mặt hoặc quẹt thẻ POS cho shipper khi nhận hàng'"></span>
+                                    </div>
+                                </div>
+                                <i class="fa-solid fa-money-bill-wave text-emerald-600 text-xl"></i>
+                            </label>
+
+                            <!-- THÔNG BÁO COD NẾU ĐƯỢC CHỌN -->
+                            <div x-show="checkoutForm.paymentMethod === 'cod' && !hasService" x-collapse class="px-4 pb-3.5 pt-1">
+                                <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-900 flex items-start gap-2">
+                                    <i class="fa-solid fa-circle-check text-emerald-600 mt-0.5"></i>
+                                    <span>Quý khách sẽ thanh toán tiền mặt hoặc quẹt thẻ cho Shipper khi đơn hàng được giao đến tận nhà.</span>
                                 </div>
                             </div>
-                            <span class="px-2 py-0.5 bg-pink-100 text-pink-700 text-[10px] font-black rounded">MoMo</span>
-                        </label>
+                        </div>
                     </div>
                 </div>
 
-                <!-- QR Display if VietQR selected -->
-                <div x-show="checkoutForm.paymentMethod === 'vietqr'" class="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-center space-y-2">
-                    <p class="text-xs font-bold text-slate-700">Mã QR Thanh Toán Tự Động (VietinBank)</p>
-                    <img :src="'https://api.vietqr.io/image/970415-113366668888-compact2.png?amount=' + cartTotal + '&addInfo=PETCARE360%20ORDER&accountName=PETCARE360%20VIETNAM'" class="w-48 h-48 mx-auto rounded-xl border shadow-sm object-contain bg-white p-2">
-                    <p class="text-[11px] text-slate-500">Số tài khoản: <strong>113366668888</strong> • Chủ TK: <strong>PETCARE360 VIETNAM</strong></p>
-                </div>
-
-                <!-- Order summary box -->
-                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2 text-xs">
-                    <div class="flex justify-between font-bold text-slate-700">
-                        <span>Số lượng sản phẩm & dịch vụ:</span>
-                        <span x-text="cart.length + ' mục'"></span>
+                <!-- ==================================================================== -->
+                <!-- YÊU CẦU 3: ĐỒNG BỘ BẢNG TÓM TẮT CHI PHÍ (CHECKOUT SUMMARY) -->
+                <!-- ==================================================================== -->
+                <div class="bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200 space-y-2.5 text-xs">
+                    <!-- Dòng 1: Tổng giá trị đơn hàng (full tiền hàng + full tiền dịch vụ) -->
+                    <div class="flex justify-between items-center text-slate-600">
+                        <span class="font-semibold">Tổng giá trị đơn hàng:</span>
+                        <span class="font-bold text-slate-800 text-sm" x-text="formatCurrency(grandTotal)"></span>
                     </div>
-                    <div class="flex justify-between font-bold text-slate-700">
+
+                    <!-- Dòng 2: Phí vận chuyển (Chỉ hiện khi có Sản phẩm vật lý) -->
+                    <div x-show="hasProduct" class="flex justify-between items-center text-slate-600">
+                        <span class="flex items-center gap-1.5 font-semibold">
+                            <i class="fa-solid fa-truck text-slate-400"></i>
+                            <span>Phí vận chuyển:</span>
+                        </span>
+                        <span class="font-bold" :class="effectiveShippingFee === 0 ? 'text-emerald-600' : 'text-slate-800'" x-text="effectiveShippingFee === 0 ? 'Miễn phí' : formatCurrency(effectiveShippingFee)"></span>
+                    </div>
+
+                    <!-- Giảm giá Voucher (nếu có) -->
+                    <div x-show="totalDiscount > 0" class="flex justify-between items-center text-emerald-600">
+                        <span class="font-semibold flex items-center gap-1.5">
+                            <i class="fa-solid fa-tag"></i>
+                            <span>Giảm giá Voucher:</span>
+                        </span>
+                        <span class="font-black" x-text="'-' + formatCurrency(totalDiscount)"></span>
+                    </div>
+
+                    <!-- Tích lũy điểm thành viên -->
+                    <div class="flex justify-between items-center text-slate-500 text-[11px] pt-1">
                         <span>Tích lũy điểm thành viên:</span>
-                        <span class="text-emerald-600" x-text="'+' + Math.floor(cartTotal / 10000) + ' điểm'"></span>
+                        <span class="text-emerald-600 font-bold" x-text="'+' + Math.floor(currentPayment / 10000) + ' điểm'"></span>
                     </div>
-                    <div class="flex justify-between font-black text-slate-800 text-sm pt-2 border-t border-slate-200">
-                        <span>Tổng tiền cần thanh toán:</span>
-                        <span class="text-emerald-600 text-base" x-text="formatCurrency(cartTotal)"></span>
+
+                    <!-- Dòng 3: TỔNG THANH TOÁN HIỆN TẠI (Font to, in đậm, màu cam) -->
+                    <div class="pt-2.5 border-t border-slate-200 flex justify-between items-baseline">
+                        <div>
+                            <span class="text-xs sm:text-sm font-black text-slate-800 block uppercase tracking-wide">TỔNG THANH TOÁN HIỆN TẠI:</span>
+                            <span class="text-[10px] text-slate-500 block font-normal">(Truyền vào mã QR MoMo / VietQR để thanh toán ngay)</span>
+                        </div>
+                        <span class="text-xl sm:text-2xl font-black text-orange-600" x-text="formatCurrency(currentPayment)"></span>
+                    </div>
+
+                    <!-- Dòng 4: Số tiền thu sau tại cơ sở (Font nhỏ, màu xám) - Chỉ hiện khi có Pet Hotel -->
+                    <div x-show="hasHotel && remainingBalance > 0" class="pt-1.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+                        <span class="flex items-center gap-1.5 italic">
+                            <i class="fa-solid fa-circle-info text-amber-500"></i>
+                            <span>Số tiền thu sau tại cơ sở (50% cọc còn lại khi trả pet):</span>
+                        </span>
+                        <span class="font-bold text-slate-700" x-text="formatCurrency(remainingBalance)"></span>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-3 pt-2">
-                    <button type="button" @click="showCheckoutModal = false" class="w-1/3 py-3 border border-slate-200 text-slate-600 font-bold rounded-xl text-xs hover:bg-slate-50">
-                        Quay lại giỏ
-                    </button>
-                    <button type="submit" class="w-2/3 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow-lg shadow-emerald-600/30 transition-all flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-lock"></i>
-                        <span>Xác Nhận & Hoàn Tất Đơn Hàng</span>
-                    </button>
+                <!-- ==================================================================== -->
+                <!-- YÊU CẦU 4: CẬP NHẬT TRẠNG THÁI NÚT ACTION -->
+                <!-- ==================================================================== -->
+                <div class="pt-2">
+                    <div class="flex items-center gap-3">
+                        <button type="button" @click="showCheckoutModal = false" class="w-1/3 py-3 border border-slate-200 text-slate-600 font-bold rounded-xl text-xs hover:bg-slate-50 transition-colors">
+                            Quay lại giỏ
+                        </button>
+
+                        <!-- Nút chỉ enabled khi isModalCheckoutValid = true -->
+                        <button type="submit" :disabled="!isModalCheckoutValid" :class="!isModalCheckoutValid ? 'opacity-50 cursor-not-allowed bg-slate-300 text-slate-500 shadow-none' : 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg shadow-orange-500/30'" class="w-2/3 py-3 font-black rounded-xl text-xs transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-lock"></i>
+                            <span>Xác Nhận & Hoàn Tất Đơn Hàng</span>
+                        </button>
+                    </div>
+
+                    <!-- Cảnh báo nếu chưa điền đủ các trường bắt buộc -->
+                    <p x-show="!isModalCheckoutValid" class="text-[11px] text-amber-600 font-semibold mt-2 text-center flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-circle-exclamation text-amber-500"></i>
+                        <span x-text="hasProduct ? 'Vui lòng điền đầy đủ Họ tên, Số điện thoại hợp lệ (10 số) và Địa chỉ giao hàng' : 'Vui lòng điền đầy đủ Họ tên và Số điện thoại hợp lệ (10 số)'"></span>
+                    </p>
                 </div>
             </form>
         </div>
@@ -8801,11 +9147,12 @@ function superPetCareApp() {
         },
 
         checkoutForm: {
-            name: 'Nguyễn Phương Thảo',
-            phone: '0988 123 456',
-            address: 'Căn hộ 12.04 Tòa Park 6, Vinhomes Central Park, Bình Thạnh, TP.HCM',
-            paymentMethod: 'vietqr'
+            name: 'Nguyễn Hoàng Giang',
+            phone: '0909123456',
+            address: '125 Hoàng Quốc Việt, Cầu Giấy, Hà Nội',
+            paymentMethod: 'momo'
         },
+        momoQrImage: 'momo_qr.jpg',
 
         // Live Chat Box
         chatMessages: [
@@ -9302,11 +9649,23 @@ function superPetCareApp() {
                 return;
             }
 
-            const incompleteService = this.cart.find(item => item.isService && (!item.bookingDate || !item.selectedPet));
+            const incompleteService = this.cart.find(item => item.isService && (!item.bookingDate || !item.selectedPet) && (!item.bookingDetails || !item.bookingDetails.date));
             if (incompleteService) {
-                alert('⚠️ NHẮC NHỞ: Bạn chưa điền đầy đủ thông tin "Đặt lịch chi tiết" (chọn thú cưng và ngày hẹn) cho dịch vụ: "' + incompleteService.name + '". Vui lòng hoàn tất thông tin để phòng khám chuẩn bị buồng chăm sóc chu đáo trước khi thanh toán!');
+                alert('⚠️ NHẮC NHỞ: Bạn chưa điền đầy đủ thông tin "Đặt lịch chi tiết" (chọn thú cưng và ngày hẹn) cho dịch vụ: "' + incompleteService.name + '". Vui lòng hoàn tất thông tin trước khi thanh toán!');
                 this.openBookingModalForService(incompleteService);
                 return;
+            }
+
+            if (!this.checkoutForm.name || this.checkoutForm.name === 'Nguyễn Phương Thảo') {
+                this.checkoutForm.name = this.checkoutShippingForm.name || (this.customerProfile ? this.customerProfile.name : 'Nguyễn Hoàng Giang');
+                this.checkoutForm.phone = this.checkoutShippingForm.phone || (this.customerProfile ? this.customerProfile.phone : '0909123456');
+                this.checkoutForm.address = this.checkoutShippingForm.address ? (this.checkoutShippingForm.address + ', ' + this.checkoutShippingForm.ward + ', ' + this.checkoutShippingForm.district + ', ' + this.checkoutShippingForm.city) : ((this.customerProfile ? this.customerProfile.address : '') || '125 Hoàng Quốc Việt, Cầu Giấy, Hà Nội');
+            }
+            if (!this.checkoutForm.paymentMethod) {
+                this.checkoutForm.paymentMethod = 'momo';
+            }
+            if (!this.checkoutForm.orderCode) {
+                this.checkoutForm.orderCode = 'DH' + Math.floor(100000 + Math.random() * 900000);
             }
 
             this.showCartDrawer = false;
@@ -9315,46 +9674,101 @@ function superPetCareApp() {
         },
 
         confirmOrderAndPay() {
-            const orderId = 'ORD-' + Math.floor(1000 + Math.random() * 9000);
-            const serviceItems = this.cart.filter(item => item.isService);
+            if (!this.isModalCheckoutValid) {
+                alert('⚠️ Vui lòng điền đầy đủ Họ tên, Số điện thoại hợp lệ (10 số VN) và Địa chỉ nhận hàng!');
+                return;
+            }
 
-            // Đồng bộ sang Admin Lịch hẹn
+            // Khóa tạm tồn kho cho sản phẩm
+            this.holdStockForCart();
+
+            let paymentType = 'product_only';
+            if (this.hasProduct && this.hasService) {
+                paymentType = 'mixed_cart';
+            } else if (this.hasHotel) {
+                paymentType = 'hotel_deposit';
+            } else if (this.hasOtherService) {
+                paymentType = 'service_full';
+            }
+
+            const newOrderCode = this.checkoutForm.orderCode ? ('#' + this.checkoutForm.orderCode.replace('#', '')) : ('#' + Math.floor(100000 + Math.random() * 900000));
+            const newOrderId = 'ORD-' + Math.floor(1000 + Math.random() * 9000);
+            const todayStr = new Date().toLocaleDateString('vi-VN');
+
+            const order = {
+                id: newOrderId,
+                orderCode: newOrderCode,
+                date: todayStr,
+                status: 'PENDING_PAYMENT',
+                statusText: 'Chờ thanh toán (Giữ chỗ 15p)',
+                badgeColor: 'bg-amber-100 text-amber-800 border-amber-200',
+                payment_type: paymentType,
+                has_mixed_cart: this.hasProduct && this.hasService,
+                amount_paid: this.currentPayment,
+                balance_due: this.remainingBalance,
+                total: this.grandTotal,
+                grandTotal: this.grandTotal,
+                currentPayment: this.currentPayment,
+                remainingBalance: this.remainingBalance,
+                subtotal: this.cartSubtotal,
+                totalProduct: this.totalProduct,
+                totalOtherService: this.totalOtherService,
+                totalHotel: this.totalHotel,
+                hotelDeposit: this.hotelDeposit,
+                shippingFee: this.effectiveShippingFee,
+                shippingDiscount: this.shippingDiscount,
+                orderDiscount: this.orderDiscount,
+                totalDiscount: this.totalDiscount,
+                paymentMethod: this.checkoutForm.paymentMethod,
+                paymentMethodLabel: this.checkoutForm.paymentMethod === 'momo' ? 'Ví điện tử MoMo' : (this.checkoutForm.paymentMethod === 'vietqr' ? 'Chuyển khoản VietQR MB Bank' : 'Thanh toán COD'),
+                paymentStatus: 'unpaid',
+                recipient: {
+                    name: this.checkoutForm.name,
+                    phone: this.checkoutForm.phone,
+                    address: this.checkoutForm.address
+                },
+                items: JSON.parse(JSON.stringify(this.cart)),
+                holdStockExpiresAt: Date.now() + 15 * 60 * 1000
+            };
+
+            this.completedOrderNumber = newOrderCode;
+            this.completedOrderDate = todayStr;
+            this.currentPendingOrder = order;
+            this.customerOrdersEnhanced.unshift(order);
+            this.orders.unshift(order);
+
+            // Đồng bộ sang Admin Lịch hẹn nếu có dịch vụ
+            const serviceItems = this.cart.filter(item => item.isService);
             serviceItems.forEach(serv => {
                 this.appointments.unshift({
                     id: 'APT-' + Math.floor(1000 + Math.random() * 9000),
                     customerName: this.checkoutForm.name,
                     customerPhone: this.checkoutForm.phone,
-                    petName: serv.selectedPet,
+                    petName: serv.selectedPet || 'Bé cưng',
                     petType: 'Thú cưng khách chọn',
                     serviceName: serv.name,
-                    date: serv.bookingDate,
-                    time: serv.bookingTime || '09:00',
-                    branch: serv.bookingBranch || 'Chi nhánh Quận 7',
+                    date: serv.bookingDate || (serv.bookingDetails ? serv.bookingDetails.date : todayStr),
+                    time: serv.bookingTime || (serv.bookingDetails ? serv.bookingDetails.slot : '09:00'),
+                    branch: 'Cơ sở Chính: 88 Nguyễn Thị Minh Khai, Q1, TPHCM',
                     status: 'Đã đặt hẹn',
-                    notes: serv.bookingNotes || 'Khách hàng đặt trực tuyến qua SuperApp.'
+                    notes: (this.servicePetShipAddress ? ('PetShip đón tại: ' + this.servicePetShipAddress) : 'Khách tự đưa đón tại cơ sở 88 NTMK')
                 });
             });
 
-            // Tạo bản ghi đơn hàng
-            this.orders.unshift({
-                id: orderId,
-                customer: this.checkoutForm.name,
-                date: new Date().toISOString().split('T')[0],
-                items: this.cart.map(i => i.name + (i.isService ? ' (Dịch vụ)' : ' (x' + i.qty + ')')).join(', '),
-                total: this.cartTotal,
-                totalAmount: this.cartTotal,
-                paymentMethod: this.checkoutForm.paymentMethod === 'vietqr' ? 'Chuyển khoản VietQR' : (this.checkoutForm.paymentMethod === 'momo' ? 'Ví MoMo' : 'COD'),
-                status: 'Đã thanh toán',
-                branch: 'Q7'
-            });
+            const earnedPoints = Math.floor(this.currentPayment / 10000);
+            if (this.customerProfile) {
+                this.customerProfile.points = (this.customerProfile.points || 0) + earnedPoints;
+            }
 
-            const earnedPoints = Math.floor(this.cartTotal / 10000);
-            this.customerProfile.points += earnedPoints;
+            this.startOrderCountdown();
+            this.webhookSuccessReceived = false;
+            this.uploadedReceiptUrl = null;
 
-            this.cart = [];
             this.showCheckoutModal = false;
-
-            alert('🎉 CHÚC MỪNG QUÝ KHÁCH! Đơn hàng & Lịch hẹn ' + orderId + ' đã được thanh toán thành công! Bạn được cộng thêm ' + earnedPoints + ' điểm thành viên.');
+            this.cart = [];
+            this.activeCustomerTab = 'cart';
+            this.cartStep = 4;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         },
 
         // XỬ LÝ TẢI ẢNH THÚ CƯNG TỪ THIẾT BỊ (FILEREADER)
@@ -10717,6 +11131,19 @@ function superPetCareApp() {
                 }
             }
             return errors;
+        },
+
+        get isModalCheckoutValid() {
+            const f = this.checkoutForm;
+            if (!f) return false;
+            const cleanPhone = (f.phone || '').trim().replace(/\s/g, '');
+            const vnPhoneRegex = /^(0[35789])[0-9]{8}$/;
+            if (!f.name || f.name.trim().length < 2) return false;
+            if (!cleanPhone || !vnPhoneRegex.test(cleanPhone)) return false;
+            if (this.hasProduct) {
+                if (!f.address || f.address.trim().length < 5) return false;
+            }
+            return true;
         },
 
         get isCheckoutShippingFormValid() {

@@ -1984,11 +1984,12 @@ function superPetCareApp() {
         },
 
         checkoutForm: {
-            name: 'Nguyễn Phương Thảo',
-            phone: '0988 123 456',
-            address: 'Căn hộ 12.04 Tòa Park 6, Vinhomes Central Park, Bình Thạnh, TP.HCM',
-            paymentMethod: 'vietqr'
+            name: 'Nguyễn Hoàng Giang',
+            phone: '0909123456',
+            address: '125 Hoàng Quốc Việt, Cầu Giấy, Hà Nội',
+            paymentMethod: 'momo'
         },
+        momoQrImage: 'momo_qr.jpg',
 
         // Live Chat Box
         chatMessages: [
@@ -2485,11 +2486,23 @@ function superPetCareApp() {
                 return;
             }
 
-            const incompleteService = this.cart.find(item => item.isService && (!item.bookingDate || !item.selectedPet));
+            const incompleteService = this.cart.find(item => item.isService && (!item.bookingDate || !item.selectedPet) && (!item.bookingDetails || !item.bookingDetails.date));
             if (incompleteService) {
-                alert('⚠️ NHẮC NHỞ: Bạn chưa điền đầy đủ thông tin "Đặt lịch chi tiết" (chọn thú cưng và ngày hẹn) cho dịch vụ: "' + incompleteService.name + '". Vui lòng hoàn tất thông tin để phòng khám chuẩn bị buồng chăm sóc chu đáo trước khi thanh toán!');
+                alert('⚠️ NHẮC NHỞ: Bạn chưa điền đầy đủ thông tin "Đặt lịch chi tiết" (chọn thú cưng và ngày hẹn) cho dịch vụ: "' + incompleteService.name + '". Vui lòng hoàn tất thông tin trước khi thanh toán!');
                 this.openBookingModalForService(incompleteService);
                 return;
+            }
+
+            if (!this.checkoutForm.name || this.checkoutForm.name === 'Nguyễn Phương Thảo') {
+                this.checkoutForm.name = this.checkoutShippingForm.name || (this.customerProfile ? this.customerProfile.name : 'Nguyễn Hoàng Giang');
+                this.checkoutForm.phone = this.checkoutShippingForm.phone || (this.customerProfile ? this.customerProfile.phone : '0909123456');
+                this.checkoutForm.address = this.checkoutShippingForm.address ? (this.checkoutShippingForm.address + ', ' + this.checkoutShippingForm.ward + ', ' + this.checkoutShippingForm.district + ', ' + this.checkoutShippingForm.city) : ((this.customerProfile ? this.customerProfile.address : '') || '125 Hoàng Quốc Việt, Cầu Giấy, Hà Nội');
+            }
+            if (!this.checkoutForm.paymentMethod) {
+                this.checkoutForm.paymentMethod = 'momo';
+            }
+            if (!this.checkoutForm.orderCode) {
+                this.checkoutForm.orderCode = 'DH' + Math.floor(100000 + Math.random() * 900000);
             }
 
             this.showCartDrawer = false;
@@ -2498,46 +2511,101 @@ function superPetCareApp() {
         },
 
         confirmOrderAndPay() {
-            const orderId = 'ORD-' + Math.floor(1000 + Math.random() * 9000);
-            const serviceItems = this.cart.filter(item => item.isService);
+            if (!this.isModalCheckoutValid) {
+                alert('⚠️ Vui lòng điền đầy đủ Họ tên, Số điện thoại hợp lệ (10 số VN) và Địa chỉ nhận hàng!');
+                return;
+            }
 
-            // Đồng bộ sang Admin Lịch hẹn
+            // Khóa tạm tồn kho cho sản phẩm
+            this.holdStockForCart();
+
+            let paymentType = 'product_only';
+            if (this.hasProduct && this.hasService) {
+                paymentType = 'mixed_cart';
+            } else if (this.hasHotel) {
+                paymentType = 'hotel_deposit';
+            } else if (this.hasOtherService) {
+                paymentType = 'service_full';
+            }
+
+            const newOrderCode = this.checkoutForm.orderCode ? ('#' + this.checkoutForm.orderCode.replace('#', '')) : ('#' + Math.floor(100000 + Math.random() * 900000));
+            const newOrderId = 'ORD-' + Math.floor(1000 + Math.random() * 9000);
+            const todayStr = new Date().toLocaleDateString('vi-VN');
+
+            const order = {
+                id: newOrderId,
+                orderCode: newOrderCode,
+                date: todayStr,
+                status: 'PENDING_PAYMENT',
+                statusText: 'Chờ thanh toán (Giữ chỗ 15p)',
+                badgeColor: 'bg-amber-100 text-amber-800 border-amber-200',
+                payment_type: paymentType,
+                has_mixed_cart: this.hasProduct && this.hasService,
+                amount_paid: this.currentPayment,
+                balance_due: this.remainingBalance,
+                total: this.grandTotal,
+                grandTotal: this.grandTotal,
+                currentPayment: this.currentPayment,
+                remainingBalance: this.remainingBalance,
+                subtotal: this.cartSubtotal,
+                totalProduct: this.totalProduct,
+                totalOtherService: this.totalOtherService,
+                totalHotel: this.totalHotel,
+                hotelDeposit: this.hotelDeposit,
+                shippingFee: this.effectiveShippingFee,
+                shippingDiscount: this.shippingDiscount,
+                orderDiscount: this.orderDiscount,
+                totalDiscount: this.totalDiscount,
+                paymentMethod: this.checkoutForm.paymentMethod,
+                paymentMethodLabel: this.checkoutForm.paymentMethod === 'momo' ? 'Ví điện tử MoMo' : (this.checkoutForm.paymentMethod === 'vietqr' ? 'Chuyển khoản VietQR MB Bank' : 'Thanh toán COD'),
+                paymentStatus: 'unpaid',
+                recipient: {
+                    name: this.checkoutForm.name,
+                    phone: this.checkoutForm.phone,
+                    address: this.checkoutForm.address
+                },
+                items: JSON.parse(JSON.stringify(this.cart)),
+                holdStockExpiresAt: Date.now() + 15 * 60 * 1000
+            };
+
+            this.completedOrderNumber = newOrderCode;
+            this.completedOrderDate = todayStr;
+            this.currentPendingOrder = order;
+            this.customerOrdersEnhanced.unshift(order);
+            this.orders.unshift(order);
+
+            // Đồng bộ sang Admin Lịch hẹn nếu có dịch vụ
+            const serviceItems = this.cart.filter(item => item.isService);
             serviceItems.forEach(serv => {
                 this.appointments.unshift({
                     id: 'APT-' + Math.floor(1000 + Math.random() * 9000),
                     customerName: this.checkoutForm.name,
                     customerPhone: this.checkoutForm.phone,
-                    petName: serv.selectedPet,
+                    petName: serv.selectedPet || 'Bé cưng',
                     petType: 'Thú cưng khách chọn',
                     serviceName: serv.name,
-                    date: serv.bookingDate,
-                    time: serv.bookingTime || '09:00',
-                    branch: serv.bookingBranch || 'Chi nhánh Quận 7',
+                    date: serv.bookingDate || (serv.bookingDetails ? serv.bookingDetails.date : todayStr),
+                    time: serv.bookingTime || (serv.bookingDetails ? serv.bookingDetails.slot : '09:00'),
+                    branch: 'Cơ sở Chính: 88 Nguyễn Thị Minh Khai, Q1, TPHCM',
                     status: 'Đã đặt hẹn',
-                    notes: serv.bookingNotes || 'Khách hàng đặt trực tuyến qua SuperApp.'
+                    notes: (this.servicePetShipAddress ? ('PetShip đón tại: ' + this.servicePetShipAddress) : 'Khách tự đưa đón tại cơ sở 88 NTMK')
                 });
             });
 
-            // Tạo bản ghi đơn hàng
-            this.orders.unshift({
-                id: orderId,
-                customer: this.checkoutForm.name,
-                date: new Date().toISOString().split('T')[0],
-                items: this.cart.map(i => i.name + (i.isService ? ' (Dịch vụ)' : ' (x' + i.qty + ')')).join(', '),
-                total: this.cartTotal,
-                totalAmount: this.cartTotal,
-                paymentMethod: this.checkoutForm.paymentMethod === 'vietqr' ? 'Chuyển khoản VietQR' : (this.checkoutForm.paymentMethod === 'momo' ? 'Ví MoMo' : 'COD'),
-                status: 'Đã thanh toán',
-                branch: 'Q7'
-            });
+            const earnedPoints = Math.floor(this.currentPayment / 10000);
+            if (this.customerProfile) {
+                this.customerProfile.points = (this.customerProfile.points || 0) + earnedPoints;
+            }
 
-            const earnedPoints = Math.floor(this.cartTotal / 10000);
-            this.customerProfile.points += earnedPoints;
+            this.startOrderCountdown();
+            this.webhookSuccessReceived = false;
+            this.uploadedReceiptUrl = null;
 
-            this.cart = [];
             this.showCheckoutModal = false;
-
-            alert('🎉 CHÚC MỪNG QUÝ KHÁCH! Đơn hàng & Lịch hẹn ' + orderId + ' đã được thanh toán thành công! Bạn được cộng thêm ' + earnedPoints + ' điểm thành viên.');
+            this.cart = [];
+            this.activeCustomerTab = 'cart';
+            this.cartStep = 4;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         },
 
         // XỬ LÝ TẢI ẢNH THÚ CƯNG TỪ THIẾT BỊ (FILEREADER)
@@ -3900,6 +3968,19 @@ function superPetCareApp() {
                 }
             }
             return errors;
+        },
+
+        get isModalCheckoutValid() {
+            const f = this.checkoutForm;
+            if (!f) return false;
+            const cleanPhone = (f.phone || '').trim().replace(/\s/g, '');
+            const vnPhoneRegex = /^(0[35789])[0-9]{8}$/;
+            if (!f.name || f.name.trim().length < 2) return false;
+            if (!cleanPhone || !vnPhoneRegex.test(cleanPhone)) return false;
+            if (this.hasProduct) {
+                if (!f.address || f.address.trim().length < 5) return false;
+            }
+            return true;
         },
 
         get isCheckoutShippingFormValid() {
