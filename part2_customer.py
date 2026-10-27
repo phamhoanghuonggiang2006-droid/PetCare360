@@ -1032,7 +1032,7 @@ CUSTOMER_HTML = """
                 <div class="space-y-6">
 
                     <!-- ========================================== -->
-                    <!-- TAB 1: GROOMING & SPA (CHÍNH XÁC THEO ẢNH 2) -->
+                    <!-- TAB 1: GROOMING & SPA (BẢNG GIÁ TƯƠNG TÁC TỪNG Ô GIÁ) -->
                     <!-- ========================================== -->
                     <div x-show="servicePricingTab === 'grooming' || servicePricingTab === 'spa'" class="space-y-6 animate-fadeIn">
                         
@@ -1040,10 +1040,10 @@ CUSTOMER_HTML = """
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
                                 <div>
                                     <div class="inline-flex items-center gap-2 bg-rose-50 text-rose-600 font-extrabold text-[11px] px-3 py-1 rounded-full uppercase tracking-wider mb-1">
-                                        <i class="fa-solid fa-sparkles"></i> Bảng Giá Dịch Vụ Minh Bạch Theo Ảnh Thực Tế
+                                        <i class="fa-solid fa-sparkles"></i> Bảng Giá Dịch Vụ Minh Bạch (Click chọn ô giá để đặt lịch)
                                     </div>
                                     <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">SERVICES PRICE LIST (Grooming & Spa)</h3>
-                                    <p class="text-xs text-slate-500">Phân hạng chi tiết theo 8 mức cân nặng chuẩn quốc tế, bồn tắm sục massage thủy lực</p>
+                                    <p class="text-xs text-slate-500">Bấm trực tiếp vào từng ô giá (Spa / Grooming / Shave) tương ứng với cân nặng bé để tự động áp dụng vào phiếu đặt lịch</p>
                                 </div>
                                 <span class="text-xs bg-emerald-50 text-emerald-700 font-bold px-3 py-1.5 rounded-xl border border-emerald-200 self-start sm:self-auto">Mỹ phẩm Davis Mỹ 100%</span>
                             </div>
@@ -1062,42 +1062,222 @@ CUSTOMER_HTML = """
                                             </tr>
                                         </thead>
                                         <tbody class="divide-y divide-slate-100 font-medium text-slate-800">
-                                            <template x-for="(plan, pidx) in petHotelWeightPriceList" :key="pidx">
-                                                <tr @click="selectPetHotelWeightPlan(plan)"
-                                                    :class="selectedWeightSize === plan.size ? 'bg-orange-50/90 font-bold ring-2 ring-inset ring-[#F97316]/80' : 'hover:bg-orange-50/40 cursor-pointer'"
-                                                    class="transition-all cursor-pointer relative group">
-                                                    <td class="py-3.5 px-4">
-                                                        <div class="flex items-center gap-2.5">
-                                                            <div class="w-4 h-4 rounded-full border-2 flex items-center justify-center transition flex-shrink-0"
-                                                                 :class="selectedWeightSize === plan.size ? 'border-[#F97316] bg-[#F97316]' : 'border-slate-300 group-hover:border-orange-400'">
-                                                                <div x-show="selectedWeightSize === plan.size" class="w-1.5 h-1.5 rounded-full bg-white"></div>
-                                                            </div>
-                                                            <span class="text-sm font-black text-slate-900" x-text="plan.size"></span>
-                                                            <span x-show="selectedWeightSize === plan.size" class="text-[10px] font-black uppercase tracking-wider bg-orange-500 text-white px-2 py-0.5 rounded-full shadow-xs animate-pulse">
-                                                                Đang chọn
+                                            <template x-for="(row, ridx) in groomingPriceList" :key="ridx">
+                                                <tr :class="currentPetGroomingTier === row.weight ? 'bg-amber-50/40' : ''" class="transition">
+                                                    <td class="py-3.5 px-4 font-bold text-slate-900">
+                                                        <div class="flex items-center gap-1.5 flex-wrap">
+                                                            <span class="text-sm font-black text-slate-900" x-text="row.weight"></span>
+                                                            <span x-show="currentPetGroomingTier === row.weight" class="text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-full inline-flex items-center gap-1 shadow-xs">
+                                                                <i class="fa-solid fa-star text-amber-500"></i>Gợi ý cho <span x-text="petBookingDetail.name"></span>
                                                             </span>
                                                         </div>
-                                                        <div class="text-[11px] font-normal text-slate-500 mt-1 ml-6.5 max-w-xs" x-text="plan.desc"></div>
                                                     </td>
+                                                    
+                                                    <!-- Ô giá Spa (Clickable cell) -->
+                                                    <td @click="selectGroomingCell(row, 'spa')"
+                                                        class="py-3 px-4 text-center cursor-pointer transition-all rounded-xl m-1"
+                                                        :class="isGroomingCellSelected(row.weight, 'spa') ? 'bg-orange-100/90 text-orange-900 border-2 border-[#F97316] font-black ring-2 ring-orange-400/30 shadow-sm' : 'hover:bg-orange-50/60 text-slate-700 font-semibold border border-transparent'"
+                                                        title="Click để chọn gói Spa cho mốc cân nặng này">
+                                                        <div class="flex items-center justify-center gap-1">
+                                                            <span x-text="formatCurrency(row.spa)"></span>
+                                                            <i x-show="isGroomingCellSelected(row.weight, 'spa')" class="fa-solid fa-circle-check text-[#F97316] text-xs"></i>
+                                                        </div>
+                                                    </td>
+
+                                                    <!-- Ô giá Grooming (Clickable cell) -->
+                                                    <td @click="selectGroomingCell(row, 'grooming')"
+                                                        class="py-3 px-4 text-center cursor-pointer transition-all rounded-xl m-1"
+                                                        :class="isGroomingCellSelected(row.weight, 'grooming') ? 'bg-orange-100/90 text-orange-900 border-2 border-[#F97316] font-black ring-2 ring-orange-400/30 shadow-sm' : 'hover:bg-orange-50/60 text-slate-800 font-extrabold border border-transparent'"
+                                                        title="Click để chọn gói Grooming cho mốc cân nặng này">
+                                                        <div class="flex items-center justify-center gap-1">
+                                                            <span x-text="formatCurrency(row.grooming)"></span>
+                                                            <i x-show="isGroomingCellSelected(row.weight, 'grooming')" class="fa-solid fa-circle-check text-[#F97316] text-xs"></i>
+                                                        </div>
+                                                    </td>
+
+                                                    <!-- Ô giá Shave (Clickable cell) -->
+                                                    <td @click="selectGroomingCell(row, 'shave')"
+                                                        class="py-3 px-4 text-center cursor-pointer transition-all rounded-xl m-1"
+                                                        :class="isGroomingCellSelected(row.weight, 'shave') ? 'bg-orange-100/90 text-orange-900 border-2 border-[#F97316] font-black ring-2 ring-orange-400/30 shadow-sm' : 'hover:bg-orange-50/60 text-slate-600 font-semibold border border-transparent'"
+                                                        title="Click để chọn gói Cạo lông cho mốc cân nặng này">
+                                                        <div class="flex items-center justify-center gap-1">
+                                                            <span x-text="formatCurrency(row.shave)"></span>
+                                                            <i x-show="isGroomingCellSelected(row.weight, 'shave')" class="fa-solid fa-circle-check text-[#F97316] text-xs"></i>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Cột Phụ: OTHER SERVICES & BEAUTY PACKAGE (Theo Ảnh 2) -->
+                                <div class="space-y-4">
+                                    <!-- OTHER SERVICES (Dịch vụ lẻ khác) -->
+                                    <div class="bg-slate-50 rounded-2xl p-4 sm:p-5 border border-slate-200 space-y-3">
+                                        <h4 class="font-black text-xs sm:text-sm text-slate-900 uppercase tracking-wider flex items-center justify-between">
+                                            <span>OTHER SERVICES (Dịch vụ lẻ)</span>
+                                            <i class="fa-solid fa-list-check text-rose-500"></i>
+                                        </h4>
+                                        <div class="space-y-2 text-xs">
+                                            <template x-for="(srv, sidx) in otherServicesList" :key="sidx">
+                                                <div class="flex items-center justify-between pb-1.5 border-b border-slate-200/60 last:border-0">
+                                                    <span class="text-slate-700 font-medium" x-text="srv.name"></span>
+                                                    <span class="font-bold text-slate-900" x-text="srv.price"></span>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+
+                                    <!-- BEAUTY PACKAGE (Gói tắm tháng) -->
+                                    <div class="bg-gradient-to-br from-rose-500 to-orange-500 text-white rounded-2xl p-4 sm:p-5 shadow-md space-y-2">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-[10px] font-bold bg-white/20 px-2 py-0.5 rounded-full uppercase tracking-wider">Ưu Đãi Đặc Biệt</span>
+                                            <i class="fa-solid fa-crown text-amber-300"></i>
+                                        </div>
+                                        <h4 class="font-black text-sm sm:text-base">BEAUTY PACKAGE (Gói Tắm Tháng)</h4>
+                                        <div class="flex items-baseline justify-between pt-1">
+                                            <span class="text-xs font-semibold">10 Buổi Spa Chăm Sóc</span>
+                                            <span class="text-lg font-black bg-white text-rose-600 px-2.5 py-0.5 rounded-xl shadow-sm">OFF 15%</span>
+                                        </div>
+                                        <p class="text-[10px] text-white/90 italic">*Valid within 90 days (Sử dụng trong vòng 90 ngày kể từ ngày kích hoạt)</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Điều Khoản Áp Dụng (Terms and Conditions theo Ảnh 2) -->
+                            <div class="bg-slate-50/80 rounded-2xl p-4 border border-slate-200 text-xs text-slate-600 space-y-1.5">
+                                <h5 class="font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                                    <i class="fa-solid fa-circle-info text-brand-600"></i>
+                                    <span>TERMS AND CONDITIONS / ĐIỀU KHOẢN ÁP DỤNG:</span>
+                                </h5>
+                                <ul class="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1 text-[11px] leading-relaxed">
+                                    <li>• Vui lòng đặt hẹn trước 1 ngày để được phục vụ chu đáo nhất (Booking 1 day in advance is recommended).</li>
+                                    <li>• PetCare360 có quyền từ chối nhận các bé quá hung dữ, không hợp tác (Pet that's too aggressive might be returned).</li>
+                                    <li>• Phí dịch vụ không thể hoàn lại hoặc chuyển nhượng cho người khác (Service fee is non-refundable and non-exchangeable).</li>
+                                    <li>• Phí dịch vụ có thể được điều chỉnh nhẹ vào các dịp Lễ Tết theo quy định chung.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- TAB 2: PET HOTEL 5 SAO (BẢNG GIÁ TƯƠNG TÁC CHỌN GÓI POPUP) -->
+                    <!-- ========================================== -->
+                    <div x-show="servicePricingTab === 'hotel'" class="space-y-6 animate-fadeIn">
+                        
+                        <!-- Khối Bảng Giá Khách Sạn Thú Cưng Tiêu Chuẩn 5 Sao (Chung Cho Cả Chó & Mèo Theo Cân Nặng) -->
+                        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+                            
+                            <!-- Header Bảng Giá -->
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
+                                <div>
+                                    <div class="inline-flex items-center gap-2 bg-orange-50 text-orange-600 font-extrabold text-[11px] px-3 py-1 rounded-full uppercase tracking-wider mb-1">
+                                        <i class="fa-solid fa-hotel"></i> Khách Sạn Thú Cưng Tiêu Chuẩn 5 Sao
+                                    </div>
+                                    <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">SERVICES PRICE LIST (Pet Hotel 5 Sao)</h3>
+                                    <p class="text-xs text-slate-500">Phòng Tiêu Chuẩn 5 Sao dùng chung cho cả Chó & Mèo — Bấm 'Chọn Đặt Lịch' để chọn Lưu Trú Qua Đêm hoặc Bán Trú Daycare</p>
+                                </div>
+                                <div class="flex items-center gap-2 self-start sm:self-auto">
+                                    <span class="text-xs bg-emerald-50 text-emerald-700 font-bold px-3 py-1.5 rounded-xl border border-emerald-200 flex items-center gap-1.5 shadow-sm">
+                                        <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                                        <span>1 Hạng Phòng Tiêu Chuẩn Duy Nhất</span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- BỐ CỤC 3 CỘT (TƯƠNG TỰ TAB GROOMING & SPA) -->
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                
+                                <!-- Bảng Giá Chính Theo Cân Nặng (Chiếm 2 Cột) -->
+                                <div class="lg:col-span-2 overflow-x-auto border border-slate-200 rounded-2xl shadow-sm bg-white">
+                                    <table class="w-full text-left text-xs sm:text-sm border-collapse">
+                                        <thead>
+                                            <tr class="bg-gradient-to-r from-orange-50 to-amber-50 text-slate-900 border-b border-slate-200 font-black">
+                                                <th class="py-3.5 px-4">Phân Hạng Kích Thước (Size)</th>
+                                                <th class="py-3.5 px-4 text-center">Gói Dịch Vụ & Thời Gian</th>
+                                                <th class="py-3.5 px-4 text-center">Mức Giá Niêm Yết</th>
+                                                <th class="py-3.5 px-4 text-center">Thao Tác</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-100 font-medium text-slate-800">
+                                            <template x-for="(plan, pidx) in petHotelWeightPriceList" :key="pidx">
+                                                <tr :class="(selectedBaseService && selectedBaseService.category === 'hotel' && selectedBaseService.weightTier === plan.size) ? 'bg-orange-50/90 font-bold ring-2 ring-inset ring-[#F97316] border-l-4 border-l-[#F97316]' : (currentPetHotelTier === plan.size ? 'bg-amber-50/40 hover:bg-orange-50/40' : 'hover:bg-orange-50/40')"
+                                                    class="transition-all relative">
+                                                    
+                                                    <td class="py-3.5 px-4 font-black text-slate-900">
+                                                        <div class="flex items-center gap-2 flex-wrap">
+                                                            <span class="w-2.5 h-2.5 rounded-full bg-[#F97316]"></span>
+                                                            <span class="text-sm font-black text-slate-900" x-text="plan.size"></span>
+                                                            <span x-show="currentPetHotelTier === plan.size" class="text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-full inline-flex items-center gap-1 shadow-xs">
+                                                                <i class="fa-solid fa-star text-amber-500"></i>Gợi ý cho <span x-text="petBookingDetail.name"></span>
+                                                            </span>
+                                                            <span x-show="selectedBaseService && selectedBaseService.category === 'hotel' && selectedBaseService.weightTier === plan.size" class="text-[10px] font-black uppercase tracking-wider bg-orange-500 text-white px-2 py-0.5 rounded-full shadow-xs">
+                                                                <span x-text="'Đang chọn: ' + (selectedBaseService.type === 'overnight' ? 'Qua Đêm 24h' : 'Daycare')"></span>
+                                                            </span>
+                                                        </div>
+                                                        <div class="text-[11px] font-normal text-slate-500 mt-1 ml-4.5 max-w-xs" x-text="plan.desc"></div>
+                                                    </td>
+
                                                     <td class="py-3.5 px-4 text-center">
-                                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold transition"
-                                                              :class="selectedWeightSize === plan.size ? 'bg-orange-100 text-orange-900 border border-orange-200' : 'bg-slate-100 text-slate-700'">
+                                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs">
                                                             <i class="fa-regular fa-clock text-orange-500"></i>
-                                                            <span x-text="plan.duration"></span>
+                                                            <span>Lưu trú 24h & Daycare</span>
                                                         </span>
                                                     </td>
+
                                                     <td class="py-3.5 px-4 text-center">
-                                                        <div class="font-black text-base sm:text-lg transition"
-                                                             :class="selectedWeightSize === plan.size ? 'text-[#F97316] scale-105 transform' : 'text-slate-800'"
-                                                             x-text="formatCurrency(plan.price)"></div>
+                                                        <div class="font-black text-[#F97316] text-sm sm:text-base">
+                                                            Qua đêm: <span x-text="formatCurrency(plan.price)"></span>
+                                                        </div>
+                                                        <div class="text-[11px] text-slate-500 font-medium mt-0.5">
+                                                            Daycare: <span x-text="formatCurrency(plan.daycarePrice)"></span>
+                                                        </div>
                                                     </td>
-                                                    <td class="py-3.5 px-4 text-center">
-                                                        <button type="button" @click.stop="selectPetHotelWeightPlan(plan)" 
-                                                                class="px-3.5 py-1.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center gap-1.5 mx-auto"
-                                                                :class="selectedWeightSize === plan.size ? 'bg-[#F97316] text-white shadow-orange-500/30 ring-2 ring-orange-300' : 'bg-orange-100 text-orange-700 hover:bg-[#F97316] hover:text-white'">
-                                                            <i :class="selectedWeightSize === plan.size ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle-dot'" class="text-[11px]"></i>
-                                                            <span x-text="selectedWeightSize === plan.size ? 'Đang áp dụng' : 'Chọn Hạng Này'"></span>
-                                                        </button>
+
+                                                    <td class="py-3.5 px-4 text-center relative">
+                                                        <div class="relative inline-block text-left">
+                                                            <button type="button" @click.stop="hotelPopupRow = (hotelPopupRow === plan.size ? null : plan.size)" class="px-3.5 py-1.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center gap-1.5 mx-auto"
+                                                                    :class="(selectedBaseService && selectedBaseService.category === 'hotel' && selectedBaseService.weightTier === plan.size) ? 'bg-[#F97316] text-white shadow-orange-500/30 ring-2 ring-orange-300' : 'bg-orange-100 text-orange-700 hover:bg-[#F97316] hover:text-white'">
+                                                                <i :class="(selectedBaseService && selectedBaseService.category === 'hotel' && selectedBaseService.weightTier === plan.size) ? 'fa-solid fa-circle-check' : 'fa-solid fa-calendar-plus'" class="text-[11px]"></i>
+                                                                <span x-text="(selectedBaseService && selectedBaseService.category === 'hotel' && selectedBaseService.weightTier === plan.size) ? 'Đang Áp Dụng' : 'Chọn Đặt Lịch'"></span>
+                                                                <i class="fa-solid fa-chevron-down text-[9px] ml-0.5"></i>
+                                                            </button>
+
+                                                            <!-- Popup Dropdown Options -->
+                                                            <div x-show="hotelPopupRow === plan.size" @click.away="hotelPopupRow = null" class="absolute right-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-xl border border-orange-200 p-3 z-30 space-y-2 animate-fadeIn text-left">
+                                                                <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider pb-1.5 border-b border-slate-100 flex items-center justify-between">
+                                                                    <span>Chọn gói (Size <span x-text="plan.size"></span>):</span>
+                                                                    <button @click.stop="hotelPopupRow = null" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+                                                                </div>
+                                                                
+                                                                <!-- Option 1: Lưu Trú Qua Đêm (24h) -->
+                                                                <button type="button" @click.stop="selectHotelOption(plan, 'overnight')" class="w-full text-left p-2.5 rounded-xl border transition flex items-center justify-between group hover:bg-orange-50 hover:border-orange-400"
+                                                                        :class="(selectedBaseService && selectedBaseService.category === 'hotel' && selectedBaseService.weightTier === plan.size && selectedBaseService.type === 'overnight') ? 'bg-orange-100/80 border-[#F97316] ring-1 ring-[#F97316]' : 'bg-slate-50 border-slate-200'">
+                                                                    <div>
+                                                                        <div class="font-bold text-xs text-slate-900 group-hover:text-orange-600 flex items-center gap-1.5">
+                                                                            <i class="fa-solid fa-moon text-indigo-500 text-[11px]"></i>
+                                                                            <span>Lưu Trú Qua Đêm</span>
+                                                                        </div>
+                                                                        <div class="text-[10px] text-slate-500">24h trọn gói, 3 bữa ăn</div>
+                                                                    </div>
+                                                                    <div class="font-black text-xs text-orange-600" x-text="formatCurrency(plan.price)"></div>
+                                                                </button>
+
+                                                                <!-- Option 2: Bán Trú Daycare (Trong Ngày) -->
+                                                                <button type="button" @click.stop="selectHotelOption(plan, 'daycare')" class="w-full text-left p-2.5 rounded-xl border transition flex items-center justify-between group hover:bg-orange-50 hover:border-orange-400"
+                                                                        :class="(selectedBaseService && selectedBaseService.category === 'hotel' && selectedBaseService.weightTier === plan.size && selectedBaseService.type === 'daycare') ? 'bg-orange-100/80 border-[#F97316] ring-1 ring-[#F97316]' : 'bg-slate-50 border-slate-200'">
+                                                                    <div>
+                                                                        <div class="font-bold text-xs text-slate-900 group-hover:text-orange-600 flex items-center gap-1.5">
+                                                                            <i class="fa-solid fa-sun text-amber-500 text-[11px]"></i>
+                                                                            <span>Bán Trú Daycare</span>
+                                                                        </div>
+                                                                        <div class="text-[10px] text-slate-500">09:00 - 19:00 trong ngày</div>
+                                                                    </div>
+                                                                    <div class="font-black text-xs text-orange-600" x-text="formatCurrency(plan.daycarePrice)"></div>
+                                                                </button>
+                                                            </div>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             </template>
@@ -1181,14 +1361,16 @@ CUSTOMER_HTML = """
                     </div>
 
                     <!-- ========================================== -->
+                    <!-- TAB 3: TIÊM PHÒNG & HOME VISIT (HÀNG CLICKABLE & CỘT THAO TÁC) -->
+                    <!-- ========================================== -->
                     <div x-show="servicePricingTab === 'vaccine'" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 animate-fadeIn">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
                             <div>
                                 <div class="inline-flex items-center gap-2 bg-blue-50 text-blue-600 font-extrabold text-[11px] px-3 py-1 rounded-full uppercase tracking-wider mb-1">
-                                    <i class="fa-solid fa-shield-virus"></i> Y Tế & Chăm Sóc Sức Khỏe
+                                    <i class="fa-solid fa-syringe"></i> Dịch Vụ Thú Y Tận Tâm Chuẩn Quốc Tế
                                 </div>
                                 <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Bảng Giá Tiêm Phòng & Bác Sĩ Khám Tận Nhà (Home Visit)</h3>
-                                <p class="text-xs text-slate-500">Bác sĩ thú y trực tiếp thực hiện, cấp sổ tiêm điện tử và lưu trữ lịch sử y tế trọn đời</p>
+                                <p class="text-xs text-slate-500">Bấm trực tiếp vào từng hàng hoặc bấm 'Chọn Đặt Lịch' để đặt lịch hẹn bác sĩ thú y</p>
                             </div>
                             <span class="text-xs bg-blue-50 text-blue-700 font-bold px-3 py-1.5 rounded-xl border border-blue-200 self-start sm:self-auto">Cấp Sổ Tiêm Quốc Tế</span>
                         </div>
@@ -1200,16 +1382,34 @@ CUSTOMER_HTML = """
                                         <th class="py-3.5 px-4">Gói Tiêm Chủng / Dịch Vụ Y Tế</th>
                                         <th class="py-3.5 px-4">Thời Gian</th>
                                         <th class="py-3.5 px-4">Quy Trình Chuẩn Bác Sĩ Thú Y</th>
-                                        <th class="py-3.5 px-4 text-right">Chi Phí Niêm Yết</th>
+                                        <th class="py-3.5 px-4 text-center">Chi Phí Niêm Yết</th>
+                                        <th class="py-3.5 px-4 text-center">Thao Tác</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100 font-medium text-slate-800">
                                     <template x-for="(vac, vidx) in vaccinePriceList" :key="vidx">
-                                        <tr class="hover:bg-blue-50/30 transition">
-                                            <td class="py-3.5 px-4 font-bold text-slate-900" x-text="vac.name"></td>
+                                        <tr @click="selectVaccineRow(vac)"
+                                            class="cursor-pointer transition"
+                                            :class="(selectedBaseService && selectedBaseService.category === 'vaccine' && selectedBaseService.name === vac.name) ? 'bg-blue-50/90 font-bold ring-2 ring-inset ring-blue-500 border-l-4 border-l-blue-500' : 'hover:bg-blue-50/30'">
+                                            
+                                            <td class="py-3.5 px-4 font-bold text-slate-900">
+                                                <div class="flex items-center gap-2 flex-wrap">
+                                                    <span x-text="vac.name"></span>
+                                                    <span x-show="selectedBaseService && selectedBaseService.category === 'vaccine' && selectedBaseService.name === vac.name" class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-blue-600 text-white shadow-xs">
+                                                        Đang chọn gói này
+                                                    </span>
+                                                </div>
+                                            </td>
                                             <td class="py-3.5 px-4 text-slate-500" x-text="vac.duration"></td>
                                             <td class="py-3.5 px-4 text-xs text-slate-600 max-w-md" x-text="vac.desc"></td>
-                                            <td class="py-3.5 px-4 text-right font-extrabold text-[#F97316]" x-text="formatCurrency(vac.price)"></td>
+                                            <td class="py-3.5 px-4 text-center font-extrabold text-[#F97316] text-sm sm:text-base" x-text="formatCurrency(vac.price)"></td>
+                                            <td class="py-3.5 px-4 text-center">
+                                                <button type="button" @click.stop="selectVaccineRow(vac)" class="px-3.5 py-1.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center gap-1.5 mx-auto"
+                                                        :class="(selectedBaseService && selectedBaseService.category === 'vaccine' && selectedBaseService.name === vac.name) ? 'bg-blue-600 text-white shadow-blue-500/30 ring-2 ring-blue-300' : 'bg-blue-100 text-blue-700 hover:bg-blue-600 hover:text-white'">
+                                                    <i :class="(selectedBaseService && selectedBaseService.category === 'vaccine' && selectedBaseService.name === vac.name) ? 'fa-solid fa-circle-check' : 'fa-solid fa-calendar-plus'" class="text-[11px]"></i>
+                                                    <span x-text="(selectedBaseService && selectedBaseService.category === 'vaccine' && selectedBaseService.name === vac.name) ? 'Đã Chọn' : 'Chọn Đặt Lịch'"></span>
+                                                </button>
+                                            </td>
                                         </tr>
                                     </template>
                                 </tbody>
@@ -1256,9 +1456,12 @@ CUSTOMER_HTML = """
                                         <p class="text-slate-500 text-[11px] mt-0.5">Giống: <span class="font-medium text-slate-700" x-text="petBookingDetail.breed"></span> | Cân nặng: <span class="font-extrabold text-orange-600" x-text="petBookingDetail.weight + ' kg'"></span></p>
                                     </div>
                                 </div>
-                                <div class="flex flex-wrap sm:flex-col items-start sm:items-end gap-1 pt-2 sm:pt-0 border-t sm:border-t-0 border-orange-200/60 w-full sm:w-auto">
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-800 font-extrabold text-xs" x-text="'Hạng Size: ' + (selectedWeightSize || getPetHotelWeightLabel(petBookingDetail.weight))"></span>
-                                    <span class="font-extrabold text-[#F97316] text-xs" x-text="'Giá niêm yết: ' + formatCurrency(baseServicePrice || getPetHotelPriceByWeight(petBookingDetail.weight)) + ' / ngày'"></span>
+                                <div class="flex flex-wrap sm:flex-col items-start sm:items-end gap-1.5 pt-2 sm:pt-0 border-t sm:border-t-0 border-orange-200/60 w-full sm:w-auto text-right">
+                                    <div class="flex items-center gap-1">
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 font-bold text-[10px]" x-text="'Grooming: ' + currentPetGroomingTier"></span>
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 font-bold text-[10px]" x-text="'Hotel: ' + currentPetHotelTier"></span>
+                                    </div>
+                                    <div class="text-xs font-black text-[#F97316]" x-text="selectedBaseService ? (selectedBaseService.name + ' (' + formatCurrency(baseServicePrice) + ')') : ('Giá chuẩn: ' + formatCurrency(baseServicePrice))"></div>
                                 </div>
                             </div>
                         </div>
@@ -1279,7 +1482,7 @@ CUSTOMER_HTML = """
                         <!-- Bước 3: Chọn Ngày & Giờ Check-in / Check-out (Bảng Lưới Slot Giờ Real-time) -->
                         <div class="md:col-span-2 space-y-3">
                             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                                Bước 3: Chọn Ngày & Slot Giờ Real-time (Xanh: Còn rảnh, Đỏ: Đã đầy)
+                                Bước 3: Chọn Ngày & Khung Giờ (Lưới Slot Giờ Real-time)
                             </label>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
@@ -1370,26 +1573,35 @@ CUSTOMER_HTML = """
                             
                             <!-- 3 Dòng Giá Trị Minh Bạch -->
                             <div class="space-y-2 flex-1">
-                                <!-- Dòng 1: Tổng chi phí dự tính (100%) - text màu xám/đen -->
-                                <div class="flex flex-wrap items-center gap-2">
-                                    <span class="text-xs sm:text-sm font-bold text-slate-700 uppercase tracking-wide">Tổng chi phí dự tính (100%):</span>
-                                    <span class="text-base sm:text-lg font-bold text-slate-900" x-text="formatCurrency(totalServiceCost)"></span>
-                                    <span class="text-[11px] text-slate-400 font-normal" x-text="'(Phòng tiêu chuẩn: ' + formatCurrency(baseServicePrice) + (totalAddonsCost > 0 ? ' + DV cộng thêm: ' + formatCurrency(totalAddonsCost) : '') + (petShipCost > 0 ? ' + PetShip: ' + formatCurrency(petShipCost) : '') + ')'"></span>
+                                <!-- Dòng 1: Tổng chi phí dịch vụ (100%) - text màu xám/đen, font thường -->
+                                <div class="flex items-center justify-between sm:justify-start gap-3 text-xs sm:text-sm text-slate-700">
+                                    <span class="font-medium">Tổng chi phí dịch vụ (100%):</span>
+                                    <span class="font-bold text-slate-900 text-sm sm:text-base" x-text="formatCurrency(totalServiceCost)"></span>
                                 </div>
 
-                                <!-- Dòng 2: Cần thanh toán cọc ngay (50%) - text to, in đậm, màu cam nổi bật -->
-                                <div class="flex flex-wrap items-baseline gap-2.5 pt-0.5 pb-0.5">
-                                    <span class="text-xs sm:text-sm font-black text-orange-600 uppercase tracking-wider">Cần thanh toán cọc ngay (50%):</span>
-                                    <div class="text-3xl sm:text-4xl font-black text-[#F97316] tracking-tight" x-text="formatCurrency(depositAmount)"></div>
-                                    <span class="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-800 border border-orange-200">Đặt cọc giữ slot</span>
+                                <!-- Dòng 2: Số tiền cọc cần thanh toán (50%) - text to, in đậm, màu cam nổi bật -->
+                                <div class="flex items-center justify-between sm:justify-start gap-3 py-1.5 border-y border-dashed border-orange-200 bg-orange-50/60 px-3 rounded-xl">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-xs sm:text-sm font-black text-orange-600 uppercase tracking-wide">Số tiền cọc cần thanh toán (50%):</span>
+                                        <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-orange-500 text-white shadow-xs">Đặt cọc giữ slot</span>
+                                    </div>
+                                    <div class="text-2xl sm:text-3xl font-black text-[#F97316] tracking-tight" x-text="formatCurrency(depositAmount)"></div>
                                 </div>
 
-                                <!-- Dòng 3: Thanh toán khi hoàn tất trả pet (50%) - text nhỏ hơn, màu xám kèm ghi chú -->
-                                <div class="text-xs text-slate-500 font-medium flex flex-wrap items-center gap-1.5">
-                                    <i class="fa-solid fa-clock-rotate-left text-slate-400"></i>
-                                    <span>Thanh toán khi hoàn tất trả pet (50%):</span>
-                                    <span class="font-bold text-slate-800" x-text="formatCurrency(remainingAmount)"></span>
-                                    <span class="text-[11px] text-slate-400 italic">(Thu sau tại quầy lễ tân hoặc tài xế PetShip360 thu hộ)</span>
+                                <!-- Dòng 3: Số tiền thu sau khi trả pet (50%) - text nhỏ hơn, màu xám kèm ghi chú -->
+                                <div class="flex items-center justify-between sm:justify-start gap-2 text-[11px] sm:text-xs text-slate-500 font-medium">
+                                    <div class="flex items-center gap-1">
+                                        <i class="fa-solid fa-clock-rotate-left text-slate-400"></i>
+                                        <span>Số tiền thu sau khi trả pet (50%):</span>
+                                    </div>
+                                    <span class="font-bold text-slate-700" x-text="formatCurrency(remainingAmount)"></span>
+                                    <span class="text-[10px] text-slate-400 italic hidden sm:inline">(Thanh toán sau tại quầy lễ tân hoặc tài xế PetShip360 thu hộ)</span>
+                                </div>
+
+                                <!-- Diễn giải dịch vụ đã chọn -->
+                                <div class="text-[11px] text-slate-500 pt-1 flex items-center gap-1.5 flex-wrap">
+                                    <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                                    <span x-text="'(Dịch vụ: ' + (selectedBaseService ? selectedBaseService.name : 'Khách sạn thú cưng tiêu chuẩn') + ' [' + formatCurrency(baseServicePrice) + ']' + (totalAddonsCost > 0 ? ' + DV cộng thêm: ' + formatCurrency(totalAddonsCost) : '') + (petShipCost > 0 ? ' + PetShip: ' + formatCurrency(petShipCost) : '') + ')'"></span>
                                 </div>
                             </div>
 
@@ -1399,7 +1611,7 @@ CUSTOMER_HTML = """
                                     <i class="fa-solid fa-circle-info"></i>
                                     <span>Chỉ cần thanh toán trước 50% tiền cọc để xác nhận giữ chỗ</span>
                                 </p>
-                                <!-- Nút Submit với text mới: THANH TOÁN CỌC 50% & ĐẶT LỊCH -->
+                                <!-- Nút Submit với text: THANH TOÁN CỌC 50% & ĐẶT LỊCH -->
                                 <button @click="addServiceBookingToCart()" class="w-full sm:w-auto bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-extrabold text-sm sm:text-base px-8 py-3.5 rounded-2xl shadow-lg shadow-orange-500/30 transition transform active:scale-98 flex items-center justify-center gap-2">
                                     <i class="fa-solid fa-credit-card"></i>
                                     <span>THANH TOÁN CỌC 50% & ĐẶT LỊCH</span>

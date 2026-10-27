@@ -49,15 +49,27 @@ function superPetCareApp() {
         // BẢNG GIÁ KHÁCH SẠN THÚ CƯNG 5 SAO DUY NHẤT ÁP DỤNG CHUNG CHO CHÓ & MÈO THEO CÂN NẶNG
         baseServicePrice: 350000,
         selectedWeightSize: '8kg - 12kg',
+        hotelPopupRow: null,
+        currentPetGroomingTier: '8kg-12kg',
+        currentPetHotelTier: '8kg - 12kg',
+        selectedBaseService: {
+            id: 'hotel_overnight_8-12',
+            name: 'Khách Sạn Thú Cưng Tiêu Chuẩn 5 Sao (Lưu Trú Qua Đêm 24h - 8kg - 12kg)',
+            category: 'hotel',
+            type: 'overnight',
+            weightTier: '8kg - 12kg',
+            price: 350000,
+            duration: 'Lưu trú theo ngày (24h)'
+        },
         // BẢNG GIÁ KHÁCH SẠN THÚ CƯNG THEO PHÂN HẠNG CÂN NẶNG (7 SIZE CHUẨN DÙNG CHUNG CHÓ & MÈO)
         petHotelWeightPriceList: [
-            { size: 'Dưới 2kg', duration: 'Lưu trú theo ngày (24h)', price: 200000, desc: 'Mèo sơ sinh, cún siêu nhỏ (Chihuahua teacup, Tiny Poodle, Phốc sơ sinh)' },
-            { size: '2kg - 5kg', duration: 'Lưu trú theo ngày (24h)', price: 250000, desc: 'Mèo trưởng thành, chó nhỏ (Poodle Toy, Phốc sóc, Phốc hươu)' },
-            { size: '5kg - 8kg', duration: 'Lưu trú theo ngày (24h)', price: 300000, desc: 'Mèo lớn (Mèo Anh lông ngắn/dài, Ba Tư), chó nhỏ (Bắc Kinh, Pug)' },
-            { size: '8kg - 12kg', duration: 'Lưu trú theo ngày (24h)', price: 350000, desc: 'Corgi, Shiba Inu, French Bulldog, Mèo khổng lồ Maine Coon' },
-            { size: '12kg - 18kg', duration: 'Lưu trú theo ngày (24h)', price: 400000, desc: 'Border Collie, Bull Anh, Beagle, Cocker Spaniel, chó tầm trung' },
-            { size: '18kg - 25kg', duration: 'Lưu trú theo ngày (24h)', price: 450000, desc: 'Husky, Samoyed, Golden Retriever nhỏ, Chó Phú Quốc, chó cỡ lớn' },
-            { size: 'Trên 25kg', duration: 'Lưu trú theo ngày (24h)', price: 500000, desc: 'Alaska Malamute, Golden lớn, Labrador, Doberman, Becgie' }
+            { size: 'Dưới 2kg', duration: 'Lưu trú theo ngày (24h)', price: 200000, daycarePrice: 140000, desc: 'Mèo sơ sinh, cún siêu nhỏ (Chihuahua teacup, Tiny Poodle, Phốc sơ sinh)' },
+            { size: '2kg - 5kg', duration: 'Lưu trú theo ngày (24h)', price: 250000, daycarePrice: 180000, desc: 'Mèo trưởng thành, chó nhỏ (Poodle Toy, Phốc sóc, Phốc hươu)' },
+            { size: '5kg - 8kg', duration: 'Lưu trú theo ngày (24h)', price: 300000, daycarePrice: 220000, desc: 'Mèo lớn (Mèo Anh lông ngắn/dài, Ba Tư), chó nhỏ (Bắc Kinh, Pug)' },
+            { size: '8kg - 12kg', duration: 'Lưu trú theo ngày (24h)', price: 350000, daycarePrice: 260000, desc: 'Corgi, Shiba Inu, French Bulldog, Mèo khổng lồ Maine Coon' },
+            { size: '12kg - 18kg', duration: 'Lưu trú theo ngày (24h)', price: 400000, daycarePrice: 300000, desc: 'Border Collie, Bull Anh, Beagle, Cocker Spaniel, chó tầm trung' },
+            { size: '18kg - 25kg', duration: 'Lưu trú theo ngày (24h)', price: 450000, daycarePrice: 340000, desc: 'Husky, Samoyed, Golden Retriever nhỏ, Chó Phú Quốc, chó cỡ lớn' },
+            { size: 'Trên 25kg', duration: 'Lưu trú theo ngày (24h)', price: 500000, daycarePrice: 380000, desc: 'Alaska Malamute, Golden lớn, Labrador, Doberman, Becgie' }
         ],
 
         hotelExtraServicesList: [
@@ -2745,6 +2757,108 @@ function superPetCareApp() {
             return 'Trên 25kg';
         },
 
+        getGroomingWeightTier(weight) {
+            const w = parseFloat(weight) || 5;
+            if (w < 2) return '< 2kg';
+            if (w <= 5) return '2kg-5kg';
+            if (w <= 8) return '5kg-8kg';
+            if (w <= 12) return '8kg-12kg';
+            if (w <= 18) return '12kg-18kg';
+            if (w <= 25) return '18kg-25kg';
+            if (w <= 35) return '25kg-35kg';
+            return '> 35kg';
+        },
+
+        getHotelWeightTier(weight) {
+            const w = parseFloat(weight) || 5;
+            if (w < 2) return 'Dưới 2kg';
+            if (w <= 5) return '2kg - 5kg';
+            if (w <= 8) return '5kg - 8kg';
+            if (w <= 12) return '8kg - 12kg';
+            if (w <= 18) return '12kg - 18kg';
+            if (w <= 25) return '18kg - 25kg';
+            return 'Trên 25kg';
+        },
+
+        isGroomingCellSelected(weight, type) {
+            return this.selectedBaseService && 
+                   this.selectedBaseService.category === 'grooming' && 
+                   this.selectedBaseService.weightTier === weight && 
+                   this.selectedBaseService.type === type;
+        },
+
+        selectGroomingCell(row, type) {
+            const typeLabels = {
+                spa: 'Spa (Tắm sấy vệ sinh)',
+                grooming: 'Grooming (Spa + Cắt tạo kiểu)',
+                shave: 'Shave (Spa + Cạo lông gọn gàng)'
+            };
+            const durations = {
+                spa: '45 - 60 phút',
+                grooming: '60 - 90 phút',
+                shave: '45 - 60 phút'
+            };
+            const price = Number(row[type]) || 0;
+            this.selectedBaseService = {
+                id: 'grooming_' + type + '_' + row.weight,
+                name: 'Grooming & Spa: ' + typeLabels[type] + ' - Mốc ' + row.weight,
+                category: 'grooming',
+                type: type,
+                weightTier: row.weight,
+                price: price,
+                duration: durations[type]
+            };
+            this.baseServicePrice = price;
+            this.selectedWeightSize = row.weight;
+            this.serviceBookingForm.serviceName = this.selectedBaseService.name;
+            const bookingBox = document.getElementById('pet-service-booking-box');
+            if (bookingBox) {
+                bookingBox.scrollIntoView({ behavior: 'smooth' });
+            }
+        },
+
+        selectHotelOption(plan, optionType) {
+            const isOvernight = (optionType === 'overnight');
+            const price = isOvernight ? plan.price : (plan.daycarePrice || Math.round(plan.price * 0.7));
+            const duration = isOvernight ? 'Lưu trú theo ngày (24h)' : 'Bán trú trong ngày (09:00 - 19:00)';
+            const label = isOvernight ? 'Lưu Trú Qua Đêm (24h)' : 'Bán Trú Daycare (09:00 - 19:00)';
+            this.selectedBaseService = {
+                id: 'hotel_' + optionType + '_' + plan.size,
+                name: 'Khách Sạn Thú Cưng 5 Sao (' + label + ' - Size ' + plan.size + ')',
+                category: 'hotel',
+                type: optionType,
+                weightTier: plan.size,
+                price: price,
+                duration: duration
+            };
+            this.baseServicePrice = price;
+            this.selectedWeightSize = plan.size;
+            this.serviceBookingForm.serviceName = this.selectedBaseService.name;
+            this.hotelPopupRow = null;
+            const bookingBox = document.getElementById('pet-service-booking-box');
+            if (bookingBox) {
+                bookingBox.scrollIntoView({ behavior: 'smooth' });
+            }
+        },
+
+        selectVaccineRow(vac) {
+            this.selectedBaseService = {
+                id: 'vaccine_' + vac.name,
+                name: vac.name,
+                category: 'vaccine',
+                type: 'vaccine',
+                weightTier: 'Tất cả kích thước',
+                price: vac.price,
+                duration: vac.duration || '30 phút'
+            };
+            this.baseServicePrice = vac.price;
+            this.serviceBookingForm.serviceName = vac.name;
+            const bookingBox = document.getElementById('pet-service-booking-box');
+            if (bookingBox) {
+                bookingBox.scrollIntoView({ behavior: 'smooth' });
+            }
+        },
+
         syncPetBookingDetails(petId) {
             const id = Number(petId);
             const pet = this.pets.find(p => p.id === id) || this.pets[0];
@@ -2761,11 +2875,27 @@ function superPetCareApp() {
                 this.petBookingDetail.diet = pet.diet || 'Ăn hạt tiêu chuẩn';
                 this.petBookingDetail.vaccinePhoto = pet.avatar || pet.image;
 
-                // Tự động map giá và highlight hàng tương ứng trên Bảng Giá
+                // Tự động map mốc cân nặng sang Grooming & Hotel
                 const w = this.petBookingDetail.weight;
-                this.baseServicePrice = this.getPetHotelPriceByWeight(w);
-                this.selectedWeightSize = this.getPetHotelWeightLabel(w);
-                this.serviceBookingForm.serviceName = 'Khách Sạn Thú Cưng Tiêu Chuẩn 5 Sao (' + this.selectedWeightSize + ')';
+                this.currentPetGroomingTier = this.getGroomingWeightTier(w);
+                this.currentPetHotelTier = this.getHotelWeightTier(w);
+                this.selectedWeightSize = this.currentPetHotelTier;
+
+                // Nếu đang ở tab Hotel hoặc chưa chọn dịch vụ nào khác, tự động chọn gói Hotel tương ứng
+                if (!this.selectedBaseService || this.selectedBaseService.category === 'hotel') {
+                    const hotelPrice = this.getPetHotelPriceByWeight(w);
+                    this.baseServicePrice = hotelPrice;
+                    this.selectedBaseService = {
+                        id: 'hotel_overnight_' + this.currentPetHotelTier,
+                        name: 'Khách Sạn Thú Cưng Tiêu Chuẩn 5 Sao (Lưu Trú Qua Đêm 24h - ' + this.currentPetHotelTier + ')',
+                        category: 'hotel',
+                        type: 'overnight',
+                        weightTier: this.currentPetHotelTier,
+                        price: hotelPrice,
+                        duration: 'Lưu trú theo ngày (24h)'
+                    };
+                    this.serviceBookingForm.serviceName = this.selectedBaseService.name;
+                }
             }
         },
 
@@ -2926,6 +3056,7 @@ function superPetCareApp() {
                 remainingBalance: remaining,
                 paymentStatus: 'deposit_paid',
                 statusText: 'Đã cọc 50%',
+                payment_type: 'deposit_50',
                 img: 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&w=400&q=80',
                 qty: 1,
                 isService: true,
@@ -2933,6 +3064,7 @@ function superPetCareApp() {
                     petName: pet ? pet.name : 'Bơ',
                     petWeight: petWeight,
                     sizeTier: petSizeLabel,
+                    payment_type: 'deposit_50',
                     basePrice: basePrice,
                     totalCost: totalCost,
                     depositAmount: deposit,
@@ -2965,6 +3097,7 @@ function superPetCareApp() {
                 date: todayStr,
                 status: 'pending',
                 statusText: 'Đã cọc 50%',
+                payment_type: 'deposit_50',
                 badgeColor: 'bg-orange-100 text-orange-800 border-orange-200',
                 paymentMethod: 'Chuyển khoản / Cọc 50%',
                 paymentMethodLabel: 'Đã cọc 50% (' + this.formatCurrency(deposit) + ')',
