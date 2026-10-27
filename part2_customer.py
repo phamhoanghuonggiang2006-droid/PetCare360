@@ -1129,168 +1129,125 @@ CUSTOMER_HTML = """
                     <!-- ========================================== -->
                     <div x-show="servicePricingTab === 'hotel'" class="space-y-6 animate-fadeIn">
                         
-                        <!-- Sub-tab Selector: Cat Hotel (Ảnh 1) vs Dog Hotel (Ảnh 3) -->
-                        <div class="bg-white rounded-2xl p-2 border border-slate-200 shadow-sm flex gap-2">
-                            <button @click="hotelSubTab = 'cat'" :class="hotelSubTab === 'cat' ? 'bg-[#F97316] text-white font-bold shadow' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'" class="flex-1 py-2.5 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-cat"></i>
-                                <span>Khách Sạn Mèo (Cat Hotel - Bảng Giá Ảnh 1)</span>
-                            </button>
-                            <button @click="hotelSubTab = 'dog'" :class="hotelSubTab === 'dog' ? 'bg-[#F97316] text-white font-bold shadow' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'" class="flex-1 py-2.5 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-dog"></i>
-                                <span>Khách Sạn Chó & Daycare (Dog Hotel - Bảng Giá Ảnh 3)</span>
-                            </button>
-                        </div>
-
-                        <!-- KHU VỰC 1: CAT HOTEL (CHÍNH XÁC THEO ẢNH 1) -->
-                        <div x-show="hotelSubTab === 'cat'" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 animate-fadeIn">
+                        <!-- Khối Bảng Giá Khách Sạn Thú Cưng Duy Nhất (Chung Cho Cả Chó & Mèo Theo Cân Nặng) -->
+                        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+                            
+                            <!-- Header Bảng Giá -->
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
                                 <div>
-                                    <div class="inline-flex items-center gap-2 bg-pink-50 text-pink-600 font-extrabold text-[11px] px-3 py-1 rounded-full uppercase tracking-wider mb-1">
-                                        <i class="fa-solid fa-heart"></i> Pet Hotel Price List (Cat Hotel)
+                                    <div class="inline-flex items-center gap-2 bg-orange-50 text-orange-600 font-extrabold text-[11px] px-3 py-1 rounded-full uppercase tracking-wider mb-1">
+                                        <i class="fa-solid fa-hotel"></i> Khách Sạn Thú Cưng Tiêu Chuẩn 5 Sao
                                     </div>
-                                    <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Bảng Giá Khách Sạn Mèo Nghỉ Dưỡng 5 Sao</h3>
-                                    <p class="text-xs text-slate-500">Phòng kính cách âm, điều hòa 24/24, đệm êm và khay cát đậu nành cao cấp</p>
+                                    <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Bảng Giá Khách Sạn Thú Cưng</h3>
+                                    <p class="text-xs text-slate-500">Áp dụng chung cho cả Chó & Mèo ở cùng một hạng phòng tiêu chuẩn — Tự động map giá theo cột mốc cân nặng</p>
                                 </div>
-                                <span class="text-xs bg-orange-50 text-orange-700 font-bold px-3 py-1.5 rounded-xl border border-orange-200 self-start sm:self-auto">*Daycare giảm 25% trên giá full-day</span>
-                            </div>
-
-                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-                                
-                                <!-- Bảng Giá Phòng Mèo: STANDARD, DELUXE, SUPERIOR (Theo Ảnh 1) -->
-                                <div class="lg:col-span-2 space-y-4">
-                                    <div class="overflow-x-auto border border-slate-200 rounded-2xl shadow-sm bg-white">
-                                        <table class="w-full text-left text-xs sm:text-sm border-collapse">
-                                            <thead>
-                                                <tr class="bg-gradient-to-r from-pink-50 to-rose-50 text-slate-900 border-b border-slate-200 font-black">
-                                                    <th class="py-3.5 px-4">Hạng Phòng (Room Type)</th>
-                                                    <th class="py-3.5 px-4 text-center">1 Bé Mèo</th>
-                                                    <th class="py-3.5 px-4 text-center">2 Bé Mèo</th>
-                                                    <th class="py-3.5 px-4 text-center">3 Bé Mèo</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="divide-y divide-slate-100 font-medium text-slate-800">
-                                                <template x-for="(catRoom, cidx) in catHotelPriceList" :key="cidx">
-                                                    <tr class="hover:bg-pink-50/40 transition">
-                                                        <td class="py-3.5 px-4">
-                                                            <div class="font-black text-slate-900" x-text="catRoom.roomType"></div>
-                                                            <span class="text-[11px] text-slate-400" x-text="catRoom.desc"></span>
-                                                        </td>
-                                                        <td class="py-3.5 px-4 text-center font-extrabold text-[#F97316]" x-text="catRoom.price1Cat"></td>
-                                                        <td class="py-3.5 px-4 text-center font-semibold text-slate-700" x-text="catRoom.price2Cats"></td>
-                                                        <td class="py-3.5 px-4 text-center font-semibold text-slate-700" x-text="catRoom.price3Cats"></td>
-                                                    </tr>
-                                                </template>
-                                            </tbody>
-                                        </table>
-                                    </div>
-
-                                    <!-- GÓI LƯU TRÚ DÀI HẠN (Notes từ Ảnh 1) -->
-                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                        <div class="bg-gradient-to-br from-amber-50 to-orange-50 border border-orange-200 rounded-2xl p-4 text-center space-y-1">
-                                            <span class="text-xs font-bold text-slate-600 block">LƯU TRÚ 1 TUẦN</span>
-                                            <span class="text-lg font-black text-orange-600 block">OFF 10%</span>
-                                            <span class="text-[10px] text-slate-400">Tiết kiệm chi phí</span>
-                                        </div>
-                                        <div class="bg-gradient-to-br from-amber-50 to-orange-50 border border-orange-200 rounded-2xl p-4 text-center space-y-1">
-                                            <span class="text-xs font-bold text-slate-600 block">LƯU TRÚ 2 TUẦN</span>
-                                            <span class="text-lg font-black text-orange-600 block">OFF 15%</span>
-                                            <span class="text-[10px] text-slate-400">Tặng kèm đồ chơi</span>
-                                        </div>
-                                        <div class="bg-gradient-to-br from-rose-500 to-orange-500 text-white rounded-2xl p-4 text-center space-y-1 shadow-md">
-                                            <span class="text-xs font-bold text-white/90 block">LƯU TRÚ 1 THÁNG</span>
-                                            <span class="text-lg font-black block">OFF 20% & FREE 1 SPA</span>
-                                            <span class="text-[10px] text-white/80">Gói VIP tiết kiệm nhất</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Hình ảnh & Điều khoản phòng Mèo (Ảnh 1) -->
-                                <div class="space-y-4">
-                                    <div class="rounded-2xl overflow-hidden border border-slate-200 shadow-sm relative h-56 bg-slate-100">
-                                        <img src="https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=600&q=80" alt="Cat hotel suite" class="w-full h-full object-cover">
-                                        <div class="absolute bottom-2 left-2 bg-slate-900/80 backdrop-blur text-white text-[10px] font-bold px-2 py-1 rounded-lg">
-                                            Phòng Kính Cat Hotel Tiêu Chuẩn 5 Sao
-                                        </div>
-                                    </div>
-
-                                    <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 text-xs space-y-2 text-slate-600">
-                                        <h5 class="font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                                            <i class="fa-solid fa-clock text-[#F97316]"></i>
-                                            <span>ĐIỀU KHOẢN & GIỜ GIẤC CHECK-IN/OUT:</span>
-                                        </h5>
-                                        <ul class="space-y-1 text-[11px] leading-relaxed">
-                                            <li>• <strong>Giờ check-in:</strong> 9.00 AM.</li>
-                                            <li>• <strong>Giờ check-out qua đêm:</strong> 11.00 AM (sau 11.00AM sẽ tính phí Daycare 1 ngày).</li>
-                                            <li>• <strong>Giờ check-out Daycare:</strong> 7.00 PM cùng ngày.</li>
-                                            <li>• Check-in/out trước 9AM hoặc sau 8PM: phụ thu <strong>50.000 đ/giờ</strong>.</li>
-                                            <li>• Giá phòng đã bao gồm thức ăn hạt theo khẩu phần cửa hàng (2 bữa chính 1 bữa phụ).</li>
-                                        </ul>
-                                    </div>
+                                <div class="flex items-center gap-2 self-start sm:self-auto">
+                                    <span class="text-xs bg-emerald-50 text-emerald-700 font-bold px-3 py-1.5 rounded-xl border border-emerald-200 flex items-center gap-1.5 shadow-sm">
+                                        <i class="fa-solid fa-video text-rose-500 animate-pulse"></i>
+                                        <span>Camera Live Trực Tuyến 24/7</span>
+                                    </span>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- KHU VỰC 2: DOG HOTEL & DAYCARE (CHÍNH XÁC THEO ẢNH 3) -->
-                        <div x-show="hotelSubTab === 'dog'" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 animate-fadeIn">
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
-                                <div>
-                                    <div class="inline-flex items-center gap-2 bg-emerald-50 text-emerald-600 font-extrabold text-[11px] px-3 py-1 rounded-full uppercase tracking-wider mb-1">
-                                        <i class="fa-solid fa-dog"></i> Dog Hotel & Daycare (Bảng Giá Ảnh 3)
-                                    </div>
-                                    <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">The Condo Room • The Villa • Daycare</h3>
-                                    <p class="text-xs text-slate-500">Phân hạng phòng và mức giá chính xác theo 6 mốc cân nặng thú cưng</p>
-                                </div>
-                                <span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1.5 rounded-xl border border-emerald-200 self-start sm:self-auto">Sân cỏ tự nhiên 500m²</span>
-                            </div>
-
-                            <!-- Bảng Giá Dog Hotel Theo Cân Nặng (Ảnh 3) -->
+                            <!-- BẢNG GIÁ TIÊU CHUẨN PHÂN THEO CỘT MỐC CÂN NẶNG (TỰ ĐỘNG MAP GIÁ) -->
                             <div class="overflow-x-auto border border-slate-200 rounded-2xl shadow-sm bg-white">
                                 <table class="w-full text-left text-xs sm:text-sm border-collapse">
                                     <thead>
-                                        <tr class="text-white font-black text-center">
-                                            <th class="py-3.5 px-4 text-left bg-slate-800 text-white">Mức Cân Nặng</th>
-                                            <th class="py-3.5 px-4 bg-emerald-600">The Condo Room<br><span class="text-[10px] font-normal text-emerald-100">(Phòng Khách sạn chuẩn)</span></th>
-                                            <th class="py-3.5 px-4 bg-cyan-600">The Villa<br><span class="text-[10px] font-normal text-cyan-100">(Biệt thự VIP riêng tư)</span></th>
-                                            <th class="py-3.5 px-4 bg-[#F97316]">Daycare<br><span class="text-[10px] font-normal text-orange-100">(Gửi ban ngày vui chơi)</span></th>
+                                        <tr class="bg-gradient-to-r from-orange-50 to-amber-50 text-slate-900 border-b border-slate-200 font-black">
+                                            <th class="py-3.5 px-4">Cột Mốc Cân Nặng</th>
+                                            <th class="py-3.5 px-4">Phù Hợp Giống Loài Thú Cưng</th>
+                                            <th class="py-3.5 px-4 text-center">Lưu Trú Qua Đêm<br><span class="text-[10px] font-normal text-slate-500">(Phòng Tiêu Chuẩn 5 Sao)</span></th>
+                                            <th class="py-3.5 px-4 text-center">Bán Trú Daycare<br><span class="text-[10px] font-normal text-slate-500">(Trong Ngày 09:00 - 19:00)</span></th>
+                                            <th class="py-3.5 px-4 text-center">Thao Tác</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-100 font-medium text-slate-800">
-                                        <template x-for="(dogRow, didx) in dogHotelPriceList" :key="didx">
-                                            <tr class="hover:bg-slate-50/70 transition">
-                                                <td class="py-3.5 px-4 font-bold text-slate-900" x-text="dogRow.weight"></td>
-                                                <td class="py-3.5 px-4 text-center font-bold text-emerald-700 bg-emerald-50/30" x-text="formatCurrency(dogRow.condo)"></td>
-                                                <td class="py-3.5 px-4 text-center font-bold text-cyan-700 bg-cyan-50/30" x-text="formatCurrency(dogRow.villa)"></td>
-                                                <td class="py-3.5 px-4 text-center font-bold text-[#F97316] bg-orange-50/30" x-text="formatCurrency(dogRow.daycare)"></td>
+                                        <template x-for="(plan, pidx) in petHotelWeightPriceList" :key="pidx">
+                                            <tr class="hover:bg-orange-50/40 transition">
+                                                <td class="py-3.5 px-4 font-black text-slate-900">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="w-2.5 h-2.5 rounded-full bg-[#F97316]"></span>
+                                                        <span x-text="plan.weight"></span>
+                                                    </div>
+                                                </td>
+                                                <td class="py-3.5 px-4 text-xs text-slate-600 max-w-xs" x-text="plan.desc"></td>
+                                                <td class="py-3.5 px-4 text-center font-extrabold text-[#F97316]" x-text="formatCurrency(plan.pricePerDay)"></td>
+                                                <td class="py-3.5 px-4 text-center font-bold text-slate-700" x-text="formatCurrency(plan.daycare)"></td>
+                                                <td class="py-3.5 px-4 text-center">
+                                                    <button @click="selectPetHotelWeightPlan(plan)" class="px-3.5 py-1.5 rounded-xl bg-orange-100 text-orange-700 hover:bg-[#F97316] hover:text-white transition font-bold text-xs shadow-sm flex items-center justify-center gap-1 mx-auto" title="Chọn gói cân nặng này để đặt lịch">
+                                                        <i class="fa-solid fa-calendar-plus text-[11px]"></i>
+                                                        <span>Chọn Đặt Lịch</span>
+                                                    </button>
+                                                </td>
                                             </tr>
                                         </template>
                                     </tbody>
                                 </table>
                             </div>
 
-                            <!-- 3 Card Minh Họa Không Gian Phòng (Như trong Ảnh 3) -->
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-                                <div class="rounded-2xl border-2 border-emerald-400 p-3 bg-white shadow-sm space-y-2">
-                                    <div class="h-44 rounded-xl overflow-hidden bg-slate-100">
-                                        <img src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=500&q=80" alt="The Condo Room" class="w-full h-full object-cover">
+                            <!-- TIÊU CHUẨN PHÒNG TIÊU CHUẨN 5 SAO DÀNH CHO CẢ CHÓ & MÈO -->
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 pt-2">
+                                <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+                                    <div class="text-[#F97316] text-base"><i class="fa-solid fa-snowflake"></i></div>
+                                    <h5 class="font-bold text-xs text-slate-800">Điều Hòa 2 Chiều & Khử Khuẩn UV</h5>
+                                    <p class="text-[11px] text-slate-500 leading-relaxed">Nhiệt độ ổn định 25 - 26°C, đệm nằm êm ái thay giặt tiệt trùng tia cực tím hàng ngày.</p>
+                                </div>
+                                <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+                                    <div class="text-[#F97316] text-base"><i class="fa-solid fa-video"></i></div>
+                                    <h5 class="font-bold text-xs text-slate-800">Camera HD Giám Sát 24/7</h5>
+                                    <p class="text-[11px] text-slate-500 leading-relaxed">Chủ nuôi theo dõi trực tuyến mọi cử chỉ bé cưng qua PetShow360 trên điện thoại.</p>
+                                </div>
+                                <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+                                    <div class="text-[#F97316] text-base"><i class="fa-solid fa-bowl-food"></i></div>
+                                    <h5 class="font-bold text-xs text-slate-800">3 Bữa Ăn Dinh Dưỡng Cao Cấp</h5>
+                                    <p class="text-[11px] text-slate-500 leading-relaxed">Khẩu phần hạt Royal Canin / Orijen nhập khẩu, kèm Pate và gel dinh dưỡng tráng miệng.</p>
+                                </div>
+                                <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+                                    <div class="text-[#F97316] text-base"><i class="fa-solid fa-tree"></i></div>
+                                    <h5 class="font-bold text-xs text-slate-800">Sân Cỏ Vận Động & Huấn Luyện</h5>
+                                    <p class="text-[11px] text-slate-500 leading-relaxed">2 cữ ra sân cỏ tự nhiên kết bạn, tương tác bóng ném và chải lông thư giãn.</p>
+                                </div>
+                            </div>
+
+                            <!-- GÓI LƯU TRÚ DÀI HẠN & ĐIỀU KHOẢN CHECK-IN/OUT -->
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 pt-2">
+                                <!-- Ưu Đãi Lưu Trú Dài Hạn -->
+                                <div class="space-y-3">
+                                    <h4 class="font-bold text-xs text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                                        <i class="fa-solid fa-tags text-[#F97316]"></i>
+                                        <span>ƯU ĐÃI LƯU TRÚ DÀI HẠN:</span>
+                                    </h4>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        <div class="bg-gradient-to-br from-amber-50 to-orange-50 border border-orange-200 rounded-2xl p-3 text-center space-y-1">
+                                            <span class="text-[11px] font-bold text-slate-600 block">LƯU TRÚ 1 TUẦN</span>
+                                            <span class="text-base font-black text-orange-600 block">GIẢM 10%</span>
+                                            <span class="text-[9px] text-slate-400 block">Tự động áp dụng</span>
+                                        </div>
+                                        <div class="bg-gradient-to-br from-amber-50 to-orange-50 border border-orange-200 rounded-2xl p-3 text-center space-y-1">
+                                            <span class="text-[11px] font-bold text-slate-600 block">LƯU TRÚ 2 TUẦN</span>
+                                            <span class="text-base font-black text-orange-600 block">GIẢM 15%</span>
+                                            <span class="text-[9px] text-slate-400 block">Tặng đồ chơi cưng</span>
+                                        </div>
+                                        <div class="bg-gradient-to-br from-rose-500 to-orange-500 text-white rounded-2xl p-3 text-center space-y-1 shadow-md">
+                                            <span class="text-[11px] font-bold text-white/90 block">LƯU TRÚ 1 THÁNG</span>
+                                            <span class="text-base font-black block">GIẢM 20%</span>
+                                            <span class="text-[9px] text-white/80 block">+ TẶNG 1 GÓI SPA</span>
+                                        </div>
                                     </div>
-                                    <h4 class="font-extrabold text-sm text-emerald-700">The Condo Room</h4>
-                                    <p class="text-[11px] text-slate-500">Phòng chung cư mini cho bé cưng, cửa kính thông thoáng, điều hòa 2 chiều và khay đệm êm.</p>
                                 </div>
 
-                                <div class="rounded-2xl border-2 border-cyan-400 p-3 bg-white shadow-sm space-y-2">
-                                    <div class="h-44 rounded-xl overflow-hidden bg-slate-100">
-                                        <img src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=500&q=80" alt="The Villa" class="w-full h-full object-cover">
-                                    </div>
-                                    <h4 class="font-extrabold text-sm text-cyan-700">The Villa</h4>
-                                    <p class="text-[11px] text-slate-500">Biệt thự gỗ phong cách Bắc Âu độc lập, view sân cỏ vận động, có camera Full HD riêng.</p>
-                                </div>
-
-                                <div class="rounded-2xl border-2 border-orange-400 p-3 bg-white shadow-sm space-y-2">
-                                    <div class="h-44 rounded-xl overflow-hidden bg-slate-100">
-                                        <img src="https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=500&q=80" alt="Daycare sân cỏ" class="w-full h-full object-cover">
-                                    </div>
-                                    <h4 class="font-extrabold text-sm text-[#F97316]">Daycare Sân Cỏ Vận Động</h4>
-                                    <p class="text-[11px] text-slate-500">Khu vui chơi bãi cỏ tự nhiên có bóng mát, huấn luyện viên tương tác kết bạn suốt cả ngày.</p>
+                                <!-- Quy Định Giờ Giấc Check-in/out -->
+                                <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 text-xs space-y-2 text-slate-600">
+                                    <h5 class="font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                                        <i class="fa-solid fa-clock text-[#F97316]"></i>
+                                        <span>QUY ĐỊNH GIỜ GIẤC CHECK-IN / CHECK-OUT:</span>
+                                    </h5>
+                                    <ul class="space-y-1 text-[11px] leading-relaxed">
+                                        <li>• <strong>Giờ check-in:</strong> Bắt đầu từ 09:00 AM mỗi ngày.</li>
+                                        <li>• <strong>Giờ check-out qua đêm:</strong> Trước 11:00 AM (sau 11:00 AM sẽ tính phí Daycare bán trú 1 ngày).</li>
+                                        <li>• <strong>Giờ đón Daycare bán trú:</strong> Trước 19:00 PM cùng ngày.</li>
+                                        <li>• Xe đưa đón chuyên dụng <strong>PetShip360</strong> hỗ trợ đưa đón tận nhà trong khung giờ đặt trước.</li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
@@ -1337,7 +1294,7 @@ CUSTOMER_HTML = """
                 </div>
 
                 <!-- KHỐI FORM ĐẶT LỊCH GIỮ CHỖ (BOOKING FORM BOX - 6 BƯỚC) -->
-                <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+                <div id="pet-service-booking-box" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
                         <div>
                             <h3 class="text-xl font-bold text-slate-900">Phiếu Đặt Lịch & Giữ Chỗ Trực Tuyến</h3>
@@ -1482,7 +1439,7 @@ CUSTOMER_HTML = """
                             <div>
                                 <span class="text-xs text-slate-500 uppercase tracking-wider font-bold">Tổng chi phí dự tính dịch vụ:</span>
                                 <div class="text-3xl font-extrabold text-orange-600 mt-0.5" x-text="formatCurrency(currentServiceBookingCost)"></div>
-                                <span class="text-[11px] text-slate-400">(Bao gồm gói Size M 5.8kg + phụ phí dịch vụ cộng thêm nếu có)</span>
+                                <span class="text-[11px] text-slate-400" x-text="'(Khách sạn thú cưng chuẩn: Mốc ' + getPetHotelWeightLabel(petBookingDetail.weight) + ' - ' + formatCurrency(getPetHotelPriceByWeight(petBookingDetail.weight)) + ' + phụ phí nếu có)'"></span>
                             </div>
                             <div class="flex flex-col sm:items-end gap-2">
                                 <!-- Dòng chữ lưu ý màu đỏ -->

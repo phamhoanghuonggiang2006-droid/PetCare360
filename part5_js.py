@@ -44,7 +44,18 @@ function superPetCareApp() {
         shopSortBy: 'newest', // 'newest' | 'bestseller' | 'price_asc' | 'price_desc'
         shopCurrentPage: 1,
         shopPageSize: 12,
-        hotelSubTab: 'cat', // 'cat' | 'dog'
+        hotelSubTab: 'all', // Áp dụng chung cho cả Chó & Mèo
+        shopCategory: '', // '' = Tất cả | 'Thức ăn & Dinh dưỡng' | 'Phụ kiện & Vệ sinh' | 'Thuốc & Y tế'
+
+        // BẢNG GIÁ KHÁCH SẠN THÚ CƯNG 5 SAO DUY NHẤT ÁP DỤNG CHUNG CHO CHÓ & MÈO THEO CÂN NẶNG
+        petHotelWeightPriceList: [
+            { weight: 'Dưới 5kg', pricePerDay: 200000, daycare: 120000, desc: 'Phù hợp mèo con, mèo nhỏ, cún mini (Poodle Tiny, Phốc sóc, Chihuahua)' },
+            { weight: '5kg - 8kg', pricePerDay: 250000, daycare: 150000, desc: 'Phù hợp mèo trưởng thành, cún nhỏ (Poodle Toy, Pug, Bắc Kinh, Mèo Anh)' },
+            { weight: '8kg - 12kg', pricePerDay: 300000, daycare: 180000, desc: 'Phù hợp Corgi, Shiba Inu, French Bulldog, mèo khổng lồ Maine Coon' },
+            { weight: '12kg - 18kg', pricePerDay: 360000, daycare: 220000, desc: 'Phù hợp Border Collie, Bull Anh, Cocker Spaniel, chó tầm trung' },
+            { weight: '18kg - 25kg', pricePerDay: 420000, daycare: 260000, desc: 'Phù hợp Husky, Golden Retriever nhỏ, Samoyed, chó cỡ lớn' },
+            { weight: 'Trên 25kg', pricePerDay: 500000, daycare: 300000, desc: 'Phù hợp Alaska, Golden Retriever lớn, Labrador, Doberman, Becgie' }
+        ],
 
         // Fallback mock array gồm 8 object sản phẩm thú cưng chuẩn thiết kế
         fallbackRelatedProducts: [
@@ -2711,12 +2722,42 @@ function superPetCareApp() {
             if (el) el.scrollBy({ left: 320, behavior: 'smooth' });
         },
 
+        // HELPER MAP GIÁ KHÁCH SẠN THEO CÂN NẶNG (TỰ ĐỘNG MAP GIÁ)
+        getPetHotelPriceByWeight(weight) {
+            const w = Number(weight) || 5;
+            if (w < 5) return 200000;
+            if (w < 8) return 250000;
+            if (w < 12) return 300000;
+            if (w < 18) return 360000;
+            if (w < 25) return 420000;
+            return 500000;
+        },
+
+        getPetHotelWeightLabel(weight) {
+            const w = Number(weight) || 5;
+            if (w < 5) return 'Dưới 5kg';
+            if (w < 8) return '5kg - 8kg';
+            if (w < 12) return '8kg - 12kg';
+            if (w < 18) return '12kg - 18kg';
+            if (w < 25) return '18kg - 25kg';
+            return 'Trên 25kg';
+        },
+
+        selectPetHotelWeightPlan(plan) {
+            this.serviceBookingForm.serviceName = 'Khách Sạn Thú Cưng Tiêu Chuẩn 5 Sao (' + plan.weight + ')';
+            const bookingBox = document.getElementById('pet-service-booking-box');
+            if (bookingBox) {
+                bookingBox.scrollIntoView({ behavior: 'smooth' });
+            }
+        },
+
         backToShopCatalog() {
             this.shopViewMode = 'catalog';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         },
 
         resetShopFilters() {
+            this.shopCategory = '';
             this.shopSpecies = '';
             this.shopProductType = '';
             this.shopBrand = '';
@@ -2734,6 +2775,9 @@ function superPetCareApp() {
 
         get filteredCatalogProducts() {
             let list = [...this.products];
+            if (this.shopCategory) {
+                list = list.filter(p => p.category === this.shopCategory);
+            }
             if (this.shopSpecies) {
                 list = list.filter(p => p.species === this.shopSpecies || (this.shopSpecies === 'Thỏ' && (p.category.includes('Phụ kiện') || p.category.includes('Dinh dưỡng'))));
             }
@@ -2798,13 +2842,9 @@ function superPetCareApp() {
 
         // 2. DỊCH VỤ MATRIX & BOOKING HELPERS
         get currentServiceBookingCost() {
-            let base = 350000;
             const pet = this.pets.find(p => p.id === Number(this.serviceBookingForm.petId)) || this.pets[0];
-            const w = pet ? Number(pet.weight) || 5 : 5;
-            if (w < 5) base = 250000;
-            else if (w <= 10) base = 350000;
-            else if (w <= 20) base = 480000;
-            else base = 650000;
+            const w = pet ? (Number(pet.weight) || 5) : (Number(this.petBookingDetail.weight) || 5);
+            let base = this.getPetHotelPriceByWeight(w);
 
             let addonsCost = 0;
             if (this.serviceBookingForm.addons.includes('massage')) addonsCost += 50000;
