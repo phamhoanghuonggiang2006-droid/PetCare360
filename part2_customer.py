@@ -1860,101 +1860,362 @@ CUSTOMER_HTML = """
                     </div>
 
                     <!-- CỘT GIỮA (MAIN FEED - 600PX) -->
-                    <div class="w-full lg:w-[600px] flex-shrink-0 space-y-5">
+                    <div class="w-full lg:w-[600px] flex-shrink-0 space-y-5" @scroll.window.debounce.150ms="handleFeedScroll()">
                         
+                        <style>
+                        @keyframes heartPop {
+                            0% { transform: scale(1); }
+                            40% { transform: scale(1.4); }
+                            70% { transform: scale(0.9); }
+                            100% { transform: scale(1); }
+                        }
+                        .animate-heart-pop {
+                            animation: heartPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                        }
+                        </style>
+
                         <!-- Widget "Tạo Bài Viết Mới" -->
-                        <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-4">
-                            <div class="flex items-center gap-3">
-                                <img :src="customerProfile.avatar" class="w-10 h-10 rounded-full object-cover">
-                                <input type="text" x-model="newPostText" placeholder="Hôm nay bé cưng của bạn thế nào?" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-2.5 text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <div class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm space-y-4 transition hover:shadow-md">
+                            <!-- User info & Textarea -->
+                            <div class="flex items-start gap-3">
+                                <img :src="customerProfile.avatar" class="w-10 h-10 rounded-full object-cover border border-slate-200 ring-2 ring-brand-100 flex-shrink-0">
+                                <div class="flex-1 space-y-2">
+                                    <textarea x-model="newPostText" rows="2" placeholder="Hôm nay bé cưng của bạn thế nào? Chia sẻ khoảnh khắc đáng yêu ngay..." class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white resize-none transition"></textarea>
+                                    
+                                    <!-- Tagged Pet Badge -->
+                                    <template x-if="selectedTaggedPet">
+                                        <div class="inline-flex items-center gap-2 bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200/80 text-orange-800 px-3 py-1.5 rounded-full text-xs font-bold shadow-xs">
+                                            <img :src="selectedTaggedPet.avatar || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=150&q=80'" class="w-4 h-4 rounded-full object-cover ring-1 ring-orange-300">
+                                            <span x-text="'Bé: ' + selectedTaggedPet.name + ' (' + selectedTaggedPet.breed + ')'"></span>
+                                            <button type="button" @click="selectedTaggedPet = null; newPostPetId = null" class="w-4 h-4 rounded-full bg-orange-200/80 hover:bg-orange-300 text-orange-900 inline-flex items-center justify-center text-[10px] transition ml-0.5" title="Gỡ gắn thẻ">
+                                                <i class="fa-solid fa-xmark"></i>
+                                            </button>
+                                        </div>
+                                    </template>
+                                </div>
                             </div>
-                            <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+
+                            <!-- Thumbnail Preview Grid (Ảnh/Video đã chọn) -->
+                            <template x-if="newPostMediaList && newPostMediaList.length > 0">
+                                <div class="space-y-2 pt-2 border-t border-slate-100">
+                                    <div class="flex items-center justify-between text-xs font-semibold text-slate-600 px-1">
+                                        <span class="flex items-center gap-1.5 text-brand-700 font-bold">
+                                            <i class="fa-solid fa-photo-film"></i>
+                                            <span x-text="'Đã chọn ' + newPostMediaList.length + ' tệp đính kèm'"></span>
+                                        </span>
+                                        <button type="button" @click="newPostMediaList = []; newPostMedia = ''; if($refs.postFileInput) $refs.postFileInput.value=''" class="text-rose-500 hover:text-rose-700 text-xs flex items-center gap-1 transition">
+                                            <i class="fa-regular fa-trash-can"></i> Xóa tất cả
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                                        <template x-for="(media, mIdx) in newPostMediaList" :key="mIdx">
+                                            <div class="relative group rounded-2xl overflow-hidden border border-slate-200 bg-slate-900 aspect-square shadow-sm">
+                                                <template x-if="media.type === 'image'">
+                                                    <img :src="media.url" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                                </template>
+                                                <template x-if="media.type === 'video'">
+                                                    <div class="w-full h-full relative">
+                                                        <video :src="media.url" class="w-full h-full object-cover"></video>
+                                                        <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                                            <div class="w-8 h-8 rounded-full bg-white/80 text-brand-700 flex items-center justify-center shadow">
+                                                                <i class="fa-solid fa-play text-xs ml-0.5"></i>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                                
+                                                <!-- Nút (X) xóa từng file -->
+                                                <button type="button" @click.stop="removePostMedia(mIdx)" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/60 hover:bg-rose-600 text-white flex items-center justify-center text-xs transition shadow-md" title="Xóa file này">
+                                                    <i class="fa-solid fa-xmark"></i>
+                                                </button>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <!-- Toolbar: Ảnh/Video, Gắn thẻ Pet, Cảm xúc, Đăng bài -->
+                            <div class="flex items-center justify-between pt-2.5 border-t border-slate-100 relative">
                                 <div class="flex items-center gap-1 sm:gap-2 text-slate-500 text-xs">
-                                    <button class="p-2 rounded-xl hover:bg-slate-100 transition flex items-center gap-1 text-emerald-600 font-semibold" title="Tải ảnh / Video">
+                                    <!-- Hidden File Input for Image/Video -->
+                                    <input type="file" x-ref="postFileInput" accept="image/*,video/*" multiple class="hidden" @change="handlePostMediaSelect($event)">
+                                    
+                                    <!-- Nút Ảnh/Video -->
+                                    <button type="button" @click="$refs.postFileInput.click()" class="p-2 sm:px-3 sm:py-2 rounded-xl hover:bg-emerald-50 transition flex items-center gap-1.5 text-emerald-600 font-semibold active:scale-95" title="Tải ảnh / Video">
                                         <i class="fa-solid fa-image text-sm"></i>
                                         <span class="hidden sm:inline">Ảnh/Video</span>
                                     </button>
-                                    <button class="p-2 rounded-xl hover:bg-slate-100 transition flex items-center gap-1 text-brand-600 font-semibold" title="Gắn thẻ Hồ sơ Pet">
-                                        <i class="fa-solid fa-paw text-sm"></i>
-                                        <span class="hidden sm:inline">Gắn thẻ Pet</span>
-                                    </button>
-                                    <button class="p-2 rounded-xl hover:bg-slate-100 transition flex items-center gap-1 text-amber-500 font-semibold" title="Cảm xúc">
-                                        <i class="fa-solid fa-face-smile text-sm"></i>
-                                        <span class="hidden sm:inline">Cảm xúc</span>
-                                    </button>
+                                    
+                                    <!-- Gắn thẻ Pet Popover -->
+                                    <div class="relative">
+                                        <button type="button" @click="tagPetPopoverOpen = !tagPetPopoverOpen; emojiPickerOpen = false" class="p-2 sm:px-3 sm:py-2 rounded-xl hover:bg-brand-50 transition flex items-center gap-1.5 text-brand-600 font-semibold active:scale-95" title="Gắn thẻ Hồ sơ Pet">
+                                            <i class="fa-solid fa-paw text-sm"></i>
+                                            <span class="hidden sm:inline">Gắn thẻ Pet</span>
+                                            <i class="fa-solid fa-chevron-down text-[10px] ml-0.5 opacity-70"></i>
+                                        </button>
+                                        
+                                        <!-- Dropdown Popover Gắn thẻ Pet -->
+                                        <div x-show="tagPetPopoverOpen" @click.outside="tagPetPopoverOpen = false" x-transition.origin.top.left class="absolute left-0 top-full mt-2 z-40 w-72 bg-white rounded-2xl shadow-2xl border border-slate-200 p-3 space-y-2.5">
+                                            <div class="flex items-center justify-between pb-1.5 border-b border-slate-100">
+                                                <span class="font-bold text-xs text-slate-800 flex items-center gap-1.5">
+                                                    <i class="fa-solid fa-paw text-brand-600"></i> Gắn thẻ thú cưng của bạn
+                                                </span>
+                                                <button type="button" @click="tagPetPopoverOpen = false" class="text-slate-400 hover:text-slate-600 text-xs">
+                                                    <i class="fa-solid fa-xmark"></i>
+                                                </button>
+                                            </div>
+                                            
+                                            <div class="max-h-52 overflow-y-auto space-y-1.5 pr-1">
+                                                <template x-for="p in userPets" :key="p.id">
+                                                    <button type="button" @click="selectTaggedPet(p); tagPetPopoverOpen = false" :class="selectedTaggedPet && selectedTaggedPet.id === p.id ? 'bg-orange-50 border-orange-200 ring-1 ring-orange-400' : 'hover:bg-slate-50 border-slate-100'" class="w-full flex items-center gap-3 p-2 rounded-xl border text-left transition group">
+                                                        <img :src="p.avatar || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=150&q=80'" class="w-9 h-9 rounded-full object-cover border border-slate-200 ring-1 ring-brand-100 flex-shrink-0">
+                                                        <div class="flex-1 min-w-0">
+                                                            <div class="font-bold text-xs text-slate-800 truncate" x-text="p.name"></div>
+                                                            <div class="text-[11px] text-slate-500 truncate" x-text="p.breed + ' • ' + p.weight + 'kg'"></div>
+                                                        </div>
+                                                        <template x-if="selectedTaggedPet && selectedTaggedPet.id === p.id">
+                                                            <i class="fa-solid fa-check text-orange-500 text-xs"></i>
+                                                        </template>
+                                                    </button>
+                                                </template>
+                                            </div>
+
+                                            <template x-if="selectedTaggedPet">
+                                                <button type="button" @click="selectedTaggedPet = null; newPostPetId = null; tagPetPopoverOpen = false" class="w-full text-center py-1.5 text-xs text-rose-500 hover:text-rose-700 font-semibold border-t border-slate-100 transition">
+                                                    Hủy gắn thẻ bé
+                                                </button>
+                                            </template>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Cảm xúc (Emoji Picker) Popover -->
+                                    <div class="relative">
+                                        <button type="button" @click="emojiPickerOpen = !emojiPickerOpen; tagPetPopoverOpen = false" class="p-2 sm:px-3 sm:py-2 rounded-xl hover:bg-amber-50 transition flex items-center gap-1.5 text-amber-500 font-semibold active:scale-95" title="Chọn biểu tượng cảm xúc">
+                                            <i class="fa-solid fa-face-smile text-sm"></i>
+                                            <span class="hidden sm:inline">Cảm xúc</span>
+                                            <i class="fa-solid fa-chevron-down text-[10px] ml-0.5 opacity-70"></i>
+                                        </button>
+                                        
+                                        <!-- Dropdown Popover Emoji Picker -->
+                                        <div x-show="emojiPickerOpen" @click.outside="emojiPickerOpen = false" x-transition.origin.top.left class="absolute left-0 sm:left-auto sm:right-0 top-full mt-2 z-40 w-72 sm:w-80 bg-white rounded-2xl shadow-2xl border border-slate-200 p-3 space-y-3">
+                                            <div class="flex items-center justify-between pb-1.5 border-b border-slate-100">
+                                                <span class="font-bold text-xs text-slate-800 flex items-center gap-1.5">
+                                                    <i class="fa-regular fa-face-smile text-amber-500"></i> Biểu tượng cảm xúc
+                                                </span>
+                                                <button type="button" @click="emojiPickerOpen = false" class="text-slate-400 hover:text-slate-600 text-xs">
+                                                    <i class="fa-solid fa-xmark"></i>
+                                                </button>
+                                            </div>
+                                            
+                                            <!-- Nhóm 1: Thú Cưng -->
+                                            <div class="space-y-1">
+                                                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Thú Cưng & Đáng Yêu</div>
+                                                <div class="grid grid-cols-8 gap-1 text-base text-center">
+                                                    <template x-for="emo in ['🐶','🐱','🐾','🦴','🐕','🐈','🐩','🐹','🐰','🦊','🦁','🐼','🐨','🐟','🦜','🐢']" :key="emo">
+                                                        <button type="button" @click="insertEmoji(emo)" class="p-1 rounded-lg hover:bg-amber-50 hover:scale-125 transition transform" x-text="emo"></button>
+                                                    </template>
+                                                </div>
+                                            </div>
+
+                                            <!-- Nhóm 2: Yêu Thương & Trái Tim -->
+                                            <div class="space-y-1">
+                                                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Yêu Thương & Trái Tim</div>
+                                                <div class="grid grid-cols-8 gap-1 text-base text-center">
+                                                    <template x-for="emo in ['❤️','🧡','💛','💖','💕','🥰','😍','😻','😘','💓','💗','🔥','✨','🎉','🌟','💯']" :key="emo">
+                                                        <button type="button" @click="insertEmoji(emo)" class="p-1 rounded-lg hover:bg-rose-50 hover:scale-125 transition transform" x-text="emo"></button>
+                                                    </template>
+                                                </div>
+                                            </div>
+
+                                            <!-- Nhóm 3: Biểu Cảm Hài Hước -->
+                                            <div class="space-y-1">
+                                                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Biểu Cảm Hài Hước</div>
+                                                <div class="grid grid-cols-8 gap-1 text-base text-center">
+                                                    <template x-for="emo in ['😂','🤣','🥳','😋','😎','🤩','😜','😇','😸','😺','👏','🙌','👍','✌️','👌','🙏']" :key="emo">
+                                                        <button type="button" @click="insertEmoji(emo)" class="p-1 rounded-lg hover:bg-slate-100 hover:scale-125 transition transform" x-text="emo"></button>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <button @click="createSocialPost()" class="bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs sm:text-sm px-5 py-2 rounded-xl shadow-md shadow-orange-500/20 transition">
-                                    Đăng bài
+                                
+                                <!-- Nút Đăng Bài -->
+                                <button type="button" @click="createSocialPost()" class="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-md shadow-orange-500/25 transition active:scale-95 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                                    <span>Đăng bài</span>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- DANH SÁCH BÀI ĐĂNG (POST CARDS) -->
+                        <!-- DANH SÁCH BÀI ĐĂNG (FEED POST CARDS) -->
                         <div class="space-y-5">
-                            <template x-for="post in socialPosts" :key="post.id">
-                                <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-4">
+                            <template x-for="post in visibleSocialPosts" :key="post.id">
+                                <div class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm space-y-4 hover:shadow-md transition">
                                     
                                     <!-- Header Post -->
-                                    <div class="flex items-center justify-between">
+                                    <div class="flex items-center justify-between relative">
                                         <div class="flex items-center gap-3">
-                                            <img :src="post.avatar" class="w-10 h-10 rounded-full object-cover border border-slate-200">
+                                            <img :src="post.avatar" class="w-10 h-10 rounded-full object-cover border border-slate-200 ring-2 ring-brand-100">
                                             <div>
-                                                <div class="flex items-center gap-2">
+                                                <div class="flex items-center gap-2 flex-wrap">
                                                     <h5 class="font-bold text-xs sm:text-sm text-slate-900" x-text="post.author"></h5>
-                                                    <span class="text-[10px] bg-brand-50 text-brand-700 font-bold px-2 py-0.2 rounded-full" x-text="'Bé: ' + post.petName"></span>
+                                                    <span class="text-[10px] bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200/80 text-orange-700 font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1" x-text="'Bé: ' + post.petName"></span>
+                                                    <template x-if="post.isSaved">
+                                                        <span class="text-[9px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded-md inline-flex items-center gap-0.5" title="Đã lưu bài viết">
+                                                            <i class="fa-solid fa-bookmark text-[8px]"></i> Đã lưu
+                                                        </span>
+                                                    </template>
                                                 </div>
                                                 <span class="text-[11px] text-slate-400" x-text="post.time"></span>
                                             </div>
                                         </div>
-                                        <button class="text-slate-400 hover:text-slate-600 p-1">
-                                            <i class="fa-solid fa-ellipsis"></i>
-                                        </button>
+                                        
+                                        <!-- Post Options (Menu 3 chấm góc phải) -->
+                                        <div class="relative">
+                                            <button type="button" @click="openPostOptionsId = (openPostOptionsId === post.id ? null : post.id)" class="text-slate-400 hover:text-slate-700 w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center transition" title="Tùy chọn bài viết">
+                                                <i class="fa-solid fa-ellipsis"></i>
+                                            </button>
+
+                                            <!-- Dropdown menu 3 chấm -->
+                                            <div x-show="openPostOptionsId === post.id" @click.outside="openPostOptionsId = null" x-transition.origin.top.right class="absolute right-0 top-full mt-1.5 z-30 w-52 bg-white rounded-2xl shadow-xl border border-slate-200 py-1.5 overflow-hidden text-xs font-semibold text-slate-700">
+                                                <button type="button" @click="toggleSavePost(post.id)" class="w-full px-3.5 py-2 hover:bg-slate-50 flex items-center gap-2.5 text-left transition">
+                                                    <i :class="post.isSaved ? 'fa-solid fa-bookmark text-amber-500' : 'fa-regular fa-bookmark text-slate-500'" class="w-4"></i>
+                                                    <span x-text="post.isSaved ? 'Bỏ lưu bài viết' : 'Lưu bài viết'"></span>
+                                                </button>
+                                                <button type="button" @click="copyPostLink(post.id)" class="w-full px-3.5 py-2 hover:bg-slate-50 flex items-center gap-2.5 text-left transition">
+                                                    <i class="fa-solid fa-link text-slate-500 w-4"></i>
+                                                    <span>Sao chép liên kết</span>
+                                                </button>
+                                                <button type="button" @click="reportPost(post.id)" class="w-full px-3.5 py-2 hover:bg-slate-50 flex items-center gap-2.5 text-left transition text-amber-600">
+                                                    <i class="fa-regular fa-flag w-4"></i>
+                                                    <span>Báo cáo bài viết</span>
+                                                </button>
+                                                <template x-if="post.author === customerProfile.name || post.time === 'Vừa xong'">
+                                                    <div class="border-t border-slate-100 my-1 pt-1">
+                                                        <button type="button" @click="deleteSocialPost(post.id)" class="w-full px-3.5 py-2 hover:bg-rose-50 flex items-center gap-2.5 text-left transition text-rose-600">
+                                                            <i class="fa-regular fa-trash-can w-4"></i>
+                                                            <span>Xóa bài viết</span>
+                                                        </button>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <!-- Nội dung text (Hỗ trợ hashtag màu xanh) -->
+                                    <!-- Nội dung bài viết (whitespace-pre-line) -->
                                     <p class="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line" x-text="post.content"></p>
 
-                                    <!-- Lưới Hình ảnh (Layout 1-4 ảnh) -->
+                                    <!-- Lưới Hình ảnh (Lightbox trigger) -->
                                     <template x-if="post.images && post.images.length > 0">
-                                        <div :class="post.images.length === 1 ? 'grid grid-cols-1' : (post.images.length === 2 ? 'grid grid-cols-2 gap-2' : 'grid grid-cols-2 gap-2')" class="rounded-2xl overflow-hidden">
+                                        <div :class="post.images.length === 1 ? 'grid grid-cols-1' : (post.images.length === 2 ? 'grid grid-cols-2 gap-2' : (post.images.length === 3 ? 'grid grid-cols-2 gap-2' : 'grid grid-cols-2 gap-2'))" class="rounded-2xl overflow-hidden border border-slate-100 bg-slate-50">
                                             <template x-for="(img, iidx) in post.images" :key="iidx">
-                                                <img :src="img" class="w-full h-48 sm:h-56 object-cover hover:scale-105 transition duration-300 cursor-pointer">
+                                                <div class="relative group cursor-pointer overflow-hidden aspect-video sm:aspect-auto sm:h-56 bg-slate-900" @click="openLightbox(post.images, iidx)">
+                                                    <img :src="img" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                                        <span class="w-10 h-10 rounded-full bg-white/80 backdrop-blur-md text-slate-800 flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition">
+                                                            <i class="fa-solid fa-magnifying-glass-plus"></i>
+                                                        </span>
+                                                    </div>
+                                                </div>
                                             </template>
                                         </div>
                                     </template>
 
                                     <!-- Thanh Tương Tác: Thả tim, Bình luận, Chia sẻ -->
                                     <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs font-semibold text-slate-500">
-                                        <button @click="toggleLikePost(post.id)" :class="post.isLiked ? 'text-rose-500' : 'hover:text-rose-500'" class="flex items-center gap-1.5 py-1.5 px-3 rounded-xl hover:bg-slate-50 transition">
-                                            <i :class="post.isLiked ? 'fa-solid fa-heart' : 'fa-regular fa-heart'" class="text-base"></i>
+                                        <!-- Nút Like (Thả tim) có pop animation -->
+                                        <button type="button" @click="toggleLikePost(post.id)" :class="post.isLiked ? 'text-rose-500 bg-rose-50/70 font-bold' : 'hover:text-rose-500 hover:bg-slate-50'" class="flex items-center gap-1.5 py-1.5 px-3 rounded-xl transition active:scale-95">
+                                            <i :class="[post.isLiked ? 'fa-solid fa-heart text-rose-500' : 'fa-regular fa-heart', post.likeAnimating ? 'animate-heart-pop' : '']" class="text-base transition-transform"></i>
                                             <span x-text="post.likes"></span>
                                         </button>
-                                        <button class="flex items-center gap-1.5 py-1.5 px-3 rounded-xl hover:bg-slate-50 transition hover:text-brand-600">
+                                        
+                                        <!-- Nút Bình luận -->
+                                        <button type="button" class="flex items-center gap-1.5 py-1.5 px-3 rounded-xl hover:bg-slate-50 transition hover:text-brand-600">
                                             <i class="fa-regular fa-comment text-base"></i>
-                                            <span x-text="post.comments.length + ' bình luận'"></span>
+                                            <span x-text="(post.comments ? post.comments.length : 0) + ' bình luận'"></span>
                                         </button>
-                                        <button @click="sharePost(post.id)" class="flex items-center gap-1.5 py-1.5 px-3 rounded-xl hover:bg-slate-50 transition hover:text-teal-600">
-                                            <i class="fa-solid fa-share-nodes text-base"></i>
-                                            <span>Chia sẻ</span>
-                                        </button>
+                                        
+                                        <!-- Nút Chia sẻ (Share Popover) -->
+                                        <div class="relative">
+                                            <button type="button" @click="openShareMenuPostId = (openShareMenuPostId === post.id ? null : post.id)" class="flex items-center gap-1.5 py-1.5 px-3 rounded-xl hover:bg-slate-50 transition hover:text-teal-600">
+                                                <i class="fa-solid fa-share-nodes text-base"></i>
+                                                <span x-text="post.shares > 0 ? ('Chia sẻ (' + post.shares + ')') : 'Chia sẻ'"></span>
+                                            </button>
+
+                                            <!-- Dropdown Menu Chia Sẻ -->
+                                            <div x-show="openShareMenuPostId === post.id" @click.outside="openShareMenuPostId = null" x-transition.origin.bottom.right class="absolute right-0 bottom-full mb-2 z-30 w-56 bg-white rounded-2xl shadow-xl border border-slate-200 py-1.5 overflow-hidden text-xs font-semibold text-slate-700">
+                                                <button type="button" @click="copyPostLink(post.id)" class="w-full px-3.5 py-2 hover:bg-slate-50 flex items-center gap-2.5 text-left transition">
+                                                    <i class="fa-regular fa-copy text-brand-600 w-4"></i>
+                                                    <span>Sao chép liên kết</span>
+                                                </button>
+                                                <button type="button" @click="shareViaDevice(post)" class="w-full px-3.5 py-2 hover:bg-slate-50 flex items-center gap-2.5 text-left transition text-teal-700">
+                                                    <i class="fa-solid fa-arrow-up-right-from-square text-teal-600 w-4"></i>
+                                                    <span>Chia sẻ qua...</span>
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <!-- Khối Bình luận nhanh bên dưới mỗi bài viết -->
-                                    <div class="pt-2 border-t border-slate-100 space-y-2">
-                                        <template x-for="(c, cidx) in post.comments" :key="cidx">
-                                            <div class="bg-slate-50 rounded-2xl p-2.5 text-xs flex items-start gap-2.5">
-                                                <span class="font-bold text-slate-800" x-text="c.user + ':'"></span>
-                                                <span class="text-slate-600 flex-1" x-text="c.text"></span>
+                                    <!-- Khối Bình luận real-time bên dưới mỗi bài viết -->
+                                    <div class="pt-2 border-t border-slate-100 space-y-2.5">
+                                        <!-- Danh sách bình luận -->
+                                        <template x-if="post.comments && post.comments.length > 0">
+                                            <div class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                                                <template x-for="(c, cidx) in post.comments" :key="c.id || cidx">
+                                                    <div class="bg-slate-50/90 rounded-2xl p-2.5 text-xs flex items-start gap-2.5 border border-slate-100">
+                                                        <img :src="c.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'" class="w-7 h-7 rounded-full object-cover flex-shrink-0 border border-slate-200">
+                                                        <div class="flex-1 min-w-0">
+                                                            <div class="flex items-center justify-between gap-1">
+                                                                <span class="font-bold text-slate-900" x-text="c.user"></span>
+                                                                <span class="text-[10px] text-slate-400" x-text="c.time || 'Vừa xong'"></span>
+                                                            </div>
+                                                            <p class="text-slate-700 mt-0.5 leading-relaxed" x-text="c.text"></p>
+                                                        </div>
+                                                    </div>
+                                                </template>
                                             </div>
                                         </template>
+                                        
+                                        <!-- Ô nhập bình luận nhanh -->
                                         <div class="flex items-center gap-2 pt-1">
-                                            <input type="text" x-model="quickCommentText[post.id]" @keyup.enter="addCommentToPost(post.id)" placeholder="Viết bình luận nhanh..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-brand-500">
-                                            <button @click="addCommentToPost(post.id)" class="px-3 py-1.5 bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold rounded-xl text-xs transition">Gửi</button>
+                                            <img :src="customerProfile.avatar" class="w-7 h-7 rounded-full object-cover flex-shrink-0 border border-slate-200 hidden sm:block">
+                                            <input type="text" x-model="quickCommentText[post.id]" @keyup.enter="addCommentToPost(post.id)" placeholder="Viết bình luận cho bé cưng..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition">
+                                            <button type="button" @click="addCommentToPost(post.id)" class="px-3.5 py-2 bg-gradient-to-r from-brand-600 to-teal-600 hover:from-brand-700 hover:to-teal-700 text-white font-bold rounded-xl text-xs transition shadow-sm active:scale-95 flex items-center gap-1 flex-shrink-0">
+                                                <span>Gửi</span>
+                                                <i class="fa-solid fa-paper-plane text-[10px]"></i>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
                             </template>
                         </div>
+
+                        <!-- INFINITE SCROLL / LAZY LOAD STATUS -->
+                        <div class="pt-2 pb-6">
+                            <!-- Spinner Loading khi đang tải thêm -->
+                            <div x-show="isLoadingMorePosts" class="flex items-center justify-center gap-2.5 py-4 text-slate-500 text-xs font-semibold bg-white rounded-2xl border border-slate-100 shadow-sm animate-pulse">
+                                <i class="fa-solid fa-circle-notch fa-spin text-brand-600 text-base"></i>
+                                <span>Đang tải thêm khoảnh khắc thú cưng mới nhất...</span>
+                            </div>
+
+                            <!-- Nút Xem Thêm (Fallback hoặc manual trigger) -->
+                            <div x-show="!isLoadingMorePosts && feedVisibleCount < socialPosts.length" class="text-center">
+                                <button type="button" @click="loadMorePosts()" class="w-full py-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold text-xs rounded-2xl shadow-sm hover:shadow transition flex items-center justify-center gap-2 group">
+                                    <i class="fa-solid fa-angles-down text-brand-600 group-hover:translate-y-0.5 transition"></i>
+                                    <span>Xem thêm bài viết từ cộng đồng PetShare360</span>
+                                    <span class="text-[11px] text-slate-400 font-normal" x-text="'(Còn ' + (socialPosts.length - feedVisibleCount) + ' bài viết)'"></span>
+                                </button>
+                            </div>
+
+                            <!-- Đã xem hết bài -->
+                            <div x-show="feedVisibleCount >= socialPosts.length" class="text-center py-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-slate-400 text-xs font-medium">
+                                <i class="fa-solid fa-check-circle text-emerald-500 mr-1.5"></i>
+                                <span>Bạn đã xem hết tất cả bài viết hôm nay. Hãy đăng bài chia sẻ bé cưng của bạn nhé! 🎉</span>
+                            </div>
+                        </div>
+
                     </div>
 
                     <!-- CỘT PHẢI (SIDEBAR PHẢI - 300PX) -->

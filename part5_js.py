@@ -243,8 +243,30 @@ function superPetCareApp() {
         socialActiveMenu: 'all', // 'all' | 'my_posts' | 'vet_tips' | 'streak'
         newPostText: '',
         newPostMedia: '',
+        newPostMediaList: [],
         newPostPetId: 1,
+        selectedTaggedPet: null,
+        tagPetPopoverOpen: false,
+        emojiPickerOpen: false,
+        openPostOptionsId: null,
+        openShareMenuPostId: null,
+        feedVisibleCount: 3,
+        isLoadingMorePosts: false,
+        showLightboxModal: false,
+        lightboxImages: [],
+        lightboxActiveIndex: 0,
+        quickCommentText: {},
+        toastNotification: { show: false, message: '' },
         streakDays: 12,
+
+        get userPets() {
+            return this.pets || [];
+        },
+
+        get visibleSocialPosts() {
+            return (this.socialPosts || []).slice(0, this.feedVisibleCount);
+        },
+
         socialNotifications: [
             { id: 1, user: 'Bs. Trần Thu Hà', avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=150&q=80', text: 'đã trả lời bình luận của bạn trong bài viết về Dinh dưỡng cho Corgi', time: '10 phút trước', read: false },
             { id: 2, user: 'Hoàng Minh Đức', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80', text: 'đã thả tim bài đăng của bạn', time: '35 phút trước', read: false },
@@ -265,6 +287,8 @@ function superPetCareApp() {
                 ],
                 likes: 42,
                 isLiked: false,
+                isSaved: false,
+                likeAnimating: false,
                 shares: 6,
                 comments: [
                     { id: 1, user: 'Bs. Trần Thu Hà', avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=150&q=80', text: 'Bé Bơ hợp tác lắm nè mẹ Giang ơi, chúc bé luôn khỏe mạnh nhé!', time: '10 phút trước' },
@@ -284,6 +308,8 @@ function superPetCareApp() {
                 ],
                 likes: 68,
                 isLiked: true,
+                isSaved: false,
+                likeAnimating: false,
                 shares: 11,
                 comments: [
                     { id: 1, user: 'Phạm Quỳnh Anh', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80', text: 'Dòng này hạt mềm vừa răng cún nhỏ, bé nhà mình cũng mê tít!', time: '1 giờ trước' }
@@ -303,7 +329,88 @@ function superPetCareApp() {
                 ],
                 likes: 95,
                 isLiked: false,
+                isSaved: true,
+                likeAnimating: false,
                 shares: 14,
+                comments: []
+            },
+            {
+                id: 4,
+                author: 'Trần Bảo Ngọc',
+                petName: 'Milo',
+                breed: 'Golden Retriever',
+                avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80',
+                time: '6 giờ trước',
+                content: 'Chiều chủ nhật cho Milo ra bãi cỏ vận động của PetCare360 chạy nhảy tưng bừng. Cậu chàng kết bạn được với cả hội Corgi và Samoyed, quẩy nhiệt tình về ngủ khò khò luôn 🐶⚽ #GoldenRetriever #PetCare360 #CuốiTuầnCùngPet',
+                images: [
+                    'https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=600&q=80',
+                    'https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?auto=format&fit=crop&w=600&q=80'
+                ],
+                likes: 112,
+                isLiked: false,
+                isSaved: false,
+                likeAnimating: false,
+                shares: 18,
+                comments: [
+                    { id: 1, user: 'Lê Minh', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80', text: 'Milo nhìn hiền lành và đáng yêu quá!', time: '3 giờ trước' }
+                ]
+            },
+            {
+                id: 5,
+                author: 'Đặng Thu Trang',
+                petName: 'Miu Miu',
+                breed: 'Mèo Ba Tư Trắng',
+                avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80',
+                time: '8 giờ trước',
+                content: 'Vừa tiêm nhắc lại vaccine 4 bệnh cho Miu Miu tại phòng khám PetCare360. Bác sĩ siêu có tâm, dặn dò tỉ mỉ chế độ ăn uống và theo dõi sau tiêm. Trộm vía bé về không bị sốt hay mệt gì cả! 🩺💉 #SứcKhỏeThúCưng #VaccineMèo #PetCareClinic',
+                images: [
+                    'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=600&q=80'
+                ],
+                likes: 53,
+                isLiked: false,
+                isSaved: false,
+                likeAnimating: false,
+                shares: 5,
+                comments: []
+            },
+            {
+                id: 6,
+                author: 'Vũ Anh Tuấn',
+                petName: 'Bắp & Bơ',
+                breed: 'Mèo Tai Cụp Scottish',
+                avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80',
+                time: '1 ngày trước',
+                content: 'Hai đứa nhỏ sinh đôi Bắp & Bơ lần đầu thử pate dinh dưỡng cá ngừ phô mai của PetCare360, ăn tranh nhau đến mức liếm sạch cả đĩa. Sen nào có mèo biếng ăn thì highly recommend thử nha! 🥣🧀 #MèoTaiCụp #ScottishFold #PateMèo',
+                images: [
+                    'https://images.unsplash.com/photo-1574158622682-e40e69881006?auto=format&fit=crop&w=600&q=80',
+                    'https://images.unsplash.com/photo-1561948955-570b270e7c36?auto=format&fit=crop&w=600&q=80'
+                ],
+                likes: 87,
+                isLiked: true,
+                isSaved: false,
+                likeAnimating: false,
+                shares: 9,
+                comments: [
+                    { id: 1, user: 'Nguyễn Phương Thảo', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80', text: 'Hai bé cưng xỉu luôn anh Tuấn ơi 😍', time: '18 giờ trước' }
+                ]
+            },
+            {
+                id: 7,
+                author: 'Phạm Hoàng Giang',
+                petName: 'Sữa Chua',
+                breed: 'Husky Siberian Ngáo',
+                avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
+                time: '2 ngày trước',
+                content: 'Cắt tỉa lông và tắm sấy thảo dược xong nhìn phong độ hẳn ra, bớt ngáo được 10 phút đầu rồi lại nghịch như quỷ sứ haha 😂 Cảm ơn team Grooming PetCare360 đã kiên nhẫn với thanh niên này! #HuskyNgáo #SpaChóLớn #PetCare360',
+                images: [
+                    'https://images.unsplash.com/photo-1605568427561-40dd23c2acea?auto=format&fit=crop&w=600&q=80',
+                    'https://images.unsplash.com/photo-1590419690008-905895e8fe0d?auto=format&fit=crop&w=600&q=80'
+                ],
+                likes: 145,
+                isLiked: false,
+                isSaved: false,
+                likeAnimating: false,
+                shares: 25,
                 comments: []
             }
         ],
@@ -2940,7 +3047,16 @@ function superPetCareApp() {
         },
 
         showToast(msg) {
-            alert(msg);
+            if (!this.toastNotification) {
+                this.toastNotification = { show: false, message: '' };
+            }
+            this.toastNotification.message = msg;
+            this.toastNotification.show = true;
+            if (this._toastTimer) clearTimeout(this._toastTimer);
+            this._toastTimer = setTimeout(() => {
+                if (this.toastNotification) this.toastNotification.show = false;
+            }, 2800);
+            console.log('[PetCare360 Toast]:', msg);
         },
 
         toggleDarkMode() {
@@ -3599,12 +3715,50 @@ function superPetCareApp() {
         },
 
         // 4. PETSHARE360 SOCIAL HELPERS
+        handlePostMediaSelect(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+            Array.from(files).forEach(file => {
+                const isVideo = file.type.startsWith('video');
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.newPostMediaList.push({
+                        url: e.target.result,
+                        type: isVideo ? 'video' : 'image',
+                        name: file.name
+                    });
+                    this.newPostMedia = this.newPostMediaList[0]?.url || '';
+                };
+                reader.readAsDataURL(file);
+            });
+        },
+
+        removePostMedia(index) {
+            this.newPostMediaList.splice(index, 1);
+            this.newPostMedia = this.newPostMediaList[0]?.url || '';
+        },
+
+        selectTaggedPet(pet) {
+            this.selectedTaggedPet = pet;
+            this.newPostPetId = pet ? pet.id : null;
+        },
+
+        insertEmoji(emoji) {
+            this.newPostText = (this.newPostText || '') + emoji;
+        },
+
         createSocialPost() {
-            if (!this.newPostText.trim() && !this.newPostMedia) {
+            const text = (this.newPostText || '').trim();
+            const hasMedia = this.newPostMediaList && this.newPostMediaList.length > 0;
+            if (!text && !hasMedia) {
                 alert('Vui lòng nhập nội dung hoặc thêm ảnh/video bài viết!');
                 return;
             }
-            const pet = this.pets.find(p => p.id === Number(this.newPostPetId)) || this.pets[0];
+            const pet = this.selectedTaggedPet || this.pets.find(p => p.id === Number(this.newPostPetId)) || this.pets[0];
+            const mediaUrls = hasMedia
+                ? this.newPostMediaList.map(m => m.url)
+                : (this.newPostMedia ? [this.newPostMedia] : []);
+
             const post = {
                 id: Date.now(),
                 author: this.customerProfile.name,
@@ -3613,16 +3767,26 @@ function superPetCareApp() {
                 avatar: this.customerProfile.avatar,
                 time: 'Vừa xong',
                 content: this.newPostText,
-                images: this.newPostMedia ? [this.newPostMedia] : [],
+                images: mediaUrls,
                 likes: 0,
                 isLiked: false,
+                isSaved: false,
+                likeAnimating: false,
                 shares: 0,
                 comments: []
             };
             this.socialPosts.unshift(post);
             this.newPostText = '';
+            this.newPostMediaList = [];
             this.newPostMedia = '';
-            alert('🎉 Đăng bài viết lên PetShare360 thành công!');
+            this.selectedTaggedPet = null;
+            this.newPostPetId = null;
+            this.tagPetPopoverOpen = false;
+            this.emojiPickerOpen = false;
+            if (this.$refs && this.$refs.postFileInput) {
+                this.$refs.postFileInput.value = '';
+            }
+            this.showToast('🎉 Đăng bài viết lên PetShare360 thành công!');
         },
 
         toggleLikePost(postId) {
@@ -3630,14 +3794,24 @@ function superPetCareApp() {
             if (p) {
                 p.isLiked = !p.isLiked;
                 p.likes += p.isLiked ? 1 : -1;
+                p.likeAnimating = true;
+                setTimeout(() => { p.likeAnimating = false; }, 400);
             }
         },
 
         addCommentToPost(postId, commentInputEl) {
-            const text = commentInputEl.value.trim();
+            let text = '';
+            if (typeof commentInputEl === 'string') {
+                text = commentInputEl.trim();
+            } else if (commentInputEl && commentInputEl.value !== undefined) {
+                text = commentInputEl.value.trim();
+            } else if (this.quickCommentText && this.quickCommentText[postId]) {
+                text = this.quickCommentText[postId].trim();
+            }
             if (!text) return;
             const p = this.socialPosts.find(item => item.id === postId);
             if (p) {
+                if (!p.comments) p.comments = [];
                 p.comments.push({
                     id: Date.now(),
                     user: this.customerProfile.name,
@@ -3645,15 +3819,104 @@ function superPetCareApp() {
                     text: text,
                     time: 'Vừa xong'
                 });
-                commentInputEl.value = '';
+                if (commentInputEl && commentInputEl.value !== undefined) {
+                    commentInputEl.value = '';
+                }
+                if (this.quickCommentText) {
+                    this.quickCommentText[postId] = '';
+                }
+                this.showToast('💬 Đã gửi bình luận của bạn!');
             }
         },
 
-        sharePost(postId) {
+        copyPostLink(postId) {
+            const p = this.socialPosts.find(item => item.id === postId);
+            if (p) p.shares++;
+            const url = window.location.origin + window.location.pathname + '#post-' + postId;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).catch(() => {});
+            }
+            this.openShareMenuPostId = null;
+            this.openPostOptionsId = null;
+            this.showToast('📋 Đã sao chép liên kết bài viết vào bộ nhớ tạm!');
+        },
+
+        shareViaDevice(post) {
+            const url = window.location.origin + window.location.pathname + '#post-' + post.id;
+            if (navigator.share) {
+                navigator.share({
+                    title: 'PetShare360 - Bài viết từ ' + post.author,
+                    text: (post.content || '').slice(0, 100) + '...',
+                    url: url
+                }).then(() => {
+                    post.shares++;
+                }).catch(() => {});
+            } else {
+                this.copyPostLink(post.id);
+            }
+            this.openShareMenuPostId = null;
+        },
+
+        toggleSavePost(postId) {
             const p = this.socialPosts.find(item => item.id === postId);
             if (p) {
-                p.shares++;
-                alert('Đã sao chép liên kết bài viết vào bộ nhớ tạm! Bạn có thể chia sẻ lên Zalo/Facebook.');
+                p.isSaved = !p.isSaved;
+                this.openPostOptionsId = null;
+                this.showToast(p.isSaved ? '🔖 Đã lưu bài viết vào bộ sưu tập!' : 'Đã bỏ lưu bài viết.');
+            }
+        },
+
+        reportPost(postId) {
+            this.openPostOptionsId = null;
+            this.showToast('🚩 Đã ghi nhận báo cáo. Đội ngũ kiểm duyệt PetCare360 sẽ rà soát bài viết này!');
+        },
+
+        deleteSocialPost(postId) {
+            this.openPostOptionsId = null;
+            if (confirm('Bạn có chắc chắn muốn xóa bài viết này không?')) {
+                this.socialPosts = this.socialPosts.filter(p => p.id !== postId);
+                this.showToast('🗑️ Đã xóa bài viết khỏi PetShare360.');
+            }
+        },
+
+        openLightbox(images, startIndex = 0) {
+            if (!images || images.length === 0) return;
+            this.lightboxImages = images;
+            this.lightboxActiveIndex = startIndex || 0;
+            this.showLightboxModal = true;
+        },
+
+        closeLightbox() {
+            this.showLightboxModal = false;
+        },
+
+        lightboxNext() {
+            if (!this.lightboxImages || this.lightboxImages.length === 0) return;
+            this.lightboxActiveIndex = (this.lightboxActiveIndex + 1) % this.lightboxImages.length;
+        },
+
+        lightboxPrev() {
+            if (!this.lightboxImages || this.lightboxImages.length === 0) return;
+            this.lightboxActiveIndex = (this.lightboxActiveIndex - 1 + this.lightboxImages.length) % this.lightboxImages.length;
+        },
+
+        loadMorePosts() {
+            if (this.isLoadingMorePosts) return;
+            if (this.feedVisibleCount >= this.socialPosts.length) return;
+            this.isLoadingMorePosts = true;
+            setTimeout(() => {
+                this.feedVisibleCount += 2;
+                this.isLoadingMorePosts = false;
+            }, 600);
+        },
+
+        handleFeedScroll() {
+            if (this.activeCustomerTab !== 'petshare') return;
+            const scrollY = window.scrollY || window.pageYOffset;
+            const totalHeight = document.documentElement.scrollHeight;
+            const windowHeight = window.innerHeight;
+            if (scrollY + windowHeight >= totalHeight - 350) {
+                this.loadMorePosts();
             }
         },
 

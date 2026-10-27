@@ -2324,5 +2324,84 @@ MODALS_HTML = '''<!-- ==================== CÁC MODAL HỆ THỐNG TOÀN DIỆN 
         </div>
     </div>
 
+    <!-- ==================== 16. MODAL IMAGE LIGHTBOX (PETSHARE360) ==================== -->
+    <div x-show="showLightboxModal" x-cloak 
+         @keydown.window.escape="showLightboxModal = false"
+         @keydown.window.arrow-right="lightboxNext()"
+         @keydown.window.arrow-left="lightboxPrev()"
+         class="fixed inset-0 z-[100] bg-black/95 flex flex-col justify-between p-4 sm:p-6 select-none animate-fadeIn">
+        
+        <!-- Top bar -->
+        <div class="flex items-center justify-between text-white z-20 pb-2">
+            <div class="flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-300 bg-white/10 px-3.5 py-1.5 rounded-full backdrop-blur-md">
+                <i class="fa-regular fa-image text-amber-400"></i>
+                <span x-text="'Ảnh ' + (lightboxActiveIndex + 1) + ' / ' + (lightboxImages ? lightboxImages.length : 1)"></span>
+            </div>
+            <div class="flex items-center gap-2">
+                <button @click="showLightboxModal = false" class="w-10 h-10 rounded-full bg-white/20 hover:bg-rose-600 text-white flex items-center justify-center text-lg transition duration-200 shadow-lg" title="Đóng (Esc)">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Center Display -->
+        <div class="flex-1 flex items-center justify-center relative min-h-0 py-2">
+            <!-- Prev Button -->
+            <button x-show="lightboxImages && lightboxImages.length > 1" 
+                    @click.stop="lightboxPrev()" 
+                    class="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center text-xl transition z-20 backdrop-blur-md border border-white/10 shadow-xl"
+                    title="Ảnh trước (Mũi tên trái)">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <!-- Main Image -->
+            <div class="max-w-4xl max-h-[75vh] flex items-center justify-center overflow-hidden rounded-2xl shadow-2xl">
+                <template x-if="lightboxImages && lightboxImages.length > 0">
+                    <img :src="lightboxImages[lightboxActiveIndex]" 
+                         class="max-w-full max-h-[75vh] object-contain rounded-2xl transition duration-300 animate-fadeIn">
+                </template>
+            </div>
+
+            <!-- Next Button -->
+            <button x-show="lightboxImages && lightboxImages.length > 1" 
+                    @click.stop="lightboxNext()" 
+                    class="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center text-xl transition z-20 backdrop-blur-md border border-white/10 shadow-xl"
+                    title="Ảnh tiếp theo (Mũi tên phải)">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+
+        <!-- Bottom Thumbnail Strip -->
+        <template x-if="lightboxImages && lightboxImages.length > 1">
+            <div class="flex items-center justify-center gap-2 pt-3 overflow-x-auto z-20">
+                <template x-for="(thumb, tidx) in lightboxImages" :key="tidx">
+                    <button @click.stop="lightboxActiveIndex = tidx" 
+                            :class="lightboxActiveIndex === tidx ? 'ring-2 ring-orange-500 scale-110 opacity-100' : 'opacity-50 hover:opacity-80'"
+                            class="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 transition transform duration-200 bg-slate-800 border border-white/20">
+                        <img :src="thumb" class="w-full h-full object-cover">
+                    </button>
+                </template>
+            </div>
+        </template>
+    </div>
+
+    <!-- ==================== TOAST NOTIFICATION FLOAT ==================== -->
+    <div x-show="toastNotification && toastNotification.show" x-cloak
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 translate-y-4 scale-95"
+         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+         x-transition:leave-end="opacity-0 translate-y-4 scale-95"
+         class="fixed bottom-6 right-6 z-[110] flex items-center gap-3 bg-slate-900/95 text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-700/80 backdrop-blur-md max-w-sm">
+        <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0">
+            <i class="fa-solid fa-check text-sm"></i>
+        </div>
+        <div class="flex-1 text-xs sm:text-sm font-semibold" x-text="toastNotification.message"></div>
+        <button @click="toastNotification.show = false" class="text-slate-400 hover:text-white transition">
+            <i class="fa-solid fa-xmark text-xs"></i>
+        </button>
+    </div>
+
 <!-- ==================== HẾT CÁC MODAL HỆ THỐNG ==================== -->
 '''
