@@ -44,17 +44,25 @@ function superPetCareApp() {
         shopSortBy: 'newest', // 'newest' | 'bestseller' | 'price_asc' | 'price_desc'
         shopCurrentPage: 1,
         shopPageSize: 12,
-        hotelSubTab: 'all', // Áp dụng chung cho cả Chó & Mèo
-        shopCategory: '', // '' = Tất cả | 'Thức ăn & Dinh dưỡng' | 'Phụ kiện & Vệ sinh' | 'Thuốc & Y tế'
+                shopCategory: '', // '' = Tất cả | 'Thức ăn & Dinh dưỡng' | 'Phụ kiện & Vệ sinh' | 'Thuốc & Y tế'
 
         // BẢNG GIÁ KHÁCH SẠN THÚ CƯNG 5 SAO DUY NHẤT ÁP DỤNG CHUNG CHO CHÓ & MÈO THEO CÂN NẶNG
+        // BẢNG GIÁ KHÁCH SẠN THÚ CƯNG THEO PHÂN HẠNG CÂN NẶNG (7 SIZE CHUẨN DÙNG CHUNG CHÓ & MÈO)
         petHotelWeightPriceList: [
-            { weight: 'Dưới 5kg', pricePerDay: 200000, daycare: 120000, desc: 'Phù hợp mèo con, mèo nhỏ, cún mini (Poodle Tiny, Phốc sóc, Chihuahua)' },
-            { weight: '5kg - 8kg', pricePerDay: 250000, daycare: 150000, desc: 'Phù hợp mèo trưởng thành, cún nhỏ (Poodle Toy, Pug, Bắc Kinh, Mèo Anh)' },
-            { weight: '8kg - 12kg', pricePerDay: 300000, daycare: 180000, desc: 'Phù hợp Corgi, Shiba Inu, French Bulldog, mèo khổng lồ Maine Coon' },
-            { weight: '12kg - 18kg', pricePerDay: 360000, daycare: 220000, desc: 'Phù hợp Border Collie, Bull Anh, Cocker Spaniel, chó tầm trung' },
-            { weight: '18kg - 25kg', pricePerDay: 420000, daycare: 260000, desc: 'Phù hợp Husky, Golden Retriever nhỏ, Samoyed, chó cỡ lớn' },
-            { weight: 'Trên 25kg', pricePerDay: 500000, daycare: 300000, desc: 'Phù hợp Alaska, Golden Retriever lớn, Labrador, Doberman, Becgie' }
+            { size: 'Dưới 2kg', duration: 'Lưu trú theo ngày (24h)', price: 200000, desc: 'Mèo sơ sinh, cún siêu nhỏ (Chihuahua teacup, Tiny Poodle, Phốc sơ sinh)' },
+            { size: '2kg - 5kg', duration: 'Lưu trú theo ngày (24h)', price: 250000, desc: 'Mèo trưởng thành, chó nhỏ (Poodle Toy, Phốc sóc, Phốc hươu)' },
+            { size: '5kg - 8kg', duration: 'Lưu trú theo ngày (24h)', price: 300000, desc: 'Mèo lớn (Mèo Anh lông ngắn/dài, Ba Tư), chó nhỏ (Bắc Kinh, Pug)' },
+            { size: '8kg - 12kg', duration: 'Lưu trú theo ngày (24h)', price: 350000, desc: 'Corgi, Shiba Inu, French Bulldog, Mèo khổng lồ Maine Coon' },
+            { size: '12kg - 18kg', duration: 'Lưu trú theo ngày (24h)', price: 400000, desc: 'Border Collie, Bull Anh, Beagle, Cocker Spaniel, chó tầm trung' },
+            { size: '18kg - 25kg', duration: 'Lưu trú theo ngày (24h)', price: 450000, desc: 'Husky, Samoyed, Golden Retriever nhỏ, Chó Phú Quốc, chó cỡ lớn' },
+            { size: 'Trên 25kg', duration: 'Lưu trú theo ngày (24h)', price: 500000, desc: 'Alaska Malamute, Golden lớn, Labrador, Doberman, Becgie' }
+        ],
+
+        hotelExtraServicesList: [
+            { name: 'Tắm sấy khử khuẩn trước khi check-out', price: '50.000 đ' },
+            { name: 'Xe đưa đón PetShip360 tận nhà', price: '60.000 đ / lượt' },
+            { name: 'Cắt mài móng & Vệ sinh tai mắt', price: '40.000 đ' },
+            { name: 'Khẩu phần thịt bò/cá hồi áp chảo tươi', price: '50.000 đ / bữa' }
         ],
 
         // Fallback mock array gồm 8 object sản phẩm thú cưng chuẩn thiết kế
@@ -89,8 +97,7 @@ function superPetCareApp() {
 
         // ==================== 2. DỊCH VỤ & PRICING MATRIX & BOOKING ====================
         servicePricingTab: 'grooming', // 'grooming' | 'hotel' | 'vaccine' | 'spa'
-        hotelSubTab: 'cat', // 'cat' | 'dog'
-
+        
         // BẢNG GIÁ DỊCH VỤ THEO 3 ẢNH THỰC TẾ YÊU CẦU:
         // Ảnh 2: SERVICES PRICE LIST (Grooming & Spa + Dịch vụ lẻ + Gói tắm tháng)
         groomingPriceList: [
@@ -112,23 +119,7 @@ function superPetCareApp() {
             { name: 'Surcharge for late check-in (Phụ thu sau 5PM)', price: '70.000 đ' }
         ],
 
-        // Ảnh 1: Cat Hotel (STANDARD, DELUXE, SUPERIOR + Daycare + Ưu đãi dài hạn)
-        catHotelPriceList: [
-            { roomType: 'STANDARD ROOM', price1Cat: '200.000 đ', price2Cats: '—', price3Cats: '—', desc: 'Phòng tiêu chuẩn kính cách âm, đệm lót êm ái, khay cát vệ sinh riêng' },
-            { roomType: 'DELUXE ROOM', price1Cat: '250.000 đ', price2Cats: '375.000 đ', price3Cats: '—', desc: 'Không gian rộng rãi 2 tầng leo trèo, điều hòa 2 chiều 26°C, đồ chơi' },
-            { roomType: 'SUPERIOR ROOM', price1Cat: '350.000 đ', price2Cats: '525.000 đ', price3Cats: '700.000 đ', desc: 'Phòng VIP kính view toàn cảnh sân vui chơi, camera 24/7 xem trực tiếp, tối đa 3 bé' }
-        ],
-
-        // Ảnh 3: The Condo Room, The Villa, Daycare
-        dogHotelPriceList: [
-            { weight: 'Dưới 5kg', condo: 250000, villa: 330000, daycare: 190000 },
-            { weight: '5kg - 8kg', condo: 280000, villa: 370000, daycare: 210000 },
-            { weight: '8kg - 12kg', condo: 320000, villa: 420000, daycare: 240000 },
-            { weight: '12kg - 18kg', condo: 370000, villa: 480000, daycare: 280000 },
-            { weight: '18kg - 25kg', condo: 430000, villa: 560000, daycare: 320000 },
-            { weight: 'Trên 25kg', condo: 500000, villa: 650000, daycare: 375000 }
-        ],
-
+        
         // Tiêm phòng & Khám tận nhà
         vaccinePriceList: [
             { name: 'Vắc-xin 7 Bệnh Toàn Diện Cho Chó (Pháp)', price: 350000, duration: '30 phút', desc: 'Khám sàng lọc lâm sàng miễn phí, tiêm bắp không đau, dán tem sổ tiêm y tế' },
@@ -143,12 +134,7 @@ function superPetCareApp() {
                 { name: 'Tắm Trị Liệu Trị Nấm & Viêm Da', duration: '45 - 60 phút', steps: '4 bước: Ngâm bồn dược thảo Davis 4%, sấy lạnh dịu nhẹ, xịt nano bạc', priceS: 220000, priceM: 300000, priceL: 420000, priceXL: 580000 },
                 { name: 'Gói Spa Toàn Diện Thư Giãn Tinh Dầu', duration: '90 - 120 phút', steps: '7 bước chuyên sâu: Massage bấm huyệt, ngâm sục Jacuzzi, dưỡng lông tơ', priceS: 320000, priceM: 450000, priceL: 600000, priceXL: 790000 }
             ],
-            hotel: [
-                { name: 'Phòng Deluxe Tiêu Chuẩn', duration: 'Theo ngày (24h)', steps: 'Chuồng inox 304 kháng khuẩn, đệm êm, khay vệ sinh riêng, camera 24/7', priceS: 180000, priceM: 260000, priceL: 360000, priceXL: 480000 },
-                { name: 'Phòng Suite VIP Có Ban Công', duration: 'Theo ngày (24h)', steps: 'Không gian kính cách âm, điều hòa 2 chiều 26°C, sân cỏ vận động 2 lần/ngày', priceS: 280000, priceM: 380000, priceL: 500000, priceXL: 680000 },
-                { name: 'Penthouse Đẳng Cấp Thượng Lưu', duration: 'Theo ngày (24h)', steps: 'Phòng 15m² kèm bảo mẫu riêng, menu cá hồi tươi 2 bữa, video call với chủ', priceS: 450000, priceM: 600000, priceL: 780000, priceXL: 990000 }
-            ],
-            vaccine: [
+                        vaccine: [
                 { name: 'Vắc-xin 7 Bệnh Nhập Khẩu Pháp', duration: '30 phút', steps: 'Khám sàng lọc lâm sàng miễn phí, đo thân nhiệt, tiêm bắp không đau, dán tem sổ', priceS: 220000, priceM: 220000, priceL: 220000, priceXL: 220000 },
                 { name: 'Home Visit Khám & Tiêm Tận Nhà', duration: '45 phút', steps: 'Bác sĩ thú y mang vali dụng cụ chuyên khoa đến nhà, cấp sổ theo dõi điện tử', priceS: 350000, priceM: 380000, priceL: 420000, priceXL: 480000 },
                 { name: 'Xét Nghiệm Máu 18 Chỉ Số Nhanh', duration: '20 phút', steps: 'Lấy máu xét nghiệm máy tự động Mindray, trả kết quả & phác đồ dinh dưỡng', priceS: 450000, priceM: 450000, priceL: 450000, priceXL: 450000 }
@@ -2017,6 +2003,12 @@ function superPetCareApp() {
         // Khởi tạo app & vẽ biểu đồ doanh thu Chart.js
         initApp() {
             console.log('PetCare360 Unified SuperApp Initialized!');
+            if (this.customerProfile && (!this.customerProfile.pets || this.customerProfile.pets.length === 0)) {
+                this.customerProfile.pets = this.pets;
+            }
+            if (this.serviceBookingForm && this.serviceBookingForm.petId) {
+                this.syncPetBookingDetails(this.serviceBookingForm.petId);
+            }
             if (window.lucide) {
                 window.lucide.createIcons();
             }
@@ -2722,29 +2714,48 @@ function superPetCareApp() {
             if (el) el.scrollBy({ left: 320, behavior: 'smooth' });
         },
 
-        // HELPER MAP GIÁ KHÁCH SẠN THEO CÂN NẶNG (TỰ ĐỘNG MAP GIÁ)
+        // HELPER MAP GIÁ KHÁCH SẠN THEO CÂN NẶNG (ĐỐI CHIẾU CHÍNH XÁC 7 MỐC SIZE BẢNG GIÁ)
         getPetHotelPriceByWeight(weight) {
-            const w = Number(weight) || 5;
-            if (w < 5) return 200000;
-            if (w < 8) return 250000;
-            if (w < 12) return 300000;
-            if (w < 18) return 360000;
-            if (w < 25) return 420000;
+            const w = parseFloat(weight) || 5;
+            if (w < 2) return 200000;
+            if (w <= 5) return 250000;
+            if (w <= 8) return 300000;
+            if (w <= 12) return 350000;
+            if (w <= 18) return 400000;
+            if (w <= 25) return 450000;
             return 500000;
         },
 
         getPetHotelWeightLabel(weight) {
-            const w = Number(weight) || 5;
-            if (w < 5) return 'Dưới 5kg';
-            if (w < 8) return '5kg - 8kg';
-            if (w < 12) return '8kg - 12kg';
-            if (w < 18) return '12kg - 18kg';
-            if (w < 25) return '18kg - 25kg';
+            const w = parseFloat(weight) || 5;
+            if (w < 2) return 'Dưới 2kg';
+            if (w <= 5) return '2kg - 5kg';
+            if (w <= 8) return '5kg - 8kg';
+            if (w <= 12) return '8kg - 12kg';
+            if (w <= 18) return '12kg - 18kg';
+            if (w <= 25) return '18kg - 25kg';
             return 'Trên 25kg';
         },
 
+        syncPetBookingDetails(petId) {
+            const id = Number(petId);
+            const pet = this.pets.find(p => p.id === id) || this.pets[0];
+            if (pet) {
+                this.petBookingDetail.petId = pet.id;
+                this.petBookingDetail.name = pet.name;
+                this.petBookingDetail.species = pet.species || pet.type || 'Chó';
+                this.petBookingDetail.breed = pet.breed || 'Corgi';
+                this.petBookingDetail.weight = parseFloat(pet.weight) || 5;
+                this.petBookingDetail.age = pet.age || '2 tuổi';
+                this.petBookingDetail.gender = pet.gender || 'Đực';
+                this.petBookingDetail.allergies = pet.allergies || 'Không dị ứng';
+                this.petBookingDetail.diet = pet.diet || 'Ăn hạt tiêu chuẩn';
+                this.petBookingDetail.vaccinePhoto = pet.avatar || pet.image;
+            }
+        },
+
         selectPetHotelWeightPlan(plan) {
-            this.serviceBookingForm.serviceName = 'Khách Sạn Thú Cưng Tiêu Chuẩn 5 Sao (' + plan.weight + ')';
+            this.serviceBookingForm.serviceName = 'Khách Sạn Thú Cưng Tiêu Chuẩn 5 Sao (' + plan.size + ')';
             const bookingBox = document.getElementById('pet-service-booking-box');
             if (bookingBox) {
                 bookingBox.scrollIntoView({ behavior: 'smooth' });
@@ -2843,15 +2854,15 @@ function superPetCareApp() {
         // 2. DỊCH VỤ MATRIX & BOOKING HELPERS
         get currentServiceBookingCost() {
             const pet = this.pets.find(p => p.id === Number(this.serviceBookingForm.petId)) || this.pets[0];
-            const w = pet ? (Number(pet.weight) || 5) : (Number(this.petBookingDetail.weight) || 5);
-            let base = this.getPetHotelPriceByWeight(w);
+            const w = pet ? (parseFloat(pet.weight) || 5) : (parseFloat(this.petBookingDetail.weight) || 5);
+            const base = this.getPetHotelPriceByWeight(w);
 
             let addonsCost = 0;
-            if (this.serviceBookingForm.addons.includes('massage')) addonsCost += 50000;
-            if (this.serviceBookingForm.addons.includes('detangle')) addonsCost += 80000;
-            if (this.serviceBookingForm.addons.includes('walk')) addonsCost += 60000;
+            if (this.serviceBookingForm.addOnMassage || (Array.isArray(this.serviceBookingForm.addons) && this.serviceBookingForm.addons.includes('massage'))) addonsCost += 50000;
+            if (this.serviceBookingForm.addOnFurDetangle || (Array.isArray(this.serviceBookingForm.addons) && this.serviceBookingForm.addons.includes('detangle'))) addonsCost += 80000;
+            if (this.serviceBookingForm.addOnWalk || (Array.isArray(this.serviceBookingForm.addons) && this.serviceBookingForm.addons.includes('walk'))) addonsCost += 40000;
 
-            let shipCost = this.serviceBookingForm.needPetShip ? 50000 : 0;
+            const shipCost = (this.serviceBookingForm.usePetShip || this.serviceBookingForm.needPetShip) ? 60000 : 0;
             return base + addonsCost + shipCost;
         },
 
