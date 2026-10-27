@@ -364,18 +364,27 @@ ADMIN_HTML = """
                                                 <div class="text-[11px] text-slate-400" x-text="ord.phone"></div>
                                             </td>
                                             <td class="p-3 max-w-[220px] truncate text-xs" :title="ord.summary" x-text="ord.summary || getOrderSummary(ord)"></td>
-                                            <td class="p-3 font-bold text-slate-900 dark:text-slate-100" x-text="formatCurrency(ord.total || ord.totalAmount)"></td>
+                                            <td class="p-3">
+                                                <div class="font-bold text-slate-900 dark:text-slate-100" x-text="formatCurrency(ord.total || ord.totalAmount)"></div>
+                                                <template x-if="ord.paymentStatus === 'deposit_paid' || (ord.remainingBalance && ord.remainingBalance > 0)">
+                                                    <div class="text-[10px] text-rose-600 font-extrabold flex items-center gap-1 mt-0.5">
+                                                        <i class="fa-solid fa-hand-holding-dollar text-[9px]"></i>
+                                                        <span x-text="'Cần thu hộ: ' + formatCurrency(ord.remainingBalance || (ord.total || ord.totalAmount) / 2)"></span>
+                                                    </div>
+                                                </template>
+                                            </td>
                                             <td class="p-3 text-xs" x-text="ord.paymentMethodLabel || ord.payment"></td>
                                             <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-100 text-teal-800" x-text="ord.branch || 'Q1'"></span></td>
                                             <td class="p-3">
                                                 <span class="px-2 py-0.5 rounded text-[10px] font-bold" 
                                                       :class="{
-                                                          'bg-amber-100 text-amber-800': ord.status === 'PENDING' || ord.status === 'Chờ xác nhận',
+                                                          'bg-orange-100 text-orange-800 border border-orange-200': ord.paymentStatus === 'deposit_paid' || ord.status === 'Đã cọc' || ord.status === 'Đã cọc 50%',
+                                                          'bg-amber-100 text-amber-800': (ord.status === 'PENDING' || ord.status === 'Chờ xác nhận') && ord.paymentStatus !== 'deposit_paid',
                                                           'bg-emerald-100 text-emerald-800': ord.status === 'COMPLETED' || ord.status === 'Đã hoàn thành',
                                                           'bg-red-100 text-red-800': ord.status === 'CANCELLED' || ord.status === 'Đã hủy',
                                                           'bg-blue-100 text-blue-800': ord.status === 'PREPARING' || ord.status === 'DELIVERING' || ord.status === 'Đang xử lý'
                                                       }" 
-                                                      x-text="formatOrderStatusLabel(ord.status)"></span>
+                                                      x-text="(ord.paymentStatus === 'deposit_paid' || ord.status === 'Đã cọc') ? 'Đã cọc 50%' : formatOrderStatusLabel(ord.status)"></span>
                                             </td>
                                             <td class="p-3 text-right">
                                                 <button @click="openOrderDetail(ord)" class="px-2 py-1 bg-teal-600 text-white text-xs rounded font-semibold hover:bg-teal-700">Chi tiết</button>

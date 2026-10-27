@@ -47,6 +47,8 @@ function superPetCareApp() {
                 shopCategory: '', // '' = Tất cả | 'Thức ăn & Dinh dưỡng' | 'Phụ kiện & Vệ sinh' | 'Thuốc & Y tế'
 
         // BẢNG GIÁ KHÁCH SẠN THÚ CƯNG 5 SAO DUY NHẤT ÁP DỤNG CHUNG CHO CHÓ & MÈO THEO CÂN NẶNG
+        baseServicePrice: 350000,
+        selectedWeightSize: '8kg - 12kg',
         // BẢNG GIÁ KHÁCH SẠN THÚ CƯNG THEO PHÂN HẠNG CÂN NẶNG (7 SIZE CHUẨN DÙNG CHUNG CHÓ & MÈO)
         petHotelWeightPriceList: [
             { size: 'Dưới 2kg', duration: 'Lưu trú theo ngày (24h)', price: 200000, desc: 'Mèo sơ sinh, cún siêu nhỏ (Chihuahua teacup, Tiny Poodle, Phốc sơ sinh)' },
@@ -1997,6 +1999,12 @@ function superPetCareApp() {
         },
 
         formatOrderStatusLabel(status) {
+            if (status === 'deposit_paid' || status === 'Đã cọc' || status === 'Đã cọc 50%') return 'Đã cọc 50%';
+            if (status === 'PENDING' || status === 'pending') return 'Chờ xác nhận';
+            if (status === 'PREPARING') return 'Đang xử lý';
+            if (status === 'DELIVERING') return 'Đang giao hàng';
+            if (status === 'COMPLETED') return 'Hoàn thành';
+            if (status === 'CANCELLED') return 'Đã hủy';
             return status || 'Đã ghi nhận';
         },
 
@@ -2741,6 +2749,7 @@ function superPetCareApp() {
             const id = Number(petId);
             const pet = this.pets.find(p => p.id === id) || this.pets[0];
             if (pet) {
+                this.serviceBookingForm.petId = pet.id;
                 this.petBookingDetail.petId = pet.id;
                 this.petBookingDetail.name = pet.name;
                 this.petBookingDetail.species = pet.species || pet.type || 'Chó';
@@ -2751,10 +2760,18 @@ function superPetCareApp() {
                 this.petBookingDetail.allergies = pet.allergies || 'Không dị ứng';
                 this.petBookingDetail.diet = pet.diet || 'Ăn hạt tiêu chuẩn';
                 this.petBookingDetail.vaccinePhoto = pet.avatar || pet.image;
+
+                // Tự động map giá và highlight hàng tương ứng trên Bảng Giá
+                const w = this.petBookingDetail.weight;
+                this.baseServicePrice = this.getPetHotelPriceByWeight(w);
+                this.selectedWeightSize = this.getPetHotelWeightLabel(w);
+                this.serviceBookingForm.serviceName = 'Khách Sạn Thú Cưng Tiêu Chuẩn 5 Sao (' + this.selectedWeightSize + ')';
             }
         },
 
         selectPetHotelWeightPlan(plan) {
+            this.baseServicePrice = Number(plan.price) || 200000;
+            this.selectedWeightSize = plan.size;
             this.serviceBookingForm.serviceName = 'Khách Sạn Thú Cưng Tiêu Chuẩn 5 Sao (' + plan.size + ')';
             const bookingBox = document.getElementById('pet-service-booking-box');
             if (bookingBox) {
@@ -2852,18 +2869,35 @@ function superPetCareApp() {
         },
 
         // 2. DỊCH VỤ MATRIX & BOOKING HELPERS
+        get totalAddonsCost() {
+            let cost = 0;
+            if (this.serviceBookingForm.addOnMassage || (Array.isArray(this.serviceBookingForm.addons) && this.serviceBookingForm.addons.includes('massage'))) cost += 50000;
+            if (this.serviceBookingForm.addOnFurDetangle || (Array.isArray(this.serviceBookingForm.addons) && this.serviceBookingForm.addons.includes('detangle'))) cost += 80000;
+            if (this.serviceBookingForm.addOnWalk || (Array.isArray(this.serviceBookingForm.addons) && this.serviceBookingForm.addons.includes('walk'))) cost += 40000;
+            return cost;
+        },
+
+        get petShipCost() {
+            return (this.serviceBookingForm.usePetShip || this.serviceBookingForm.needPetShip) ? 60000 : 0;
+        },
+
+        get totalServiceCost() {
+            const base = (this.baseServicePrice !== undefined && this.baseServicePrice !== null) 
+                ? Number(this.baseServicePrice) 
+                : this.getPetHotelPriceByWeight(this.petBookingDetail.weight || 5);
+            return base + this.totalAddonsCost + this.petShipCost;
+        },
+
+        get depositAmount() {
+            return Math.round(this.totalServiceCost / 2);
+        },
+
+        get remainingAmount() {
+            return this.totalServiceCost - this.depositAmount;
+        },
+
         get currentServiceBookingCost() {
-            const pet = this.pets.find(p => p.id === Number(this.serviceBookingForm.petId)) || this.pets[0];
-            const w = pet ? (parseFloat(pet.weight) || 5) : (parseFloat(this.petBookingDetail.weight) || 5);
-            const base = this.getPetHotelPriceByWeight(w);
-
-            let addonsCost = 0;
-            if (this.serviceBookingForm.addOnMassage || (Array.isArray(this.serviceBookingForm.addons) && this.serviceBookingForm.addons.includes('massage'))) addonsCost += 50000;
-            if (this.serviceBookingForm.addOnFurDetangle || (Array.isArray(this.serviceBookingForm.addons) && this.serviceBookingForm.addons.includes('detangle'))) addonsCost += 80000;
-            if (this.serviceBookingForm.addOnWalk || (Array.isArray(this.serviceBookingForm.addons) && this.serviceBookingForm.addons.includes('walk'))) addonsCost += 40000;
-
-            const shipCost = (this.serviceBookingForm.usePetShip || this.serviceBookingForm.needPetShip) ? 60000 : 0;
-            return base + addonsCost + shipCost;
+            return this.totalServiceCost;
         },
 
         toggleServiceAddon(addonId) {
@@ -2874,29 +2908,110 @@ function superPetCareApp() {
 
         addServiceBookingToCart() {
             const pet = this.pets.find(p => p.id === Number(this.serviceBookingForm.petId)) || this.pets[0];
+            const petWeight = pet ? (parseFloat(pet.weight) || 5) : (parseFloat(this.petBookingDetail.weight) || 5);
+            const petSizeLabel = this.selectedWeightSize || this.getPetHotelWeightLabel(petWeight);
+            const basePrice = Number(this.baseServicePrice) || this.getPetHotelPriceByWeight(petWeight);
+            const totalCost = this.totalServiceCost;
+            const deposit = this.depositAmount;
+            const remaining = this.remainingAmount;
+
             const bookingItem = {
                 id: 'SERV-BOOK-' + Date.now(),
-                name: this.serviceBookingForm.serviceName,
-                variant: (pet ? pet.name : 'Thú cưng') + ' (' + this.serviceBookingForm.slot + ' ' + this.serviceBookingForm.date + ')',
-                price: this.currentServiceBookingCost,
+                name: this.serviceBookingForm.serviceName || ('Khách Sạn Thú Cưng Tiêu Chuẩn 5 Sao (' + petSizeLabel + ')'),
+                variant: (pet ? pet.name : 'Thú cưng') + ' (' + (this.serviceBookingForm.timeSlot || this.serviceBookingForm.slot) + ' ' + this.serviceBookingForm.date + ')',
+                price: deposit, // Số tiền thanh toán cọc 50%
+                depositPaid: deposit,
+                depositAmount: deposit,
+                totalCost: totalCost,
+                remainingBalance: remaining,
+                paymentStatus: 'deposit_paid',
+                statusText: 'Đã cọc 50%',
                 img: 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&w=400&q=80',
                 qty: 1,
                 isService: true,
                 bookingDetails: {
                     petName: pet ? pet.name : 'Bơ',
+                    petWeight: petWeight,
+                    sizeTier: petSizeLabel,
+                    basePrice: basePrice,
+                    totalCost: totalCost,
+                    depositAmount: deposit,
+                    remainingBalance: remaining,
+                    paymentStatus: 'deposit_paid',
                     branch: this.serviceBookingForm.branch,
                     date: this.serviceBookingForm.date,
-                    slot: this.serviceBookingForm.slot,
-                    addons: [...this.serviceBookingForm.addons],
-                    needPetShip: this.serviceBookingForm.needPetShip,
+                    slot: this.serviceBookingForm.timeSlot || this.serviceBookingForm.slot,
+                    addons: [
+                        ...(this.serviceBookingForm.addOnMassage ? ['Tắm massage sục khí bọt Nano (+50.000đ)'] : []),
+                        ...(this.serviceBookingForm.addOnFurDetangle ? ['Gỡ rối lông & Phục hồi keratin (+80.000đ)'] : []),
+                        ...(this.serviceBookingForm.addOnWalk ? ['Dắt đi dạo sân cỏ tự nhiên 30p (+40.000đ)'] : [])
+                    ],
+                    needPetShip: !!(this.serviceBookingForm.usePetShip || this.serviceBookingForm.needPetShip),
                     petShipAddress: this.serviceBookingForm.petShipAddress,
                     notes: this.serviceBookingForm.specialNotes
                 }
             };
+
             this.cart.push(bookingItem);
+
+            // Đồng thời tạo đơn hàng Đã Cọc 50% lưu vào danh sách đơn của Khách & Admin
+            const newOrderCode = '#' + Math.floor(100000 + Math.random() * 900000);
+            const newOrderId = 'ORD-' + Math.floor(1000 + Math.random() * 9000);
+            const todayStr = new Date().toLocaleDateString('vi-VN');
+
+            const serviceOrder = {
+                id: newOrderId,
+                orderCode: newOrderCode,
+                date: todayStr,
+                status: 'pending',
+                statusText: 'Đã cọc 50%',
+                badgeColor: 'bg-orange-100 text-orange-800 border-orange-200',
+                paymentMethod: 'Chuyển khoản / Cọc 50%',
+                paymentMethodLabel: 'Đã cọc 50% (' + this.formatCurrency(deposit) + ')',
+                paymentStatus: 'deposit_paid',
+                total: totalCost,
+                totalAmount: totalCost,
+                depositAmount: deposit,
+                remainingBalance: remaining,
+                customer: this.customerProfile.name,
+                phone: this.customerProfile.phone,
+                summary: bookingItem.name + ' - Cọc: ' + this.formatCurrency(deposit) + ' (Còn thu: ' + this.formatCurrency(remaining) + ')',
+                branch: this.serviceBookingForm.branch ? (this.serviceBookingForm.branch.includes('Cơ sở 1') ? 'Cầu Giấy' : (this.serviceBookingForm.branch.includes('Cơ sở 2') ? 'Q1' : 'Thủ Đức')) : 'Q1',
+                recipient: {
+                    receiver: this.customerProfile.name,
+                    phone: this.customerProfile.phone,
+                    address: this.serviceBookingForm.petShipAddress || this.customerProfile.address
+                },
+                items: [bookingItem]
+            };
+
+            this.customerOrdersEnhanced.unshift(serviceOrder);
+            this.orders.unshift(serviceOrder);
+
+            // Thêm vào danh sách Lịch hẹn phòng khám & Hotel của Admin
+            this.appointments.unshift({
+                id: 'APT-' + Math.floor(1000 + Math.random() * 9000),
+                customer: this.customerProfile.name,
+                customerName: this.customerProfile.name,
+                customerPhone: this.customerProfile.phone,
+                pet: pet ? pet.name : 'Bơ',
+                petName: pet ? pet.name : 'Bơ',
+                petType: pet ? (pet.species || pet.type) : 'Chó',
+                service: bookingItem.name,
+                serviceName: bookingItem.name,
+                date: this.serviceBookingForm.date,
+                time: this.serviceBookingForm.timeSlot || this.serviceBookingForm.slot,
+                branch: this.serviceBookingForm.branch ? (this.serviceBookingForm.branch.includes('Cơ sở 1') ? 'Cầu Giấy' : (this.serviceBookingForm.branch.includes('Cơ sở 2') ? 'Q1' : 'Thủ Đức')) : 'Q1',
+                status: 'CONFIRMED',
+                paymentStatus: 'deposit_paid',
+                depositAmount: deposit,
+                remainingBalance: remaining,
+                note: 'Đã cọc 50% (' + this.formatCurrency(deposit) + '). Còn cần thu hộ: ' + this.formatCurrency(remaining) + (this.serviceBookingForm.specialNotes ? ' | Ghi chú: ' + this.serviceBookingForm.specialNotes : '')
+            });
+
             this.activeCustomerTab = 'cart';
             this.cartStep = 2;
-            alert('🎉 Đã thêm lịch hẹn dịch vụ vào đơn hàng! Chuyển sang bước xác nhận thông tin thanh toán.');
+            alert('🎉 Đã xác nhận đặt lịch & tính cọc 50% (' + this.formatCurrency(deposit) + ') thành công! Số tiền còn lại ' + this.formatCurrency(remaining) + ' sẽ thanh toán khi nhận lại bé cưng.');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         },
 
