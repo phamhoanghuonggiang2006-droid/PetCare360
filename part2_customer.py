@@ -21,12 +21,23 @@ CUSTOMER_HTML = """
                         </div>
                     </div>
 
+                    <!-- Thanh tìm kiếm sản phẩm lớn (Yêu cầu Header Shop PetCare360) -->
+                    <div class="hidden lg:flex flex-1 max-w-xs xl:max-w-md mx-3 relative">
+                        <div class="relative w-full">
+                            <input type="text" x-model="searchQuery" @focus="if(activeCustomerTab !== 'shop') { activeCustomerTab = 'shop'; shopViewMode = 'catalog'; }" @keydown.enter="activeCustomerTab = 'shop'; shopViewMode = 'catalog'; scrollToCatalogGrid();" placeholder="Tìm kiếm hạt, pate, cát vệ sinh, phụ kiện..." class="w-full bg-slate-100 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-orange-500 rounded-2xl pl-10 pr-9 py-2 text-xs text-slate-800 transition focus:outline-none focus:ring-2 focus:ring-orange-200 shadow-inner">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                            <button x-show="searchQuery" @click="searchQuery = ''" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs">
+                                <i class="fa-solid fa-circle-xmark"></i>
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Navigation Links Customer -->
                     <nav class="hidden md:flex items-center gap-1 lg:gap-2">
                         <button @click="activeCustomerTab = 'home'" :class="activeCustomerTab === 'home' ? 'text-brand-700 bg-brand-50 font-bold' : 'text-slate-600 hover:text-brand-600 hover:bg-slate-50'" class="px-3 py-2 rounded-xl text-xs lg:text-sm transition flex items-center gap-1.5">
                             <i class="fa-solid fa-house"></i>Trang Chủ
                         </button>
-                        <button @click="activeCustomerTab = 'shop'" :class="activeCustomerTab === 'shop' ? 'text-brand-700 bg-brand-50 font-bold' : 'text-slate-600 hover:text-brand-600 hover:bg-slate-50'" class="px-3 py-2 rounded-xl text-xs lg:text-sm transition flex items-center gap-1.5">
+                        <button @click="activeCustomerTab = 'shop'; shopViewMode = 'catalog';" :class="activeCustomerTab === 'shop' ? 'text-brand-700 bg-brand-50 font-bold' : 'text-slate-600 hover:text-brand-600 hover:bg-slate-50'" class="px-3 py-2 rounded-xl text-xs lg:text-sm transition flex items-center gap-1.5">
                             <i class="fa-solid fa-box-open"></i>Sản Phẩm
                         </button>
                         <button @click="activeCustomerTab = 'booking'" :class="activeCustomerTab === 'booking' ? 'text-brand-700 bg-brand-50 font-bold' : 'text-slate-600 hover:text-brand-600 hover:bg-slate-50'" class="px-3 py-2 rounded-xl text-xs lg:text-sm transition flex items-center gap-1.5">
@@ -242,13 +253,287 @@ CUSTOMER_HTML = """
             <!-- ======================================================== -->
             <div x-show="activeCustomerTab === 'shop'" class="space-y-8" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0">
                 
-                <!-- Đường dẫn Breadcrumb -->
-                <nav class="flex items-center gap-2 text-xs sm:text-sm text-slate-500 py-2 border-b border-slate-100">
+                <!-- ======================================================== -->
+                <!-- CHẾ ĐỘ 1: GIAO DIỆN SHOP - TRANG DANH SÁCH SẢN PHẨM (SHOP CATALOG PAGE) -->
+                <!-- ======================================================== -->
+                <div x-show="shopViewMode === 'catalog'" class="space-y-8 animate-fadeIn">
+                    
+                    <!-- BANNER KHUYẾN MÃI NGANG (HERO PROMO BANNER) -->
+                    <!-- Hình ảnh ưu đãi hạt và phụ kiện giảm 30%, tiêu đề nổi bật, nút "Mua Ngay" -->
+                    <div class="relative bg-gradient-to-r from-orange-600 via-amber-500 to-rose-600 rounded-3xl p-6 sm:p-10 text-white shadow-xl overflow-hidden">
+                        <div class="absolute -right-10 -bottom-10 w-96 h-96 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+                        <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                            <div class="space-y-3 max-w-xl text-center md:text-left">
+                                <div class="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-3.5 py-1 rounded-full text-xs font-black tracking-wider uppercase shadow-sm">
+                                    <i class="fa-solid fa-fire text-amber-300 animate-pulse"></i>
+                                    <span>Ưu Đãi Lớn Tháng 10 • Giảm Đến 30% Hạt & Phụ Kiện</span>
+                                </div>
+                                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight leading-tight">
+                                    Đại Tiệc Hạt Dinh Dưỡng & Phụ Kiện Thú Cưng 5 Sao
+                                </h2>
+                                <p class="text-xs sm:text-sm text-white/95 leading-relaxed">
+                                    Ưu đãi độc quyền cho Boss cưng: Giảm 30% toàn bộ hạt Royal Canin, Orijen, Pate Monge cao cấp và phụ kiện thú cưng nhập khẩu. Cam kết 100% chính hãng, tích điểm VIP và giao hàng nhanh PetShip360 chỉ 2 giờ!
+                                </p>
+                                <div class="pt-2 flex flex-wrap items-center justify-center md:justify-start gap-4">
+                                    <button @click="scrollToCatalogGrid()" class="px-7 py-3.5 bg-white text-orange-600 hover:bg-orange-50 font-extrabold text-sm rounded-2xl shadow-xl transition transform active:scale-95 flex items-center gap-2">
+                                        <span>MUA NGAY</span>
+                                        <i class="fa-solid fa-arrow-right"></i>
+                                    </button>
+                                    <div class="flex items-center gap-3 text-xs text-white font-medium">
+                                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-bolt text-amber-300"></i> Giao hỏa tốc 2H</span>
+                                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-shield-check text-emerald-300"></i> Đổi trả 3 ngày</span>
+                                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-blue-200"></i> 100% Chính hãng</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Hình ảnh ưu đãi hạt & phụ kiện -->
+                            <div class="relative flex-shrink-0">
+                                <div class="w-64 h-48 sm:w-80 sm:h-56 relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white/25 bg-white/10 backdrop-blur-sm flex items-center justify-center group">
+                                    <img src="https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&w=600&q=80" alt="Ưu đãi hạt và phụ kiện giảm 30%" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                    <div class="absolute top-3 right-3 bg-rose-600 text-white font-black text-xs sm:text-sm px-3 py-1 rounded-xl shadow-lg animate-bounce">
+                                        GIẢM 30%
+                                    </div>
+                                    <div class="absolute bottom-3 left-3 bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-lg">
+                                        Hạt & Phụ kiện chính hãng
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BỐ CỤC 2 CỘT BÊN DƯỚI: Sidebar Filter (280px) + Product Grid (1100px) -->
+                    <div id="shopCatalogSection" class="flex flex-col lg:flex-row gap-8 items-start">
+                        
+                        <!-- CỘT BÊN TRÁI: SIDEBAR FILTER (RỘNG 280PX) -->
+                        <aside class="w-full lg:w-[280px] flex-shrink-0 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-6">
+                            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                                <div class="flex items-center gap-2 font-bold text-sm text-[#1E293B]">
+                                    <i class="fa-solid fa-sliders text-[#F97316]"></i>
+                                    <span>Bộ Lọc Sản Phẩm</span>
+                                </div>
+                                <button @click="resetShopFilters()" class="text-[11px] text-slate-400 hover:text-orange-600 font-medium transition flex items-center gap-1">
+                                    <i class="fa-solid fa-rotate-left text-[10px]"></i> Đặt lại
+                                </button>
+                            </div>
+
+                            <!-- Nhóm 1: Loài thú cưng (Chó, Mèo, Thỏ) -->
+                            <div class="space-y-2.5">
+                                <label class="block text-xs font-bold text-[#1E293B] uppercase tracking-wider">Loài Thú Cưng</label>
+                                <div class="flex flex-wrap gap-1.5">
+                                    <button @click="shopSpecies = ''" :class="shopSpecies === '' ? 'bg-[#F97316] text-white font-bold shadow-sm' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'" class="px-3 py-1.5 rounded-xl text-xs transition">
+                                        Tất cả
+                                    </button>
+                                    <button @click="shopSpecies = 'Chó'" :class="shopSpecies === 'Chó' ? 'bg-[#F97316] text-white font-bold shadow-sm' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'" class="px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1">
+                                        <i class="fa-solid fa-dog text-[11px]"></i> Chó
+                                    </button>
+                                    <button @click="shopSpecies = 'Mèo'" :class="shopSpecies === 'Mèo' ? 'bg-[#F97316] text-white font-bold shadow-sm' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'" class="px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1">
+                                        <i class="fa-solid fa-cat text-[11px]"></i> Mèo
+                                    </button>
+                                    <button @click="shopSpecies = 'Thỏ'" :class="shopSpecies === 'Thỏ' ? 'bg-[#F97316] text-white font-bold shadow-sm' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'" class="px-3 py-1.5 rounded-xl text-xs transition">
+                                        Thỏ
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Nhóm 2: Loại sản phẩm (Thức ăn hạt, Pate, Cát vệ sinh, Phụ kiện & Đồ chơi, Thuốc thú y) -->
+                            <div class="space-y-2.5 pt-3 border-t border-slate-100">
+                                <label class="block text-xs font-bold text-[#1E293B] uppercase tracking-wider">Loại Sản Phẩm</label>
+                                <div class="space-y-1.5 text-xs">
+                                    <label class="flex items-center gap-2 p-1.5 rounded-xl hover:bg-slate-50 cursor-pointer transition">
+                                        <input type="radio" name="prodType" value="" x-model="shopProductType" class="text-orange-500 focus:ring-orange-400">
+                                        <span :class="shopProductType === '' ? 'font-bold text-[#F97316]' : 'text-slate-700'">Tất cả phân loại</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 p-1.5 rounded-xl hover:bg-slate-50 cursor-pointer transition">
+                                        <input type="radio" name="prodType" value="Thức ăn hạt" x-model="shopProductType" class="text-orange-500 focus:ring-orange-400">
+                                        <span :class="shopProductType === 'Thức ăn hạt' ? 'font-bold text-[#F97316]' : 'text-slate-700'">Thức ăn hạt</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 p-1.5 rounded-xl hover:bg-slate-50 cursor-pointer transition">
+                                        <input type="radio" name="prodType" value="Pate" x-model="shopProductType" class="text-orange-500 focus:ring-orange-400">
+                                        <span :class="shopProductType === 'Pate' ? 'font-bold text-[#F97316]' : 'text-slate-700'">Pate</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 p-1.5 rounded-xl hover:bg-slate-50 cursor-pointer transition">
+                                        <input type="radio" name="prodType" value="Cát vệ sinh" x-model="shopProductType" class="text-orange-500 focus:ring-orange-400">
+                                        <span :class="shopProductType === 'Cát vệ sinh' ? 'font-bold text-[#F97316]' : 'text-slate-700'">Cát vệ sinh</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 p-1.5 rounded-xl hover:bg-slate-50 cursor-pointer transition">
+                                        <input type="radio" name="prodType" value="Phụ kiện & Đồ chơi" x-model="shopProductType" class="text-orange-500 focus:ring-orange-400">
+                                        <span :class="shopProductType === 'Phụ kiện & Đồ chơi' ? 'font-bold text-[#F97316]' : 'text-slate-700'">Phụ kiện & Đồ chơi</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 p-1.5 rounded-xl hover:bg-slate-50 cursor-pointer transition">
+                                        <input type="radio" name="prodType" value="Thuốc thú y" x-model="shopProductType" class="text-orange-500 focus:ring-orange-400">
+                                        <span :class="shopProductType === 'Thuốc thú y' ? 'font-bold text-[#F97316]' : 'text-slate-700'">Thuốc thú y</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Nhóm 3: Thương hiệu -->
+                            <div class="space-y-2.5 pt-3 border-t border-slate-100">
+                                <label class="block text-xs font-bold text-[#1E293B] uppercase tracking-wider">Thương Hiệu</label>
+                                <select x-model="shopBrand" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-400">
+                                    <option value="">Tất cả thương hiệu</option>
+                                    <option value="Royal Canin">Royal Canin (Pháp)</option>
+                                    <option value="Orijen">Orijen (Canada)</option>
+                                    <option value="Monge">Monge (Ý)</option>
+                                    <option value="Ciao Churu">Ciao Churu (Nhật)</option>
+                                    <option value="Cature">Cature (Mỹ)</option>
+                                    <option value="Davis">Davis (Mỹ)</option>
+                                    <option value="Virbac">Virbac (Pháp)</option>
+                                    <option value="Boehringer Ingelheim">Boehringer Ingelheim</option>
+                                    <option value="Zoetis">Zoetis (Mỹ)</option>
+                                </select>
+                            </div>
+
+                            <!-- Nhóm 4: Mức giá (Slider) -->
+                            <div class="space-y-2.5 pt-3 border-t border-slate-100">
+                                <div class="flex items-center justify-between text-xs">
+                                    <label class="font-bold text-[#1E293B] uppercase tracking-wider">Mức Giá Tối Đa</label>
+                                    <span class="font-extrabold text-[#F97316]" x-text="formatCurrency(shopMaxPrice)"></span>
+                                </div>
+                                <input type="range" min="100000" max="1500000" step="50000" x-model.number="shopMaxPrice" class="w-full accent-[#F97316] cursor-pointer">
+                                <div class="flex justify-between text-[10px] text-slate-400">
+                                    <span>100.000đ</span>
+                                    <span>1.500.000đ</span>
+                                </div>
+                            </div>
+
+                            <!-- Nhóm 5: Checkbox "Giao hỏa tốc PetShip360" -->
+                            <div class="pt-3 border-t border-slate-100">
+                                <label class="flex items-center gap-2.5 p-3 rounded-2xl bg-orange-50/70 border border-orange-200 hover:bg-orange-100/60 cursor-pointer transition">
+                                    <input type="checkbox" x-model="shopExpressShip" class="rounded text-[#F97316] focus:ring-orange-400 w-4 h-4">
+                                    <div class="text-xs">
+                                        <span class="font-extrabold text-slate-800 flex items-center gap-1">
+                                            <i class="fa-solid fa-bolt text-[#F97316]"></i>
+                                            <span>Giao hỏa tốc PetShip360</span>
+                                        </span>
+                                        <span class="text-[10px] text-orange-700 block mt-0.5">Nhận hàng trong 2 Giờ tại nội thành</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </aside>
+
+                        <!-- CỘT BÊN PHẢI: PRODUCT GRID (RỘNG 1100PX) -->
+                        <main class="flex-1 w-full space-y-6">
+                            
+                            <!-- Thanh Sắp Xếp Phía Trên -->
+                            <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div class="flex items-center gap-2 text-xs sm:text-sm">
+                                    <span class="font-bold text-[#1E293B]">Hiển thị:</span>
+                                    <span class="text-[#F97316] font-extrabold" x-text="filteredCatalogProducts.length + ' sản phẩm'"></span>
+                                    <span class="text-slate-400 hidden sm:inline">• Nền trắng #FFFFFF, Màu nhấn Cam #F97316</span>
+                                </div>
+
+                                <!-- "Xếp theo: Mới nhất | Bán chạy | Giá tăng/giảm" -->
+                                <div class="flex items-center gap-2 text-xs">
+                                    <span class="text-slate-500 font-medium">Xếp theo:</span>
+                                    <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+                                        <button @click="shopSortBy = 'newest'" :class="shopSortBy === 'newest' ? 'bg-white text-[#F97316] font-bold shadow-sm' : 'text-slate-600 hover:text-slate-900'" class="px-3 py-1.5 rounded-lg transition">
+                                            Mới nhất
+                                        </button>
+                                        <button @click="shopSortBy = 'bestseller'" :class="shopSortBy === 'bestseller' ? 'bg-white text-[#F97316] font-bold shadow-sm' : 'text-slate-600 hover:text-slate-900'" class="px-3 py-1.5 rounded-lg transition">
+                                            Bán chạy
+                                        </button>
+                                        <button @click="shopSortBy = 'price_asc'" :class="shopSortBy === 'price_asc' ? 'bg-white text-[#F97316] font-bold shadow-sm' : 'text-slate-600 hover:text-slate-900'" class="px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+                                            Giá <i class="fa-solid fa-arrow-up text-[10px]"></i>
+                                        </button>
+                                        <button @click="shopSortBy = 'price_desc'" :class="shopSortBy === 'price_desc' ? 'bg-white text-[#F97316] font-bold shadow-sm' : 'text-slate-600 hover:text-slate-900'" class="px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+                                            Giá <i class="fa-solid fa-arrow-down text-[10px]"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- LƯỚI SẢN PHẨM: 4 CỘT X 3 HÀNG (12 SẢN PHẨM) -->
+                            <!-- Card sản phẩm: Tỷ lệ ảnh 1:1, Badge giảm giá đỏ góc trên, Tên thương hiệu nhạt, Tên sản phẩm (tối đa 2 dòng), Số sao đánh giá (4.9★ - 128 đã bán), Giá bán in đậm đỏ/cam + Giá gốc gạch ngang, Nút tròn icon Giỏ hàng góc dưới -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                                <template x-for="prod in paginatedCatalogProducts" :key="prod.id">
+                                    <div @click="openProductDetailPage(prod)" class="bg-white rounded-2xl p-3 border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-200 flex flex-col justify-between group cursor-pointer relative overflow-hidden">
+                                        
+                                        <!-- Ảnh 1:1 + Badge giảm giá đỏ góc trên -->
+                                        <div class="relative w-full aspect-square rounded-xl overflow-hidden bg-slate-50 flex items-center justify-center p-2">
+                                            <img :src="prod.image || prod.img" :alt="prod.name" class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300">
+                                            
+                                            <!-- Badge giảm giá đỏ góc trên -->
+                                            <span class="absolute top-2 left-2 bg-rose-600 text-white font-extrabold text-[10px] px-2 py-0.5 rounded-md shadow-sm" x-text="prod.discountPercent || '-20%'"></span>
+
+                                            <!-- Badge Giao hỏa tốc nếu có -->
+                                            <template x-if="prod.expressShip">
+                                                <span class="absolute top-2 right-2 bg-amber-400 text-slate-900 font-black text-[9px] px-1.5 py-0.5 rounded-md shadow-sm flex items-center gap-0.5" title="Giao hỏa tốc PetShip360 trong 2h">
+                                                    <i class="fa-solid fa-bolt text-[8px]"></i> 2H
+                                                </span>
+                                            </template>
+                                        </div>
+
+                                        <!-- Thông tin sản phẩm -->
+                                        <div class="pt-3 pb-1 space-y-1.5 flex-1 flex flex-col justify-between">
+                                            <div>
+                                                <!-- Tên thương hiệu nhạt -->
+                                                <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider truncate" x-text="prod.brand"></p>
+                                                
+                                                <!-- Tên sản phẩm (tối đa 2 dòng) -->
+                                                <h4 class="text-xs sm:text-sm font-bold text-[#1E293B] line-clamp-2 leading-snug group-hover:text-[#F97316] transition" x-text="prod.name" :title="prod.name"></h4>
+                                            </div>
+
+                                            <div>
+                                                <!-- Số sao đánh giá (ví dụ: 4.9★ - 128 đã bán) -->
+                                                <div class="flex items-center gap-1.5 text-xs text-slate-500 pt-1">
+                                                    <div class="flex items-center text-amber-400 text-xs">
+                                                        <i class="fa-solid fa-star"></i>
+                                                        <span class="font-bold text-slate-800 ml-1" x-text="prod.rating"></span>
+                                                    </div>
+                                                    <span class="text-slate-300">•</span>
+                                                    <span class="text-[11px] text-slate-400" x-text="(prod.sold || 128) + ' đã bán'"></span>
+                                                </div>
+
+                                                <!-- Giá bán in đậm đỏ/cam + Giá gốc gạch ngang + Nút tròn icon Giỏ hàng góc dưới -->
+                                                <div class="pt-2 flex items-center justify-between border-t border-slate-100 mt-2">
+                                                    <div>
+                                                        <div class="text-sm sm:text-base font-extrabold text-[#F97316]" x-text="formatCurrency(prod.price)"></div>
+                                                        <div class="text-[10px] text-slate-400 line-through font-medium" x-text="formatCurrency(prod.originalPrice || Math.round(prod.price * 1.25))"></div>
+                                                    </div>
+
+                                                    <!-- Nút tròn icon Giỏ hàng góc dưới -->
+                                                    <button @click.stop="addToCart({ id: prod.id, name: prod.name, price: prod.price, image: prod.image || prod.img, weight: '3kg', flavor: 'Vị chuẩn' })" class="w-9 h-9 rounded-full bg-orange-50 text-[#F97316] hover:bg-[#F97316] hover:text-white transition flex items-center justify-center shadow-sm transform active:scale-90" title="Thêm vào giỏ hàng">
+                                                        <i class="fa-solid fa-cart-plus text-xs"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <!-- Phân trang (Pagination) chuẩn ở cuối trang -->
+                            <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center justify-between">
+                                <span class="text-xs text-slate-500 hidden sm:inline" x-text="'Trang ' + shopCurrentPage + ' / ' + shopTotalPages + ' (Tổng ' + filteredCatalogProducts.length + ' sản phẩm)'"></span>
+                                <div class="flex items-center gap-1.5 mx-auto sm:mx-0">
+                                    <button @click="if(shopCurrentPage > 1) shopCurrentPage--" :disabled="shopCurrentPage === 1" class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-1">
+                                        <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                                        <span>Trang trước</span>
+                                    </button>
+                                    <template x-for="p in shopTotalPages" :key="p">
+                                        <button @click="shopCurrentPage = p" :class="shopCurrentPage === p ? 'bg-[#F97316] text-white font-bold' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'" class="w-8 h-8 rounded-xl text-xs transition font-semibold" x-text="p"></button>
+                                    </template>
+                                    <button @click="if(shopCurrentPage < shopTotalPages) shopCurrentPage++" :disabled="shopCurrentPage === shopTotalPages" class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-1">
+                                        <span>Trang sau</span>
+                                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </main>
+                    </div>
+                </div>
+
+                <!-- ======================================================== -->
+                <!-- CHẾ ĐỘ 2: TRANG CHI TIẾT SẢN PHẨM (PRODUCT DETAIL PAGE) -->
+                <!-- ======================================================== -->
+                <div x-show="shopViewMode === 'detail'" class="space-y-8 animate-fadeIn">
+                    <nav class="flex items-center gap-2 text-xs sm:text-sm text-slate-500 py-2 border-b border-slate-100">
                     <a href="#" @click.prevent="activeCustomerTab = 'home'" class="hover:text-brand-600 transition flex items-center gap-1">
                         <i class="fa-solid fa-house text-xs"></i>Trang chủ
                     </a>
                     <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
-                    <span class="hover:text-brand-600 cursor-pointer">Sản phẩm</span>
+                    <a href="#" @click.prevent="backToShopCatalog()" class="hover:text-orange-600 font-bold text-slate-700 transition flex items-center gap-1"><i class="fa-solid fa-box-open text-xs"></i>Sản phẩm (Cửa hàng)</a>
                     <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
                     <span class="text-slate-600 font-medium">Thức ăn thú cưng</span>
                     <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
@@ -583,7 +868,7 @@ CUSTOMER_HTML = """
                             <p class="text-xs text-slate-500">Gợi ý từ các bác sĩ dinh dưỡng PetCare360</p>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="text-xs text-brand-600 font-bold hover:underline cursor-pointer" @click="activeCustomerTab = 'shop'">Xem tất cả 12 sản phẩm</span>
+                            <span class="text-xs text-brand-600 font-bold hover:underline cursor-pointer" @click="backToShopCatalog()">Xem tất cả 12 sản phẩm</span>
                         </div>
                     </div>
 
@@ -613,9 +898,9 @@ CUSTOMER_HTML = """
                         </template>
                     </div>
                 </div>
+                </div>
             </div>
 
-            <!-- ======================================================== -->
             <!-- TAB 3: DỊCH VỤ (CHĂM SÓC & Y TẾ 5 SAO THEO YÊU CẦU) -->
             <!-- ======================================================== -->
             <div x-show="activeCustomerTab === 'booking'" class="space-y-8" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0">
@@ -639,61 +924,325 @@ CUSTOMER_HTML = """
 
                 <!-- Khối Chọn Nhanh Dịch Vụ (Tab Selector: 3 Tab chính) -->
                 <div class="bg-white rounded-2xl p-2 border border-slate-200 shadow-sm flex flex-wrap gap-2">
-                    <button @click="servicePricingTab = 'spa'" :class="servicePricingTab === 'spa' ? 'bg-orange-500 text-white font-bold shadow-md shadow-orange-500/20' : 'text-slate-600 hover:bg-slate-100'" class="flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2">
+                    <button @click="servicePricingTab = 'grooming'" :class="(servicePricingTab === 'grooming' || servicePricingTab === 'spa') ? 'bg-[#F97316] text-white font-bold shadow-md shadow-orange-500/20' : 'text-slate-600 hover:bg-slate-100'" class="flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2">
                         <i class="fa-solid fa-scissors"></i>
                         <span>Grooming & Spa</span>
                     </button>
-                    <button @click="servicePricingTab = 'hotel'" :class="servicePricingTab === 'hotel' ? 'bg-orange-500 text-white font-bold shadow-md shadow-orange-500/20' : 'text-slate-600 hover:bg-slate-100'" class="flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2">
+                    <button @click="servicePricingTab = 'hotel'" :class="servicePricingTab === 'hotel' ? 'bg-[#F97316] text-white font-bold shadow-md shadow-orange-500/20' : 'text-slate-600 hover:bg-slate-100'" class="flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2">
                         <i class="fa-solid fa-hotel"></i>
                         <span>Pet Hotel 5 Sao</span>
                     </button>
-                    <button @click="servicePricingTab = 'vaccine'" :class="servicePricingTab === 'vaccine' ? 'bg-orange-500 text-white font-bold shadow-md shadow-orange-500/20' : 'text-slate-600 hover:bg-slate-100'" class="flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2">
+                    <button @click="servicePricingTab = 'vaccine'" :class="servicePricingTab === 'vaccine' ? 'bg-[#F97316] text-white font-bold shadow-md shadow-orange-500/20' : 'text-slate-600 hover:bg-slate-100'" class="flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2">
                         <i class="fa-solid fa-syringe"></i>
                         <span>Tiêm Phòng & Home Visit</span>
                     </button>
                 </div>
 
-                <!-- BẢNG GIÁ DỊCH VỤ CHI TIẾT (PRICING MATRIX SECTION) -->
-                <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="text-lg sm:text-xl font-bold text-slate-900">Bảng Giá Dịch Vụ Minh Bạch Theo Cân Nặng Pet</h3>
-                            <p class="text-xs text-slate-500">Đã bao gồm bảo hiểm sức khỏe thú cưng trong suốt thời gian phục vụ</p>
+                <!-- BẢNG GIÁ DỊCH VỤ CHI TIẾT (PRICING MATRIX SECTION) - CHÍNH XÁC THEO 3 ẢNH THỰC TẾ -->
+                <div class="space-y-6">
+
+                    <!-- ========================================== -->
+                    <!-- TAB 1: GROOMING & SPA (CHÍNH XÁC THEO ẢNH 2) -->
+                    <!-- ========================================== -->
+                    <div x-show="servicePricingTab === 'grooming' || servicePricingTab === 'spa'" class="space-y-6 animate-fadeIn">
+                        
+                        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
+                                <div>
+                                    <div class="inline-flex items-center gap-2 bg-rose-50 text-rose-600 font-extrabold text-[11px] px-3 py-1 rounded-full uppercase tracking-wider mb-1">
+                                        <i class="fa-solid fa-sparkles"></i> Bảng Giá Dịch Vụ Minh Bạch Theo Ảnh Thực Tế
+                                    </div>
+                                    <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">SERVICES PRICE LIST (Grooming & Spa)</h3>
+                                    <p class="text-xs text-slate-500">Phân hạng chi tiết theo 8 mức cân nặng chuẩn quốc tế, bồn tắm sục massage thủy lực</p>
+                                </div>
+                                <span class="text-xs bg-emerald-50 text-emerald-700 font-bold px-3 py-1.5 rounded-xl border border-emerald-200 self-start sm:self-auto">Mỹ phẩm Davis Mỹ 100%</span>
+                            </div>
+
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                
+                                <!-- Bảng Giá Chính (Weight / Spa / Grooming / Shave) - Chiếm 2 Cột -->
+                                <div class="lg:col-span-2 overflow-x-auto border border-slate-200 rounded-2xl shadow-sm bg-white">
+                                    <table class="w-full text-left text-xs sm:text-sm border-collapse">
+                                        <thead>
+                                            <tr class="bg-gradient-to-r from-rose-50 to-orange-50 text-slate-900 border-b border-slate-200 font-black">
+                                                <th class="py-3 px-4">Weight (Cân nặng)</th>
+                                                <th class="py-3 px-4 text-center">Spa<br><span class="text-[10px] font-normal text-slate-500">(Tắm sấy vệ sinh)</span></th>
+                                                <th class="py-3 px-4 text-center">Grooming<br><span class="text-[10px] font-normal text-slate-500">(Spa + Cắt tạo kiểu)</span></th>
+                                                <th class="py-3 px-4 text-center">Shave<br><span class="text-[10px] font-normal text-slate-500">(Spa + Cạo lông)</span></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-100 font-medium text-slate-800">
+                                            <template x-for="(row, ridx) in groomingPriceList" :key="ridx">
+                                                <tr class="hover:bg-orange-50/50 transition">
+                                                    <td class="py-3 px-4 font-bold text-slate-900" x-text="row.weight"></td>
+                                                    <td class="py-3 px-4 text-center font-semibold text-slate-700" x-text="formatCurrency(row.spa)"></td>
+                                                    <td class="py-3 px-4 text-center font-extrabold text-[#F97316]" x-text="formatCurrency(row.grooming)"></td>
+                                                    <td class="py-3 px-4 text-center text-slate-600" x-text="formatCurrency(row.shave)"></td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Cột Phụ: OTHER SERVICES & BEAUTY PACKAGE (Theo Ảnh 2) -->
+                                <div class="space-y-4">
+                                    <!-- OTHER SERVICES (Dịch vụ lẻ khác) -->
+                                    <div class="bg-slate-50 rounded-2xl p-4 sm:p-5 border border-slate-200 space-y-3">
+                                        <h4 class="font-black text-xs sm:text-sm text-slate-900 uppercase tracking-wider flex items-center justify-between">
+                                            <span>OTHER SERVICES (Dịch vụ lẻ)</span>
+                                            <i class="fa-solid fa-list-check text-rose-500"></i>
+                                        </h4>
+                                        <div class="space-y-2 text-xs">
+                                            <template x-for="(srv, sidx) in otherServicesList" :key="sidx">
+                                                <div class="flex items-center justify-between pb-1.5 border-b border-slate-200/60 last:border-0">
+                                                    <span class="text-slate-700 font-medium" x-text="srv.name"></span>
+                                                    <span class="font-bold text-slate-900" x-text="srv.price"></span>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+
+                                    <!-- BEAUTY PACKAGE (Gói tắm tháng) -->
+                                    <div class="bg-gradient-to-br from-rose-500 to-orange-500 text-white rounded-2xl p-4 sm:p-5 shadow-md space-y-2">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-[10px] font-bold bg-white/20 px-2 py-0.5 rounded-full uppercase tracking-wider">Ưu Đãi Đặc Biệt</span>
+                                            <i class="fa-solid fa-crown text-amber-300"></i>
+                                        </div>
+                                        <h4 class="font-black text-sm sm:text-base">BEAUTY PACKAGE (Gói Tắm Tháng)</h4>
+                                        <div class="flex items-baseline justify-between pt-1">
+                                            <span class="text-xs font-semibold">10 Buổi Spa Chăm Sóc</span>
+                                            <span class="text-lg font-black bg-white text-rose-600 px-2.5 py-0.5 rounded-xl shadow-sm">OFF 15%</span>
+                                        </div>
+                                        <p class="text-[10px] text-white/90 italic">*Valid within 90 days (Sử dụng trong vòng 90 ngày kể từ ngày kích hoạt)</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Điều Khoản Áp Dụng (Terms and Conditions theo Ảnh 2) -->
+                            <div class="bg-slate-50/80 rounded-2xl p-4 border border-slate-200 text-xs text-slate-600 space-y-1.5">
+                                <h5 class="font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                                    <i class="fa-solid fa-circle-info text-brand-600"></i>
+                                    <span>TERMS AND CONDITIONS / ĐIỀU KHOẢN ÁP DỤNG:</span>
+                                </h5>
+                                <ul class="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1 text-[11px] leading-relaxed">
+                                    <li>• Vui lòng đặt hẹn trước 1 ngày để được phục vụ chu đáo nhất (Booking 1 day in advance is recommended).</li>
+                                    <li>• PetCare360 có quyền từ chối nhận các bé quá hung dữ, không hợp tác (Pet that's too aggressive might be returned).</li>
+                                    <li>• Phí dịch vụ không thể hoàn lại hoặc chuyển nhượng cho người khác (Service fee is non-refundable and non-exchangeable).</li>
+                                    <li>• Phí dịch vụ có thể được điều chỉnh nhẹ vào các dịp Lễ Tết theo quy định chung.</li>
+                                </ul>
+                            </div>
                         </div>
-                        <span class="text-xs bg-brand-50 text-brand-700 font-bold px-3 py-1.5 rounded-xl border border-brand-200 hidden sm:inline">Cam kết không phụ phí ẩn</span>
                     </div>
 
-                    <div class="overflow-x-auto border border-slate-200 rounded-2xl shadow-sm">
-                        <table class="w-full text-left text-xs sm:text-sm border-collapse">
-                            <thead>
-                                <tr class="bg-slate-50 text-slate-800 border-b border-slate-200 font-bold">
-                                    <th class="py-3 px-4">Phân Hạng Kích Thước (Size)</th>
-                                    <th class="py-3 px-4">Gói Dịch Vụ & Thời Gian</th>
-                                    <th class="py-3 px-4">Các Bước Chăm Sóc Bao Gồm</th>
-                                    <th class="py-3 px-4 text-right">Mức Giá Niêm Yết</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100">
-                                <template x-for="(tier, tidx) in pricingMatrixData[servicePricingTab]" :key="tidx">
-                                    <tr class="hover:bg-orange-50/40 transition">
-                                        <td class="py-3.5 px-4 font-bold text-slate-900">
-                                            <div class="flex items-center gap-2">
-                                                <span class="w-7 h-7 rounded-lg bg-orange-100 text-orange-700 font-extrabold flex items-center justify-center text-xs" x-text="tier.size"></span>
-                                                <span x-text="tier.weightRange"></span>
-                                            </div>
-                                        </td>
-                                        <td class="py-3.5 px-4">
-                                            <p class="font-bold text-slate-800" x-text="tier.package"></p>
-                                            <span class="text-[11px] text-slate-400" x-text="tier.duration"></span>
-                                        </td>
-                                        <td class="py-3.5 px-4 text-xs text-slate-600 max-w-md" x-text="tier.steps"></td>
-                                        <td class="py-3.5 px-4 text-right">
-                                            <span class="text-sm sm:text-base font-extrabold text-orange-600" x-text="formatCurrency(tier.price)"></span>
-                                        </td>
+                    <!-- ========================================== -->
+                    <!-- TAB 2: PET HOTEL 5 SAO (CHÍNH XÁC THEO ẢNH 1 & ẢNH 3) -->
+                    <!-- ========================================== -->
+                    <div x-show="servicePricingTab === 'hotel'" class="space-y-6 animate-fadeIn">
+                        
+                        <!-- Sub-tab Selector: Cat Hotel (Ảnh 1) vs Dog Hotel (Ảnh 3) -->
+                        <div class="bg-white rounded-2xl p-2 border border-slate-200 shadow-sm flex gap-2">
+                            <button @click="hotelSubTab = 'cat'" :class="hotelSubTab === 'cat' ? 'bg-[#F97316] text-white font-bold shadow' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'" class="flex-1 py-2.5 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-cat"></i>
+                                <span>Khách Sạn Mèo (Cat Hotel - Bảng Giá Ảnh 1)</span>
+                            </button>
+                            <button @click="hotelSubTab = 'dog'" :class="hotelSubTab === 'dog' ? 'bg-[#F97316] text-white font-bold shadow' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'" class="flex-1 py-2.5 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-dog"></i>
+                                <span>Khách Sạn Chó & Daycare (Dog Hotel - Bảng Giá Ảnh 3)</span>
+                            </button>
+                        </div>
+
+                        <!-- KHU VỰC 1: CAT HOTEL (CHÍNH XÁC THEO ẢNH 1) -->
+                        <div x-show="hotelSubTab === 'cat'" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 animate-fadeIn">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
+                                <div>
+                                    <div class="inline-flex items-center gap-2 bg-pink-50 text-pink-600 font-extrabold text-[11px] px-3 py-1 rounded-full uppercase tracking-wider mb-1">
+                                        <i class="fa-solid fa-heart"></i> Pet Hotel Price List (Cat Hotel)
+                                    </div>
+                                    <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Bảng Giá Khách Sạn Mèo Nghỉ Dưỡng 5 Sao</h3>
+                                    <p class="text-xs text-slate-500">Phòng kính cách âm, điều hòa 24/24, đệm êm và khay cát đậu nành cao cấp</p>
+                                </div>
+                                <span class="text-xs bg-orange-50 text-orange-700 font-bold px-3 py-1.5 rounded-xl border border-orange-200 self-start sm:self-auto">*Daycare giảm 25% trên giá full-day</span>
+                            </div>
+
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                                
+                                <!-- Bảng Giá Phòng Mèo: STANDARD, DELUXE, SUPERIOR (Theo Ảnh 1) -->
+                                <div class="lg:col-span-2 space-y-4">
+                                    <div class="overflow-x-auto border border-slate-200 rounded-2xl shadow-sm bg-white">
+                                        <table class="w-full text-left text-xs sm:text-sm border-collapse">
+                                            <thead>
+                                                <tr class="bg-gradient-to-r from-pink-50 to-rose-50 text-slate-900 border-b border-slate-200 font-black">
+                                                    <th class="py-3.5 px-4">Hạng Phòng (Room Type)</th>
+                                                    <th class="py-3.5 px-4 text-center">1 Bé Mèo</th>
+                                                    <th class="py-3.5 px-4 text-center">2 Bé Mèo</th>
+                                                    <th class="py-3.5 px-4 text-center">3 Bé Mèo</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-slate-100 font-medium text-slate-800">
+                                                <template x-for="(catRoom, cidx) in catHotelPriceList" :key="cidx">
+                                                    <tr class="hover:bg-pink-50/40 transition">
+                                                        <td class="py-3.5 px-4">
+                                                            <div class="font-black text-slate-900" x-text="catRoom.roomType"></div>
+                                                            <span class="text-[11px] text-slate-400" x-text="catRoom.desc"></span>
+                                                        </td>
+                                                        <td class="py-3.5 px-4 text-center font-extrabold text-[#F97316]" x-text="catRoom.price1Cat"></td>
+                                                        <td class="py-3.5 px-4 text-center font-semibold text-slate-700" x-text="catRoom.price2Cats"></td>
+                                                        <td class="py-3.5 px-4 text-center font-semibold text-slate-700" x-text="catRoom.price3Cats"></td>
+                                                    </tr>
+                                                </template>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <!-- GÓI LƯU TRÚ DÀI HẠN (Notes từ Ảnh 1) -->
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                        <div class="bg-gradient-to-br from-amber-50 to-orange-50 border border-orange-200 rounded-2xl p-4 text-center space-y-1">
+                                            <span class="text-xs font-bold text-slate-600 block">LƯU TRÚ 1 TUẦN</span>
+                                            <span class="text-lg font-black text-orange-600 block">OFF 10%</span>
+                                            <span class="text-[10px] text-slate-400">Tiết kiệm chi phí</span>
+                                        </div>
+                                        <div class="bg-gradient-to-br from-amber-50 to-orange-50 border border-orange-200 rounded-2xl p-4 text-center space-y-1">
+                                            <span class="text-xs font-bold text-slate-600 block">LƯU TRÚ 2 TUẦN</span>
+                                            <span class="text-lg font-black text-orange-600 block">OFF 15%</span>
+                                            <span class="text-[10px] text-slate-400">Tặng kèm đồ chơi</span>
+                                        </div>
+                                        <div class="bg-gradient-to-br from-rose-500 to-orange-500 text-white rounded-2xl p-4 text-center space-y-1 shadow-md">
+                                            <span class="text-xs font-bold text-white/90 block">LƯU TRÚ 1 THÁNG</span>
+                                            <span class="text-lg font-black block">OFF 20% & FREE 1 SPA</span>
+                                            <span class="text-[10px] text-white/80">Gói VIP tiết kiệm nhất</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Hình ảnh & Điều khoản phòng Mèo (Ảnh 1) -->
+                                <div class="space-y-4">
+                                    <div class="rounded-2xl overflow-hidden border border-slate-200 shadow-sm relative h-56 bg-slate-100">
+                                        <img src="https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=600&q=80" alt="Cat hotel suite" class="w-full h-full object-cover">
+                                        <div class="absolute bottom-2 left-2 bg-slate-900/80 backdrop-blur text-white text-[10px] font-bold px-2 py-1 rounded-lg">
+                                            Phòng Kính Cat Hotel Tiêu Chuẩn 5 Sao
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 text-xs space-y-2 text-slate-600">
+                                        <h5 class="font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                                            <i class="fa-solid fa-clock text-[#F97316]"></i>
+                                            <span>ĐIỀU KHOẢN & GIỜ GIẤC CHECK-IN/OUT:</span>
+                                        </h5>
+                                        <ul class="space-y-1 text-[11px] leading-relaxed">
+                                            <li>• <strong>Giờ check-in:</strong> 9.00 AM.</li>
+                                            <li>• <strong>Giờ check-out qua đêm:</strong> 11.00 AM (sau 11.00AM sẽ tính phí Daycare 1 ngày).</li>
+                                            <li>• <strong>Giờ check-out Daycare:</strong> 7.00 PM cùng ngày.</li>
+                                            <li>• Check-in/out trước 9AM hoặc sau 8PM: phụ thu <strong>50.000 đ/giờ</strong>.</li>
+                                            <li>• Giá phòng đã bao gồm thức ăn hạt theo khẩu phần cửa hàng (2 bữa chính 1 bữa phụ).</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- KHU VỰC 2: DOG HOTEL & DAYCARE (CHÍNH XÁC THEO ẢNH 3) -->
+                        <div x-show="hotelSubTab === 'dog'" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 animate-fadeIn">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
+                                <div>
+                                    <div class="inline-flex items-center gap-2 bg-emerald-50 text-emerald-600 font-extrabold text-[11px] px-3 py-1 rounded-full uppercase tracking-wider mb-1">
+                                        <i class="fa-solid fa-dog"></i> Dog Hotel & Daycare (Bảng Giá Ảnh 3)
+                                    </div>
+                                    <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">The Condo Room • The Villa • Daycare</h3>
+                                    <p class="text-xs text-slate-500">Phân hạng phòng và mức giá chính xác theo 6 mốc cân nặng thú cưng</p>
+                                </div>
+                                <span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1.5 rounded-xl border border-emerald-200 self-start sm:self-auto">Sân cỏ tự nhiên 500m²</span>
+                            </div>
+
+                            <!-- Bảng Giá Dog Hotel Theo Cân Nặng (Ảnh 3) -->
+                            <div class="overflow-x-auto border border-slate-200 rounded-2xl shadow-sm bg-white">
+                                <table class="w-full text-left text-xs sm:text-sm border-collapse">
+                                    <thead>
+                                        <tr class="text-white font-black text-center">
+                                            <th class="py-3.5 px-4 text-left bg-slate-800 text-white">Mức Cân Nặng</th>
+                                            <th class="py-3.5 px-4 bg-emerald-600">The Condo Room<br><span class="text-[10px] font-normal text-emerald-100">(Phòng Khách sạn chuẩn)</span></th>
+                                            <th class="py-3.5 px-4 bg-cyan-600">The Villa<br><span class="text-[10px] font-normal text-cyan-100">(Biệt thự VIP riêng tư)</span></th>
+                                            <th class="py-3.5 px-4 bg-[#F97316]">Daycare<br><span class="text-[10px] font-normal text-orange-100">(Gửi ban ngày vui chơi)</span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 font-medium text-slate-800">
+                                        <template x-for="(dogRow, didx) in dogHotelPriceList" :key="didx">
+                                            <tr class="hover:bg-slate-50/70 transition">
+                                                <td class="py-3.5 px-4 font-bold text-slate-900" x-text="dogRow.weight"></td>
+                                                <td class="py-3.5 px-4 text-center font-bold text-emerald-700 bg-emerald-50/30" x-text="formatCurrency(dogRow.condo)"></td>
+                                                <td class="py-3.5 px-4 text-center font-bold text-cyan-700 bg-cyan-50/30" x-text="formatCurrency(dogRow.villa)"></td>
+                                                <td class="py-3.5 px-4 text-center font-bold text-[#F97316] bg-orange-50/30" x-text="formatCurrency(dogRow.daycare)"></td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- 3 Card Minh Họa Không Gian Phòng (Như trong Ảnh 3) -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                                <div class="rounded-2xl border-2 border-emerald-400 p-3 bg-white shadow-sm space-y-2">
+                                    <div class="h-44 rounded-xl overflow-hidden bg-slate-100">
+                                        <img src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=500&q=80" alt="The Condo Room" class="w-full h-full object-cover">
+                                    </div>
+                                    <h4 class="font-extrabold text-sm text-emerald-700">The Condo Room</h4>
+                                    <p class="text-[11px] text-slate-500">Phòng chung cư mini cho bé cưng, cửa kính thông thoáng, điều hòa 2 chiều và khay đệm êm.</p>
+                                </div>
+
+                                <div class="rounded-2xl border-2 border-cyan-400 p-3 bg-white shadow-sm space-y-2">
+                                    <div class="h-44 rounded-xl overflow-hidden bg-slate-100">
+                                        <img src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=500&q=80" alt="The Villa" class="w-full h-full object-cover">
+                                    </div>
+                                    <h4 class="font-extrabold text-sm text-cyan-700">The Villa</h4>
+                                    <p class="text-[11px] text-slate-500">Biệt thự gỗ phong cách Bắc Âu độc lập, view sân cỏ vận động, có camera Full HD riêng.</p>
+                                </div>
+
+                                <div class="rounded-2xl border-2 border-orange-400 p-3 bg-white shadow-sm space-y-2">
+                                    <div class="h-44 rounded-xl overflow-hidden bg-slate-100">
+                                        <img src="https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=500&q=80" alt="Daycare sân cỏ" class="w-full h-full object-cover">
+                                    </div>
+                                    <h4 class="font-extrabold text-sm text-[#F97316]">Daycare Sân Cỏ Vận Động</h4>
+                                    <p class="text-[11px] text-slate-500">Khu vui chơi bãi cỏ tự nhiên có bóng mát, huấn luyện viên tương tác kết bạn suốt cả ngày.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- TAB 3: TIÊM PHÒNG & HOME VISIT -->
+                    <!-- ========================================== -->
+                    <div x-show="servicePricingTab === 'vaccine'" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 animate-fadeIn">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
+                            <div>
+                                <div class="inline-flex items-center gap-2 bg-blue-50 text-blue-600 font-extrabold text-[11px] px-3 py-1 rounded-full uppercase tracking-wider mb-1">
+                                    <i class="fa-solid fa-shield-virus"></i> Y Tế & Chăm Sóc Sức Khỏe
+                                </div>
+                                <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Bảng Giá Tiêm Phòng & Bác Sĩ Khám Tận Nhà (Home Visit)</h3>
+                                <p class="text-xs text-slate-500">Bác sĩ thú y trực tiếp thực hiện, cấp sổ tiêm điện tử và lưu trữ lịch sử y tế trọn đời</p>
+                            </div>
+                            <span class="text-xs bg-blue-50 text-blue-700 font-bold px-3 py-1.5 rounded-xl border border-blue-200 self-start sm:self-auto">Cấp Sổ Tiêm Quốc Tế</span>
+                        </div>
+
+                        <div class="overflow-x-auto border border-slate-200 rounded-2xl shadow-sm bg-white">
+                            <table class="w-full text-left text-xs sm:text-sm border-collapse">
+                                <thead>
+                                    <tr class="bg-blue-50/70 text-slate-900 border-b border-slate-200 font-black">
+                                        <th class="py-3.5 px-4">Gói Tiêm Chủng / Dịch Vụ Y Tế</th>
+                                        <th class="py-3.5 px-4">Thời Gian</th>
+                                        <th class="py-3.5 px-4">Quy Trình Chuẩn Bác Sĩ Thú Y</th>
+                                        <th class="py-3.5 px-4 text-right">Chi Phí Niêm Yết</th>
                                     </tr>
-                                </template>
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 font-medium text-slate-800">
+                                    <template x-for="(vac, vidx) in vaccinePriceList" :key="vidx">
+                                        <tr class="hover:bg-blue-50/30 transition">
+                                            <td class="py-3.5 px-4 font-bold text-slate-900" x-text="vac.name"></td>
+                                            <td class="py-3.5 px-4 text-slate-500" x-text="vac.duration"></td>
+                                            <td class="py-3.5 px-4 text-xs text-slate-600 max-w-md" x-text="vac.desc"></td>
+                                            <td class="py-3.5 px-4 text-right font-extrabold text-[#F97316]" x-text="formatCurrency(vac.price)"></td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 

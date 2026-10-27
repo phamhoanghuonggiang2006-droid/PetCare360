@@ -31,7 +31,17 @@ function superPetCareApp() {
 
         // Bộ lọc & Tìm kiếm Khách hàng & Admin
         searchQuery: '',
-        // ==================== 1. SẢN PHẨM & E-COMMERCE DETAIL ====================
+        // ==================== 1. SẢN PHẨM & E-COMMERCE CATALOG & DETAIL ====================
+        shopViewMode: 'catalog', // 'catalog' | 'detail'
+        shopSpecies: '', // '' | 'Chó' | 'Mèo' | 'Thỏ'
+        shopProductType: '', // '' | 'Thức ăn hạt' | 'Pate' | 'Cát vệ sinh' | 'Phụ kiện & Đồ chơi' | 'Thuốc thú y'
+        shopBrand: '',
+        shopMaxPrice: 1500000,
+        shopExpressShip: false,
+        shopSortBy: 'newest', // 'newest' | 'bestseller' | 'price_asc' | 'price_desc'
+        shopCurrentPage: 1,
+        shopPageSize: 12,
+        hotelSubTab: 'cat', // 'cat' | 'dog'
         selectedProductDetailId: 1,
         mainProductImage: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&w=800&q=80',
         productThumbnails: [
@@ -52,7 +62,55 @@ function superPetCareApp() {
         ],
 
         // ==================== 2. DỊCH VỤ & PRICING MATRIX & BOOKING ====================
-        servicePricingTab: 'grooming', // 'grooming' | 'hotel' | 'vaccine'
+        servicePricingTab: 'grooming', // 'grooming' | 'hotel' | 'vaccine' | 'spa'
+        hotelSubTab: 'cat', // 'cat' | 'dog'
+
+        // BẢNG GIÁ DỊCH VỤ THEO 3 ẢNH THỰC TẾ YÊU CẦU:
+        // Ảnh 2: SERVICES PRICE LIST (Grooming & Spa + Dịch vụ lẻ + Gói tắm tháng)
+        groomingPriceList: [
+            { weight: '< 2kg', spa: 270000, grooming: 420000, shave: 350000 },
+            { weight: '2kg-5kg', spa: 330000, grooming: 500000, shave: 420000 },
+            { weight: '5kg-8kg', spa: 380000, grooming: 590000, shave: 500000 },
+            { weight: '8kg-12kg', spa: 440000, grooming: 690000, shave: 570000 },
+            { weight: '12kg-18kg', spa: 520000, grooming: 800000, shave: 660000 },
+            { weight: '18kg-25kg', spa: 610000, grooming: 930000, shave: 770000 },
+            { weight: '25kg-35kg', spa: 720000, grooming: 1100000, shave: 890000 },
+            { weight: '> 35kg', spa: 850000, grooming: 1300000, shave: 1000000 }
+        ],
+        otherServicesList: [
+            { name: 'Nail clip (Cắt móng)', price: '80.000 đ' },
+            { name: 'Ear wash (Vệ sinh tai)', price: '60.000 đ' },
+            { name: 'Brush teeth (Vệ sinh răng miệng)', price: '55.000 đ' },
+            { name: 'Detangle depending on areas (Gỡ rối theo tình trạng)', price: '50.000 - 700.000 đ' },
+            { name: 'Treatment shampoo (Tắm đặc trị ve, nấm/viêm da)', price: '50.000 đ' },
+            { name: 'Surcharge for late check-in (Phụ thu sau 5PM)', price: '70.000 đ' }
+        ],
+
+        // Ảnh 1: Cat Hotel (STANDARD, DELUXE, SUPERIOR + Daycare + Ưu đãi dài hạn)
+        catHotelPriceList: [
+            { roomType: 'STANDARD ROOM', price1Cat: '200.000 đ', price2Cats: '—', price3Cats: '—', desc: 'Phòng tiêu chuẩn kính cách âm, đệm lót êm ái, khay cát vệ sinh riêng' },
+            { roomType: 'DELUXE ROOM', price1Cat: '250.000 đ', price2Cats: '375.000 đ', price3Cats: '—', desc: 'Không gian rộng rãi 2 tầng leo trèo, điều hòa 2 chiều 26°C, đồ chơi' },
+            { roomType: 'SUPERIOR ROOM', price1Cat: '350.000 đ', price2Cats: '525.000 đ', price3Cats: '700.000 đ', desc: 'Phòng VIP kính view toàn cảnh sân vui chơi, camera 24/7 xem trực tiếp, tối đa 3 bé' }
+        ],
+
+        // Ảnh 3: The Condo Room, The Villa, Daycare
+        dogHotelPriceList: [
+            { weight: 'Dưới 5kg', condo: 250000, villa: 330000, daycare: 190000 },
+            { weight: '5kg - 8kg', condo: 280000, villa: 370000, daycare: 210000 },
+            { weight: '8kg - 12kg', condo: 320000, villa: 420000, daycare: 240000 },
+            { weight: '12kg - 18kg', condo: 370000, villa: 480000, daycare: 280000 },
+            { weight: '18kg - 25kg', condo: 430000, villa: 560000, daycare: 320000 },
+            { weight: 'Trên 25kg', condo: 500000, villa: 650000, daycare: 375000 }
+        ],
+
+        // Tiêm phòng & Khám tận nhà
+        vaccinePriceList: [
+            { name: 'Vắc-xin 7 Bệnh Toàn Diện Cho Chó (Pháp)', price: 350000, duration: '30 phút', desc: 'Khám sàng lọc lâm sàng miễn phí, tiêm bắp không đau, dán tem sổ tiêm y tế' },
+            { name: 'Vắc-xin 4 Bệnh Nhập Khẩu Cho Mèo (Mỹ)', price: 380000, duration: '30 phút', desc: 'Phòng giảm bạch cầu, viêm mũi khí quản, Calicivirus và Chlamydia' },
+            { name: 'Tiêm Phòng Bệnh Dại Rabies', price: 150000, duration: '15 phút', desc: 'Chứng nhận tiêm phòng dại hợp pháp theo quy định Chi cục Thú y' },
+            { name: 'Home Visit Khám Tổng Quát & Lấy Máu Tại Nhà', price: 450000, duration: '45 - 60 phút', desc: 'Bác sĩ thú y đến tận nhà mang đầy đủ vali y tế chuyên dụng, không gây stress cho bé' },
+            { name: 'Tẩy Giun Định Kỳ & Nhỏ Gáy Trị Ve Rận', price: 120000, duration: '15 phút', desc: 'Thuốc chính hãng ngoại nhập tiêu diệt sạch ve rận, giun đũa, giun móc' }
+        ],
         pricingMatrixData: {
             grooming: [
                 { name: 'Cắt Tỉa Lông & Tạo Kiểu Chuẩn Hàn', duration: '60 - 90 phút', steps: '5 bước: Vệ sinh tai móng, vắt tuyến hôi, tắm thảo dược, sấy ion âm, tạo phom', priceS: 250000, priceM: 350000, priceL: 480000, priceXL: 650000 },
@@ -221,7 +279,13 @@ function superPetCareApp() {
                 shipper: { name: 'Nguyễn Văn Hùng', phone: '0988 777 666' },
                 recipient: { name: 'Nguyễn Hoàng Giang', phone: '0909 123 456', address: '125 Hoàng Quốc Việt, P. Nghĩa Đô, Q. Cầu Giấy, Hà Nội' },
                 items: [
-                    { name: 'Thức Ăn Hạt Royal Canin Mini Adult (Chó Nhỏ)', variant: '3kg - Vị Cá Hồi', qty: 1, price: 520000, img: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&w=200&q=80' },
+                    { name: 'Thức Ăn Hạt Royal Canin Mini Adult (Chó Nhỏ)',
+                species: 'Chó',
+                productType: 'Thức ăn hạt',
+                brandName: 'Royal Canin',
+                originalPrice: 420000,
+                discountPercent: '-15%',
+                expressShip: true, variant: '3kg - Vị Cá Hồi', qty: 1, price: 520000, img: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&w=200&q=80' },
                     { name: 'Gel Dinh Dưỡng Nutri-plus Gel', variant: 'Tuýp 120g', qty: 1, price: 165000, img: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=200&q=80' }
                 ],
                 subtotal: 685000,
@@ -261,7 +325,13 @@ function superPetCareApp() {
                 paymentStatus: 'Đã thanh toán',
                 recipient: { name: 'Nguyễn Hoàng Giang', phone: '0909 123 456', address: '125 Hoàng Quốc Việt, Cầu Giấy, Hà Nội' },
                 items: [
-                    { name: 'Thức Ăn Hạt Orijen Original Biologically Appropriate', variant: '3kg - Vị Gà & Cá', qty: 1, price: 680000, img: 'https://images.unsplash.com/photo-1608408891486-e547372c3d82?auto=format&fit=crop&w=200&q=80' }
+                    { name: 'Thức Ăn Hạt Orijen Original Biologically Appropriate',
+                species: 'Chó',
+                productType: 'Thức ăn hạt',
+                brandName: 'Orijen',
+                originalPrice: 1100000,
+                discountPercent: '-20%',
+                expressShip: true, variant: '3kg - Vị Gà & Cá', qty: 1, price: 680000, img: 'https://images.unsplash.com/photo-1608408891486-e547372c3d82?auto=format&fit=crop&w=200&q=80' }
                 ],
                 subtotal: 680000,
                 shippingFee: 0,
@@ -554,6 +624,12 @@ function superPetCareApp() {
                 id: 2,
                 sku: 'PET-FD02',
                 name: 'Hạt Royal Canin Kitten Dinh Dưỡng Toàn Diện Cho Mèo Con',
+                species: 'Mèo',
+                productType: 'Thức ăn hạt',
+                brandName: 'Royal Canin',
+                originalPrice: 480000,
+                discountPercent: '-18%',
+                expressShip: true,
                 brand: 'Royal Canin (Pháp)',
                 price: 395000,
                 rating: 5.0,
@@ -600,6 +676,12 @@ function superPetCareApp() {
                 id: 4,
                 sku: 'PET-PT01',
                 name: 'Combo 12 Lon Pate Monge Hạt Bổ Dưỡng Cho Chó (Ý)',
+                species: 'Chó',
+                productType: 'Pate',
+                brandName: 'Monge',
+                originalPrice: 520000,
+                discountPercent: '-20%',
+                expressShip: true,
                 brand: 'Monge (Italy)',
                 price: 420000,
                 rating: 4.8,
@@ -623,6 +705,12 @@ function superPetCareApp() {
                 id: 5,
                 sku: 'PET-PT02',
                 name: 'Pate Ciao Churu Cá Ngừ & Sò Điệp Bổ Sung Nước Cho Mèo (Gói 20 Thanh)',
+                species: 'Mèo',
+                productType: 'Pate',
+                brandName: 'Ciao Churu',
+                originalPrice: 280000,
+                discountPercent: '-23%',
+                expressShip: true,
                 brand: 'Inaba Ciao (Nhật Bản)',
                 price: 215000,
                 rating: 5.0,
@@ -646,6 +734,12 @@ function superPetCareApp() {
                 id: 6,
                 sku: 'PET-MD03',
                 name: 'Gel Dinh Dưỡng Bổ Sung Năng Lượng & Vitamin Nutri-plus Gel',
+                species: 'Chó',
+                productType: 'Thuốc thú y',
+                brandName: 'Virbac',
+                originalPrice: 350000,
+                discountPercent: '-15%',
+                expressShip: true,
                 brand: 'Virbac (Pháp)',
                 price: 295000,
                 rating: 5.0,
@@ -671,6 +765,12 @@ function superPetCareApp() {
                 id: 7,
                 sku: 'PET-VS01',
                 name: 'Cát Đậu Nành Tofu Cature Kháng Khuẩn Tự Nhiên (Hương Trà Xanh 6L)',
+                species: 'Mèo',
+                productType: 'Cát vệ sinh',
+                brandName: 'Cature',
+                originalPrice: 220000,
+                discountPercent: '-25%',
+                expressShip: true,
                 brand: 'Cature (Mỹ)',
                 price: 165000,
                 rating: 4.8,
@@ -694,6 +794,12 @@ function superPetCareApp() {
                 id: 8,
                 sku: 'PET-VS02',
                 name: 'Sữa Tắm Trị Nấm & Khử Mùi Hôi Cho Thú Cưng Davis Chlorhexidine 4%',
+                species: 'Chó',
+                productType: 'Thuốc thú y',
+                brandName: 'Davis',
+                originalPrice: 420000,
+                discountPercent: '-20%',
+                expressShip: true,
                 brand: 'Davis (Mỹ)',
                 price: 340000,
                 rating: 4.9,
@@ -717,6 +823,12 @@ function superPetCareApp() {
                 id: 9,
                 sku: 'PET-PK01',
                 name: 'Balo Phi Thuyền Vận Chuyển Thú Cưng Thông Khí Đa Chiều VIP',
+                species: 'Mèo',
+                productType: 'Phụ kiện & Đồ chơi',
+                brandName: 'PetCare Pro',
+                originalPrice: 650000,
+                discountPercent: '-25%',
+                expressShip: true,
                 brand: 'PetCare Pro',
                 price: 490000,
                 rating: 4.7,
@@ -740,6 +852,12 @@ function superPetCareApp() {
                 id: 10,
                 sku: 'PET-PK02',
                 name: 'Trụ Cào Móng Cây Cat Tree 3 Tầng Kèm Nhà Cầu Ngủ Mèo',
+                species: 'Mèo',
+                productType: 'Phụ kiện & Đồ chơi',
+                brandName: 'CozyPet',
+                originalPrice: 850000,
+                discountPercent: '-20%',
+                expressShip: true,
                 brand: 'CozyPet',
                 price: 680000,
                 rating: 4.9,
@@ -765,6 +883,12 @@ function superPetCareApp() {
                 id: 11,
                 sku: 'PET-MD01',
                 name: 'Thuốc Trị Ve Rận & Tẩy Giun NexGard Spectra (Dạng Viên Nhai Thịt Bò)',
+                species: 'Chó',
+                productType: 'Thuốc thú y',
+                brandName: 'Boehringer Ingelheim',
+                originalPrice: 580000,
+                discountPercent: '-20%',
+                expressShip: true,
                 brand: 'Boehringer Ingelheim (Pháp)',
                 price: 460000,
                 rating: 5.0,
@@ -788,6 +912,12 @@ function superPetCareApp() {
                 id: 12,
                 sku: 'PET-MD02',
                 name: 'Tuýp Nhỏ Gáy Phòng Trị Ký Sinh Trùng Toàn Diện Cho Mèo Revolution Plus',
+                species: 'Mèo',
+                productType: 'Thuốc thú y',
+                brandName: 'Zoetis',
+                originalPrice: 480000,
+                discountPercent: '-20%',
+                expressShip: true,
                 brand: 'Zoetis (Mỹ)',
                 price: 385000,
                 rating: 4.9,
@@ -2531,6 +2661,84 @@ function superPetCareApp() {
             this.activeCustomerTab = 'cart';
             this.cartStep = 2;
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+
+        // SHOP CATALOG METHODS & GETTERS
+        openProductDetailPage(prod) {
+            if (!prod) return;
+            this.selectedProductDetailId = prod.id;
+            this.mainProductImage = prod.image || prod.img;
+            this.productThumbnails = [
+                prod.image || prod.img,
+                'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&w=400&q=80',
+                'https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?auto=format&fit=crop&w=400&q=80',
+                'https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=400&q=80'
+            ];
+            this.shopViewMode = 'detail';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+
+        backToShopCatalog() {
+            this.shopViewMode = 'catalog';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+
+        resetShopFilters() {
+            this.shopSpecies = '';
+            this.shopProductType = '';
+            this.shopBrand = '';
+            this.shopMaxPrice = 1500000;
+            this.shopExpressShip = false;
+            this.shopSortBy = 'newest';
+            this.searchQuery = '';
+            this.shopCurrentPage = 1;
+        },
+
+        scrollToCatalogGrid() {
+            const el = document.getElementById('shopCatalogSection');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        },
+
+        get filteredCatalogProducts() {
+            let list = [...this.products];
+            if (this.shopSpecies) {
+                list = list.filter(p => p.species === this.shopSpecies || (this.shopSpecies === 'Thỏ' && (p.category.includes('Phụ kiện') || p.category.includes('Dinh dưỡng'))));
+            }
+            if (this.shopProductType) {
+                list = list.filter(p => p.productType === this.shopProductType);
+            }
+            if (this.shopBrand) {
+                list = list.filter(p => p.brandName === this.shopBrand || (p.brand && p.brand.toLowerCase().includes(this.shopBrand.toLowerCase())));
+            }
+            if (this.shopMaxPrice) {
+                list = list.filter(p => p.price <= this.shopMaxPrice);
+            }
+            if (this.shopExpressShip) {
+                list = list.filter(p => p.expressShip === true);
+            }
+            if (this.searchQuery && this.searchQuery.trim()) {
+                const q = this.searchQuery.toLowerCase().trim();
+                list = list.filter(p => p.name.toLowerCase().includes(q) || (p.brand && p.brand.toLowerCase().includes(q)) || (p.category && p.category.toLowerCase().includes(q)));
+            }
+            if (this.shopSortBy === 'bestseller') {
+                list.sort((a, b) => (b.sold || 0) - (a.sold || 0));
+            } else if (this.shopSortBy === 'price_asc') {
+                list.sort((a, b) => a.price - b.price);
+            } else if (this.shopSortBy === 'price_desc') {
+                list.sort((a, b) => b.price - a.price);
+            } else {
+                list.sort((a, b) => b.id - a.id);
+            }
+            return list;
+        },
+
+        get shopTotalPages() {
+            return Math.max(1, Math.ceil(this.filteredCatalogProducts.length / this.shopPageSize));
+        },
+
+        get paginatedCatalogProducts() {
+            const start = (this.shopCurrentPage - 1) * this.shopPageSize;
+            return this.filteredCatalogProducts.slice(start, start + this.shopPageSize);
         },
 
         // 2. DỊCH VỤ MATRIX & BOOKING HELPERS
