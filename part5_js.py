@@ -52,6 +52,8 @@ function superPetCareApp() {
         hotelPopupRow: null,
         currentPetGroomingTier: '8kg-12kg',
         currentPetHotelTier: '8kg - 12kg',
+        groomingIncludeSpa: true,
+        groomingCutType: 'grooming', // 'grooming' | 'shave' | 'none'
         selectedBaseService: {
             id: 'hotel_overnight_8-12',
             name: 'Khách Sạn Thú Cưng Tiêu Chuẩn 5 Sao (Lưu Trú Qua Đêm 24h - 8kg - 12kg)',
@@ -157,9 +159,14 @@ function superPetCareApp() {
         serviceBookingForm: {
             serviceName: 'Gói Spa & Grooming Cắt Tỉa Lông Toàn Diện',
             petId: 1,
-            branch: 'Chi nhánh Quận 7 (450 Nguyễn Thị Thập, P. Tân Quy, Q7, TP.HCM)',
+            branch: 'Cơ sở Chính: 88 Nguyễn Thị Minh Khai, Quận 1, TPHCM',
             date: '2026-10-28',
             slot: '09:30',
+            timeSlot: '09:30',
+            hotelCheckInDate: '2026-10-28',
+            hotelCheckOutDate: '2026-10-29',
+            hotelCheckInTime: '09:00',
+            hotelCheckOutTime: '17:00',
             slots: [
                 { time: '08:30', status: 'available', label: 'Còn rảnh' },
                 { time: '09:30', status: 'available', label: 'Còn rảnh' },
@@ -171,7 +178,7 @@ function superPetCareApp() {
             ],
             addons: ['massage'],
             needPetShip: true,
-            petShipAddress: '125 Hoàng Quốc Việt, Cầu Giấy, Hà Nội',
+            petShipAddress: '88 Nguyễn Thị Minh Khai, Quận 1, TP.HCM',
             specialNotes: 'Bé sợ tiếng máy sấy to, cần làm nhẹ nhàng vùng tai.'
         },
 
@@ -2781,36 +2788,91 @@ function superPetCareApp() {
         },
 
         isGroomingCellSelected(weight, type) {
-            return this.selectedBaseService && 
-                   this.selectedBaseService.category === 'grooming' && 
-                   this.selectedBaseService.weightTier === weight && 
-                   this.selectedBaseService.type === type;
+            if (this.currentPetGroomingTier !== weight) return false;
+            if (type === 'spa') return this.groomingIncludeSpa;
+            if (type === 'grooming') return this.groomingCutType === 'grooming';
+            if (type === 'shave') return this.groomingCutType === 'shave';
+            return false;
+        },
+
+        toggleGroomingSpa() {
+            this.groomingIncludeSpa = !this.groomingIncludeSpa;
+            // Bắt buộc chọn 1 nếu không chọn Spa
+            if (!this.groomingIncludeSpa && (!this.groomingCutType || this.groomingCutType === 'none')) {
+                this.groomingCutType = 'grooming';
+            }
+            this.recalcGroomingService();
+        },
+
+        setGroomingCutType(type) {
+            if (type === 'none' && !this.groomingIncludeSpa) {
+                this.groomingIncludeSpa = true;
+            }
+            this.groomingCutType = type;
+            this.recalcGroomingService();
+        },
+
+        recalcGroomingService() {
+            const row = this.groomingPriceList.find(r => r.weight === this.currentPetGroomingTier) || this.groomingPriceList[2];
+            let price = 0;
+            let labelParts = [];
+
+            if (this.groomingIncludeSpa) {
+                labelParts.push('Spa Tắm Sấy');
+            }
+            if (this.groomingCutType === 'grooming') {
+                labelParts.push('Cắt Tỉa Lông (Grooming)');
+            } else if (this.groomingCutType === 'shave') {
+                labelParts.push('Cạo Lông (Shave)');
+            }
+
+            if (this.groomingIncludeSpa && this.groomingCutType === 'grooming') {
+                price = row.grooming;
+            } else if (this.groomingIncludeSpa && this.groomingCutType === 'shave') {
+                price = row.shave;
+            } else if (this.groomingIncludeSpa && (!this.groomingCutType || this.groomingCutType === 'none')) {
+                price = row.spa;
+            } else if (!this.groomingIncludeSpa && this.groomingCutType === 'grooming') {
+                price = Math.max(150000, row.grooming - row.spa);
+            } else if (!this.groomingIncludeSpa && this.groomingCutType === 'shave') {
+                price = Math.max(120000, row.shave - row.spa);
+            } else {
+                price = row.spa;
+            }
+
+            this.baseServicePrice = price;
+            this.selectedBaseService = {
+                id: 'grooming_' + (this.groomingCutType || 'spa') + '_' + row.weight,
+                name: 'Grooming & Spa: ' + labelParts.join(' + ') + ' (' + row.weight + ')',
+                category: 'grooming',
+                type: this.groomingCutType || 'spa',
+                weightTier: row.weight,
+                price: price,
+                duration: (this.groomingIncludeSpa && this.groomingCutType && this.groomingCutType !== 'none') ? '90 - 120 phút' : '45 - 60 phút'
+            };
+            this.serviceBookingForm.serviceName = this.selectedBaseService.name;
         },
 
         selectGroomingCell(row, type) {
-            const typeLabels = {
-                spa: 'Spa (Tắm sấy vệ sinh)',
-                grooming: 'Grooming (Spa + Cắt tạo kiểu)',
-                shave: 'Shave (Spa + Cạo lông gọn gàng)'
-            };
-            const durations = {
-                spa: '45 - 60 phút',
-                grooming: '60 - 90 phút',
-                shave: '45 - 60 phút'
-            };
-            const price = Number(row[type]) || 0;
-            this.selectedBaseService = {
-                id: 'grooming_' + type + '_' + row.weight,
-                name: 'Grooming & Spa: ' + typeLabels[type] + ' - Mốc ' + row.weight,
-                category: 'grooming',
-                type: type,
-                weightTier: row.weight,
-                price: price,
-                duration: durations[type]
-            };
-            this.baseServicePrice = price;
+            this.currentPetGroomingTier = row.weight;
             this.selectedWeightSize = row.weight;
-            this.serviceBookingForm.serviceName = this.selectedBaseService.name;
+            if (type === 'spa') {
+                this.toggleGroomingSpa();
+            } else if (type === 'grooming') {
+                if (this.groomingCutType === 'grooming' && this.groomingIncludeSpa) {
+                    this.groomingCutType = 'none';
+                } else {
+                    this.groomingCutType = 'grooming';
+                }
+                this.recalcGroomingService();
+            } else if (type === 'shave') {
+                if (this.groomingCutType === 'shave' && this.groomingIncludeSpa) {
+                    this.groomingCutType = 'none';
+                } else {
+                    this.groomingCutType = 'shave';
+                }
+                this.recalcGroomingService();
+            }
             const bookingBox = document.getElementById('pet-service-booking-box');
             if (bookingBox) {
                 bookingBox.scrollIntoView({ behavior: 'smooth' });
@@ -2822,6 +2884,7 @@ function superPetCareApp() {
             const price = isOvernight ? plan.price : (plan.daycarePrice || Math.round(plan.price * 0.7));
             const duration = isOvernight ? 'Lưu trú theo ngày (24h)' : 'Bán trú trong ngày (09:00 - 19:00)';
             const label = isOvernight ? 'Lưu Trú Qua Đêm (24h)' : 'Bán Trú Daycare (09:00 - 19:00)';
+            this.currentPetHotelTier = plan.size;
             this.selectedBaseService = {
                 id: 'hotel_' + optionType + '_' + plan.size,
                 name: 'Khách Sạn Thú Cưng 5 Sao (' + label + ' - Size ' + plan.size + ')',
@@ -2881,8 +2944,7 @@ function superPetCareApp() {
                 this.currentPetHotelTier = this.getHotelWeightTier(w);
                 this.selectedWeightSize = this.currentPetHotelTier;
 
-                // Nếu đang ở tab Hotel hoặc chưa chọn dịch vụ nào khác, tự động chọn gói Hotel tương ứng
-                if (!this.selectedBaseService || this.selectedBaseService.category === 'hotel') {
+                if (this.servicePricingTab === 'hotel') {
                     const hotelPrice = this.getPetHotelPriceByWeight(w);
                     this.baseServicePrice = hotelPrice;
                     this.selectedBaseService = {
@@ -2895,6 +2957,12 @@ function superPetCareApp() {
                         duration: 'Lưu trú theo ngày (24h)'
                     };
                     this.serviceBookingForm.serviceName = this.selectedBaseService.name;
+                } else if (this.servicePricingTab === 'grooming' || this.servicePricingTab === 'spa') {
+                    this.recalcGroomingService();
+                } else if (this.servicePricingTab === 'vaccine') {
+                    if (!this.selectedBaseService || this.selectedBaseService.category !== 'vaccine') {
+                        this.selectVaccineRow(this.vaccinePriceList[0]);
+                    }
                 }
             }
         },
@@ -2999,6 +3067,22 @@ function superPetCareApp() {
         },
 
         // 2. DỊCH VỤ MATRIX & BOOKING HELPERS
+        get hotelTotalDays() {
+            if (!this.serviceBookingForm.hotelCheckInDate || !this.serviceBookingForm.hotelCheckOutDate) return 1;
+            const d1 = new Date(this.serviceBookingForm.hotelCheckInDate);
+            const d2 = new Date(this.serviceBookingForm.hotelCheckOutDate);
+            const diffTime = d2.getTime() - d1.getTime();
+            const diffDays = Math.round(diffTime / (1000 * 3600 * 24));
+            return diffDays > 0 ? diffDays : 1;
+        },
+
+        get hotelFee() {
+            const base = (this.baseServicePrice !== undefined && this.baseServicePrice !== null) 
+                ? Number(this.baseServicePrice) 
+                : this.getPetHotelPriceByWeight(this.petBookingDetail.weight || 5);
+            return base * this.hotelTotalDays;
+        },
+
         get totalAddonsCost() {
             let cost = 0;
             if (this.serviceBookingForm.addOnMassage || (Array.isArray(this.serviceBookingForm.addons) && this.serviceBookingForm.addons.includes('massage'))) cost += 50000;
@@ -3012,18 +3096,28 @@ function superPetCareApp() {
         },
 
         get totalServiceCost() {
-            const base = (this.baseServicePrice !== undefined && this.baseServicePrice !== null) 
-                ? Number(this.baseServicePrice) 
-                : this.getPetHotelPriceByWeight(this.petBookingDetail.weight || 5);
-            return base + this.totalAddonsCost + this.petShipCost;
+            if (this.servicePricingTab === 'hotel') {
+                return this.hotelFee + this.totalAddonsCost + this.petShipCost;
+            } else {
+                const base = (this.baseServicePrice !== undefined && this.baseServicePrice !== null) 
+                    ? Number(this.baseServicePrice) 
+                    : 380000;
+                return base + this.totalAddonsCost + this.petShipCost;
+            }
         },
 
         get depositAmount() {
-            return Math.round(this.totalServiceCost / 2);
+            if (this.servicePricingTab === 'hotel') {
+                return Math.round(this.totalServiceCost / 2);
+            }
+            return 0; // Grooming & Vaccine không tính cọc
         },
 
         get remainingAmount() {
-            return this.totalServiceCost - this.depositAmount;
+            if (this.servicePricingTab === 'hotel') {
+                return this.totalServiceCost - this.depositAmount;
+            }
+            return 0;
         },
 
         get currentServiceBookingCost() {
@@ -3036,43 +3130,48 @@ function superPetCareApp() {
             else this.serviceBookingForm.addons.push(addonId);
         },
 
-        addServiceBookingToCart() {
+        submitServiceBooking(isDirectCheckout = false) {
             const pet = this.pets.find(p => p.id === Number(this.serviceBookingForm.petId)) || this.pets[0];
             const petWeight = pet ? (parseFloat(pet.weight) || 5) : (parseFloat(this.petBookingDetail.weight) || 5);
-            const petSizeLabel = this.selectedWeightSize || this.getPetHotelWeightLabel(petWeight);
-            const basePrice = Number(this.baseServicePrice) || this.getPetHotelPriceByWeight(petWeight);
+            const isHotel = (this.servicePricingTab === 'hotel');
             const totalCost = this.totalServiceCost;
-            const deposit = this.depositAmount;
-            const remaining = this.remainingAmount;
+            const deposit = isHotel ? this.depositAmount : totalCost;
+            const remaining = isHotel ? this.remainingAmount : 0;
+            const paymentType = isHotel ? 'deposit_50' : 'full';
 
             const bookingItem = {
                 id: 'SERV-BOOK-' + Date.now(),
-                name: this.serviceBookingForm.serviceName || ('Khách Sạn Thú Cưng Tiêu Chuẩn 5 Sao (' + petSizeLabel + ')'),
-                variant: (pet ? pet.name : 'Thú cưng') + ' (' + (this.serviceBookingForm.timeSlot || this.serviceBookingForm.slot) + ' ' + this.serviceBookingForm.date + ')',
-                price: deposit, // Số tiền thanh toán cọc 50%
+                name: (this.selectedBaseService ? this.selectedBaseService.name : (this.serviceBookingForm.serviceName || 'Dịch Vụ Thú Cưng PetCare360')),
+                variant: (pet ? pet.name : 'Bé cưng') + ' (' + (isHotel ? (this.serviceBookingForm.hotelCheckInDate + ' -> ' + this.serviceBookingForm.hotelCheckOutDate) : (this.serviceBookingForm.date + ' ' + (this.serviceBookingForm.timeSlot || '09:30'))) + ')',
+                price: deposit,
                 depositPaid: deposit,
-                depositAmount: deposit,
+                depositAmount: isHotel ? deposit : 0,
                 totalCost: totalCost,
                 remainingBalance: remaining,
-                paymentStatus: 'deposit_paid',
-                statusText: 'Đã cọc 50%',
-                payment_type: 'deposit_50',
-                img: 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&w=400&q=80',
+                paymentStatus: isHotel ? 'deposit_paid' : 'unpaid',
+                statusText: isHotel ? 'Đã cọc 50%' : 'Chờ thanh toán',
+                payment_type: paymentType,
+                img: isHotel ? 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=400&q=80' : 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&w=400&q=80',
                 qty: 1,
                 isService: true,
                 bookingDetails: {
                     petName: pet ? pet.name : 'Bơ',
                     petWeight: petWeight,
-                    sizeTier: petSizeLabel,
-                    payment_type: 'deposit_50',
-                    basePrice: basePrice,
+                    sizeTier: isHotel ? this.currentPetHotelTier : this.currentPetGroomingTier,
+                    payment_type: paymentType,
+                    basePrice: this.baseServicePrice,
                     totalCost: totalCost,
-                    depositAmount: deposit,
+                    depositAmount: isHotel ? deposit : 0,
                     remainingBalance: remaining,
-                    paymentStatus: 'deposit_paid',
-                    branch: this.serviceBookingForm.branch,
-                    date: this.serviceBookingForm.date,
-                    slot: this.serviceBookingForm.timeSlot || this.serviceBookingForm.slot,
+                    paymentStatus: isHotel ? 'deposit_paid' : 'unpaid',
+                    branch: 'Cơ sở Chính: 88 Nguyễn Thị Minh Khai, Quận 1, TPHCM',
+                    date: isHotel ? this.serviceBookingForm.hotelCheckInDate : this.serviceBookingForm.date,
+                    checkInDate: isHotel ? this.serviceBookingForm.hotelCheckInDate : null,
+                    checkOutDate: isHotel ? this.serviceBookingForm.hotelCheckOutDate : null,
+                    checkInTime: isHotel ? this.serviceBookingForm.hotelCheckInTime : null,
+                    checkOutTime: isHotel ? this.serviceBookingForm.hotelCheckOutTime : null,
+                    totalDays: isHotel ? this.hotelTotalDays : 1,
+                    slot: isHotel ? (this.serviceBookingForm.hotelCheckInTime + ' -> ' + this.serviceBookingForm.hotelCheckOutTime) : (this.serviceBookingForm.timeSlot || this.serviceBookingForm.slot),
                     addons: [
                         ...(this.serviceBookingForm.addOnMassage ? ['Tắm massage sục khí bọt Nano (+50.000đ)'] : []),
                         ...(this.serviceBookingForm.addOnFurDetangle ? ['Gỡ rối lông & Phục hồi keratin (+80.000đ)'] : []),
@@ -3086,7 +3185,6 @@ function superPetCareApp() {
 
             this.cart.push(bookingItem);
 
-            // Đồng thời tạo đơn hàng Đã Cọc 50% lưu vào danh sách đơn của Khách & Admin
             const newOrderCode = '#' + Math.floor(100000 + Math.random() * 900000);
             const newOrderId = 'ORD-' + Math.floor(1000 + Math.random() * 9000);
             const todayStr = new Date().toLocaleDateString('vi-VN');
@@ -3096,20 +3194,20 @@ function superPetCareApp() {
                 orderCode: newOrderCode,
                 date: todayStr,
                 status: 'pending',
-                statusText: 'Đã cọc 50%',
-                payment_type: 'deposit_50',
-                badgeColor: 'bg-orange-100 text-orange-800 border-orange-200',
-                paymentMethod: 'Chuyển khoản / Cọc 50%',
-                paymentMethodLabel: 'Đã cọc 50% (' + this.formatCurrency(deposit) + ')',
-                paymentStatus: 'deposit_paid',
+                statusText: isHotel ? 'Đã cọc 50%' : 'Chờ thanh toán',
+                payment_type: paymentType,
+                badgeColor: isHotel ? 'bg-orange-100 text-orange-800 border-orange-200' : 'bg-blue-100 text-blue-800 border-blue-200',
+                paymentMethod: isHotel ? 'Chuyển khoản / Cọc 50%' : 'Thanh toán trực tuyến 100%',
+                paymentMethodLabel: isHotel ? ('Đã cọc 50% (' + this.formatCurrency(deposit) + ')') : 'Thanh toán 100%',
+                paymentStatus: isHotel ? 'deposit_paid' : 'unpaid',
                 total: totalCost,
                 totalAmount: totalCost,
-                depositAmount: deposit,
+                depositAmount: isHotel ? deposit : 0,
                 remainingBalance: remaining,
                 customer: this.customerProfile.name,
                 phone: this.customerProfile.phone,
-                summary: bookingItem.name + ' - Cọc: ' + this.formatCurrency(deposit) + ' (Còn thu: ' + this.formatCurrency(remaining) + ')',
-                branch: this.serviceBookingForm.branch ? (this.serviceBookingForm.branch.includes('Cơ sở 1') ? 'Cầu Giấy' : (this.serviceBookingForm.branch.includes('Cơ sở 2') ? 'Q1' : 'Thủ Đức')) : 'Q1',
+                summary: bookingItem.name + (isHotel ? (' - Cọc: ' + this.formatCurrency(deposit) + ' (Còn: ' + this.formatCurrency(remaining) + ')') : (' - ' + this.formatCurrency(totalCost))),
+                branch: 'Cơ sở Chính: 88 Nguyễn Thị Minh Khai, Quận 1, TPHCM',
                 recipient: {
                     receiver: this.customerProfile.name,
                     phone: this.customerProfile.phone,
@@ -3121,7 +3219,6 @@ function superPetCareApp() {
             this.customerOrdersEnhanced.unshift(serviceOrder);
             this.orders.unshift(serviceOrder);
 
-            // Thêm vào danh sách Lịch hẹn phòng khám & Hotel của Admin
             this.appointments.unshift({
                 id: 'APT-' + Math.floor(1000 + Math.random() * 9000),
                 customer: this.customerProfile.name,
@@ -3132,23 +3229,29 @@ function superPetCareApp() {
                 petType: pet ? (pet.species || pet.type) : 'Chó',
                 service: bookingItem.name,
                 serviceName: bookingItem.name,
-                date: this.serviceBookingForm.date,
-                time: this.serviceBookingForm.timeSlot || this.serviceBookingForm.slot,
-                branch: this.serviceBookingForm.branch ? (this.serviceBookingForm.branch.includes('Cơ sở 1') ? 'Cầu Giấy' : (this.serviceBookingForm.branch.includes('Cơ sở 2') ? 'Q1' : 'Thủ Đức')) : 'Q1',
+                date: isHotel ? this.serviceBookingForm.hotelCheckInDate : this.serviceBookingForm.date,
+                time: isHotel ? (this.serviceBookingForm.hotelCheckInTime + ' - ' + this.serviceBookingForm.hotelCheckOutTime) : (this.serviceBookingForm.timeSlot || '09:30'),
+                branch: 'Cơ sở Chính: 88 Nguyễn Thị Minh Khai, Quận 1, TPHCM',
                 status: 'CONFIRMED',
-                paymentStatus: 'deposit_paid',
-                depositAmount: deposit,
+                paymentStatus: isHotel ? 'deposit_paid' : 'full_paid',
+                depositAmount: isHotel ? deposit : 0,
                 remainingBalance: remaining,
-                note: 'Đã cọc 50% (' + this.formatCurrency(deposit) + '). Còn cần thu hộ: ' + this.formatCurrency(remaining) + (this.serviceBookingForm.specialNotes ? ' | Ghi chú: ' + this.serviceBookingForm.specialNotes : '')
+                note: isHotel ? ('Đã cọc 50% (' + this.formatCurrency(deposit) + '). Còn thu: ' + this.formatCurrency(remaining) + ' khi trả pet.') : 'Thanh toán 100% dịch vụ.'
             });
 
-            this.activeCustomerTab = 'cart';
-            this.cartStep = 2;
-            alert('🎉 Đã xác nhận đặt lịch & tính cọc 50% (' + this.formatCurrency(deposit) + ') thành công! Số tiền còn lại ' + this.formatCurrency(remaining) + ' sẽ thanh toán khi nhận lại bé cưng.');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (isDirectCheckout) {
+                this.activeCustomerTab = 'cart';
+                this.cartStep = 2;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                alert('🛒 Đã thêm dịch vụ ' + bookingItem.name + ' vào giỏ hàng thành công! Bạn có thể tiếp tục mua sắm hoặc xem các dịch vụ khác.');
+            }
         },
 
-        // 3. POPUP MODAL THÔNG TIN CHI TIẾT THÚ CƯNG (800PX)
+        addServiceBookingToCart() {
+            this.submitServiceBooking(true);
+        },
+
         openPetBookingDetailModal(petId) {
             const pet = this.pets.find(p => p.id === petId) || this.pets[0];
             if (pet) {

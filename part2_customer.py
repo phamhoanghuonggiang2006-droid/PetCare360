@@ -1014,15 +1014,15 @@ CUSTOMER_HTML = """
 
                 <!-- Khối Chọn Nhanh Dịch Vụ (Tab Selector: 3 Tab chính) -->
                 <div class="bg-white rounded-2xl p-2 border border-slate-200 shadow-sm flex flex-wrap gap-2">
-                    <button @click="servicePricingTab = 'grooming'" :class="(servicePricingTab === 'grooming' || servicePricingTab === 'spa') ? 'bg-[#F97316] text-white font-bold shadow-md shadow-orange-500/20' : 'text-slate-600 hover:bg-slate-100'" class="flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2">
+                    <button @click="servicePricingTab = 'grooming'; syncPetBookingDetails(serviceBookingForm.petId)" :class="(servicePricingTab === 'grooming' || servicePricingTab === 'spa') ? 'bg-[#F97316] text-white font-bold shadow-md shadow-orange-500/20' : 'text-slate-600 hover:bg-slate-100'" class="flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2">
                         <i class="fa-solid fa-scissors"></i>
                         <span>Grooming & Spa</span>
                     </button>
-                    <button @click="servicePricingTab = 'hotel'" :class="servicePricingTab === 'hotel' ? 'bg-[#F97316] text-white font-bold shadow-md shadow-orange-500/20' : 'text-slate-600 hover:bg-slate-100'" class="flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2">
+                    <button @click="servicePricingTab = 'hotel'; syncPetBookingDetails(serviceBookingForm.petId)" :class="servicePricingTab === 'hotel' ? 'bg-[#F97316] text-white font-bold shadow-md shadow-orange-500/20' : 'text-slate-600 hover:bg-slate-100'" class="flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2">
                         <i class="fa-solid fa-hotel"></i>
                         <span>Pet Hotel 5 Sao</span>
                     </button>
-                    <button @click="servicePricingTab = 'vaccine'" :class="servicePricingTab === 'vaccine' ? 'bg-[#F97316] text-white font-bold shadow-md shadow-orange-500/20' : 'text-slate-600 hover:bg-slate-100'" class="flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2">
+                    <button @click="servicePricingTab = 'vaccine'; syncPetBookingDetails(serviceBookingForm.petId)" :class="servicePricingTab === 'vaccine' ? 'bg-[#F97316] text-white font-bold shadow-md shadow-orange-500/20' : 'text-slate-600 hover:bg-slate-100'" class="flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2">
                         <i class="fa-solid fa-syringe"></i>
                         <span>Tiêm Phòng & Home Visit</span>
                     </button>
@@ -1032,7 +1032,7 @@ CUSTOMER_HTML = """
                 <div class="space-y-6">
 
                     <!-- ========================================== -->
-                    <!-- TAB 1: GROOMING & SPA (BẢNG GIÁ TƯƠNG TÁC TỪNG Ô GIÁ) -->
+                    <!-- TAB 1: GROOMING & SPA (BẢNG GIÁ TƯƠNG TÁC TÙNG Ô GIÁ) -->
                     <!-- ========================================== -->
                     <div x-show="servicePricingTab === 'grooming' || servicePricingTab === 'spa'" class="space-y-6 animate-fadeIn">
                         
@@ -1043,9 +1043,68 @@ CUSTOMER_HTML = """
                                         <i class="fa-solid fa-sparkles"></i> Bảng Giá Dịch Vụ Minh Bạch (Click chọn ô giá để đặt lịch)
                                     </div>
                                     <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">SERVICES PRICE LIST (Grooming & Spa)</h3>
-                                    <p class="text-xs text-slate-500">Bấm trực tiếp vào từng ô giá (Spa / Grooming / Shave) tương ứng với cân nặng bé để tự động áp dụng vào phiếu đặt lịch</p>
+                                    <p class="text-xs text-slate-500">Tùy biến tick chọn 'Spa' (Có/Không) và chọn 1 trong 2 gói 'Grooming' hoặc 'Shave' (Bắt buộc chọn 1 nếu không chọn Spa)</p>
                                 </div>
                                 <span class="text-xs bg-emerald-50 text-emerald-700 font-bold px-3 py-1.5 rounded-xl border border-emerald-200 self-start sm:self-auto">Mỹ phẩm Davis Mỹ 100%</span>
+                            </div>
+
+                            <!-- BẢNG ĐIỀU KHIỂN TÙY CHỌN GÓI (CHECKBOX SPA ĐỘC LẬP & RADIO GROOMING/SHAVE) -->
+                            <div class="p-4 bg-orange-50/80 rounded-2xl border border-orange-200/80 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div class="space-y-1">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span class="text-xs font-black uppercase text-orange-900 tracking-wider flex items-center gap-1.5">
+                                            <i class="fa-solid fa-sliders text-[#F97316]"></i> Tùy biến gói cho mốc <span class="text-orange-600 font-extrabold" x-text="currentPetGroomingTier"></span>:
+                                        </span>
+                                        <span class="text-[10px] bg-amber-200/80 text-amber-900 font-bold px-2 py-0.5 rounded-full" x-text="'Bé ' + petBookingDetail.name"></span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-500">Tích chọn Spa độc lập và/hoặc chọn 1 trong 2 gói Cắt Tỉa (Grooming) / Cạo Lông (Shave)</p>
+                                </div>
+
+                                <!-- Checkbox Spa và Radio Grooming/Shave -->
+                                <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                                    <!-- Checkbox Độc Lập: Spa Tắm Sấy -->
+                                    <button type="button" @click="toggleGroomingSpa()" class="cursor-pointer select-none px-3.5 py-2 rounded-xl border transition flex items-center gap-2"
+                                           :class="groomingIncludeSpa ? 'bg-orange-500 text-white border-orange-600 shadow-sm font-bold ring-2 ring-orange-300' : 'bg-white text-slate-700 border-slate-200 hover:border-orange-300 font-medium'">
+                                        <div class="w-4 h-4 rounded flex items-center justify-center border"
+                                             :class="groomingIncludeSpa ? 'bg-white text-[#F97316] border-white' : 'border-slate-300 bg-slate-50'">
+                                            <i x-show="groomingIncludeSpa" class="fa-solid fa-check text-[10px]"></i>
+                                        </div>
+                                        <span class="text-xs">Spa Tắm Sấy</span>
+                                    </button>
+
+                                    <!-- Divider -->
+                                    <span class="text-slate-300 hidden sm:inline">|</span>
+
+                                    <!-- Radio Button 1: Grooming (Cắt tạo kiểu) -->
+                                    <button type="button" @click="setGroomingCutType('grooming')" class="cursor-pointer select-none px-3.5 py-2 rounded-xl border transition flex items-center gap-2"
+                                           :class="groomingCutType === 'grooming' ? 'bg-[#F97316] text-white border-orange-600 shadow-sm font-bold ring-2 ring-orange-300' : 'bg-white text-slate-700 border-slate-200 hover:border-orange-300 font-medium'">
+                                        <div class="w-4 h-4 rounded-full flex items-center justify-center border"
+                                             :class="groomingCutType === 'grooming' ? 'border-white bg-white' : 'border-slate-300 bg-slate-50'">
+                                            <div x-show="groomingCutType === 'grooming'" class="w-2 h-2 rounded-full bg-[#F97316]"></div>
+                                        </div>
+                                        <span class="text-xs">Cắt Tỉa (Grooming)</span>
+                                    </button>
+
+                                    <!-- Radio Button 2: Shave (Cạo lông) -->
+                                    <button type="button" @click="setGroomingCutType('shave')" class="cursor-pointer select-none px-3.5 py-2 rounded-xl border transition flex items-center gap-2"
+                                           :class="groomingCutType === 'shave' ? 'bg-[#F97316] text-white border-orange-600 shadow-sm font-bold ring-2 ring-orange-300' : 'bg-white text-slate-700 border-slate-200 hover:border-orange-300 font-medium'">
+                                        <div class="w-4 h-4 rounded-full flex items-center justify-center border"
+                                             :class="groomingCutType === 'shave' ? 'border-white bg-white' : 'border-slate-300 bg-slate-50'">
+                                            <div x-show="groomingCutType === 'shave'" class="w-2 h-2 rounded-full bg-[#F97316]"></div>
+                                        </div>
+                                        <span class="text-xs">Cạo Lông (Shave)</span>
+                                    </button>
+
+                                    <!-- Radio Button 3: Không cắt/cạo (Chỉ khả dụng khi đã chọn Spa) -->
+                                    <button type="button" x-show="groomingIncludeSpa" @click="setGroomingCutType('none')" class="cursor-pointer select-none px-3 py-2 rounded-xl border transition flex items-center gap-1.5"
+                                           :class="groomingCutType === 'none' ? 'bg-slate-700 text-white border-slate-800 shadow-sm font-bold' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 text-xs'">
+                                        <div class="w-3.5 h-3.5 rounded-full flex items-center justify-center border"
+                                             :class="groomingCutType === 'none' ? 'border-white bg-white' : 'border-slate-300 bg-slate-50'">
+                                            <div x-show="groomingCutType === 'none'" class="w-1.5 h-1.5 rounded-full bg-slate-800"></div>
+                                        </div>
+                                        <span class="text-xs">Chỉ làm Spa</span>
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -1063,7 +1122,7 @@ CUSTOMER_HTML = """
                                         </thead>
                                         <tbody class="divide-y divide-slate-100 font-medium text-slate-800">
                                             <template x-for="(row, ridx) in groomingPriceList" :key="ridx">
-                                                <tr :class="currentPetGroomingTier === row.weight ? 'bg-amber-50/40' : ''" class="transition">
+                                                <tr :class="currentPetGroomingTier === row.weight ? 'bg-amber-50/50' : ''" class="transition">
                                                     <td class="py-3.5 px-4 font-bold text-slate-900">
                                                         <div class="flex items-center gap-1.5 flex-wrap">
                                                             <span class="text-sm font-black text-slate-900" x-text="row.weight"></span>
@@ -1077,10 +1136,13 @@ CUSTOMER_HTML = """
                                                     <td @click="selectGroomingCell(row, 'spa')"
                                                         class="py-3 px-4 text-center cursor-pointer transition-all rounded-xl m-1"
                                                         :class="isGroomingCellSelected(row.weight, 'spa') ? 'bg-orange-100/90 text-orange-900 border-2 border-[#F97316] font-black ring-2 ring-orange-400/30 shadow-sm' : 'hover:bg-orange-50/60 text-slate-700 font-semibold border border-transparent'"
-                                                        title="Click để chọn gói Spa cho mốc cân nặng này">
-                                                        <div class="flex items-center justify-center gap-1">
+                                                        title="Click để chọn/bỏ chọn Spa cho mốc cân nặng này">
+                                                        <div class="flex items-center justify-center gap-1.5">
+                                                            <span class="w-4 h-4 rounded border flex items-center justify-center text-[10px]"
+                                                                  :class="isGroomingCellSelected(row.weight, 'spa') ? 'bg-[#F97316] text-white border-[#F97316]' : 'border-slate-300 text-transparent'">
+                                                                <i class="fa-solid fa-check"></i>
+                                                            </span>
                                                             <span x-text="formatCurrency(row.spa)"></span>
-                                                            <i x-show="isGroomingCellSelected(row.weight, 'spa')" class="fa-solid fa-circle-check text-[#F97316] text-xs"></i>
                                                         </div>
                                                     </td>
 
@@ -1088,10 +1150,13 @@ CUSTOMER_HTML = """
                                                     <td @click="selectGroomingCell(row, 'grooming')"
                                                         class="py-3 px-4 text-center cursor-pointer transition-all rounded-xl m-1"
                                                         :class="isGroomingCellSelected(row.weight, 'grooming') ? 'bg-orange-100/90 text-orange-900 border-2 border-[#F97316] font-black ring-2 ring-orange-400/30 shadow-sm' : 'hover:bg-orange-50/60 text-slate-800 font-extrabold border border-transparent'"
-                                                        title="Click để chọn gói Grooming cho mốc cân nặng này">
-                                                        <div class="flex items-center justify-center gap-1">
+                                                        title="Click để chọn gói Grooming (Cắt tạo kiểu)">
+                                                        <div class="flex items-center justify-center gap-1.5">
+                                                            <span class="w-3.5 h-3.5 rounded-full border flex items-center justify-center"
+                                                                  :class="isGroomingCellSelected(row.weight, 'grooming') ? 'border-[#F97316] bg-white' : 'border-slate-300'">
+                                                                <span x-show="isGroomingCellSelected(row.weight, 'grooming')" class="w-2 h-2 rounded-full bg-[#F97316]"></span>
+                                                            </span>
                                                             <span x-text="formatCurrency(row.grooming)"></span>
-                                                            <i x-show="isGroomingCellSelected(row.weight, 'grooming')" class="fa-solid fa-circle-check text-[#F97316] text-xs"></i>
                                                         </div>
                                                     </td>
 
@@ -1099,10 +1164,13 @@ CUSTOMER_HTML = """
                                                     <td @click="selectGroomingCell(row, 'shave')"
                                                         class="py-3 px-4 text-center cursor-pointer transition-all rounded-xl m-1"
                                                         :class="isGroomingCellSelected(row.weight, 'shave') ? 'bg-orange-100/90 text-orange-900 border-2 border-[#F97316] font-black ring-2 ring-orange-400/30 shadow-sm' : 'hover:bg-orange-50/60 text-slate-600 font-semibold border border-transparent'"
-                                                        title="Click để chọn gói Cạo lông cho mốc cân nặng này">
-                                                        <div class="flex items-center justify-center gap-1">
+                                                        title="Click để chọn gói Shave (Cạo lông)">
+                                                        <div class="flex items-center justify-center gap-1.5">
+                                                            <span class="w-3.5 h-3.5 rounded-full border flex items-center justify-center"
+                                                                  :class="isGroomingCellSelected(row.weight, 'shave') ? 'border-[#F97316] bg-white' : 'border-slate-300'">
+                                                                <span x-show="isGroomingCellSelected(row.weight, 'shave')" class="w-2 h-2 rounded-full bg-[#F97316]"></span>
+                                                            </span>
                                                             <span x-text="formatCurrency(row.shave)"></span>
-                                                            <i x-show="isGroomingCellSelected(row.weight, 'shave')" class="fa-solid fa-circle-check text-[#F97316] text-xs"></i>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -1121,9 +1189,9 @@ CUSTOMER_HTML = """
                                         </h4>
                                         <div class="space-y-2 text-xs">
                                             <template x-for="(srv, sidx) in otherServicesList" :key="sidx">
-                                                <div class="flex items-center justify-between pb-1.5 border-b border-slate-200/60 last:border-0">
-                                                    <span class="text-slate-700 font-medium" x-text="srv.name"></span>
-                                                    <span class="font-bold text-slate-900" x-text="srv.price"></span>
+                                                <div class="flex justify-between items-start gap-3 pb-2 border-b border-slate-200/60 last:border-0" style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                                    <span class="flex-1 text-slate-700 font-medium leading-snug break-words text-left" x-text="srv.name"></span>
+                                                    <span class="min-w-[110px] text-right flex-shrink-0 font-bold text-slate-900" style="min-width: 110px; text-align: right;" x-text="srv.price"></span>
                                                 </div>
                                             </template>
                                         </div>
@@ -1161,7 +1229,6 @@ CUSTOMER_HTML = """
                         </div>
                     </div>
 
-                    <!-- ========================================== -->
                     <!-- TAB 2: PET HOTEL 5 SAO (BẢNG GIÁ TƯƠNG TÁC CHỌN GÓI POPUP) -->
                     <!-- ========================================== -->
                     <div x-show="servicePricingTab === 'hotel'" class="space-y-6 animate-fadeIn">
@@ -1434,7 +1501,7 @@ CUSTOMER_HTML = """
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         
-                        <!-- Bước 1: Chọn Thú Cưng Từ Hồ Sơ -->
+                        <!-- Bước 1: Chọn Thú Cưng Từ Hồ Sơ (Auto-map cân nặng) -->
                         <div class="space-y-2">
                             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
                                 Bước 1: Chọn Thú Cưng Từ Hồ Sơ
@@ -1466,47 +1533,128 @@ CUSTOMER_HTML = """
                             </div>
                         </div>
 
-                        <!-- Bước 2: Chọn Chi Nhánh / Cơ Sở Gần Bạn -->
+                        <!-- Bước 2: Cố Định Chi Nhánh Chính (Xóa dropdown, thay bằng input disabled/readonly) -->
                         <div class="space-y-2">
                             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                                Bước 2: Chọn Chi Nhánh Gần Bạn
+                                Bước 2: Chi Nhánh Cố Định
                             </label>
-                            <select x-model="serviceBookingForm.branch" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
-                                <option value="Cơ sở 1: 125 Hoàng Quốc Việt, Cầu Giấy, Hà Nội">Cơ sở 1: 125 Hoàng Quốc Việt, Cầu Giấy, Hà Nội (Trụ sở chính)</option>
-                                <option value="Cơ sở 2: 88 Nguyễn Thị Minh Khai, Quận 1, TP.HCM">Cơ sở 2: 88 Nguyễn Thị Minh Khai, Quận 1, TP.HCM</option>
-                                <option value="Cơ sở 3: 12 Trần Não, Thảo Điền, TP. Thủ Đức">Cơ sở 3: 12 Trần Não, Thảo Điền, TP. Thủ Đức</option>
-                            </select>
-                            <p class="text-[11px] text-slate-400"><i class="fa-solid fa-location-dot text-brand-600 mr-1"></i>Đầy đủ bãi đỗ ô tô và khu sân cỏ vận động ngoài trời</p>
+                            <div class="relative">
+                                <input type="text" value="Cơ sở Chính: 88 Nguyễn Thị Minh Khai, Quận 1, TPHCM" readonly disabled
+                                       class="w-full bg-slate-100 border border-slate-300 rounded-xl px-4 py-3 text-xs sm:text-sm font-bold text-slate-700 cursor-not-allowed">
+                                <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200 px-2.5 py-1 rounded-lg">
+                                    <i class="fa-solid fa-lock mr-1"></i>Trụ Sở Chính
+                                </span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 flex items-center gap-1">
+                                <i class="fa-solid fa-location-dot text-brand-600"></i>
+                                <span>88 Nguyễn Thị Minh Khai, P. Bến Thành, Quận 1, TP.HCM (Khu dịch vụ 5 sao, bãi đỗ ô tô và sân cỏ ngoài trời)</span>
+                            </p>
                         </div>
 
-                        <!-- Bước 3: Chọn Ngày & Giờ Check-in / Check-out (Bảng Lưới Slot Giờ Real-time) -->
+                        <!-- Bước 3: Chọn Ngày & Giờ (Phân tách theo loại dịch vụ) -->
                         <div class="md:col-span-2 space-y-3">
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                                Bước 3: Chọn Ngày & Khung Giờ (Lưới Slot Giờ Real-time)
-                            </label>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div>
-                                    <span class="text-[11px] text-slate-500 block mb-1">Ngày check-in mong muốn:</span>
-                                    <input type="date" x-model="serviceBookingForm.date" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none">
+                            
+                            <!-- KHỐI DÀNH RIÊNG CHO TAB PET HOTEL 5 SAO: Date Range Picker & Dropdown Giờ Check-in/Check-out -->
+                            <div x-show="servicePricingTab === 'hotel'" class="space-y-3 animate-fadeIn">
+                                <div class="flex items-center justify-between">
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                        Bước 3: Chọn Khoảng Thời Gian Lưu Trú (Date Range & Giờ Nhận/Trả Pet)
+                                    </label>
+                                    <span class="text-[11px] font-bold bg-orange-100 text-orange-800 px-2.5 py-0.5 rounded-full border border-orange-200">
+                                        Khách Sạn 5 Sao
+                                    </span>
                                 </div>
-                                <div>
-                                    <span class="text-[11px] text-slate-500 block mb-1">Thời gian lưu trú dự kiến:</span>
-                                    <input type="text" value="Check-in 09:00 - Check-out 18:00 cùng ngày" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-600">
+
+                                <!-- Date Range Picker: Ngày Check-in & Ngày Check-out -->
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-orange-50/50 p-4 rounded-2xl border border-orange-200">
+                                    <div>
+                                        <label class="text-xs font-bold text-slate-700 block mb-1 flex items-center gap-1">
+                                            <i class="fa-solid fa-calendar-check text-orange-500"></i>
+                                            <span>Ngày Check-in (Nhận phòng):</span>
+                                        </label>
+                                        <input type="date" x-model="serviceBookingForm.hotelCheckInDate" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs font-bold text-slate-700 block mb-1 flex items-center gap-1">
+                                            <i class="fa-solid fa-calendar-xmark text-orange-500"></i>
+                                            <span>Ngày Check-out (Trả phòng):</span>
+                                        </label>
+                                        <input type="date" x-model="serviceBookingForm.hotelCheckOutDate" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                    </div>
+
+                                    <!-- 2 Dropdown Giờ Check-in & Giờ Check-out (Thay thế các block giờ tĩnh) -->
+                                    <div>
+                                        <label class="text-xs font-bold text-slate-700 block mb-1 flex items-center gap-1">
+                                            <i class="fa-regular fa-clock text-orange-500"></i>
+                                            <span>Giờ Check-in dự kiến:</span>
+                                        </label>
+                                        <select x-model="serviceBookingForm.hotelCheckInTime" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                            <template x-for="t in ['07:00', '08:00', '09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00']" :key="t">
+                                                <option :value="t" x-text="t + ' (Giờ sáng/chiều đón)'"></option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="text-xs font-bold text-slate-700 block mb-1 flex items-center gap-1">
+                                            <i class="fa-regular fa-clock text-orange-500"></i>
+                                            <span>Giờ Check-out dự kiến:</span>
+                                        </label>
+                                        <select x-model="serviceBookingForm.hotelCheckOutTime" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                            <template x-for="t in ['08:00', '09:00', '10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00']" :key="t">
+                                                <option :value="t" x-text="t + ' (Giờ trả bé)'"></option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Tóm Tắt Số Ngày & Phí Phòng Pet Hotel -->
+                                <div class="p-3.5 bg-white rounded-xl border border-orange-200 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 shadow-xs">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
+                                        <span class="font-bold text-slate-800">Thời gian lưu trú:</span>
+                                        <span class="font-black text-orange-600 px-2 py-0.5 rounded-md bg-orange-100" x-text="hotelTotalDays + ' Ngày'"></span>
+                                        <span class="text-slate-500 text-[11px]" x-text="'(Check-in ' + serviceBookingForm.hotelCheckInTime + ' ' + serviceBookingForm.hotelCheckInDate + ' -> Check-out ' + serviceBookingForm.hotelCheckOutTime + ' ' + serviceBookingForm.hotelCheckOutDate + ')'"></span>
+                                    </div>
+                                    <div class="font-bold text-slate-700">
+                                        Phí phòng: <span class="font-black text-[#F97316]" x-text="formatCurrency(baseServicePrice) + ' x ' + hotelTotalDays + ' ngày = ' + formatCurrency(hotelFee)"></span>
+                                    </div>
                                 </div>
                             </div>
-                            <!-- Lưới Slot Giờ Realtime -->
-                            <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 pt-1">
-                                <template x-for="slot in ['08:30', '10:00', '11:30', '14:00', '15:30', '17:00']" :key="slot">
-                                    <button @click="if (slot !== '11:30') serviceBookingForm.timeSlot = slot" :class="{
-                                        'bg-orange-500 text-white font-bold ring-2 ring-orange-300': serviceBookingForm.timeSlot === slot,
-                                        'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100': slot !== '11:30' && serviceBookingForm.timeSlot !== slot,
-                                        'bg-rose-50 text-rose-400 border border-rose-200 cursor-not-allowed opacity-60': slot === '11:30'
-                                    }" class="py-2.5 px-2 rounded-xl text-xs font-semibold text-center transition">
-                                        <div x-text="slot"></div>
-                                        <span class="text-[9px] block" x-text="slot === '11:30' ? 'Đã đầy' : 'Còn 3 slot'"></span>
-                                    </button>
-                                </template>
+
+                            <!-- KHỐI DÀNH CHO TAB GROOMING & SPA VÀ TIÊM PHÒNG (Ẩn hoàn toàn khối thời gian lưu trú) -->
+                            <div x-show="servicePricingTab !== 'hotel'" class="space-y-3 animate-fadeIn">
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                    Bước 3: Chọn Ngày & Khung Giờ Đặt Lịch
+                                </label>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div>
+                                        <span class="text-[11px] text-slate-500 block mb-1">Ngày đặt hẹn dịch vụ:</span>
+                                        <input type="date" x-model="serviceBookingForm.date" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                    </div>
+                                    <div>
+                                        <span class="text-[11px] text-slate-500 block mb-1">Khung giờ đang chọn:</span>
+                                        <input type="text" :value="'Giờ hẹn: ' + (serviceBookingForm.timeSlot || '09:30') + ' (Thời gian phục vụ: 45 - 90 phút)'" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-bold text-slate-700">
+                                    </div>
+                                </div>
+
+                                <!-- Lưới Slot Giờ Real-time cho Grooming & Tiêm phòng -->
+                                <div>
+                                    <span class="text-[11px] text-slate-500 block mb-1.5 font-medium">Chọn khung giờ rảnh trong ngày:</span>
+                                    <div class="grid grid-cols-3 sm:grid-cols-7 gap-2 pt-1">
+                                        <template x-for="slot in ['08:30', '09:30', '10:30', '14:00', '15:30', '17:00', '18:30']" :key="slot">
+                                            <button type="button" @click="if (slot !== '10:30') serviceBookingForm.timeSlot = slot" :class="{
+                                                'bg-orange-500 text-white font-bold ring-2 ring-orange-300 shadow-sm': serviceBookingForm.timeSlot === slot,
+                                                'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100': slot !== '10:30' && serviceBookingForm.timeSlot !== slot,
+                                                'bg-rose-50 text-rose-400 border border-rose-200 cursor-not-allowed opacity-60': slot === '10:30'
+                                            }" class="py-2.5 px-2 rounded-xl text-xs font-semibold text-center transition">
+                                                <div x-text="slot"></div>
+                                                <span class="text-[9px] block" x-text="slot === '10:30' ? 'Đã kín' : 'Còn slot'"></span>
+                                            </button>
+                                        </template>
+                                    </div>
+                                </div>
                             </div>
+
                         </div>
 
                         <!-- Bước 4: Tích chọn Dịch vụ cộng thêm -->
@@ -1515,23 +1663,23 @@ CUSTOMER_HTML = """
                                 Bước 4: Dịch Vụ Cộng Thêm
                             </label>
                             <div class="space-y-2">
-                                <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-white cursor-pointer transition">
+                                <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
                                     <div class="flex items-center gap-2.5 text-xs">
-                                        <input type="checkbox" x-model="serviceBookingForm.addOnMassage" class="rounded text-orange-500 focus:ring-orange-400 w-4 h-4">
+                                        <input type="checkbox" x-model="serviceBookingForm.addOnMassage" class="rounded text-brand-600 focus:ring-brand-500 w-4 h-4">
                                         <span class="font-medium text-slate-800">Tắm massage sục khí bọt Nano</span>
                                     </div>
                                     <span class="text-xs font-bold text-orange-600">+50.000đ</span>
                                 </label>
-                                <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-white cursor-pointer transition">
+                                <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
                                     <div class="flex items-center gap-2.5 text-xs">
-                                        <input type="checkbox" x-model="serviceBookingForm.addOnFurDetangle" class="rounded text-orange-500 focus:ring-orange-400 w-4 h-4">
+                                        <input type="checkbox" x-model="serviceBookingForm.addOnFurDetangle" class="rounded text-brand-600 focus:ring-brand-500 w-4 h-4">
                                         <span class="font-medium text-slate-800">Gỡ rối lông & Phục hồi keratin</span>
                                     </div>
                                     <span class="text-xs font-bold text-orange-600">+80.000đ</span>
                                 </label>
-                                <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-white cursor-pointer transition">
+                                <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
                                     <div class="flex items-center gap-2.5 text-xs">
-                                        <input type="checkbox" x-model="serviceBookingForm.addOnWalk" class="rounded text-orange-500 focus:ring-orange-400 w-4 h-4">
+                                        <input type="checkbox" x-model="serviceBookingForm.addOnWalk" class="rounded text-brand-600 focus:ring-brand-500 w-4 h-4">
                                         <span class="font-medium text-slate-800">Dắt đi dạo sân cỏ tự nhiên (30p)</span>
                                     </div>
                                     <span class="text-xs font-bold text-orange-600">+40.000đ</span>
@@ -1567,54 +1715,79 @@ CUSTOMER_HTML = """
                         </div>
                     </div>
 
-                    <!-- KHỐI THANH TOÁN & TÓM TẮT CHI PHÍ ĐẶT LỊCH (CHECKOUT SUMMARY 3 DÒNG THEO YÊU CẦU) -->
+                    <!-- KHỐI THANH TOÁN & TÓM TẮT CHI PHÍ ĐẶT LỊCH (CHECKOUT SUMMARY) -->
                     <div class="pt-6 border-t border-slate-200 bg-slate-50/90 -mx-6 -mb-6 sm:-mx-8 sm:-mb-8 p-6 sm:p-8 rounded-b-3xl space-y-4">
                         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                             
-                            <!-- 3 Dòng Giá Trị Minh Bạch -->
+                            <!-- BẢNG TỔNG CHI PHÍ THEO LOẠI DỊCH VỤ -->
                             <div class="space-y-2 flex-1">
-                                <!-- Dòng 1: Tổng chi phí dịch vụ (100%) - text màu xám/đen, font thường -->
-                                <div class="flex items-center justify-between sm:justify-start gap-3 text-xs sm:text-sm text-slate-700">
-                                    <span class="font-medium">Tổng chi phí dịch vụ (100%):</span>
-                                    <span class="font-bold text-slate-900 text-sm sm:text-base" x-text="formatCurrency(totalServiceCost)"></span>
-                                </div>
+                                
+                                <!-- 1. DÀNH CHO TAB PET HOTEL 5 SAO: TÍNH CỌC 50% HIỂN THỊ 3 DÒNG RẠCH RÒI -->
+                                <template x-if="servicePricingTab === 'hotel'">
+                                    <div class="space-y-2">
+                                        <!-- Dòng 1: Tổng chi phí dịch vụ (100%) - text màu xám, font thường -->
+                                        <div class="flex items-center justify-between sm:justify-start gap-3 text-xs sm:text-sm text-slate-700">
+                                            <span class="font-medium">Tổng chi phí dịch vụ (100%):</span>
+                                            <span class="font-bold text-slate-900 text-sm sm:text-base" x-text="formatCurrency(totalServiceCost)"></span>
+                                        </div>
 
-                                <!-- Dòng 2: Số tiền cọc cần thanh toán (50%) - text to, in đậm, màu cam nổi bật -->
-                                <div class="flex items-center justify-between sm:justify-start gap-3 py-1.5 border-y border-dashed border-orange-200 bg-orange-50/60 px-3 rounded-xl">
-                                    <div class="flex items-center gap-1.5">
-                                        <span class="text-xs sm:text-sm font-black text-orange-600 uppercase tracking-wide">Số tiền cọc cần thanh toán (50%):</span>
-                                        <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-orange-500 text-white shadow-xs">Đặt cọc giữ slot</span>
+                                        <!-- Dòng 2: Tiền cọc cần thanh toán (50%) - text to, in đậm, màu cam nổi bật -->
+                                        <div class="flex items-center justify-between sm:justify-start gap-3 py-2 border-y border-dashed border-orange-200 bg-orange-50/70 px-3.5 rounded-xl">
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="text-xs sm:text-sm font-black text-orange-600 uppercase tracking-wide">Tiền cọc cần thanh toán (50%):</span>
+                                                <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-orange-500 text-white shadow-xs">Cọc giữ phòng</span>
+                                            </div>
+                                            <div class="text-2xl sm:text-3xl font-black text-[#F97316] tracking-tight" x-text="formatCurrency(depositAmount)"></div>
+                                        </div>
+
+                                        <!-- Dòng 3: Thanh toán khi trả pet (50%) - text nhỏ hơn, màu xám, in nghiêng -->
+                                        <div class="flex items-center justify-between sm:justify-start gap-2 text-[11px] sm:text-xs text-slate-500 italic">
+                                            <div class="flex items-center gap-1">
+                                                <i class="fa-solid fa-clock-rotate-left text-slate-400"></i>
+                                                <span>Thanh toán khi trả pet (50%):</span>
+                                            </div>
+                                            <span class="font-bold text-slate-700 not-italic" x-text="formatCurrency(remainingAmount)"></span>
+                                            <span class="text-[10px] text-slate-400 hidden sm:inline">(Thanh toán trực tiếp tại quầy hoặc tài xế PetShip360 thu hộ)</span>
+                                        </div>
                                     </div>
-                                    <div class="text-2xl sm:text-3xl font-black text-[#F97316] tracking-tight" x-text="formatCurrency(depositAmount)"></div>
-                                </div>
+                                </template>
 
-                                <!-- Dòng 3: Số tiền thu sau khi trả pet (50%) - text nhỏ hơn, màu xám kèm ghi chú -->
-                                <div class="flex items-center justify-between sm:justify-start gap-2 text-[11px] sm:text-xs text-slate-500 font-medium">
-                                    <div class="flex items-center gap-1">
-                                        <i class="fa-solid fa-clock-rotate-left text-slate-400"></i>
-                                        <span>Số tiền thu sau khi trả pet (50%):</span>
+                                <!-- 2. DÀNH CHO TAB GROOMING & SPA VÀ TIÊM PHÒNG: KHÔNG TÍNH CỌC, 100% TỔNG TIỀN -->
+                                <template x-if="servicePricingTab !== 'hotel'">
+                                    <div class="space-y-2">
+                                        <div class="flex items-center justify-between sm:justify-start gap-3 py-2 border-y border-dashed border-orange-200 bg-orange-50/70 px-3.5 rounded-xl">
+                                            <span class="text-xs sm:text-sm font-black text-slate-800 uppercase tracking-wide">Tổng chi phí dịch vụ (100%):</span>
+                                            <div class="text-2xl sm:text-3xl font-black text-[#F97316] tracking-tight" x-text="formatCurrency(totalServiceCost)"></div>
+                                        </div>
+                                        <p class="text-[11px] text-emerald-700 font-bold flex items-center gap-1.5">
+                                            <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                                            <span>Thanh toán 100% giá trị dịch vụ khi xác nhận lịch hẹn (Không áp dụng đặt cọc)</span>
+                                        </p>
                                     </div>
-                                    <span class="font-bold text-slate-700" x-text="formatCurrency(remainingAmount)"></span>
-                                    <span class="text-[10px] text-slate-400 italic hidden sm:inline">(Thanh toán sau tại quầy lễ tân hoặc tài xế PetShip360 thu hộ)</span>
-                                </div>
+                                </template>
 
-                                <!-- Diễn giải dịch vụ đã chọn -->
+                                <!-- Diễn giải chi tiết cấu thành giá -->
                                 <div class="text-[11px] text-slate-500 pt-1 flex items-center gap-1.5 flex-wrap">
-                                    <i class="fa-solid fa-circle-check text-emerald-500"></i>
-                                    <span x-text="'(Dịch vụ: ' + (selectedBaseService ? selectedBaseService.name : 'Khách sạn thú cưng tiêu chuẩn') + ' [' + formatCurrency(baseServicePrice) + ']' + (totalAddonsCost > 0 ? ' + DV cộng thêm: ' + formatCurrency(totalAddonsCost) : '') + (petShipCost > 0 ? ' + PetShip: ' + formatCurrency(petShipCost) : '') + ')'"></span>
+                                    <i class="fa-solid fa-circle-info text-orange-500"></i>
+                                    <span x-text="'(Dịch vụ: ' + (selectedBaseService ? selectedBaseService.name : 'Dịch vụ chuẩn') + ' [' + (servicePricingTab === 'hotel' ? formatCurrency(hotelFee) : formatCurrency(baseServicePrice)) + ']' + (totalAddonsCost > 0 ? ' + DV thêm: ' + formatCurrency(totalAddonsCost) : '') + (petShipCost > 0 ? ' + PetShip: ' + formatCurrency(petShipCost) : '') + ')'"></span>
                                 </div>
                             </div>
 
-                            <!-- Khối Nút Bấm & Ghi Chú Rủi Ro / Lưu Ý -->
-                            <div class="flex flex-col sm:items-end gap-2 flex-shrink-0">
-                                <p class="text-xs text-rose-600 font-bold flex items-center gap-1.5">
-                                    <i class="fa-solid fa-circle-info"></i>
-                                    <span>Chỉ cần thanh toán trước 50% tiền cọc để xác nhận giữ chỗ</span>
-                                </p>
-                                <!-- Nút Submit với text: THANH TOÁN CỌC 50% & ĐẶT LỊCH -->
-                                <button @click="addServiceBookingToCart()" class="w-full sm:w-auto bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-extrabold text-sm sm:text-base px-8 py-3.5 rounded-2xl shadow-lg shadow-orange-500/30 transition transform active:scale-98 flex items-center justify-center gap-2">
-                                    <i class="fa-solid fa-credit-card"></i>
-                                    <span>THANH TOÁN CỌC 50% & ĐẶT LỊCH</span>
+                            <!-- VÙNG CALL-TO-ACTION (CTA) GỒM 2 NÚT ĐẶT CẠNH NHAU THEO YÊU CẦU 1 -->
+                            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-shrink-0">
+                                <!-- Nút phụ (Secondary): THÊM VÀO GIỎ HÀNG -->
+                                <button type="button" @click="submitServiceBooking(false)"
+                                        class="w-full sm:w-auto border-2 border-[#F97316] bg-white text-[#F97316] hover:bg-orange-50 active:scale-98 font-black text-xs sm:text-sm px-6 py-3.5 rounded-2xl shadow-xs transition flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-cart-plus"></i>
+                                    <span>THÊM VÀO GIỎ HÀNG</span>
+                                </button>
+
+                                <!-- Nút chính (Primary): Đổi text theo Tab, nền cam nổi bật, chuyển hướng checkout -->
+                                <button type="button" @click="submitServiceBooking(true)"
+                                        class="w-full sm:w-auto bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black text-xs sm:text-sm px-8 py-3.5 rounded-2xl shadow-lg shadow-orange-500/30 transition transform active:scale-98 flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-calendar-check"></i>
+                                    <span x-text="servicePricingTab === 'hotel' ? 'THANH TOÁN CỌC 50% & ĐẶT LỊCH' : 'THANH TOÁN NGAY & ĐẶT LỊCH'"></span>
+                                    <i class="fa-solid fa-arrow-right text-xs"></i>
                                 </button>
                             </div>
                         </div>
