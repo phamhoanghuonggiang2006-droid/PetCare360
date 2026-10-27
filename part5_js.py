@@ -240,7 +240,10 @@ function superPetCareApp() {
 
         // ==================== 4. PETSHARE360 SOCIAL FEED ====================
         socialNotificationsOpen: false,
-        socialActiveMenu: 'all', // 'all' | 'my_posts' | 'vet_tips' | 'streak'
+        activeMenuTab: 'general_feed', // 'general_feed' | 'my_posts' | 'vet_tips' | 'pet_streak'
+        get socialActiveMenu() { return this.activeMenuTab; },
+        set socialActiveMenu(v) { this.activeMenuTab = v; },
+
         newPostText: '',
         newPostMedia: '',
         newPostMediaList: [],
@@ -259,12 +262,60 @@ function superPetCareApp() {
         toastNotification: { show: false, message: '' },
         streakDays: 12,
 
+        // Checklist chăm sóc hàng ngày của Streak
+        streakChecklist: [
+            { id: 1, title: 'Cho bé ăn đúng giờ & định lượng hạt dinh dưỡng', time: '07:30 AM', points: 15, completed: true, icon: 'fa-bowl-food', color: 'text-amber-500' },
+            { id: 2, title: 'Dắt bé đi dạo công viên & vận động 30 phút', time: '05:30 PM', points: 30, completed: false, icon: 'fa-person-walking-with-cane', color: 'text-emerald-500' },
+            { id: 3, title: 'Thay nước sạch khử khuẩn & bổ sung men vi sinh', time: '12:00 PM', points: 15, completed: true, icon: 'fa-droplet', color: 'text-blue-500' },
+            { id: 4, title: 'Chải lông massage & kiểm tra vệ sinh mắt, tai, kẽ móng', time: '08:00 PM', points: 20, completed: false, icon: 'fa-soap', color: 'text-purple-500' }
+        ],
+
+        // Lịch check-in tuần
+        streakDaysOfWeek: [
+            { day: 'T2', date: '21/10', done: true },
+            { day: 'T3', date: '22/10', done: true },
+            { day: 'T4', date: '23/10', done: true },
+            { day: 'T5', date: '24/10', done: true },
+            { day: 'T6', date: '25/10', done: true },
+            { day: 'T7', date: '26/10', done: true, today: true },
+            { day: 'CN', date: '27/10', done: false }
+        ],
+
+        // Bộ sưu tập huy hiệu Streak
+        streakBadges: [
+            { id: 1, name: 'Sen Chuyên Cần', desc: 'Duy trì chăm sóc 7 ngày liên tục', icon: 'fa-medal', color: 'from-amber-400 to-orange-500', unlocked: true },
+            { id: 2, name: 'Bậc Thầy Đi Dạo', desc: 'Dắt cún đi dạo tích lũy > 10km', icon: 'fa-person-walking', color: 'from-emerald-400 to-teal-500', unlocked: true },
+            { id: 3, name: 'Bác Sĩ Tại Gia', desc: 'Cập nhật sổ sức khỏe & tiêm phòng chuẩn lịch', icon: 'fa-user-doctor', color: 'from-blue-400 to-indigo-500', unlocked: true },
+            { id: 4, name: 'Sen Vàng Huyền Thoại', desc: 'Chuỗi Streak chạm mốc 30 ngày', icon: 'fa-crown', color: 'from-purple-400 to-pink-500', unlocked: false, progress: '12/30' }
+        ],
+
         get userPets() {
             return this.pets || [];
         },
 
+        // Bộ lọc bài viết theo activeMenuTab (general_feed, my_posts, vet_tips)
+        get filteredSocialPosts() {
+            const all = this.socialPosts || [];
+            const tab = this.activeMenuTab || 'general_feed';
+            const currentUserId = this.customerProfile?.id || 1;
+            const currentUserName = this.customerProfile?.name || 'Nguyễn Phương Thảo';
+
+            if (tab === 'my_posts') {
+                return all.filter(p => p.authorId === currentUserId || p.author === currentUserName || p.author === 'Nguyễn Hoàng Giang');
+            }
+            if (tab === 'vet_tips') {
+                return all.filter(p => p.isVet === true || p.tag === 'vet' || (p.author && p.author.startsWith('Bs.')) || p.badge === 'Bác sĩ Thú y');
+            }
+            // default: general_feed
+            return all;
+        },
+
+        // Bài viết hiển thị (có cắt theo feedVisibleCount đối với general_feed)
         get visibleSocialPosts() {
-            return (this.socialPosts || []).slice(0, this.feedVisibleCount);
+            if (this.activeMenuTab === 'general_feed') {
+                return this.filteredSocialPosts.slice(0, this.feedVisibleCount);
+            }
+            return this.filteredSocialPosts;
         },
 
         socialNotifications: [
@@ -272,11 +323,13 @@ function superPetCareApp() {
             { id: 2, user: 'Hoàng Minh Đức', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80', text: 'đã thả tim bài đăng của bạn', time: '35 phút trước', read: false },
             { id: 3, user: 'Lê Thị Mai', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80', text: 'đã nhắc đến bạn trong một bình luận: #PoodleSàiGòn', time: '2 giờ trước', read: true }
         ],
+
         socialPosts: [
             {
                 id: 1,
-                author: 'Nguyễn Hoàng Giang',
-                petName: 'Bé Bơ',
+                authorId: 1,
+                author: 'Nguyễn Phương Thảo',
+                petName: 'Bơ (Butter)',
                 breed: 'Corgi Vàng Trắng',
                 avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
                 time: '15 phút trước',
@@ -291,12 +344,13 @@ function superPetCareApp() {
                 likeAnimating: false,
                 shares: 6,
                 comments: [
-                    { id: 1, user: 'Bs. Trần Thu Hà', avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=150&q=80', text: 'Bé Bơ hợp tác lắm nè mẹ Giang ơi, chúc bé luôn khỏe mạnh nhé!', time: '10 phút trước' },
-                    { id: 2, user: 'Hoàng Minh Đức', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80', text: 'Nhìn quả mông tròn xoe mê quá bác!', time: '5 phút trước' }
+                    { id: 1, user: 'Bs. Trần Thu Hà', avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=150&q=80', text: 'Bé Bơ hợp tác lắm nè mẹ Thảo ơi, chúc bé luôn khỏe mạnh nhé!', time: '10 phút trước' },
+                    { id: 2, user: 'Hoàng Minh Đức', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80', text: 'Nhìn quả mông tròn xoe mê quá bạn!', time: '5 phút trước' }
                 ]
             },
             {
                 id: 2,
+                authorId: 2,
                 author: 'Lê Thị Mai',
                 petName: 'Bé Lu',
                 breed: 'Poodle Nâu Đỏ',
@@ -317,6 +371,34 @@ function superPetCareApp() {
             },
             {
                 id: 3,
+                authorId: 101,
+                isVet: true,
+                badge: 'Bác sĩ Thú y',
+                author: 'Bs. Trần Thu Hà (Chuyên khoa Dinh dưỡng & Da liễu)',
+                petName: 'PetCare360 Clinic',
+                breed: 'Bác Sĩ Thú Y',
+                avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=150&q=80',
+                time: '3 giờ trước',
+                content: `🩺 [MẸO BÁC SĨ] Hướng dẫn bổ sung men vi sinh và canxi chuẩn y khoa cho cún mèo giai đoạn dưới 1 tuổi:
+1. Tuyệt đối không cho uống sữa bò tươi thông thường vì hầu hết thú cưng không dung nạp lactose, dễ gây viêm ruột.
+2. Bổ sung men vi sinh probiotic cách bữa ăn chính 30 phút để kích thích hệ miễn dịch đường ruột tối ưu.
+3. Canxi nano chỉ nên bổ sung theo cân nặng chuẩn và có chỉ định của bác sĩ thú y để tránh nguy cơ vôi hóa xương sớm.
+#CẩmNangBácSĩ #DinhDưỡngThúCưng #SứcKhỏePet #PetCareClinic`,
+                images: [
+                    'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=600&q=80'
+                ],
+                likes: 184,
+                isLiked: false,
+                isSaved: true,
+                likeAnimating: false,
+                shares: 42,
+                comments: [
+                    { id: 1, user: 'Nguyễn Phương Thảo', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80', text: 'Cảm ơn bác sĩ Hà đã chia sẻ bài viết rất hữu ích cho các sen ạ! ❤️', time: '1 giờ trước' }
+                ]
+            },
+            {
+                id: 4,
+                authorId: 3,
                 author: 'Hoàng Minh Đức',
                 petName: 'Bông Lan',
                 breed: 'Mèo Anh Lông Ngắn',
@@ -329,18 +411,44 @@ function superPetCareApp() {
                 ],
                 likes: 95,
                 isLiked: false,
-                isSaved: true,
+                isSaved: false,
                 likeAnimating: false,
                 shares: 14,
                 comments: []
             },
             {
-                id: 4,
+                id: 5,
+                authorId: 102,
+                isVet: true,
+                badge: 'Bác sĩ Thú y',
+                author: 'Bs. Lê Văn Minh (Bác sĩ Trưởng khoa Tiêm chủng)',
+                petName: 'PetCare360 Clinic',
+                breed: 'Bác Sĩ Thú Y',
+                avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=150&q=80',
+                time: '6 giờ trước',
+                content: `💉 [LỊCH TIÊM CHỦNG] Lịch tiêm nhắc lại hàng năm cho chó (Vaccine 7 bệnh) và mèo (Vaccine 4 bệnh):
+- Kháng thể vaccine sẽ suy giảm sau 11-12 tháng, do đó việc tiêm nhắc đúng hạn là bắt buộc để bảo vệ bé khỏi các bệnh hiểm nghèo như Care, Parvo, Dại và Giảm bạch cầu.
+- Trước ngày tiêm: Bé cần khỏe mạnh, ăn uống bình thường và được tẩy giun trước 5-7 ngày.
+- Hãy đặt lịch tiêm chủng tại nhà trên PetCare360 để bé không phải di chuyển xa nhé!
+#TiêmPhòngThúCưng #VaccinePet #BácSĩThúY #PetCare360`,
+                images: [
+                    'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?auto=format&fit=crop&w=600&q=80'
+                ],
+                likes: 142,
+                isLiked: false,
+                isSaved: false,
+                likeAnimating: false,
+                shares: 28,
+                comments: []
+            },
+            {
+                id: 6,
+                authorId: 4,
                 author: 'Trần Bảo Ngọc',
                 petName: 'Milo',
                 breed: 'Golden Retriever',
                 avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80',
-                time: '6 giờ trước',
+                time: '8 giờ trước',
                 content: 'Chiều chủ nhật cho Milo ra bãi cỏ vận động của PetCare360 chạy nhảy tưng bừng. Cậu chàng kết bạn được với cả hội Corgi và Samoyed, quẩy nhiệt tình về ngủ khò khò luôn 🐶⚽ #GoldenRetriever #PetCare360 #CuốiTuầnCùngPet',
                 images: [
                     'https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=600&q=80',
@@ -351,66 +459,45 @@ function superPetCareApp() {
                 isSaved: false,
                 likeAnimating: false,
                 shares: 18,
-                comments: [
-                    { id: 1, user: 'Lê Minh', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80', text: 'Milo nhìn hiền lành và đáng yêu quá!', time: '3 giờ trước' }
-                ]
-            },
-            {
-                id: 5,
-                author: 'Đặng Thu Trang',
-                petName: 'Miu Miu',
-                breed: 'Mèo Ba Tư Trắng',
-                avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80',
-                time: '8 giờ trước',
-                content: 'Vừa tiêm nhắc lại vaccine 4 bệnh cho Miu Miu tại phòng khám PetCare360. Bác sĩ siêu có tâm, dặn dò tỉ mỉ chế độ ăn uống và theo dõi sau tiêm. Trộm vía bé về không bị sốt hay mệt gì cả! 🩺💉 #SứcKhỏeThúCưng #VaccineMèo #PetCareClinic',
-                images: [
-                    'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=600&q=80'
-                ],
-                likes: 53,
-                isLiked: false,
-                isSaved: false,
-                likeAnimating: false,
-                shares: 5,
                 comments: []
             },
             {
-                id: 6,
+                id: 7,
+                authorId: 1,
+                author: 'Nguyễn Phương Thảo',
+                petName: 'Bơ (Butter)',
+                breed: 'Corgi Vàng Trắng',
+                avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
+                time: '1 ngày trước',
+                content: 'Hôm nay Bơ đạt chuỗi 12 ngày streak dắt đi dạo 30 phút mỗi ngày rồi nè các sen! Trộm vía dạo này bớt tăng động phá phách hẳn, chân tay săn chắc tròn lẳn cưng xỉu 🐾❤️ #StreakChămPet #CorgiButter #PetCare360',
+                images: [
+                    'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?auto=format&fit=crop&w=600&q=80'
+                ],
+                likes: 76,
+                isLiked: true,
+                isSaved: false,
+                likeAnimating: false,
+                shares: 15,
+                comments: []
+            },
+            {
+                id: 8,
+                authorId: 6,
                 author: 'Vũ Anh Tuấn',
                 petName: 'Bắp & Bơ',
                 breed: 'Mèo Tai Cụp Scottish',
                 avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80',
-                time: '1 ngày trước',
-                content: 'Hai đứa nhỏ sinh đôi Bắp & Bơ lần đầu thử pate dinh dưỡng cá ngừ phô mai của PetCare360, ăn tranh nhau đến mức liếm sạch cả đĩa. Sen nào có mèo biếng ăn thì highly recommend thử nha! 🥣🧀 #MèoTaiCụp #ScottishFold #PateMèo',
+                time: '2 ngày trước',
+                content: 'Hai đứa nhỏ sinh đôi Bắp & Bơ lần đầu thử pate cá ngừ phô mai của PetCare360, ăn tranh nhau đến mức liếm sạch cả đĩa. Sen nào có mèo biếng ăn thì highly recommend thử nha! 🥣🧀 #MèoTaiCụp #ScottishFold #PateMèo',
                 images: [
                     'https://images.unsplash.com/photo-1574158622682-e40e69881006?auto=format&fit=crop&w=600&q=80',
                     'https://images.unsplash.com/photo-1561948955-570b270e7c36?auto=format&fit=crop&w=600&q=80'
                 ],
                 likes: 87,
-                isLiked: true,
-                isSaved: false,
-                likeAnimating: false,
-                shares: 9,
-                comments: [
-                    { id: 1, user: 'Nguyễn Phương Thảo', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80', text: 'Hai bé cưng xỉu luôn anh Tuấn ơi 😍', time: '18 giờ trước' }
-                ]
-            },
-            {
-                id: 7,
-                author: 'Phạm Hoàng Giang',
-                petName: 'Sữa Chua',
-                breed: 'Husky Siberian Ngáo',
-                avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
-                time: '2 ngày trước',
-                content: 'Cắt tỉa lông và tắm sấy thảo dược xong nhìn phong độ hẳn ra, bớt ngáo được 10 phút đầu rồi lại nghịch như quỷ sứ haha 😂 Cảm ơn team Grooming PetCare360 đã kiên nhẫn với thanh niên này! #HuskyNgáo #SpaChóLớn #PetCare360',
-                images: [
-                    'https://images.unsplash.com/photo-1605568427561-40dd23c2acea?auto=format&fit=crop&w=600&q=80',
-                    'https://images.unsplash.com/photo-1590419690008-905895e8fe0d?auto=format&fit=crop&w=600&q=80'
-                ],
-                likes: 145,
                 isLiked: false,
                 isSaved: false,
                 likeAnimating: false,
-                shares: 25,
+                shares: 9,
                 comments: []
             }
         ],
@@ -750,6 +837,7 @@ function superPetCareApp() {
 
         // Hồ sơ người dùng
         customerProfile: {
+            id: 1,
             name: 'Nguyễn Phương Thảo',
             phone: '0988 123 456',
             email: 'phuongthao.petcare@gmail.com',
@@ -3761,6 +3849,7 @@ function superPetCareApp() {
 
             const post = {
                 id: Date.now(),
+                authorId: this.customerProfile.id || 1,
                 author: this.customerProfile.name,
                 petName: pet ? pet.name : 'Bé Cưng',
                 breed: pet ? pet.breed : 'Thú cưng',
@@ -3917,6 +4006,21 @@ function superPetCareApp() {
             const windowHeight = window.innerHeight;
             if (scrollY + windowHeight >= totalHeight - 350) {
                 this.loadMorePosts();
+            }
+        },
+
+        toggleStreakCheckItem(task) {
+            task.completed = !task.completed;
+            if (task.completed) {
+                this.showToast('🎉 Tuyệt vời! Bạn nhận được +' + task.points + ' PetPoints từ nhiệm vụ chăm sóc!');
+            } else {
+                this.showToast('Đã hủy hoàn thành nhiệm vụ.');
+            }
+        },
+
+        redeemStreakReward(title, points) {
+            if (confirm('Bạn có muốn dùng ' + points + ' PetPoints để đổi ưu đãi: "' + title + '" không?')) {
+                this.showToast('🎁 Đổi quà thành công! Mã voucher đã được lưu vào Ví Voucher của bạn.');
             }
         },
 
