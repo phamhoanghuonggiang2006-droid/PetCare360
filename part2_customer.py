@@ -55,9 +55,12 @@ CUSTOMER_HTML = """
                             <i class="fa-solid fa-receipt"></i>Đơn Hàng
                             <span class="ml-1 px-1.5 py-0.2 text-[10px] bg-amber-500 text-white font-bold rounded-full" x-text="customerOrdersEnhanced.length"></span>
                         </button>
-                        <button @click="activeCustomerTab = 'account'" :class="(activeCustomerTab === 'account' || activeCustomerTab === 'profile') ? 'text-brand-700 bg-brand-50 font-bold' : 'text-slate-600 hover:text-brand-600 hover:bg-slate-50'" class="px-3 py-2 rounded-xl text-xs lg:text-sm transition flex items-center gap-1.5">
-                            <i class="fa-solid fa-user-gear"></i>Tài Khoản
-                        </button>
+                        <!-- Khối Menu Tài Khoản: Chỉ hiển thị khi đã đăng nhập (Auth state), Khách (guest) sẽ ẩn -->
+                        <template x-if="isAuth">
+                            <button @click="activeCustomerTab = 'account'" :class="(activeCustomerTab === 'account' || activeCustomerTab === 'profile') ? 'text-brand-700 bg-brand-50 font-bold' : 'text-slate-600 hover:text-brand-600 hover:bg-slate-50'" class="px-3 py-2 rounded-xl text-xs lg:text-sm transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-user-gear"></i>Tài Khoản
+                            </button>
+                        </template>
                     </nav>
 
                     <!-- Actions: Chat CSKH, PetShare Notifications, Cart & Account -->
@@ -69,8 +72,9 @@ CUSTOMER_HTML = """
                             <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                         </button>
 
-                        <!-- Icon Chuông Thông Báo PetShare Nổi Bật với Popover (Yêu cầu PetShare360) -->
-                        <div class="relative" x-data="{ openNotice: false }" @click.outside="openNotice = false">
+                        <!-- Icon Chuông Thông Báo: Chỉ hiển thị khi đã đăng nhập (Guest sẽ ẩn hoàn toàn thông báo) -->
+                        <template x-if="isAuth">
+                            <div class="relative" x-data="{ openNotice: false }" @click.outside="openNotice = false">
                             <button @click="openNotice = !openNotice" class="relative p-2.5 rounded-xl text-slate-700 hover:text-brand-600 hover:bg-brand-50 transition border border-slate-200" title="Thông báo mạng xã hội PetShare360">
                                 <i class="fa-solid fa-bell text-base"></i>
                                 <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-white font-extrabold text-[9px] flex items-center justify-center border-2 border-white animate-bounce">3</span>
@@ -114,6 +118,7 @@ CUSTOMER_HTML = """
                                 </div>
                             </div>
                         </div>
+                        </template>
 
                         <!-- Nút Giỏ hàng 5 Bước -->
                         <button @click="activeCustomerTab = 'cart'; cartStep = 1;" class="relative p-2.5 rounded-xl text-slate-700 hover:text-brand-600 hover:bg-brand-50 transition border border-slate-200" title="Giỏ hàng của bạn">
@@ -123,14 +128,14 @@ CUSTOMER_HTML = """
 
                         <!-- Khối Tài Khoản: Nếu chưa đăng nhập hiện Đăng nhập, nếu đã đăng nhập hiện thông tin và nút Đăng xuất -->
                         <div class="pl-2 border-l border-slate-200">
-                            <template x-if="!isLoggedIn">
+                            <template x-if="!isAuth">
                                 <button @click="openLoginModal()" class="flex items-center gap-2 bg-gradient-to-r from-brand-600 to-teal-500 hover:from-brand-700 hover:to-teal-600 text-white font-bold text-xs sm:text-sm px-3.5 py-2 rounded-xl shadow-md transition transform active:scale-95">
                                     <i class="fa-solid fa-right-to-bracket text-xs"></i>
                                     <span>Đăng nhập</span>
                                 </button>
                             </template>
 
-                            <template x-if="isLoggedIn">
+                            <template x-if="isAuth">
                                 <div class="flex items-center gap-2">
                                     <div @click="activeCustomerTab = 'account'" class="flex items-center gap-2 cursor-pointer hover:opacity-85 transition" title="Quản lý thông tin tài khoản">
                                         <img :src="customerProfile.avatar" :alt="customerProfile.name" class="w-9 h-9 rounded-full object-cover border-2 border-brand-500 shadow-sm">
@@ -216,34 +221,84 @@ CUSTOMER_HTML = """
                     </div>
                 </div>
 
-                <!-- Highlight Featured Product Showcase -->
-                <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm flex flex-col lg:flex-row items-center gap-8">
-                    <div class="w-full lg:w-1/3">
-                        <img src="https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&w=600&q=80" alt="Sản phẩm nổi bật" class="w-full h-64 object-cover rounded-2xl shadow-md">
-                    </div>
-                    <div class="w-full lg:w-2/3 space-y-3">
-                        <div class="flex items-center gap-2">
-                            <span class="bg-orange-100 text-orange-700 text-xs font-bold px-2.5 py-0.5 rounded-full">Sản phẩm bán chạy nhất</span>
-                            <div class="flex text-amber-400 text-xs">
-                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                <!-- ======================================================== -->
+                <!-- SECTION: SẢN PHẨM BÁN CHẠY (HORIZONTAL CAROUSEL / SLIDER - 4 CARDS TRÊN 1 VIEWPORT) -->
+                <!-- ======================================================== -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="bg-orange-100 text-orange-700 text-xs font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
+                                    <i class="fa-solid fa-fire text-orange-500"></i> Bán Chạy Nhất
+                                </span>
+                                <span class="text-xs text-slate-400 font-medium">Top sản phẩm được Boss & Sen tin dùng</span>
                             </div>
-                            <span class="text-xs text-slate-500 font-medium">4.8 (86 đánh giá)</span>
+                            <h2 class="text-xl sm:text-2xl font-black text-slate-800 tracking-tight mt-1">Sản Phẩm Bán Chạy</h2>
                         </div>
-                        <h3 class="text-xl sm:text-2xl font-bold text-slate-800">Thức Ăn Hạt Royal Canin Mini Adult Cho Chó Nhỏ</h3>
-                        <p class="text-xs sm:text-sm text-slate-500 leading-relaxed">Công thức dinh dưỡng độc quyền hỗ trợ hệ tiêu hóa nhạy cảm, dưỡng lông bóng mượt và duy trì trọng lượng lý tưởng cho các dòng cún nhỏ (Poodle, Corgi, Phốc sóc...).</p>
-                        <div class="flex items-baseline gap-3 pt-2">
-                            <span class="text-2xl font-extrabold text-orange-600">345.000 đ</span>
-                            <span class="text-sm text-slate-400 line-through">420.000 đ</span>
-                            <span class="text-xs bg-rose-100 text-rose-700 font-bold px-2 py-0.5 rounded-md">-18%</span>
-                        </div>
-                        <div class="pt-2 flex flex-wrap gap-3">
-                            <button @click="activeCustomerTab = 'shop'" class="bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs sm:text-sm px-6 py-3 rounded-xl transition shadow-md shadow-orange-500/20 flex items-center gap-2">
-                                <i class="fa-solid fa-arrow-right"></i>Xem Chi Tiết Mua Hàng
+                        <!-- Điều hướng: Nút Xem tất cả + Nút mũi tên nhỏ gọn (Arrow Button) ở mép phải của section -->
+                        <div class="flex items-center gap-2">
+                            <button @click="activeCustomerTab = 'shop'; shopFilterCategory = 'all'; backToShopCatalog();" class="text-xs font-bold text-[#F97316] hover:underline mr-1 hidden sm:inline-flex items-center gap-1">
+                                Xem tất cả 12 sản phẩm <i class="fa-solid fa-angle-right text-[11px]"></i>
                             </button>
-                            <button @click="activeCustomerTab = 'petshow'" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm px-5 py-3 rounded-xl transition flex items-center gap-2">
-                                <i class="fa-solid fa-video text-rose-500"></i>Xem Trực Tiếp Khách Sạn
-                            </button>
+                            <div class="flex items-center gap-1.5">
+                                <button @click="scrollBestSellerLeft()" class="w-8 h-8 rounded-full border border-slate-200 bg-white hover:bg-orange-50 text-slate-600 hover:text-orange-600 shadow-sm flex items-center justify-center transition active:scale-90" title="Lướt sang trái">
+                                    <i class="fa-solid fa-chevron-left text-xs"></i>
+                                </button>
+                                <button @click="scrollBestSellerRight()" class="w-8 h-8 rounded-full border border-slate-200 bg-white hover:bg-orange-50 text-slate-600 hover:text-orange-600 shadow-sm flex items-center justify-center transition active:scale-90" title="Lướt xem các sản phẩm tiếp theo">
+                                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                                </button>
+                            </div>
                         </div>
+                    </div>
+
+                    <!-- Product Carousel / Slider: Đúng 4 thẻ sản phẩm trên cùng 1 viewport ngang (desktop), vuốt trượt ngang mượt mà -->
+                    <div id="homepage-bestseller-carousel" class="flex gap-4 overflow-x-auto scroll-smooth snap-x pb-3 pt-1 no-scrollbar hide-scrollbar">
+                        <template x-for="prod in bestSellingProducts" :key="'best-' + prod.id">
+                            <div @click="activeCustomerTab = 'shop'; openProductDetailPage(prod);" class="snap-start flex-shrink-0 w-[260px] sm:w-[calc(50%-8px)] md:w-[calc(33.333%-11px)] lg:w-[calc(25%-12px)] bg-white rounded-2xl p-3 border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-200 flex flex-col justify-between group cursor-pointer relative overflow-hidden">
+                                
+                                <!-- Ảnh sản phẩm thumbnail tỷ lệ chuẩn 1:1 + Badge giảm giá & Giao nhanh 2h -->
+                                <div class="relative w-full aspect-square rounded-xl overflow-hidden bg-slate-50 flex items-center justify-center p-2">
+                                    <img :src="prod.image || prod.img" :alt="prod.name" class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300">
+                                    <span class="absolute top-2 left-2 bg-rose-600 text-white font-extrabold text-[10px] px-2 py-0.5 rounded-md shadow-sm" x-text="prod.discountPercent || '-20%'"></span>
+                                    <template x-if="prod.expressShip">
+                                        <span class="absolute top-2 right-2 bg-amber-400 text-slate-900 font-black text-[9px] px-1.5 py-0.5 rounded-md shadow-sm flex items-center gap-0.5">
+                                            <i class="fa-solid fa-bolt text-[8px]"></i> 2H
+                                        </span>
+                                    </template>
+                                </div>
+
+                                <!-- Chi tiết thẻ chuẩn: Tên sản phẩm (tối đa 2 dòng), Số sao & Đã bán, Giá bán nổi bật kèm giá gốc gạch ngang, Nút Thêm vào giỏ -->
+                                <div class="pt-3 pb-1 space-y-1.5 flex-1 flex flex-col justify-between">
+                                    <div>
+                                        <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider truncate" x-text="prod.brand || prod.category"></p>
+                                        <h4 class="text-xs sm:text-sm font-bold text-[#1E293B] line-clamp-2 leading-snug group-hover:text-[#F97316] transition" x-text="prod.name" :title="prod.name"></h4>
+                                    </div>
+
+                                    <div>
+                                        <!-- Số sao đánh giá và lượt mua -->
+                                        <div class="flex items-center gap-1.5 text-xs text-slate-500 pt-1">
+                                            <div class="flex items-center text-amber-400 text-xs">
+                                                <i class="fa-solid fa-star"></i>
+                                                <span class="font-bold text-slate-800 ml-1" x-text="prod.rating || 5.0"></span>
+                                            </div>
+                                            <span class="text-slate-300">•</span>
+                                            <span class="text-[11px] text-slate-400" x-text="(prod.sold || 128) + ' đã bán'"></span>
+                                        </div>
+
+                                        <!-- Giá bán nổi bật kèm giá gốc bị gạch ngang + Nút Thêm vào giỏ -->
+                                        <div class="pt-2 flex items-center justify-between border-t border-slate-100 mt-2">
+                                            <div>
+                                                <div class="text-sm sm:text-base font-extrabold text-[#F97316]" x-text="formatCurrency(prod.price)"></div>
+                                                <div class="text-[10px] text-slate-400 line-through font-medium" x-text="formatCurrency(prod.originalPrice || Math.round(prod.price * 1.25))"></div>
+                                            </div>
+                                            <button @click.stop="addToCart({ id: prod.id, name: prod.name, price: prod.price, image: prod.image || prod.img, weight: '3kg', flavor: 'Vị chuẩn' })" class="w-9 h-9 rounded-full bg-orange-50 text-[#F97316] hover:bg-[#F97316] hover:text-white transition flex items-center justify-center shadow-sm transform active:scale-90" title="Thêm vào giỏ hàng">
+                                                <i class="fa-solid fa-cart-plus text-xs"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
                     </div>
                 </div>
             </div>
@@ -860,39 +915,74 @@ CUSTOMER_HTML = """
                     </div>
                 </div>
 
-                <!-- SECTION CAROUSEL: "SẢN PHẨM TƯƠNG TỰ BẠN CÓ THỂ THÍCH" (4 CARD NGANG) -->
-                <div class="space-y-4">
+                <!-- ======================================================== -->
+                <!-- SECTION: SẢN PHẨM TƯƠNG TỰ BẠN CÓ THỂ THÍCH (RESTORED 4-CARD HORIZONTAL CAROUSEL) -->
+                <!-- ======================================================== -->
+                <div class="space-y-4 pt-4 border-t border-slate-200">
                     <div class="flex items-center justify-between">
                         <div>
                             <h3 class="text-lg sm:text-xl font-bold text-slate-900">Sản phẩm tương tự bạn có thể thích</h3>
                             <p class="text-xs text-slate-500">Gợi ý từ các bác sĩ dinh dưỡng PetCare360</p>
                         </div>
+                        <!-- Điều hướng: Xem tất cả 12 sản phẩm + Nút mũi tên điều hướng Trái/Phải -->
                         <div class="flex items-center gap-2">
-                            <span class="text-xs text-brand-600 font-bold hover:underline cursor-pointer" @click="backToShopCatalog()">Xem tất cả 12 sản phẩm</span>
+                            <span class="text-xs text-[#F97316] font-bold hover:underline cursor-pointer mr-1 hidden sm:inline" @click="backToShopCatalog()">Xem tất cả 12 sản phẩm</span>
+                            <div class="flex items-center gap-1.5">
+                                <button @click="scrollSimilarLeft()" class="w-8 h-8 rounded-full border border-slate-200 bg-white hover:bg-orange-50 text-slate-600 hover:text-orange-600 shadow-sm flex items-center justify-center transition active:scale-90" title="Trượt sang trái">
+                                    <i class="fa-solid fa-chevron-left text-xs"></i>
+                                </button>
+                                <button @click="scrollSimilarRight()" class="w-8 h-8 rounded-full border border-slate-200 bg-white hover:bg-orange-50 text-slate-600 hover:text-orange-600 shadow-sm flex items-center justify-center transition active:scale-90" title="Trượt xem tiếp sản phẩm">
+                                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <template x-for="sim in similarProductsList" :key="sim.id">
-                            <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between group">
-                                <div class="space-y-3">
-                                    <div class="h-44 rounded-xl overflow-hidden bg-slate-50 flex items-center justify-center p-2 relative">
-                                        <img :src="sim.image" :alt="sim.name" class="w-full h-full object-contain group-hover:scale-105 transition">
-                                        <span class="absolute top-2 left-2 bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">-15%</span>
-                                    </div>
-                                    <div>
-                                        <p class="text-[10px] text-brand-600 font-semibold uppercase tracking-wider" x-text="sim.category"></p>
-                                        <h4 class="font-bold text-xs sm:text-sm text-slate-800 line-clamp-2 mt-1 leading-snug hover:text-brand-600 cursor-pointer" @click="selectedProductDetailId = sim.id; mainProductImage = sim.image" x-text="sim.name"></h4>
-                                    </div>
+                    <!-- Product Carousel: Set thuộc tính hiển thị chính xác 4 thẻ sản phẩm (Product Card) nằm ngang trên cùng một hàng (desktop), kích hoạt trượt ngang (Horizontal scroll/Swipe) -->
+                    <div id="product-detail-similar-carousel" class="flex gap-4 overflow-x-auto scroll-smooth snap-x pb-3 pt-1 no-scrollbar hide-scrollbar">
+                        <template x-for="sim in similarProductsList" :key="'sim-' + sim.id">
+                            <div @click="openProductDetailPage(sim)" class="snap-start flex-shrink-0 w-[260px] sm:w-[calc(50%-8px)] md:w-[calc(33.333%-11px)] lg:w-[calc(25%-12px)] bg-white rounded-2xl p-3 border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-200 flex flex-col justify-between group cursor-pointer relative overflow-hidden">
+                                
+                                <!-- Ảnh thumbnail sản phẩm (bo góc, tỷ lệ 1:1) + Badge giảm giá & Giao nhanh 2h -->
+                                <div class="relative w-full aspect-square rounded-xl overflow-hidden bg-slate-50 flex items-center justify-center p-2">
+                                    <img :src="sim.image || sim.img" :alt="sim.name" class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300">
+                                    <span class="absolute top-2 left-2 bg-rose-600 text-white font-extrabold text-[10px] px-2 py-0.5 rounded-md shadow-sm" x-text="sim.discountPercent || '-15%'"></span>
+                                    <template x-if="sim.expressShip">
+                                        <span class="absolute top-2 right-2 bg-amber-400 text-slate-900 font-black text-[9px] px-1.5 py-0.5 rounded-md shadow-sm flex items-center gap-0.5">
+                                            <i class="fa-solid fa-bolt text-[8px]"></i> 2H
+                                        </span>
+                                    </template>
                                 </div>
-                                <div class="pt-3 mt-2 border-t border-slate-100 flex items-center justify-between">
+
+                                <!-- Cấu trúc Thẻ sản phẩm chuẩn: Tên sản phẩm tối đa 2 dòng (...), Số sao & Lượt mua, Giá khuyến mãi + gốc gạch ngang, Nút giỏ hàng -->
+                                <div class="pt-3 pb-1 space-y-1.5 flex-1 flex flex-col justify-between">
                                     <div>
-                                        <div class="text-sm font-extrabold text-orange-600" x-text="formatCurrency(sim.price)"></div>
-                                        <div class="text-[10px] text-slate-400 line-through" x-text="formatCurrency(sim.originalPrice)"></div>
+                                        <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider truncate" x-text="sim.brand || sim.category"></p>
+                                        <h4 class="text-xs sm:text-sm font-bold text-[#1E293B] line-clamp-2 leading-snug group-hover:text-[#F97316] transition" x-text="sim.name" :title="sim.name"></h4>
                                     </div>
-                                    <button @click="addToCart({ id: sim.id, name: sim.name, price: sim.price, image: sim.image, weight: '3kg', flavor: 'Vị chuẩn' })" class="p-2.5 rounded-xl bg-orange-50 text-orange-600 hover:bg-orange-500 hover:text-white transition font-bold" title="Thêm vào giỏ hàng">
-                                        <i class="fa-solid fa-cart-plus text-xs"></i>
-                                    </button>
+
+                                    <div>
+                                        <!-- Số sao đánh giá và lượt mua -->
+                                        <div class="flex items-center gap-1.5 text-xs text-slate-500 pt-1">
+                                            <div class="flex items-center text-amber-400 text-xs">
+                                                <i class="fa-solid fa-star"></i>
+                                                <span class="font-bold text-slate-800 ml-1" x-text="sim.rating || 5.0"></span>
+                                            </div>
+                                            <span class="text-slate-300">•</span>
+                                            <span class="text-[11px] text-slate-400" x-text="(sim.sold || 96) + ' đã bán'"></span>
+                                        </div>
+
+                                        <!-- Giá bán khuyến mãi (nổi bật, màu cam/đỏ) + Giá gốc gạch ngang + Nút Icon Giỏ hàng thao tác nhanh -->
+                                        <div class="pt-2 flex items-center justify-between border-t border-slate-100 mt-2">
+                                            <div>
+                                                <div class="text-sm sm:text-base font-extrabold text-[#F97316]" x-text="formatCurrency(sim.price)"></div>
+                                                <div class="text-[10px] text-slate-400 line-through font-medium" x-text="formatCurrency(sim.originalPrice || Math.round(sim.price * 1.25))"></div>
+                                            </div>
+                                            <button @click.stop="addToCart({ id: sim.id, name: sim.name, price: sim.price, image: sim.image || sim.img, weight: '3kg', flavor: 'Vị chuẩn' })" class="w-9 h-9 rounded-full bg-orange-50 text-[#F97316] hover:bg-[#F97316] hover:text-white transition flex items-center justify-center shadow-sm transform active:scale-90" title="Thêm vào giỏ hàng">
+                                                <i class="fa-solid fa-cart-plus text-xs"></i>
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </template>
@@ -2553,10 +2643,18 @@ CUSTOMER_HTML = """
                 <span>Đơn hàng</span>
                 <span x-show="customerOrdersEnhanced.length > 0" class="absolute top-0 right-1 w-2 h-2 bg-amber-500 rounded-full"></span>
             </button>
-            <button @click="activeCustomerTab = 'account'" :class="(activeCustomerTab === 'account' || activeCustomerTab === 'profile') ? 'text-brand-600 font-bold' : 'text-slate-500'" class="flex flex-col items-center p-1">
-                <i class="fa-solid fa-user-gear text-base mb-0.5"></i>
-                <span>Tài khoản</span>
-            </button>
+            <template x-if="isAuth">
+                <button @click="activeCustomerTab = 'account'" :class="(activeCustomerTab === 'account' || activeCustomerTab === 'profile') ? 'text-brand-600 font-bold' : 'text-slate-500'" class="flex flex-col items-center p-1">
+                    <i class="fa-solid fa-user-gear text-base mb-0.5"></i>
+                    <span>Tài khoản</span>
+                </button>
+            </template>
+            <template x-if="!isAuth">
+                <button @click="openLoginModal()" class="flex flex-col items-center p-1 text-slate-500 hover:text-brand-600">
+                    <i class="fa-solid fa-right-to-bracket text-base mb-0.5"></i>
+                    <span>Đăng nhập</span>
+                </button>
+            </template>
         </div>
     </div>
 """

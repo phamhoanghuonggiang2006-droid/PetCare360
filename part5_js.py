@@ -4,6 +4,9 @@ function superPetCareApp() {
     return {
         // Trạng thái xác thực & Điều hướng
         isLoggedIn: false, // Mặc định khi vào là Khách chưa đăng nhập
+        get isAuth() { return this.isLoggedIn; },
+        set isAuth(val) { this.isLoggedIn = val; },
+        get userToken() { return this.isLoggedIn ? 'mock-user-token-petcare-2026' : null; },
         currentRole: 'customer', // Mặc định hiển thị giao diện khách hàng
         activeCustomerTab: 'home', // 'home' | 'petshare' | 'shop' | 'booking' | 'orders' | 'profile' | 'faq' | 'legal'
         get currentTab() { return this.activeCustomerTab; },
@@ -42,6 +45,18 @@ function superPetCareApp() {
         shopCurrentPage: 1,
         shopPageSize: 12,
         hotelSubTab: 'cat', // 'cat' | 'dog'
+
+        // Fallback mock array gồm 8 object sản phẩm thú cưng chuẩn thiết kế
+        fallbackRelatedProducts: [
+            { id: 1, name: 'Thức Ăn Hạt Royal Canin Mini Adult (Chó Nhỏ)', brand: 'Royal Canin (Pháp)', category: 'Thức ăn & Dinh dưỡng', price: 360000, originalPrice: 420000, discountPercent: '-15%', rating: 4.9, sold: 1420, image: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&w=500&q=80', expressShip: true },
+            { id: 2, name: 'Hạt Royal Canin Kitten Dinh Dưỡng Toàn Diện Cho Mèo Con', brand: 'Royal Canin (Pháp)', category: 'Thức ăn & Dinh dưỡng', price: 395000, originalPrice: 480000, discountPercent: '-18%', rating: 5.0, sold: 1890, image: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=500&q=80', expressShip: true },
+            { id: 3, name: 'Thức Ăn Hạt Orijen Original Biologically Appropriate', brand: 'Orijen (Canada)', category: 'Thức ăn & Dinh dưỡng', price: 890000, originalPrice: 1100000, discountPercent: '-20%', rating: 4.9, sold: 530, image: 'https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?auto=format&fit=crop&w=500&q=80', expressShip: true },
+            { id: 4, name: 'Combo 12 Lon Pate Monge Hạt Bổ Dưỡng Cho Chó (Ý)', brand: 'Monge (Italy)', category: 'Thức ăn & Dinh dưỡng', price: 420000, originalPrice: 520000, discountPercent: '-20%', rating: 4.8, sold: 1120, image: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?auto=format&fit=crop&w=500&q=80', expressShip: true },
+            { id: 5, name: 'Pate Ciao Churu Cá Ngừ & Sò Điệp Bổ Sung Nước Cho Mèo (Gói 20 Thanh)', brand: 'Inaba Ciao (Nhật)', category: 'Thức ăn & Dinh dưỡng', price: 215000, originalPrice: 280000, discountPercent: '-23%', rating: 5.0, sold: 3400, image: 'https://images.unsplash.com/photo-1533738363-b7f9aef128ce?auto=format&fit=crop&w=500&q=80', expressShip: true },
+            { id: 6, name: 'Gel Dinh Dưỡng Bổ Sung Năng Lượng & Vitamin Nutri-plus Gel', brand: 'Virbac (Pháp)', category: 'Thức ăn & Dinh dưỡng', price: 295000, originalPrice: 350000, discountPercent: '-15%', rating: 5.0, sold: 2150, image: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=500&q=80', expressShip: true },
+            { id: 7, name: 'Cát Đậu Nành Tofu Cature Kháng Khuẩn Tự Nhiên (Hương Trà Xanh 6L)', brand: 'Cature (Mỹ)', category: 'Phụ kiện & Vệ sinh', price: 165000, originalPrice: 220000, discountPercent: '-25%', rating: 4.8, sold: 2890, image: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=500&q=80', expressShip: true },
+            { id: 8, name: 'Sữa Tắm Trị Nấm & Khử Mùi Hôi Cho Thú Cưng Davis Chlorhexidine 4%', brand: 'Davis (Mỹ)', category: 'Phụ kiện & Vệ sinh', price: 340000, originalPrice: 420000, discountPercent: '-20%', rating: 4.9, sold: 980, image: 'https://images.unsplash.com/photo-1535294435445-d7249524ef2e?auto=format&fit=crop&w=500&q=80', expressShip: true }
+        ],
         selectedProductDetailId: 1,
         mainProductImage: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&w=800&q=80',
         productThumbnails: [
@@ -2678,6 +2693,24 @@ function superPetCareApp() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         },
 
+        // CAROUSEL NAVIGATION SCROLL METHODS
+        scrollBestSellerLeft() {
+            const el = document.getElementById('homepage-bestseller-carousel');
+            if (el) el.scrollBy({ left: -320, behavior: 'smooth' });
+        },
+        scrollBestSellerRight() {
+            const el = document.getElementById('homepage-bestseller-carousel');
+            if (el) el.scrollBy({ left: 320, behavior: 'smooth' });
+        },
+        scrollSimilarLeft() {
+            const el = document.getElementById('product-detail-similar-carousel');
+            if (el) el.scrollBy({ left: -320, behavior: 'smooth' });
+        },
+        scrollSimilarRight() {
+            const el = document.getElementById('product-detail-similar-carousel');
+            if (el) el.scrollBy({ left: 320, behavior: 'smooth' });
+        },
+
         backToShopCatalog() {
             this.shopViewMode = 'catalog';
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2739,6 +2772,28 @@ function superPetCareApp() {
         get paginatedCatalogProducts() {
             const start = (this.shopCurrentPage - 1) * this.shopPageSize;
             return this.filteredCatalogProducts.slice(start, start + this.shopPageSize);
+        },
+
+        // GETTERS CHO CAROUSEL HOMEPAGE VÀ PRODUCT DETAIL
+        get bestSellingProducts() {
+            if (!this.products || this.products.length === 0) return this.fallbackRelatedProducts;
+            return [...this.products].sort((a, b) => (b.sold || 0) - (a.sold || 0)).slice(0, 8);
+        },
+
+        get similarProductsList() {
+            if (!this.products || this.products.length === 0) return this.fallbackRelatedProducts;
+            const curId = this.selectedProductDetailId;
+            const cur = this.currentProductDetail;
+            let list = this.products.filter(p => p.id !== curId);
+            if (cur && cur.category) {
+                const sameCat = list.filter(p => p.category === cur.category);
+                const diffCat = list.filter(p => p.category !== cur.category);
+                list = [...sameCat, ...diffCat];
+            }
+            if (list.length < 4) {
+                list = [...list, ...this.fallbackRelatedProducts];
+            }
+            return list.slice(0, 8);
         },
 
         // 2. DỊCH VỤ MATRIX & BOOKING HELPERS
