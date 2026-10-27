@@ -1065,7 +1065,7 @@ MODALS_HTML = '''<!-- ==================== CÁC MODAL HỆ THỐNG TOÀN DIỆN 
                 <template x-for="(item, idx) in cart" :key="idx">
                     <div class="p-3 rounded-2xl border transition-all" :class="item.isService && (!item.bookingDate || !item.selectedPet) ? 'border-amber-400 bg-amber-50/40' : 'border-slate-200 bg-white'">
                         <div class="flex items-center gap-3">
-                            <img :src="item.img || item.image" class="w-14 h-14 rounded-xl object-cover shrink-0">
+                            <img :src="item.image || item.img || getItemImage(item)" @error="$event.target.src='https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=300&q=80'" class="w-14 h-14 rounded-xl object-cover shrink-0">
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-1.5">
                                     <span class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded" :class="item.isService ? 'bg-teal-100 text-teal-800' : 'bg-blue-100 text-blue-800'" x-text="item.isService ? 'Dịch vụ' : 'Sản phẩm'"></span>
@@ -1939,7 +1939,7 @@ MODALS_HTML = '''<!-- ==================== CÁC MODAL HỆ THỐNG TOÀN DIỆN 
                 <div class="divide-y divide-slate-100 border border-slate-200 rounded-2xl p-3 bg-white">
                     <template x-for="(it, idx) in activeOrderSummary.items" :key="idx">
                         <div class="py-3 flex items-center gap-3 first:pt-0 last:pb-0">
-                            <img :src="it.image" class="w-12 h-12 rounded-xl object-cover border border-slate-200">
+                            <img :src="it.image || it.img || getItemImage(it)" @error="$event.target.src='https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=300&q=80'" class="w-12 h-12 rounded-xl object-cover border border-slate-200">
                             <div class="flex-1 min-w-0">
                                 <h5 class="font-bold text-xs text-slate-800 truncate" x-text="it.name"></h5>
                                 <p class="text-[11px] text-slate-400" x-text="'Biến thể: ' + it.variant + ' • SL: x' + it.qty"></p>

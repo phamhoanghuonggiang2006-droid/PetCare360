@@ -2206,7 +2206,7 @@ CUSTOMER_HTML = """
                             <div class="space-y-3">
                                 <template x-for="(item, iidx) in ord.items" :key="iidx">
                                     <div class="flex items-center gap-3 sm:gap-4">
-                                        <img :src="item.image" class="w-16 h-16 rounded-2xl object-cover border border-slate-200">
+                                        <img :src="item.image || item.img || getItemImage(item)" @error="$event.target.src='https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=300&q=80'" class="w-16 h-16 rounded-2xl object-cover border border-slate-200">
                                         <div class="flex-1 min-w-0">
                                             <h5 class="font-bold text-xs sm:text-sm text-slate-800 truncate" x-text="item.name"></h5>
                                             <p class="text-xs text-slate-400 mt-0.5" x-text="'Phân loại: ' + item.variant + ' | SL: x' + item.qty"></p>
@@ -2491,7 +2491,7 @@ CUSTOMER_HTML = """
                                             <tr class="hover:bg-slate-50/50">
                                                 <td class="py-3.5 px-2">
                                                     <div class="flex items-center gap-3">
-                                                        <img :src="item.image" class="w-12 h-12 rounded-xl object-cover border border-slate-200">
+                                                        <img :src="item.image || item.img || getItemImage(item)" @error="$event.target.src='https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=300&q=80'" class="w-12 h-12 rounded-xl object-cover border border-slate-200">
                                                         <span class="font-bold text-slate-900 line-clamp-1 max-w-[180px]" x-text="item.name"></span>
                                                     </div>
                                                 </td>
@@ -2989,7 +2989,7 @@ CUSTOMER_HTML = """
                                     <template x-for="(item, cidx) in cart" :key="cidx">
                                         <div class="flex items-center justify-between text-xs py-1 border-b border-slate-50">
                                             <div class="flex items-center gap-2.5">
-                                                <img :src="item.img || item.image || 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=200&q=80'" class="w-10 h-10 rounded-lg object-cover border border-slate-100 flex-shrink-0">
+                                                <img :src="item.image || item.img || getItemImage(item)" @error="$event.target.src='https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=300&q=80'" class="w-10 h-10 rounded-lg object-cover border border-slate-100 flex-shrink-0">
                                                 <div>
                                                     <p class="font-bold text-slate-800 line-clamp-1 max-w-[140px]" x-text="item.name"></p>
                                                     <div class="flex items-center gap-1.5 text-[11px] text-slate-400">
