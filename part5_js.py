@@ -2,6 +2,17 @@ JS_HTML = '''<!-- ==================== LOGIC XỬ LÝ DỮ LIỆU & ALPINE.JS ST
 <script>
 function superPetCareApp() {
     return {
+        init() {
+            if (typeof window !== 'undefined') {
+                const h = window.location.hash;
+                const s = window.location.search;
+                if (h === '#booking' || h === '#services' || h === '#dichvu' || s.includes('tab=booking')) {
+                    this.activeCustomerTab = 'booking';
+                }
+            }
+            this.syncPetBookingDetails(this.serviceBookingForm.petId);
+        },
+
         // Trạng thái xác thực & Điều hướng
         isLoggedIn: false, // Mặc định khi vào là Khách chưa đăng nhập
         get isAuth() { return this.isLoggedIn; },

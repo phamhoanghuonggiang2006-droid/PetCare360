@@ -40,7 +40,7 @@ CUSTOMER_HTML = """
                         <button @click="activeCustomerTab = 'shop'; shopViewMode = 'catalog';" :class="activeCustomerTab === 'shop' ? 'text-brand-700 bg-brand-50 font-bold' : 'text-slate-600 hover:text-brand-600 hover:bg-slate-50'" class="px-3 py-2 rounded-xl text-xs lg:text-sm transition flex items-center gap-1.5">
                             <i class="fa-solid fa-box-open"></i>Sản Phẩm
                         </button>
-                        <button @click="activeCustomerTab = 'booking'" :class="activeCustomerTab === 'booking' ? 'text-brand-700 bg-brand-50 font-bold' : 'text-slate-600 hover:text-brand-600 hover:bg-slate-50'" class="px-3 py-2 rounded-xl text-xs lg:text-sm transition flex items-center gap-1.5">
+                        <button @click="activeCustomerTab = 'booking'; syncPetBookingDetails(serviceBookingForm.petId)" :class="activeCustomerTab === 'booking' ? 'text-brand-700 bg-brand-50 font-bold' : 'text-slate-600 hover:text-brand-600 hover:bg-slate-50'" class="px-3 py-2 rounded-xl text-xs lg:text-sm transition flex items-center gap-1.5">
                             <i class="fa-solid fa-scissors"></i>Dịch Vụ
                         </button>
                         <button @click="activeCustomerTab = 'petshare'" :class="activeCustomerTab === 'petshare' ? 'text-brand-700 bg-brand-50 font-bold' : 'text-slate-600 hover:text-brand-600 hover:bg-slate-50'" class="px-3 py-2 rounded-xl text-xs lg:text-sm transition flex items-center gap-1.5 relative">
@@ -198,14 +198,14 @@ CUSTOMER_HTML = """
                         <h3 class="font-bold text-sm text-slate-800">Thức Ăn & Hạt</h3>
                         <p class="text-[11px] text-slate-400 mt-1">Dinh dưỡng nhập khẩu 100%</p>
                     </div>
-                    <div @click="activeCustomerTab = 'booking'; servicePricingTab = 'spa'" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:border-brand-300 hover:shadow-md transition cursor-pointer text-center group">
+                    <div @click="activeCustomerTab = 'booking'; servicePricingTab = 'grooming'; syncPetBookingDetails(serviceBookingForm.petId)" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:border-brand-300 hover:shadow-md transition cursor-pointer text-center group">
                         <div class="w-12 h-12 mx-auto rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition">
                             <i class="fa-solid fa-scissors"></i>
                         </div>
                         <h3 class="font-bold text-sm text-slate-800">Grooming & Spa</h3>
                         <p class="text-[11px] text-slate-400 mt-1">Quy trình 7 bước thư giãn</p>
                     </div>
-                    <div @click="activeCustomerTab = 'booking'; servicePricingTab = 'hotel'" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:border-brand-300 hover:shadow-md transition cursor-pointer text-center group">
+                    <div @click="activeCustomerTab = 'booking'; servicePricingTab = 'hotel'; syncPetBookingDetails(serviceBookingForm.petId)" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:border-brand-300 hover:shadow-md transition cursor-pointer text-center group">
                         <div class="w-12 h-12 mx-auto rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition">
                             <i class="fa-solid fa-hotel"></i>
                         </div>
