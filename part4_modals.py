@@ -1321,6 +1321,495 @@ MODALS_HTML = '''<!-- ==================== CÁC MODAL HỆ THỐNG TOÀN DIỆN 
         </div>
     </div>
 
+
+    <!-- ======================================================== -->
+    <!-- 20. POPUP MODAL THÔNG TIN CHI TIẾT THÚ CƯNG KHI ĐẶT LỊCH (800PX) -->
+    <!-- ======================================================== -->
+    <div x-show="showPetBookingDetailModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-[800px] w-full p-6 sm:p-8 shadow-2xl border border-slate-100 relative animate-fadeIn max-h-[92vh] overflow-y-auto space-y-6">
+            
+            <!-- Header Modal -->
+            <div class="flex items-center justify-between pb-4 border-b border-slate-200">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-notes-medical"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg sm:text-xl font-black text-slate-900">Phiếu Thông Tin Chi Tiết Dịch Vụ & Thú Cưng</h3>
+                        <p class="text-xs text-slate-500">Đồng bộ tự động từ Hồ sơ Pet & Cập nhật điều kiện phục vụ 5 Sao</p>
+                    </div>
+                </div>
+                <!-- Nút đóng (X) -->
+                <button @click="showPetBookingDetailModal = false" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+
+            <!-- CẤU TRÚC 2 PHẦN RÕ RÀNG -->
+
+            <!-- PHẦN A: THÔNG TIN CƠ BẢN (ĐIỀN TỰ ĐỘNG TỪ HỒ SƠ PET, CÓ ICON KHÓA) -->
+            <div class="space-y-4 bg-slate-50/70 p-5 rounded-2xl border border-slate-200">
+                <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+                    <h4 class="font-extrabold text-xs sm:text-sm text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-brand-600 text-white flex items-center justify-center text-[10px] font-bold">A</span>
+                        <span>Thông Tin Cơ Bản (Dữ Liệu Hệ Thống Đã Lưu)</span>
+                    </h4>
+                    <span class="text-[11px] text-slate-400 flex items-center gap-1">
+                        <i class="fa-solid fa-lock text-[10px]"></i> Dữ liệu hồ sơ y tế
+                    </span>
+                </div>
+
+                <!-- Tên pet, Loài, Giống -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                    <div>
+                        <label class="block text-slate-500 mb-1 flex items-center gap-1">
+                            <span>Tên thú cưng:</span>
+                            <i class="fa-solid fa-lock text-[10px] text-slate-400"></i>
+                        </label>
+                        <input type="text" :value="petBookingDetail.name" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-slate-500 mb-1 flex items-center gap-1">
+                            <span>Loài thú cưng:</span>
+                            <i class="fa-solid fa-lock text-[10px] text-slate-400"></i>
+                        </label>
+                        <input type="text" :value="petBookingDetail.species" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-slate-500 mb-1 flex items-center gap-1">
+                            <span>Giống loài:</span>
+                            <i class="fa-solid fa-lock text-[10px] text-slate-400"></i>
+                        </label>
+                        <input type="text" :value="petBookingDetail.breed" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold">
+                    </div>
+                </div>
+
+                <!-- Tuổi, Giới tính, Trạng thái triệt sản (Badge xác nhận) -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                    <div>
+                        <label class="block text-slate-500 mb-1 flex items-center gap-1">
+                            <span>Độ tuổi:</span>
+                            <i class="fa-solid fa-lock text-[10px] text-slate-400"></i>
+                        </label>
+                        <input type="text" :value="petBookingDetail.age" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-medium">
+                    </div>
+                    <div>
+                        <label class="block text-slate-500 mb-1 flex items-center gap-1">
+                            <span>Giới tính:</span>
+                            <i class="fa-solid fa-lock text-[10px] text-slate-400"></i>
+                        </label>
+                        <input type="text" :value="petBookingDetail.gender" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-medium">
+                    </div>
+                    <div>
+                        <label class="block text-slate-500 mb-1 flex items-center gap-1">
+                            <span>Triệt sản:</span>
+                            <i class="fa-solid fa-lock text-[10px] text-slate-400"></i>
+                        </label>
+                        <div class="pt-1">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-teal-100 text-teal-800 font-bold text-xs">
+                                <i class="fa-solid fa-shield-check text-xs"></i>
+                                <span>Đã triệt sản an toàn</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cân nặng thực tế (Input số bắt buộc) -> Gợi ý Size chuồng -->
+                <div class="p-3.5 bg-orange-50/70 rounded-2xl border border-orange-200 space-y-2">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <label class="text-xs font-bold text-slate-800 flex items-center gap-1">
+                            <span class="text-rose-500">*</span> Cân nặng thực tế của bé (kg):
+                        </label>
+                        <div class="flex items-center gap-2">
+                            <input type="number" step="0.1" min="0.5" max="80" x-model.number="petBookingDetail.weight" @input="onPetWeightChange()" class="w-24 bg-white border border-orange-300 rounded-xl px-3 py-1.5 font-extrabold text-orange-600 text-sm text-center focus:outline-none focus:ring-2 focus:ring-orange-500">
+                            <span class="text-xs font-bold text-slate-600">kg</span>
+                        </div>
+                    </div>
+                    <div class="text-xs text-orange-800 font-semibold flex items-center gap-2">
+                        <i class="fa-solid fa-lightbulb text-amber-500"></i>
+                        <span x-text="'Hệ thống gợi ý: ' + petBookingDetail.suggestedCage"></span>
+                    </div>
+                </div>
+
+                <!-- Checkbox xác nhận tiêm phòng + Khối xem ảnh Sổ tiêm đã tải lên -->
+                <div class="p-3.5 bg-white rounded-2xl border border-slate-200 space-y-3">
+                    <label class="flex items-center gap-2.5 cursor-pointer">
+                        <input type="checkbox" x-model="petBookingDetail.isVaccinated" class="rounded text-orange-500 focus:ring-orange-400 w-4 h-4">
+                        <span class="text-xs font-bold text-slate-800">Xác nhận bé đã tiêm phòng đủ mũi cơ bản (Dại & 7 bệnh có hiệu lực)</span>
+                    </label>
+                    <div class="flex items-center gap-3 pt-1">
+                        <img :src="petBookingDetail.vaccinePhoto" class="w-16 h-16 rounded-xl object-cover border border-slate-200 shadow-sm">
+                        <div class="text-xs">
+                            <p class="font-bold text-slate-800">Ảnh chụp sổ tiêm phòng định kỳ</p>
+                            <span class="text-[11px] text-slate-400">Đã kiểm duyệt bởi Bác sĩ Thú y PetCare360</span>
+                            <div class="pt-1">
+                                <a :href="petBookingDetail.vaccinePhoto" target="_blank" class="text-brand-600 font-bold hover:underline text-[11px]">Xem phóng to ảnh sổ tiêm</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bệnh lý nền / Dị ứng / Thuốc uống -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div>
+                        <label class="block text-slate-600 font-bold mb-1">Dị ứng hóa chất tắm / Hạt:</label>
+                        <input type="text" x-model="petBookingDetail.allergies" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-slate-600 font-bold mb-1">Thuốc đang uống & Lịch uống:</label>
+                        <input type="text" x-model="petBookingDetail.medicines" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- Chế độ ăn & Thói quen vệ sinh -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div>
+                        <label class="block text-slate-600 font-bold mb-1">Chế độ ăn:</label>
+                        <select x-model="petBookingDetail.dietChoice" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none">
+                            <option value="hotel">Sử dụng thức ăn Khách sạn (Hạt Royal Canin & Pate cao cấp)</option>
+                            <option value="self">Chủ tự mang hạt/pate riêng cho bé</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-slate-600 font-bold mb-1">Thói quen vệ sinh:</label>
+                        <select x-model="petBookingDetail.hygieneHabit" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none">
+                            <option value="walk">Dắt đi dạo sân cỏ tự nhiên ngoài trời</option>
+                            <option value="sand">Sử dụng khay cát vệ sinh (Mèo)</option>
+                            <option value="pad">Sử dụng đệm lót thấm hút trong phòng</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Tag đặc điểm tính cách (Chọn nhiều) -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                        Đặc điểm tính cách của bé (Chọn nhiều):
+                    </label>
+                    <div class="flex flex-wrap gap-2 text-xs">
+                        <button type="button" @click="togglePersonalityTag('Hòa đồng')" :class="petBookingDetail.personalityTags.includes('Hòa đồng') ? 'bg-orange-500 text-white font-bold' : 'bg-white border border-slate-200 text-slate-700 hover:border-slate-300'" class="px-3 py-1.5 rounded-xl transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-face-smile"></i>
+                            <span>[Hòa đồng]</span>
+                        </button>
+                        <button type="button" @click="togglePersonalityTag('Hay cắn/cào')" :class="petBookingDetail.personalityTags.includes('Hay cắn/cào') ? 'bg-rose-500 text-white font-bold' : 'bg-white border border-slate-200 text-slate-700 hover:border-slate-300'" class="px-3 py-1.5 rounded-xl transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-paw"></i>
+                            <span>[Hay cắn/cào]</span>
+                        </button>
+                        <button type="button" @click="togglePersonalityTag('Sợ tiếng sấy')" :class="petBookingDetail.personalityTags.includes('Sợ tiếng sấy') ? 'bg-amber-500 text-white font-bold' : 'bg-white border border-slate-200 text-slate-700 hover:border-slate-300'" class="px-3 py-1.5 rounded-xl transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-wind"></i>
+                            <span>[Sợ tiếng sấy]</span>
+                        </button>
+                        <button type="button" @click="togglePersonalityTag('Sợ người lạ')" :class="petBookingDetail.personalityTags.includes('Sợ người lạ') ? 'bg-indigo-500 text-white font-bold' : 'bg-white border border-slate-200 text-slate-700 hover:border-slate-300'" class="px-3 py-1.5 rounded-xl transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-user-ninja"></i>
+                            <span>[Sợ người lạ]</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PHẦN B: CHI TIẾT ĐẶT CHỖ (BẮT BUỘC NHẬP LẠI MỖI LẦN ĐẶT) -->
+            <div class="space-y-4 bg-orange-50/40 p-5 rounded-2xl border border-orange-200">
+                <div class="flex items-center justify-between pb-2 border-b border-orange-200">
+                    <h4 class="font-extrabold text-xs sm:text-sm text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-orange-500 text-white flex items-center justify-center text-[10px] font-bold">B</span>
+                        <span>Chi Tiết Đặt Chỗ (Bắt Buộc Nhập Mỗi Lần Đặt)</span>
+                    </h4>
+                    <span class="text-[11px] text-orange-600 font-semibold">* Yêu cầu nhập</span>
+                </div>
+
+                <!-- Picker chọn Ngày & Giờ check-in / check-out dự kiến -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                    <div>
+                        <label class="block text-slate-700 font-bold mb-1">Ngày & Giờ Check-in dự kiến:</label>
+                        <input type="datetime-local" x-model="petBookingDetail.checkInDateTime" class="w-full bg-white border border-orange-300 rounded-xl px-3 py-2 text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500">
+                    </div>
+                    <div>
+                        <label class="block text-slate-700 font-bold mb-1">Ngày & Giờ Check-out dự kiến:</label>
+                        <input type="datetime-local" x-model="petBookingDetail.checkOutDateTime" class="w-full bg-white border border-orange-300 rounded-xl px-3 py-2 text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500">
+                    </div>
+                </div>
+
+                <!-- Textarea: Ghi chú đặc biệt dành cho Nhân viên Spa/Bác sĩ -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                        Ghi chú đặc biệt cho Nhân viên Spa / Bác sĩ trực:
+                    </label>
+                    <textarea x-model="petBookingDetail.staffNotes" rows="2" placeholder="Ví dụ: Bé sợ tắm nước lạnh, vui lòng dùng nước ấm 37 độ và khen thưởng sau khi sấy..." class="w-full bg-white border border-orange-300 rounded-xl p-3 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500"></textarea>
+                </div>
+            </div>
+
+            <!-- Footer Modal: Hủy (Secondary) & Lưu & Cập Nhật Vào Đơn Hàng (Primary Cam) -->
+            <div class="pt-4 border-t border-slate-200 flex items-center justify-end gap-3">
+                <button type="button" @click="showPetBookingDetailModal = false" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">
+                    Hủy
+                </button>
+                <button type="button" @click="savePetBookingDetail()" class="px-6 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs transition shadow-lg shadow-orange-500/20">
+                    Lưu & Cập Nhật Vào Đơn Hàng
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- 21. MODAL CHI TIẾT ĐƠN HÀNG (100% TÓM TẮT TRANG THANH TOÁN THEO YÊU CẦU) -->
+    <!-- ======================================================== -->
+    <div x-show="showOrderSummaryModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-100 relative animate-fadeIn max-h-[92vh] overflow-y-auto space-y-6">
+            
+            <!-- Header Modal: Logo Petcare360 & Các Bước -->
+            <div class="flex items-center justify-between pb-4 border-b border-slate-200">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-teal-500 flex items-center justify-center text-white text-lg">
+                        <i class="fa-solid fa-paw"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-black text-slate-900 text-lg">PetCare360</span>
+                            <span class="text-xs bg-brand-50 text-brand-700 font-bold px-2 py-0.5 rounded-full" x-text="activeOrderSummary.orderCode"></span>
+                        </div>
+                        <p class="text-[11px] text-slate-400">Giỏ hàng > Thông tin giao hàng > Phương thức thanh toán</p>
+                    </div>
+                </div>
+                <button @click="showOrderSummaryModal = false" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+
+            <!-- CỘT THÔNG TIN GIAO HÀNG & PHƯƠNG THỨC THANH TOÁN -->
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-2">
+                <h4 class="font-extrabold text-slate-800 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                    <i class="fa-solid fa-location-dot text-brand-600"></i>Thông Tin Giao Hàng & Người Nhận
+                </h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-700">
+                    <p>• Họ tên: <strong x-text="activeOrderSummary.recipient ? activeOrderSummary.recipient.name : 'Nguyễn Hoàng Giang'"></strong></p>
+                    <p>• Số điện thoại: <strong x-text="activeOrderSummary.recipient ? activeOrderSummary.recipient.phone : '0909 123 456'"></strong></p>
+                    <p class="sm:col-span-2">• Địa chỉ chi tiết: <strong x-text="activeOrderSummary.recipient ? activeOrderSummary.recipient.address : '125 Hoàng Quốc Việt, Cầu Giấy, Hà Nội'"></strong></p>
+                    <p class="sm:col-span-2">• Phương thức thanh toán: <strong class="text-brand-600" x-text="activeOrderSummary.paymentMethod"></strong></p>
+                </div>
+            </div>
+
+            <!-- CỘT TÓM TẮT SẢN PHẨM -->
+            <div class="space-y-3">
+                <h4 class="font-extrabold text-xs text-slate-800 uppercase tracking-wider">Danh Sách Sản Phẩm Đã Mua</h4>
+                <div class="divide-y divide-slate-100 border border-slate-200 rounded-2xl p-3 bg-white">
+                    <template x-for="(it, idx) in activeOrderSummary.items" :key="idx">
+                        <div class="py-3 flex items-center gap-3 first:pt-0 last:pb-0">
+                            <img :src="it.image" class="w-12 h-12 rounded-xl object-cover border border-slate-200">
+                            <div class="flex-1 min-w-0">
+                                <h5 class="font-bold text-xs text-slate-800 truncate" x-text="it.name"></h5>
+                                <p class="text-[11px] text-slate-400" x-text="'Biến thể: ' + it.variant + ' • SL: x' + it.qty"></p>
+                            </div>
+                            <span class="font-bold text-xs text-slate-900" x-text="formatCurrency(it.price * it.qty)"></span>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- CHI TIẾT THANH TOÁN (TẠM TÍNH, SHIP, TỔNG CỘNG VNĐ) -->
+            <div class="p-4 bg-orange-50/50 rounded-2xl border border-orange-100 space-y-2 text-xs">
+                <div class="flex justify-between text-slate-600">
+                    <span>Tạm tính tiền hàng:</span>
+                    <span class="font-bold text-slate-800" x-text="formatCurrency(activeOrderSummary.total - 35000)"></span>
+                </div>
+                <div class="flex justify-between text-slate-600">
+                    <span>Phí vận chuyển PetShip:</span>
+                    <span class="font-bold text-slate-800">35.000 đ</span>
+                </div>
+                <div class="flex justify-between text-emerald-600 font-bold">
+                    <span>Mã giảm giá áp dụng:</span>
+                    <span>PETCARE30 (-30.000đ)</span>
+                </div>
+                <div class="flex justify-between text-base font-extrabold text-orange-600 pt-2 border-t border-orange-200">
+                    <span>Tổng cộng hóa đơn:</span>
+                    <span x-text="formatCurrency(activeOrderSummary.total)"></span>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="pt-2 text-right">
+                <button @click="showOrderSummaryModal = false" class="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition">
+                    Đóng Hóa Đơn
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- 22. MODAL ĐÁNH GIÁ SẢN PHẨM (CHỈ KHI ĐÃ GIAO / HOÀN THÀNH) -->
+    <!-- ======================================================== -->
+    <div x-show="showReviewModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 relative animate-fadeIn space-y-5">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <h3 class="font-extrabold text-base text-slate-900">Đánh Giá Sản Phẩm</h3>
+                <button @click="showReviewModal = false" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <!-- Chọn số sao tương tác -->
+            <div class="text-center space-y-1">
+                <span class="text-xs text-slate-500">Mức độ hài lòng của bạn:</span>
+                <div class="flex justify-center gap-2 text-2xl text-amber-400 pt-1">
+                    <template x-for="star in [1, 2, 3, 4, 5]" :key="star">
+                        <i @click="reviewForm.stars = star" :class="star <= reviewForm.stars ? 'fa-solid fa-star' : 'fa-regular fa-star'" class="cursor-pointer hover:scale-110 transition"></i>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Ô nhận xét -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Nhận xét chi tiết:</label>
+                <textarea x-model="reviewForm.comment" rows="3" placeholder="Chia sẻ cảm nhận về hạt thức ăn, độ mượt lông của bé cưng..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-orange-500"></textarea>
+            </div>
+
+            <!-- Tải hình ảnh thực tế -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Tải ảnh thực tế của bé cưng:</label>
+                <div class="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center cursor-pointer hover:bg-slate-50 transition">
+                    <i class="fa-solid fa-cloud-arrow-up text-slate-400 text-xl mb-1"></i>
+                    <p class="text-xs text-slate-500">Bấm để tải ảnh thực tế (PNG, JPG tối đa 5MB)</p>
+                </div>
+            </div>
+
+            <div class="pt-2 flex justify-end gap-2">
+                <button @click="showReviewModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition">Hủy</button>
+                <button @click="submitReview()" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs rounded-xl shadow transition">Gửi Đánh Giá</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- 23. MODAL YÊU CẦU TRẢ HÀNG / HOÀN TIỀN -->
+    <!-- ======================================================== -->
+    <div x-show="showRefundModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 relative animate-fadeIn space-y-5">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <h3 class="font-extrabold text-base text-slate-900">Yêu Cầu Trả Hàng & Hoàn Tiền</h3>
+                <button @click="showRefundModal = false" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-slate-700 font-bold mb-1">Lý do yêu cầu hoàn tiền:</label>
+                    <select x-model="refundForm.reason" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none">
+                        <option>Sản phẩm bị rách bao bì / đổ vỡ khi vận chuyển</option>
+                        <option>Giao sai biến thể (sai trọng lượng hoặc sai hương vị)</option>
+                        <option>Bé thú cưng bị dị ứng mẫn cảm với hạt</option>
+                        <option>Sản phẩm cận date sử dụng</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-slate-700 font-bold mb-1">Mô tả cụ thể vấn đề:</label>
+                    <textarea x-model="refundForm.description" rows="3" placeholder="Mô tả chi tiết tình trạng gói hàng nhận được..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-800 focus:outline-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-slate-700 font-bold mb-1">Hình ảnh/Video bằng chứng:</label>
+                    <div class="border-2 border-dashed border-rose-200 rounded-xl p-3 text-center bg-rose-50/40">
+                        <i class="fa-solid fa-camera text-rose-500 mb-1"></i>
+                        <span class="block text-slate-600 text-[11px]">Đính kèm ảnh chụp mã vận đơn và tình trạng bao bì</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-2 flex justify-end gap-2">
+                <button @click="showRefundModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition">Hủy</button>
+                <button @click="submitRefund()" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow transition">Gửi Yêu Cầu Hoàn Tiền</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- 24. MODAL XEM ẢNH POD XÁC NHẬN GIAO HÀNG -->
+    <!-- ======================================================== -->
+    <div x-show="showPODModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative animate-fadeIn space-y-4 text-center">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                <h4 class="font-extrabold text-sm text-slate-900">Bằng Chứng Giao Hàng Thành Công (POD)</h4>
+                <button @click="showPODModal = false" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+            <img :src="podModalData.image || 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=600&q=80'" class="w-full h-64 object-cover rounded-2xl border border-slate-200 shadow-md">
+            <div class="text-xs text-slate-600 space-y-1 text-left bg-slate-50 p-3 rounded-xl">
+                <p>• Mã đơn hàng: <strong x-text="podModalData.orderCode"></strong></p>
+                <p>• Shipper giao: <strong x-text="podModalData.shipper"></strong></p>
+                <p>• Thời gian ký nhận: <strong x-text="podModalData.time"></strong></p>
+            </div>
+            <button @click="showPODModal = false" class="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition">
+                Đóng
+            </button>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- 25. MODAL ĐỔI MẬT KHẨU TÀI KHOẢN -->
+    <!-- ======================================================== -->
+    <div x-show="showChangePasswordModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 relative animate-fadeIn space-y-4">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                <h4 class="font-extrabold text-sm text-slate-900">Đổi Mật Khẩu</h4>
+                <button @click="showChangePasswordModal = false" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-slate-600 mb-1 font-semibold">Mật khẩu hiện tại:</label>
+                    <input type="password" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-slate-600 mb-1 font-semibold">Mật khẩu mới:</label>
+                    <input type="password" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-slate-600 mb-1 font-semibold">Xác nhận mật khẩu mới:</label>
+                    <input type="password" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none">
+                </div>
+            </div>
+            <div class="pt-2 flex justify-end gap-2">
+                <button @click="showChangePasswordModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl">Hủy</button>
+                <button @click="changePassword()" class="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow">Lưu Mật Khẩu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- 26. MODAL THÊM ĐỊA CHỈ GIAO HÀNG MỚI -->
+    <!-- ======================================================== -->
+    <div x-show="showAddressModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative animate-fadeIn space-y-4">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                <h4 class="font-extrabold text-sm text-slate-900">Thêm Địa Chỉ Giao Hàng</h4>
+                <button @click="showAddressModal = false" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-slate-600 mb-1 font-semibold">Họ và tên người nhận:</label>
+                    <input type="text" x-model="addressForm.name" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-slate-600 mb-1 font-semibold">Số điện thoại:</label>
+                    <input type="tel" x-model="addressForm.phone" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-slate-600 mb-1 font-semibold">Địa chỉ chi tiết (Số nhà, đường, phường, quận):</label>
+                    <input type="text" x-model="addressForm.fullAddress" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none">
+                </div>
+                <label class="flex items-center gap-2 cursor-pointer pt-1">
+                    <input type="checkbox" x-model="addressForm.isDefault" class="rounded text-brand-600 focus:ring-brand-500 w-4 h-4">
+                    <span class="text-slate-700 font-semibold">Đặt làm địa chỉ nhận hàng mặc định</span>
+                </label>
+            </div>
+            <div class="pt-2 flex justify-end gap-2">
+                <button @click="showAddressModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl">Hủy</button>
+                <button @click="saveAddressForm()" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs rounded-xl shadow">Lưu Địa Chỉ</button>
+            </div>
+        </div>
+    </div>
+
 </div>
 <!-- ==================== HẾT CÁC MODAL HỆ THỐNG ==================== -->
 '''

@@ -31,6 +31,291 @@ function superPetCareApp() {
 
         // Bộ lọc & Tìm kiếm Khách hàng & Admin
         searchQuery: '',
+        // ==================== 1. SẢN PHẨM & E-COMMERCE DETAIL ====================
+        selectedProductDetailId: 1,
+        mainProductImage: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&w=800&q=80',
+        productThumbnails: [
+            'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&w=400&q=80',
+            'https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?auto=format&fit=crop&w=400&q=80',
+            'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=400&q=80',
+            'https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=400&q=80'
+        ],
+        selectedWeight: '3kg',
+        selectedFlavor: 'Vị Cá Hồi',
+        productDetailQty: 1,
+        productDetailTab: 'desc', // 'desc' | 'feeding' | 'reviews'
+        reviewFilterPhotosOnly: false,
+        productReviewsList: [
+            { id: 1, user: 'Nguyễn Văn Minh', avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80', rating: 5, date: '25/10/2026', variant: '3kg - Vị Cá Hồi', comment: 'Hạt thơm ngậy, cún nhà mình rất thích. Lông mượt hơn rõ sau 2 tuần sử dụng. Giao hàng PetShip360 chỉ 1 tiếng là tới!', photo: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=400&q=80', verified: true },
+            { id: 2, user: 'Trần Thị Thu Hà', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80', rating: 5, date: '20/10/2026', variant: '1kg - Vị Thịt Bò', comment: 'Bao bì zip đóng kín bảo quản tốt. Viên hạt vừa miệng không bị vụn bở, bé ăn sạch bát!', photo: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=400&q=80', verified: true },
+            { id: 3, user: 'Lê Hoàng Nam', avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80', rating: 4.8, date: '15/10/2026', variant: '10kg - Vị Cá Hồi', comment: 'Mua bao 10kg tiết kiệm được nhiều. Hàng chính hãng 100% có tem kiểm định y tế đầy đủ.', photo: '', verified: true }
+        ],
+
+        // ==================== 2. DỊCH VỤ & PRICING MATRIX & BOOKING ====================
+        servicePricingTab: 'grooming', // 'grooming' | 'hotel' | 'vaccine'
+        pricingMatrixData: {
+            grooming: [
+                { name: 'Cắt Tỉa Lông & Tạo Kiểu Chuẩn Hàn', duration: '60 - 90 phút', steps: '5 bước: Vệ sinh tai móng, vắt tuyến hôi, tắm thảo dược, sấy ion âm, tạo phom', priceS: 250000, priceM: 350000, priceL: 480000, priceXL: 650000 },
+                { name: 'Tắm Trị Liệu Trị Nấm & Viêm Da', duration: '45 - 60 phút', steps: '4 bước: Ngâm bồn dược thảo Davis 4%, sấy lạnh dịu nhẹ, xịt nano bạc', priceS: 220000, priceM: 300000, priceL: 420000, priceXL: 580000 },
+                { name: 'Gói Spa Toàn Diện Thư Giãn Tinh Dầu', duration: '90 - 120 phút', steps: '7 bước chuyên sâu: Massage bấm huyệt, ngâm sục Jacuzzi, dưỡng lông tơ', priceS: 320000, priceM: 450000, priceL: 600000, priceXL: 790000 }
+            ],
+            hotel: [
+                { name: 'Phòng Deluxe Tiêu Chuẩn', duration: 'Theo ngày (24h)', steps: 'Chuồng inox 304 kháng khuẩn, đệm êm, khay vệ sinh riêng, camera 24/7', priceS: 180000, priceM: 260000, priceL: 360000, priceXL: 480000 },
+                { name: 'Phòng Suite VIP Có Ban Công', duration: 'Theo ngày (24h)', steps: 'Không gian kính cách âm, điều hòa 2 chiều 26°C, sân cỏ vận động 2 lần/ngày', priceS: 280000, priceM: 380000, priceL: 500000, priceXL: 680000 },
+                { name: 'Penthouse Đẳng Cấp Thượng Lưu', duration: 'Theo ngày (24h)', steps: 'Phòng 15m² kèm bảo mẫu riêng, menu cá hồi tươi 2 bữa, video call với chủ', priceS: 450000, priceM: 600000, priceL: 780000, priceXL: 990000 }
+            ],
+            vaccine: [
+                { name: 'Vắc-xin 7 Bệnh Nhập Khẩu Pháp', duration: '30 phút', steps: 'Khám sàng lọc lâm sàng miễn phí, đo thân nhiệt, tiêm bắp không đau, dán tem sổ', priceS: 220000, priceM: 220000, priceL: 220000, priceXL: 220000 },
+                { name: 'Home Visit Khám & Tiêm Tận Nhà', duration: '45 phút', steps: 'Bác sĩ thú y mang vali dụng cụ chuyên khoa đến nhà, cấp sổ theo dõi điện tử', priceS: 350000, priceM: 380000, priceL: 420000, priceXL: 480000 },
+                { name: 'Xét Nghiệm Máu 18 Chỉ Số Nhanh', duration: '20 phút', steps: 'Lấy máu xét nghiệm máy tự động Mindray, trả kết quả & phác đồ dinh dưỡng', priceS: 450000, priceM: 450000, priceL: 450000, priceXL: 450000 }
+            ]
+        },
+        serviceBookingForm: {
+            serviceName: 'Gói Spa & Grooming Cắt Tỉa Lông Toàn Diện',
+            petId: 1,
+            branch: 'Chi nhánh Quận 7 (450 Nguyễn Thị Thập, P. Tân Quy, Q7, TP.HCM)',
+            date: '2026-10-28',
+            slot: '09:30',
+            slots: [
+                { time: '08:30', status: 'available', label: 'Còn rảnh' },
+                { time: '09:30', status: 'available', label: 'Còn rảnh' },
+                { time: '10:30', status: 'full', label: 'Đã đầy' },
+                { time: '14:00', status: 'available', label: 'Còn rảnh' },
+                { time: '15:30', status: 'available', label: 'Còn rảnh' },
+                { time: '17:00', status: 'full', label: 'Đã đầy' },
+                { time: '18:30', status: 'available', label: 'Còn rảnh' }
+            ],
+            addons: ['massage'],
+            needPetShip: true,
+            petShipAddress: '125 Hoàng Quốc Việt, Cầu Giấy, Hà Nội',
+            specialNotes: 'Bé sợ tiếng máy sấy to, cần làm nhẹ nhàng vùng tai.'
+        },
+
+        // ==================== 3. POPUP MODAL THÔNG TIN CHI TIẾT THÚ CƯNG (800PX) ====================
+        showPetBookingDetailModal: false,
+        petBookingDetail: {
+            petId: 1,
+            name: 'Bơ',
+            species: 'Chó',
+            breed: 'Corgi Vàng Trắng',
+            age: '2 tuổi',
+            gender: 'Đực',
+            isNeutered: true,
+            weight: 5.8,
+            suggestedCage: 'Size M (Phù hợp cún 5-10kg, chuồng 80x60x70cm)',
+            isVaccinated: true,
+            vaccinePhoto: 'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?auto=format&fit=crop&w=400&q=80',
+            conditions: 'Không có tiền sử bệnh nền mãn tính',
+            allergies: 'Dị ứng hạt ngũ cốc độn, mẫn cảm hải sản',
+            medicines: 'Viên uống bổ sung canxi (08:00 sáng sau ăn)',
+            dietChoice: 'hotel', // 'self' | 'hotel'
+            hygieneHabit: 'walk', // 'tray' | 'pad' | 'walk'
+            personalityTags: ['Hòa đồng', 'Sợ tiếng sấy'],
+            checkIn: '2026-10-28T09:00',
+            checkOut: '2026-10-29T17:00',
+            specialStaffNotes: 'Bé ăn chậm, nhớ xoa đầu khen ngợi khi bé ăn hết bát.'
+        },
+
+        // ==================== 4. PETSHARE360 SOCIAL FEED ====================
+        socialNotificationsOpen: false,
+        socialActiveMenu: 'all', // 'all' | 'my_posts' | 'vet_tips' | 'streak'
+        newPostText: '',
+        newPostMedia: '',
+        newPostPetId: 1,
+        streakDays: 12,
+        socialNotifications: [
+            { id: 1, user: 'Bs. Trần Thu Hà', avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=150&q=80', text: 'đã trả lời bình luận của bạn trong bài viết về Dinh dưỡng cho Corgi', time: '10 phút trước', read: false },
+            { id: 2, user: 'Hoàng Minh Đức', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80', text: 'đã thả tim bài đăng của bạn', time: '35 phút trước', read: false },
+            { id: 3, user: 'Lê Thị Mai', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80', text: 'đã nhắc đến bạn trong một bình luận: #PoodleSàiGòn', time: '2 giờ trước', read: true }
+        ],
+        socialPosts: [
+            {
+                id: 1,
+                author: 'Nguyễn Hoàng Giang',
+                petName: 'Bé Bơ',
+                breed: 'Corgi Vàng Trắng',
+                avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
+                time: '15 phút trước',
+                content: 'Hôm nay dẫn bé Bơ đi spa tạo phom mông trái tim tại PetCare360 về cưng xỉu luôn mọi người ơi! Các bác sĩ và KTV siêu nhẹ nhàng, bé về thơm tho không hề bị stress #PoodleSàiGòn #CorgiĐángYêu #KinhNghiệmTắmPet',
+                images: [
+                    'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=600&q=80',
+                    'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?auto=format&fit=crop&w=600&q=80'
+                ],
+                likes: 42,
+                isLiked: false,
+                shares: 6,
+                comments: [
+                    { id: 1, user: 'Bs. Trần Thu Hà', avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=150&q=80', text: 'Bé Bơ hợp tác lắm nè mẹ Giang ơi, chúc bé luôn khỏe mạnh nhé!', time: '10 phút trước' },
+                    { id: 2, user: 'Hoàng Minh Đức', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80', text: 'Nhìn quả mông tròn xoe mê quá bác!', time: '5 phút trước' }
+                ]
+            },
+            {
+                id: 2,
+                author: 'Lê Thị Mai',
+                petName: 'Bé Lu',
+                breed: 'Poodle Nâu Đỏ',
+                avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80',
+                time: '2 giờ trước',
+                content: 'Góc chia sẻ kinh nghiệm cho các sen có pet hay kén ăn: Mình đổi sang hạt Royal Canin kết hợp pate cá hồi sấy lạnh của PetCare360 được 1 tuần nay, trộm vía Lu ăn hết vèo không chừa một hạt! #MẹoChămSóc #PoodleSàiGòn',
+                images: [
+                    'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=600&q=80'
+                ],
+                likes: 68,
+                isLiked: true,
+                shares: 11,
+                comments: [
+                    { id: 1, user: 'Phạm Quỳnh Anh', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80', text: 'Dòng này hạt mềm vừa răng cún nhỏ, bé nhà mình cũng mê tít!', time: '1 giờ trước' }
+                ]
+            },
+            {
+                id: 3,
+                author: 'Hoàng Minh Đức',
+                petName: 'Bông Lan',
+                breed: 'Mèo Anh Lông Ngắn',
+                avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
+                time: '4 giờ trước',
+                content: 'Gửi Bông Lan ở Pet Hotel 5 sao 3 ngày đi công tác mà nhìn camera live stream thấy bé được nằm phòng điều hòa chơi cầu trượt VIP sướng hơn ở nhà nữa haha #MèoAnhLôngNgắn #PetHotel5Sao',
+                images: [
+                    'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=600&q=80',
+                    'https://images.unsplash.com/photo-1533738363-b7f9aef128ce?auto=format&fit=crop&w=600&q=80'
+                ],
+                likes: 95,
+                isLiked: false,
+                shares: 14,
+                comments: []
+            }
+        ],
+
+        // ==================== 5. PETSHOW360 CAMERA LIVE ====================
+        hasActiveLiveOrder: true,
+        activeLiveZone: 'dog', // 'dog' | 'cat' | 'play'
+        liveCameraAngle: 0,
+        isLiveFullscreen: false,
+        dailyCareTimeline: [
+            { time: '08:00 AM', status: 'completed', title: 'Cho ăn sáng (Hạt Royal Canin 50g)', staff: 'KTV. Nguyễn Lan', photo: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&w=400&q=80' },
+            { time: '10:00 AM', status: 'completed', title: 'Dắt đi dạo khu sân cỏ & Vệ sinh', staff: 'KTV. Trần Nam', photo: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?auto=format&fit=crop&w=400&q=80' },
+            { time: '02:00 PM', status: 'in_progress', title: 'Tắm sấy dưỡng lông & Cắt tỉa móng', staff: 'BS. Lê Minh', photo: 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&w=400&q=80' },
+            { time: '05:00 PM', status: 'pending', title: 'Cho ăn tối & Vệ sinh buồng ngủ', staff: 'KTV. Nguyễn Lan', photo: '' }
+        ],
+
+        // ==================== 6. ĐƠN HÀNG DASHBOARD & ACTIONS ====================
+        orderFilterStatus: 'all', // 'all' | 'pending' | 'packing' | 'shipping' | 'delivered' | 'cancelled'
+        selectedOrderForDetail: null,
+        showOrderSummaryModal: false,
+        showReviewModal: false,
+        reviewOrderData: { orderId: null, productName: '', rating: 5, comment: '', photos: [] },
+        showRefundModal: false,
+        refundOrderData: { orderId: null, reason: 'Sản phẩm lỗi/hư hỏng khi vận chuyển', details: '', evidence: '' },
+        showPODModal: false,
+        currentPOD: { photo: '', shipper: '', phone: '', time: '' },
+        customerOrdersEnhanced: [
+            {
+                id: 'ORD-8891',
+                orderCode: '#157817',
+                date: '27/10/2026',
+                status: 'shipping',
+                statusText: 'Đang giao hàng',
+                badgeColor: 'bg-indigo-100 text-indigo-800 border-indigo-200',
+                paymentMethod: 'COD - Tiền mặt khi nhận hàng',
+                paymentStatus: 'Chờ thanh toán khi nhận',
+                shipper: { name: 'Nguyễn Văn Hùng', phone: '0988 777 666' },
+                recipient: { name: 'Nguyễn Hoàng Giang', phone: '0909 123 456', address: '125 Hoàng Quốc Việt, P. Nghĩa Đô, Q. Cầu Giấy, Hà Nội' },
+                items: [
+                    { name: 'Thức Ăn Hạt Royal Canin Mini Adult (Chó Nhỏ)', variant: '3kg - Vị Cá Hồi', qty: 1, price: 520000, img: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&w=200&q=80' },
+                    { name: 'Gel Dinh Dưỡng Nutri-plus Gel', variant: 'Tuýp 120g', qty: 1, price: 165000, img: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=200&q=80' }
+                ],
+                subtotal: 685000,
+                shippingFee: 35000,
+                discount: 0,
+                total: 720000
+            },
+            {
+                id: 'ORD-8892',
+                orderCode: '#157642',
+                date: '24/10/2026',
+                status: 'delivered',
+                statusText: 'Đã giao / Hoàn thành',
+                badgeColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                paymentMethod: 'Chuyển khoản VietQR',
+                paymentStatus: 'Đã thanh toán',
+                shipper: { name: 'Trần Thanh Phong', phone: '0912 345 678' },
+                podPhoto: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=600&q=80',
+                recipient: { name: 'Nguyễn Hoàng Giang', phone: '0909 123 456', address: '125 Hoàng Quốc Việt, P. Nghĩa Đô, Q. Cầu Giấy, Hà Nội' },
+                items: [
+                    { name: 'Cát Đậu Nành Tofu Cature Kháng Khuẩn Tự Nhiên', variant: 'Hương Trà Xanh 6L', qty: 2, price: 145000, img: 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=200&q=80' },
+                    { name: 'Sữa Tắm Trị Nấm Davis 4%', variant: 'Chai 355ml', qty: 1, price: 235000, img: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=200&q=80' }
+                ],
+                subtotal: 525000,
+                shippingFee: 0,
+                discount: 0,
+                total: 525000
+            },
+            {
+                id: 'ORD-8893',
+                orderCode: '#157520',
+                date: '22/10/2026',
+                status: 'packing',
+                statusText: 'Đang đóng gói',
+                badgeColor: 'bg-blue-100 text-blue-800 border-blue-200',
+                paymentMethod: 'Ví điện tử MoMo',
+                paymentStatus: 'Đã thanh toán',
+                recipient: { name: 'Nguyễn Hoàng Giang', phone: '0909 123 456', address: '125 Hoàng Quốc Việt, Cầu Giấy, Hà Nội' },
+                items: [
+                    { name: 'Thức Ăn Hạt Orijen Original Biologically Appropriate', variant: '3kg - Vị Gà & Cá', qty: 1, price: 680000, img: 'https://images.unsplash.com/photo-1608408891486-e547372c3d82?auto=format&fit=crop&w=200&q=80' }
+                ],
+                subtotal: 680000,
+                shippingFee: 0,
+                discount: 0,
+                total: 680000
+            },
+            {
+                id: 'ORD-8894',
+                orderCode: '#157401',
+                date: '18/10/2026',
+                status: 'pending',
+                statusText: 'Chờ xác nhận',
+                badgeColor: 'bg-amber-100 text-amber-800 border-amber-200',
+                paymentMethod: 'Chuyển khoản VietQR',
+                paymentStatus: 'Đã thanh toán',
+                recipient: { name: 'Nguyễn Hoàng Giang', phone: '0909 123 456', address: 'Chi nhánh Quận 7 (Tiếp nhận tại viện)' },
+                items: [
+                    { name: 'Gói Spa & Grooming Cắt Tỉa Lông Toàn Diện', variant: 'Bé Bơ (Corgi 5.8kg)', qty: 1, price: 350000, img: 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&w=200&q=80' }
+                ],
+                subtotal: 350000,
+                shippingFee: 0,
+                discount: 0,
+                total: 350000
+            }
+        ],
+
+        // ==================== 7. GIỎ HÀNG 5 BƯỚC ====================
+        cartStep: 1, // 1: Giỏ hàng, 2: Giao hàng, 3: Thanh toán, 4: Thành công, 5: Lịch sử đơn hàng
+        cartNotes: '',
+        couponCode: '',
+        discountAmount: 0,
+        deliveryMethod: 'door', // 'door' | 'store'
+        shippingFee: 35000,
+        checkoutShippingForm: {
+            country: 'Việt Nam',
+            name: 'Nguyễn Hoàng Giang',
+            phone: '0909 123 456',
+            address: '125 Hoàng Quốc Việt',
+            city: 'Hà Nội',
+            district: 'Cầu Giấy',
+            ward: 'Nghĩa Đô'
+        },
+        paymentMethod: 'bank', // 'bank' | 'momo' | 'atm'
+        completedOrderNumber: '#157817',
+        completedOrderDate: '27/10/2026',
+
+        // ==================== 8. TÀI KHOẢN SAAS DASHBOARD ====================
+        accountActiveTab: 'info', // 'info' | 'tier' | 'pets' | 'addresses'
+        showChangePasswordModal: false,
+        changePasswordForm: { current: '', newPass: '', confirm: '' },
+        showAddressModal: false,
+        editingAddress: null,
+        addressForm: { id: null, label: 'Nhà riêng', receiver: 'Nguyễn Hoàng Giang', phone: '0909 123 456', fullAddress: '125 Hoàng Quốc Việt, P. Nghĩa Đô, Q. Cầu Giấy, Hà Nội', isDefault: true },
+
         filterCategory: 'all', // 'all' | 'Thức ăn & Dinh dưỡng' | 'Phụ kiện & Vệ sinh' | 'Thuốc & Y tế'
         filterServiceCategory: 'all', // 'all' | 'Y Tế & Chăm Sóc Sức Khỏe' | 'Cấp Cứu & Điều Trị Chuyên Sâu' | 'Spa & Làm Đẹp' | 'Lưu Trú & Tiện Ích'
         serviceSearchQuery: '',
@@ -2183,6 +2468,411 @@ function superPetCareApp() {
         refreshChart() {
             alert('Đã cập nhật số liệu biểu đồ phân tích thời gian thực!');
             this.renderRevenueChart();
+        },
+
+        
+        // ==================== METHOD HELPERS MỚI ====================
+        
+        // 1. SẢN PHẨM DETAIL HELPERS
+        selectProductForDetail(prod) {
+            this.selectedProductDetailId = prod.id;
+            this.mainProductImage = prod.image || prod.img;
+            this.productDetailQty = 1;
+            this.activeCustomerTab = 'shop';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+
+        get currentProductDetail() {
+            return this.products.find(p => p.id === this.selectedProductDetailId) || this.products[0];
+        },
+
+        get currentProductDetailPrice() {
+            const base = this.currentProductDetail.price || 395000;
+            if (this.selectedWeight === '1kg') return Math.round(base * 0.5);
+            if (this.selectedWeight === '3kg') return base;
+            if (this.selectedWeight === '10kg') return Math.round(base * 2.8);
+            return base;
+        },
+
+        get currentProductOriginalPrice() {
+            return Math.round(this.currentProductDetailPrice * 1.25);
+        },
+
+        incProductQty() {
+            this.productDetailQty++;
+        },
+
+        decProductQty() {
+            if (this.productDetailQty > 1) this.productDetailQty--;
+        },
+
+        addProductDetailToCart() {
+            const prod = this.currentProductDetail;
+            const item = {
+                id: 'PD-' + prod.id + '-' + this.selectedWeight + '-' + this.selectedFlavor,
+                name: prod.name,
+                variant: this.selectedWeight + ' - ' + this.selectedFlavor,
+                price: this.currentProductDetailPrice,
+                img: this.mainProductImage,
+                qty: this.productDetailQty,
+                isService: false
+            };
+            const existing = this.cart.find(i => i.id === item.id);
+            if (existing) {
+                existing.qty += item.qty;
+            } else {
+                this.cart.push(item);
+            }
+            alert('🎉 Đã thêm ' + item.qty + ' sản phẩm "' + item.name + ' (' + item.variant + ')" vào giỏ hàng!');
+        },
+
+        buyNowProductDetail() {
+            this.addProductDetailToCart();
+            this.activeCustomerTab = 'cart';
+            this.cartStep = 2;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+
+        // 2. DỊCH VỤ MATRIX & BOOKING HELPERS
+        get currentServiceBookingCost() {
+            let base = 350000;
+            const pet = this.pets.find(p => p.id === Number(this.serviceBookingForm.petId)) || this.pets[0];
+            const w = pet ? Number(pet.weight) || 5 : 5;
+            if (w < 5) base = 250000;
+            else if (w <= 10) base = 350000;
+            else if (w <= 20) base = 480000;
+            else base = 650000;
+
+            let addonsCost = 0;
+            if (this.serviceBookingForm.addons.includes('massage')) addonsCost += 50000;
+            if (this.serviceBookingForm.addons.includes('detangle')) addonsCost += 80000;
+            if (this.serviceBookingForm.addons.includes('walk')) addonsCost += 60000;
+
+            let shipCost = this.serviceBookingForm.needPetShip ? 50000 : 0;
+            return base + addonsCost + shipCost;
+        },
+
+        toggleServiceAddon(addonId) {
+            const idx = this.serviceBookingForm.addons.indexOf(addonId);
+            if (idx > -1) this.serviceBookingForm.addons.splice(idx, 1);
+            else this.serviceBookingForm.addons.push(addonId);
+        },
+
+        addServiceBookingToCart() {
+            const pet = this.pets.find(p => p.id === Number(this.serviceBookingForm.petId)) || this.pets[0];
+            const bookingItem = {
+                id: 'SERV-BOOK-' + Date.now(),
+                name: this.serviceBookingForm.serviceName,
+                variant: (pet ? pet.name : 'Thú cưng') + ' (' + this.serviceBookingForm.slot + ' ' + this.serviceBookingForm.date + ')',
+                price: this.currentServiceBookingCost,
+                img: 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&w=400&q=80',
+                qty: 1,
+                isService: true,
+                bookingDetails: {
+                    petName: pet ? pet.name : 'Bơ',
+                    branch: this.serviceBookingForm.branch,
+                    date: this.serviceBookingForm.date,
+                    slot: this.serviceBookingForm.slot,
+                    addons: [...this.serviceBookingForm.addons],
+                    needPetShip: this.serviceBookingForm.needPetShip,
+                    petShipAddress: this.serviceBookingForm.petShipAddress,
+                    notes: this.serviceBookingForm.specialNotes
+                }
+            };
+            this.cart.push(bookingItem);
+            this.activeCustomerTab = 'cart';
+            this.cartStep = 2;
+            alert('🎉 Đã thêm lịch hẹn dịch vụ vào đơn hàng! Chuyển sang bước xác nhận thông tin thanh toán.');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+
+        // 3. POPUP MODAL THÔNG TIN CHI TIẾT THÚ CƯNG (800PX)
+        openPetBookingDetailModal(petId) {
+            const pet = this.pets.find(p => p.id === petId) || this.pets[0];
+            if (pet) {
+                this.petBookingDetail.petId = pet.id;
+                this.petBookingDetail.name = pet.name;
+                this.petBookingDetail.species = pet.species || pet.type || 'Chó';
+                this.petBookingDetail.breed = pet.breed || 'Corgi';
+                this.petBookingDetail.age = pet.age || '2 tuổi';
+                this.petBookingDetail.gender = pet.gender || 'Đực';
+                this.petBookingDetail.isNeutered = true;
+                this.petBookingDetail.weight = Number(pet.weight) || 5.8;
+                this.onPetWeightChange();
+                this.petBookingDetail.conditions = pet.health || 'Khỏe mạnh bình thường';
+                this.petBookingDetail.allergies = pet.allergies || 'Không dị ứng';
+            }
+            this.showPetBookingDetailModal = true;
+        },
+
+        onPetWeightChange() {
+            const w = Number(this.petBookingDetail.weight) || 0;
+            if (w < 5) this.petBookingDetail.suggestedCage = 'Size S (Phù hợp cún/mèo dưới 5kg, chuồng 60x45x50cm)';
+            else if (w <= 10) this.petBookingDetail.suggestedCage = 'Size M (Phù hợp cún 5-10kg, chuồng 80x60x70cm)';
+            else if (w <= 20) this.petBookingDetail.suggestedCage = 'Size L (Phù hợp cún 10-20kg, chuồng 100x75x85cm)';
+            else this.petBookingDetail.suggestedCage = 'Size XL (Phù hợp cún lớn trên 20kg, phòng Penthouse 120x90x100cm)';
+        },
+
+        togglePersonalityTag(tag) {
+            const idx = this.petBookingDetail.personalityTags.indexOf(tag);
+            if (idx > -1) this.petBookingDetail.personalityTags.splice(idx, 1);
+            else this.petBookingDetail.personalityTags.push(tag);
+        },
+
+        savePetBookingDetail() {
+            this.showPetBookingDetailModal = false;
+            alert('🎉 ĐÃ CẬP NHẬT PHIẾU THÔNG TIN THÚ CƯNG! Hồ sơ dịch vụ của bé ' + this.petBookingDetail.name + ' (' + this.petBookingDetail.suggestedCage + ') đã được đồng bộ vào đơn hàng.');
+        },
+
+        // 4. PETSHARE360 SOCIAL HELPERS
+        createSocialPost() {
+            if (!this.newPostText.trim() && !this.newPostMedia) {
+                alert('Vui lòng nhập nội dung hoặc thêm ảnh/video bài viết!');
+                return;
+            }
+            const pet = this.pets.find(p => p.id === Number(this.newPostPetId)) || this.pets[0];
+            const post = {
+                id: Date.now(),
+                author: this.customerProfile.name,
+                petName: pet ? pet.name : 'Bé Cưng',
+                breed: pet ? pet.breed : 'Thú cưng',
+                avatar: this.customerProfile.avatar,
+                time: 'Vừa xong',
+                content: this.newPostText,
+                images: this.newPostMedia ? [this.newPostMedia] : [],
+                likes: 0,
+                isLiked: false,
+                shares: 0,
+                comments: []
+            };
+            this.socialPosts.unshift(post);
+            this.newPostText = '';
+            this.newPostMedia = '';
+            alert('🎉 Đăng bài viết lên PetShare360 thành công!');
+        },
+
+        toggleLikePost(postId) {
+            const p = this.socialPosts.find(item => item.id === postId);
+            if (p) {
+                p.isLiked = !p.isLiked;
+                p.likes += p.isLiked ? 1 : -1;
+            }
+        },
+
+        addCommentToPost(postId, commentInputEl) {
+            const text = commentInputEl.value.trim();
+            if (!text) return;
+            const p = this.socialPosts.find(item => item.id === postId);
+            if (p) {
+                p.comments.push({
+                    id: Date.now(),
+                    user: this.customerProfile.name,
+                    avatar: this.customerProfile.avatar,
+                    text: text,
+                    time: 'Vừa xong'
+                });
+                commentInputEl.value = '';
+            }
+        },
+
+        sharePost(postId) {
+            const p = this.socialPosts.find(item => item.id === postId);
+            if (p) {
+                p.shares++;
+                alert('Đã sao chép liên kết bài viết vào bộ nhớ tạm! Bạn có thể chia sẻ lên Zalo/Facebook.');
+            }
+        },
+
+        // 5. PETSHOW360 CAMERA HELPERS
+        takeLiveSnapshot() {
+            alert('📸 ĐÃ CHỤP KHOẢNH KHẮC BÉ! Ảnh chụp chất lượng 1080p đã được tự động lưu vào Thư viện kỷ niệm bé trên PetCare360.');
+        },
+
+        toggleLiveCameraAngle() {
+            this.liveCameraAngle = (this.liveCameraAngle + 90) % 360;
+            alert('🔄 Đã xoay góc camera 360° sang hướng ' + this.liveCameraAngle + '°');
+        },
+
+        sendStaffMessage(promptMsg) {
+            const msg = prompt('Nhập lời nhắn gửi đến nhân viên chăm sóc bé:', promptMsg || '');
+            if (msg) {
+                alert('✅ Đã gửi tin nhắn đến KTV ca trực: "' + msg + '". Nhân viên sẽ phản hồi qua Zalo / ứng dụng trong 5 phút.');
+            }
+        },
+
+        // 6. ORDERS DASHBOARD HELPERS
+        get filteredCustomerOrdersList() {
+            if (this.orderFilterStatus === 'all') return this.customerOrdersEnhanced;
+            return this.customerOrdersEnhanced.filter(o => o.status === this.orderFilterStatus);
+        },
+
+        openOrderCheckoutSummary(ord) {
+            this.selectedOrderForDetail = ord;
+            this.showOrderSummaryModal = true;
+        },
+
+        reorderItems(ord) {
+            if (ord.items && ord.items.length > 0) {
+                ord.items.forEach(it => {
+                    this.cart.push({
+                        id: 'REORD-' + Date.now() + '-' + Math.random(),
+                        name: it.name,
+                        variant: it.variant || 'Tiêu chuẩn',
+                        price: it.price,
+                        qty: it.qty,
+                        img: it.img,
+                        isService: false
+                    });
+                });
+                this.activeCustomerTab = 'cart';
+                this.cartStep = 2;
+                alert('🎉 Đã thêm lại toàn bộ ' + ord.items.length + ' sản phẩm vào giỏ hàng và chuyển đến trang thanh toán!');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        },
+
+        openReviewModal(ord) {
+            this.reviewOrderData = {
+                orderId: ord.id,
+                productName: ord.items[0] ? ord.items[0].name : 'Sản phẩm PetCare360',
+                rating: 5,
+                comment: '',
+                photos: []
+            };
+            this.showReviewModal = true;
+        },
+
+        submitReview() {
+            this.showReviewModal = false;
+            alert('⭐ Cảm ơn bạn đã đánh giá ' + this.reviewOrderData.rating + ' sao cho đơn hàng ' + this.reviewOrderData.orderId + '! Bạn được cộng 50 điểm thưởng Loyalty.');
+        },
+
+        openRefundModal(ord) {
+            this.refundOrderData = {
+                orderId: ord.id,
+                reason: 'Sản phẩm lỗi/hư hỏng khi vận chuyển',
+                details: '',
+                evidence: ''
+            };
+            this.showRefundModal = true;
+        },
+
+        submitRefund() {
+            this.showRefundModal = false;
+            alert('📩 Đã gửi yêu cầu Trả hàng / Hoàn tiền cho đơn ' + this.refundOrderData.orderId + '. Bộ phận CSKH sẽ liên hệ xác minh trong 2 giờ làm việc.');
+        },
+
+        openPODModal(ord) {
+            this.currentPOD = {
+                photo: ord.podPhoto || 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=600&q=80',
+                shipper: ord.shipper ? ord.shipper.name : 'Shipper PetShip360',
+                phone: ord.shipper ? ord.shipper.phone : '0988 777 666',
+                time: ord.date + ' 14:35'
+            };
+            this.showPODModal = true;
+        },
+
+        // 7. GIỎ HÀNG 5 BƯỚC HELPERS
+        goToCartStep(step) {
+            this.cartStep = step;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+
+        applyCoupon() {
+            if (this.couponCode.trim().toUpperCase() === 'PET360' || this.couponCode.trim().toUpperCase() === 'GIAM50K') {
+                this.discountAmount = 50000;
+                alert('🎉 Áp dụng mã giảm giá thành công! Giảm 50.000 ₫');
+            } else if (this.couponCode.trim()) {
+                alert('Mã giảm giá không hợp lệ hoặc đã hết hạn.');
+            }
+        },
+
+        get cartSubtotal() {
+            return this.cart.reduce((sum, item) => sum + ((Number(item.price) || 0) * (Number(item.qty) || 1)), 0);
+        },
+
+        get finalCartTotal() {
+            const ship = this.deliveryMethod === 'door' ? this.shippingFee : 0;
+            return Math.max(0, this.cartSubtotal + ship - this.discountAmount);
+        },
+
+        finalizeOrder() {
+            this.completedOrderNumber = '#' + Math.floor(100000 + Math.random() * 900000);
+            this.completedOrderDate = new Date().toLocaleDateString('vi-VN');
+            const newOrder = {
+                id: 'ORD-' + Math.floor(1000 + Math.random() * 9000),
+                orderCode: this.completedOrderNumber,
+                date: this.completedOrderDate,
+                status: 'pending',
+                statusText: 'Chờ xác nhận',
+                badgeColor: 'bg-amber-100 text-amber-800 border-amber-200',
+                paymentMethod: this.paymentMethod === 'bank' ? 'Chuyển khoản MB Bank' : (this.paymentMethod === 'momo' ? 'Ví MoMo' : 'QR Pay ATM'),
+                paymentStatus: 'Đã hoàn tất thanh toán',
+                recipient: { ...this.checkoutShippingForm },
+                items: [...this.cart],
+                subtotal: this.cartSubtotal,
+                shippingFee: this.deliveryMethod === 'door' ? this.shippingFee : 0,
+                discount: this.discountAmount,
+                total: this.finalCartTotal
+            };
+            this.customerOrdersEnhanced.unshift(newOrder);
+            this.cart = [];
+            this.cartStep = 4;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+
+        // 8. TÀI KHOẢN SAAS HELPERS
+        saveAccountProfile() {
+            alert('🎉 Đã lưu thông tin tài khoản cá nhân thành công!');
+        },
+
+        changePassword() {
+            if (this.changePasswordForm.newPass !== this.changePasswordForm.confirm) {
+                alert('Mật khẩu xác nhận không khớp!');
+                return;
+            }
+            this.showChangePasswordModal = false;
+            this.changePasswordForm = { current: '', newPass: '', confirm: '' };
+            alert('🔒 Đã đổi mật khẩu tài khoản thành công!');
+        },
+
+        openAddAddressModal() {
+            this.editingAddress = null;
+            this.addressForm = { id: Date.now(), label: 'Địa chỉ mới', receiver: this.customerProfile.name, phone: this.customerProfile.phone, fullAddress: '', isDefault: false };
+            this.showAddressModal = true;
+        },
+
+        openEditAddressModal(addr) {
+            this.editingAddress = addr;
+            this.addressForm = { ...addr };
+            this.showAddressModal = true;
+        },
+
+        saveAddressForm() {
+            if (!this.addressForm.fullAddress.trim()) {
+                alert('Vui lòng nhập địa chỉ chi tiết!');
+                return;
+            }
+            if (this.editingAddress) {
+                const idx = this.addresses.findIndex(a => a.id === this.editingAddress.id);
+                if (idx > -1) this.addresses[idx] = { ...this.addressForm };
+            } else {
+                this.addresses.push({ ...this.addressForm, id: Date.now() });
+            }
+            this.showAddressModal = false;
+            alert('Đã cập nhật sổ địa chỉ thành công!');
+        },
+
+        deleteAddress(id) {
+            if (confirm('Bạn có chắc muốn xóa địa chỉ này không?')) {
+                this.addresses = this.addresses.filter(a => a.id !== id);
+                alert('Đã xóa địa chỉ thành công!');
+            }
+        },
+
+        setDefaultAddress(id) {
+            this.addresses.forEach(a => a.isDefault = (a.id === id));
+            alert('Đã đặt làm địa chỉ giao hàng mặc định!');
         },
 
         scrollToUrgentTasks() {
