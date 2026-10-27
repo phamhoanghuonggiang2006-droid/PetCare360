@@ -402,26 +402,164 @@ function superPetCareApp() {
             }
         ],
 
-        // ==================== 7. GIỎ HÀNG 5 BƯỚC ====================
-        cartStep: 1, // 1: Giỏ hàng, 2: Giao hàng, 3: Thanh toán, 4: Thành công, 5: Lịch sử đơn hàng
+        // ==================== 7. GIỎ HÀNG 5 BƯỚC (MIXED CART & VOUCHER WALLET) ====================
+        cartStep: 1, // 1: Giỏ hàng, 2: Giao hàng, 3: Thanh toán, 4: Thành công / Giữ kho, 5: Lịch sử đơn hàng
         cartNotes: '',
         couponCode: '',
         discountAmount: 0,
         deliveryMethod: 'door', // 'door' | 'store'
-        shippingFee: 35000,
+        baseShippingFee: 35000,
         checkoutShippingForm: {
             country: 'Việt Nam',
             name: 'Nguyễn Hoàng Giang',
-            phone: '0909 123 456',
+            phone: '0909123456',
             address: '125 Hoàng Quốc Việt',
             city: 'Hà Nội',
-            district: 'Cầu Giấy',
-            ward: 'Nghĩa Đô'
+            district: 'Quận Cầu Giấy',
+            ward: 'Phường Nghĩa Đô',
+            notes: '',
+            touched: {
+                name: false,
+                phone: false,
+                address: false,
+                city: false,
+                district: false,
+                ward: false
+            }
         },
-        paymentMethod: 'bank', // 'bank' | 'momo' | 'atm'
+        vnProvinces: [
+            {
+                name: 'TP. Hồ Chí Minh',
+                districts: [
+                    { name: 'Quận 1', wards: ['Phường Đa Kao', 'Phường Bến Nghé', 'Phường Bến Thành', 'Phường Tân Định'] },
+                    { name: 'Quận 3', wards: ['Phường Võ Thị Sáu', 'Phường 1', 'Phường 2', 'Phường 3'] },
+                    { name: 'Quận 7', wards: ['Phường Tân Quy', 'Phường Tân Phong', 'Phường Phú Mỹ', 'Phường Tân Thuận Đông'] },
+                    { name: 'Quận Bình Thạnh', wards: ['Phường 25', 'Phường 26', 'Phường 27', 'Phường 28'] },
+                    { name: 'TP. Thủ Đức', wards: ['Phường Thảo Điền', 'Phường An Phú', 'Phường Linh Trung', 'Phường Hiệp Bình Chánh'] }
+                ]
+            },
+            {
+                name: 'Hà Nội',
+                districts: [
+                    { name: 'Quận Cầu Giấy', wards: ['Phường Nghĩa Đô', 'Phường Dịch Vọng', 'Phường Mai Dịch', 'Phường Quan Hoa'] },
+                    { name: 'Quận Ba Đình', wards: ['Phường Liễu Giai', 'Phường Kim Mã', 'Phường Giảng Võ', 'Phường Đội Cấn'] },
+                    { name: 'Quận Hoàn Kiếm', wards: ['Phường Hàng Trống', 'Phường Hàng Bài', 'Phường Tràng Tiền'] },
+                    { name: 'Quận Đống Đa', wards: ['Phường Láng Hạ', 'Phường Ô Chợ Dừa', 'Phường Nam Đồng'] }
+                ]
+            },
+            {
+                name: 'Đà Nẵng',
+                districts: [
+                    { name: 'Quận Hải Châu', wards: ['Phường Hải Châu 1', 'Phường Thạch Thang', 'Phường Hòa Thuận Đông'] },
+                    { name: 'Quận Sơn Trà', wards: ['Phường An Hải Bắc', 'Phường Phước Mỹ'] }
+                ]
+            },
+            {
+                name: 'Bình Dương',
+                districts: [
+                    { name: 'TP. Thủ Dầu Một', wards: ['Phường Phú Hòa', 'Phường Phú Cường'] },
+                    { name: 'TP. Thuận An', wards: ['Phường Lái Thiêu', 'Phường An Phú'] }
+                ]
+            }
+        ],
+        paymentMethod: 'vietqr', // 'vietqr' | 'atm' | 'visa' | 'ewallet' | 'cod'
         completedOrderNumber: '#157817',
         completedOrderDate: '27/10/2026',
 
+        // Kho Voucher State
+        voucherWalletModalOpen: false,
+        voucherWalletTab: 'order', // 'shipping' | 'order'
+        voucherSearchInput: '',
+        appliedVouchers: {
+            shipping: null, // voucher object
+            order: null     // voucher object
+        },
+        availableVouchers: [
+            {
+                id: 'VOUCHER-SHIP-1',
+                code: 'FREESHIP35K',
+                type: 'shipping',
+                title: 'Freeship Toàn Quốc 35.000đ',
+                discountAmount: 35000,
+                discountType: 'fixed',
+                minOrder: 300000,
+                description: 'Giảm 35.000đ phí giao hàng tận nơi cho đơn hàng có sản phẩm vật lý từ 300k',
+                expiry: '31/12/2026',
+                badge: 'Freeship'
+            },
+            {
+                id: 'VOUCHER-SHIP-2',
+                code: 'PETSHIP20K',
+                type: 'shipping',
+                title: 'Hỗ trợ Phí Ship 20.000đ',
+                discountAmount: 20000,
+                discountType: 'fixed',
+                minOrder: 150000,
+                description: 'Giảm 20.000đ phí giao hàng cho đơn sản phẩm vật lý từ 150k',
+                expiry: '15/12/2026',
+                badge: 'Hot'
+            },
+            {
+                id: 'VOUCHER-ORD-1',
+                code: 'PETCARE50K',
+                type: 'order',
+                title: 'Giảm 50.000đ Đơn Hàng',
+                discountAmount: 50000,
+                discountType: 'fixed',
+                minOrder: 350000,
+                description: 'Giảm 50.000đ trực tiếp cho đơn hàng sản phẩm hoặc dịch vụ từ 350k',
+                expiry: '30/11/2026',
+                badge: 'Bán chạy'
+            },
+            {
+                id: 'VOUCHER-ORD-2',
+                code: 'PETCARE10',
+                type: 'order',
+                title: 'Giảm 10% Tối Đa 50.000đ',
+                discountPercent: 10,
+                maxDiscount: 50000,
+                discountType: 'percent',
+                minOrder: 250000,
+                description: 'Giảm 10% tối đa 50k - Áp dụng cho mọi giỏ hàng từ 250k',
+                expiry: '31/12/2026',
+                badge: 'Đặc quyền'
+            },
+            {
+                id: 'VOUCHER-ORD-3',
+                code: 'VIPCARE100K',
+                type: 'order',
+                title: 'Ưu Đãi VIP Khách Quen 100.000đ',
+                discountAmount: 100000,
+                discountType: 'fixed',
+                minOrder: 800000,
+                description: 'Giảm ngay 100.000đ cho đơn hàng và dịch vụ từ 800.000đ',
+                expiry: '31/12/2026',
+                badge: 'VIP'
+            },
+            {
+                id: 'VOUCHER-ORD-4',
+                code: 'HOTELPROMO',
+                type: 'order',
+                title: 'Giảm 15% Dịch Vụ Pet Hotel 5 Sao',
+                discountPercent: 15,
+                maxDiscount: 150000,
+                discountType: 'percent',
+                minOrder: 400000,
+                description: 'Giảm 15% tối đa 150k cho lịch hẹn lưu trú Pet Hotel 5 Sao',
+                expiry: '31/12/2026',
+                badge: 'Pet Hotel',
+                requiresHotel: true
+            }
+        ],
+
+        // Inventory Hold & Payment Sync State
+        currentPendingOrder: null,
+        orderCountdownSeconds: 900,
+        orderCountdownTimer: null,
+        orderStockHeld: false,
+        uploadedReceiptUrl: null,
+        webhookSuccessReceived: false,
+        
         // ==================== 8. TÀI KHOẢN SAAS DASHBOARD ====================
         accountActiveTab: 'info', // 'info' | 'tier' | 'pets' | 'addresses'
         showChangePasswordModal: false,
@@ -3448,55 +3586,561 @@ function superPetCareApp() {
             this.showPODModal = true;
         },
 
-        // 7. GIỎ HÀNG 5 BƯỚC HELPERS
+        // 7. GIỎ HÀNG 5 BƯỚC & CHECKOUT LOGIC HELPERS
         goToCartStep(step) {
             this.cartStep = step;
             window.scrollTo({ top: 0, behavior: 'smooth' });
         },
 
-        applyCoupon() {
-            if (this.couponCode.trim().toUpperCase() === 'PET360' || this.couponCode.trim().toUpperCase() === 'GIAM50K') {
-                this.discountAmount = 50000;
-                alert('🎉 Áp dụng mã giảm giá thành công! Giảm 50.000 ₫');
-            } else if (this.couponCode.trim()) {
-                alert('Mã giảm giá không hợp lệ hoặc đã hết hạn.');
+        // Item classification
+        isProductItem(item) {
+            return !!(item && !item.isService);
+        },
+
+        isHotelItem(item) {
+            if (!item || !item.isService) return false;
+            if (item.serviceType === 'hotel' || item.serviceCategory === 'hotel') return true;
+            if (item.payment_type === 'deposit_50' || item.bookingDetails?.payment_type === 'deposit_50') return true;
+            const n = ((item.name || '') + ' ' + (item.serviceName || '')).toLowerCase();
+            return n.includes('hotel') || n.includes('khách sạn') || n.includes('lưu trú') || n.includes('daycare');
+        },
+
+        isOtherServiceItem(item) {
+            if (!item || !item.isService) return false;
+            return !this.isHotelItem(item);
+        },
+
+        // State Analysis Getters (Requirement 1.1)
+        get hasProduct() {
+            return this.cart.some(it => this.isProductItem(it));
+        },
+
+        get hasHotel() {
+            return this.cart.some(it => this.isHotelItem(it));
+        },
+
+        get hasOtherService() {
+            return this.cart.some(it => this.isOtherServiceItem(it));
+        },
+
+        get hasService() {
+            return this.hasHotel || this.hasOtherService;
+        },
+
+        get isMixedCart() {
+            return this.hasProduct && this.hasService;
+        },
+
+        get serviceCartItems() {
+            return this.cart.filter(it => it.isService);
+        },
+
+        get servicePetShipAddress() {
+            const srv = this.cart.find(it => it.isService && (it.bookingDetails?.needPetShip || it.needPetShip));
+            if (srv) {
+                return srv.bookingDetails?.petShipAddress || srv.petShipAddress || this.checkoutShippingForm.address || 'Địa chỉ khách hàng yêu cầu';
             }
+            return null;
+        },
+
+        // Checkout Math (Requirement 1.3 & 1.4)
+        get totalProduct() {
+            return this.cart
+                .filter(it => this.isProductItem(it))
+                .reduce((sum, it) => sum + ((Number(it.price) || 0) * (Number(it.qty || it.quantity) || 1)), 0);
+        },
+
+        get totalOtherService() {
+            return this.cart
+                .filter(it => this.isOtherServiceItem(it))
+                .reduce((sum, it) => {
+                    const cost = Number(it.totalCost || it.bookingDetails?.totalCost || it.price) || 0;
+                    const qty = Number(it.qty || it.quantity) || 1;
+                    return sum + (cost * qty);
+                }, 0);
+        },
+
+        get totalHotel() {
+            return this.cart
+                .filter(it => this.isHotelItem(it))
+                .reduce((sum, it) => {
+                    let cost = Number(it.totalCost || it.bookingDetails?.totalCost) || 0;
+                    if (!cost) {
+                        cost = (it.payment_type === 'deposit_50' || it.bookingDetails?.payment_type === 'deposit_50') ? (Number(it.price) * 2) : Number(it.price);
+                    }
+                    const qty = Number(it.qty || it.quantity) || 1;
+                    return sum + (cost * qty);
+                }, 0);
+        },
+
+        get hotelDeposit() {
+            return Math.round(this.totalHotel / 2);
+        },
+
+        get effectiveShippingFee() {
+            // Biến shippingFee CHỈ được cộng vào nếu hasProduct = true VÀ user chọn "Giao tận nơi".
+            // Tuyệt đối KHÔNG gộp phí PetShip vào biến shippingFee này.
+            if (this.hasProduct && this.deliveryMethod === 'door') {
+                return this.baseShippingFee || 35000;
+            }
+            return 0;
+        },
+
+        get shippingFee() {
+            return this.effectiveShippingFee;
         },
 
         get cartSubtotal() {
-            return this.cart.reduce((sum, item) => sum + ((Number(item.price) || 0) * (Number(item.qty) || 1)), 0);
+            return this.totalProduct + this.totalOtherService + this.totalHotel;
+        },
+
+        // Voucher Stacking & Discounts (Requirement 3.3)
+        get shippingDiscount() {
+            if (!this.appliedVouchers.shipping || this.effectiveShippingFee === 0) return 0;
+            const v = this.appliedVouchers.shipping;
+            if (v.discountType === 'fixed') {
+                return Math.min(this.effectiveShippingFee, Number(v.discountAmount) || 0);
+            }
+            return 0;
+        },
+
+        get orderDiscount() {
+            if (!this.appliedVouchers.order) return 0;
+            const v = this.appliedVouchers.order;
+            const base = this.cartSubtotal;
+            if (v.discountType === 'fixed') {
+                return Math.min(base, Number(v.discountAmount) || 0);
+            } else if (v.discountType === 'percent') {
+                let val = Math.round(base * ((Number(v.discountPercent) || 0) / 100));
+                if (v.maxDiscount) val = Math.min(val, Number(v.maxDiscount));
+                return Math.min(base, val);
+            }
+            return 0;
+        },
+
+        get totalDiscount() {
+            return this.shippingDiscount + this.orderDiscount;
+        },
+
+        get grandTotal() {
+            const sum = this.totalProduct + this.totalOtherService + this.totalHotel + this.effectiveShippingFee;
+            return Math.max(0, sum - this.totalDiscount);
+        },
+
+        get currentPayment() {
+            // Số tiền thực tế phải trả ngay: totalProduct + totalOtherService + hotelDeposit + shippingFee - discounts
+            const upfront = this.totalProduct + this.totalOtherService + this.hotelDeposit + this.effectiveShippingFee;
+            return Math.max(0, upfront - this.totalDiscount);
+        },
+
+        get remainingBalance() {
+            // Số tiền thu sau tại cơ sở: totalHotel - hotelDeposit
+            return Math.max(0, this.totalHotel - this.hotelDeposit);
         },
 
         get finalCartTotal() {
-            const ship = this.deliveryMethod === 'door' ? this.shippingFee : 0;
-            return Math.max(0, this.cartSubtotal + ship - this.discountAmount);
+            return this.currentPayment;
         },
 
+        // Voucher Wallet Methods (Requirement 3.1 & 3.2)
+        get hasAppliedVouchers() {
+            return !!(this.appliedVouchers.shipping || this.appliedVouchers.order);
+        },
+
+        openVoucherWallet() {
+            this.voucherWalletModalOpen = true;
+            this.voucherSearchInput = '';
+        },
+
+        isVoucherEligible(v) {
+            if (!v) return { eligible: false, reason: 'Voucher không tồn tại' };
+            if (v.type === 'shipping') {
+                if (!this.hasProduct) {
+                    return { eligible: false, reason: 'Chỉ áp dụng cho đơn có Sản phẩm vật lý' };
+                }
+                if (this.deliveryMethod !== 'door') {
+                    return { eligible: false, reason: 'Chỉ áp dụng khi chọn Giao hàng tận nơi' };
+                }
+                if (this.totalProduct < (v.minOrder || 0)) {
+                    return { eligible: false, reason: 'Đơn sản phẩm chưa đạt tối thiểu ' + this.formatCurrency(v.minOrder) };
+                }
+                return { eligible: true };
+            } else {
+                if (v.requiresHotel && !this.hasHotel) {
+                    return { eligible: false, reason: 'Chỉ áp dụng cho đơn có Pet Hotel 5 Sao' };
+                }
+                if (this.cartSubtotal < (v.minOrder || 0)) {
+                    return { eligible: false, reason: 'Chưa đạt giá trị đơn tối thiểu ' + this.formatCurrency(v.minOrder) };
+                }
+                return { eligible: true };
+            }
+        },
+
+        applyVoucher(v) {
+            const check = this.isVoucherEligible(v);
+            if (!check.eligible) {
+                alert('Không thể áp dụng: ' + check.reason);
+                return;
+            }
+            if (v.type === 'shipping') {
+                this.appliedVouchers.shipping = v;
+            } else {
+                this.appliedVouchers.order = v;
+            }
+        },
+
+        removeVoucher(type) {
+            if (type === 'shipping') this.appliedVouchers.shipping = null;
+            else if (type === 'order') this.appliedVouchers.order = null;
+        },
+
+        applyManualVoucherCode() {
+            const code = (this.voucherSearchInput || '').trim().toUpperCase();
+            if (!code) return;
+            const v = this.availableVouchers.find(it => it.code.toUpperCase() === code);
+            if (v) {
+                const check = this.isVoucherEligible(v);
+                if (!check.eligible) {
+                    alert('Mã ' + code + ' chưa thỏa mãn điều kiện: ' + check.reason);
+                } else {
+                    this.applyVoucher(v);
+                    alert('🎉 Áp dụng thành công voucher ' + code + '!');
+                    this.voucherSearchInput = '';
+                }
+            } else {
+                if (code === 'PET360' || code === 'GIAM50K') {
+                    const customV = {
+                        code: code,
+                        type: 'order',
+                        title: 'Mã giảm giá ' + code,
+                        discountAmount: 50000,
+                        discountType: 'fixed',
+                        minOrder: 200000,
+                        description: 'Giảm 50.000đ cho đơn từ 200k',
+                        expiry: '31/12/2026'
+                    };
+                    this.appliedVouchers.order = customV;
+                    alert('🎉 Áp dụng thành công mã giảm 50.000đ!');
+                    this.voucherSearchInput = '';
+                } else {
+                    alert('Mã khuyến mãi "' + code + '" không tồn tại hoặc đã hết hạn.');
+                }
+            }
+        },
+
+        applyCoupon() {
+            this.voucherSearchInput = this.couponCode;
+            this.applyManualVoucherCode();
+        },
+
+        // Form Validation Methods (Requirement 2.1)
+        onCityChange() {
+            const prov = this.vnProvinces.find(p => p.name === this.checkoutShippingForm.city);
+            if (prov && prov.districts && prov.districts.length > 0) {
+                this.checkoutShippingForm.district = prov.districts[0].name;
+                this.onDistrictChange();
+            }
+        },
+
+        onDistrictChange() {
+            const prov = this.vnProvinces.find(p => p.name === this.checkoutShippingForm.city);
+            if (prov) {
+                const dist = prov.districts.find(d => d.name === this.checkoutShippingForm.district);
+                if (dist && dist.wards && dist.wards.length > 0) {
+                    this.checkoutShippingForm.ward = dist.wards[0];
+                }
+            }
+        },
+
+        get currentProvinceDistricts() {
+            const prov = this.vnProvinces.find(p => p.name === this.checkoutShippingForm.city);
+            return prov ? prov.districts : [];
+        },
+
+        get currentDistrictWards() {
+            const prov = this.vnProvinces.find(p => p.name === this.checkoutShippingForm.city);
+            if (!prov) return [];
+            const dist = prov.districts.find(d => d.name === this.checkoutShippingForm.district);
+            return dist ? dist.wards : [];
+        },
+
+        get checkoutFormErrors() {
+            const errors = {};
+            const f = this.checkoutShippingForm;
+            const t = f.touched || {};
+            const vnPhoneRegex = /^(0[35789])[0-9]{8}$/;
+
+            if (this.hasProduct) {
+                if (t.name) {
+                    if (!f.name || f.name.trim().length < 2) {
+                        errors.name = 'Vui lòng nhập họ tên người nhận (tối thiểu 2 ký tự)';
+                    }
+                }
+                if (t.phone) {
+                    const cleanPhone = (f.phone || '').trim().replace(/\s/g, '');
+                    if (!cleanPhone) {
+                        errors.phone = 'Vui lòng nhập số điện thoại người nhận';
+                    } else if (!vnPhoneRegex.test(cleanPhone)) {
+                        errors.phone = 'Số điện thoại không đúng định dạng VN (10 số, bắt đầu 03, 05, 07, 08, 09)';
+                    }
+                }
+                if (this.deliveryMethod === 'door') {
+                    if (t.address && (!f.address || f.address.trim().length < 5)) {
+                        errors.address = 'Vui lòng nhập số nhà, tên đường chi tiết (tối thiểu 5 ký tự)';
+                    }
+                    if (t.city && (!f.city || !f.city.trim())) {
+                        errors.city = 'Vui lòng chọn Tỉnh/Thành phố';
+                    }
+                    if (t.district && (!f.district || !f.district.trim())) {
+                        errors.district = 'Vui lòng chọn Quận/Huyện';
+                    }
+                    if (t.ward && (!f.ward || !f.ward.trim())) {
+                        errors.ward = 'Vui lòng chọn Phường/Xã';
+                    }
+                }
+            }
+            return errors;
+        },
+
+        get isCheckoutShippingFormValid() {
+            if (!this.hasProduct) return true;
+            const f = this.checkoutShippingForm;
+            const cleanPhone = (f.phone || '').trim().replace(/\s/g, '');
+            const vnPhoneRegex = /^(0[35789])[0-9]{8}$/;
+            if (!f.name || f.name.trim().length < 2) return false;
+            if (!cleanPhone || !vnPhoneRegex.test(cleanPhone)) return false;
+            if (this.deliveryMethod === 'door') {
+                if (!f.address || f.address.trim().length < 5) return false;
+                if (!f.city || !f.city.trim()) return false;
+                if (!f.district || !f.district.trim()) return false;
+                if (!f.ward || !f.ward.trim()) return false;
+            }
+            return true;
+        },
+
+        touchAllCheckoutFields() {
+            this.checkoutShippingForm.touched = {
+                name: true,
+                phone: true,
+                address: true,
+                city: true,
+                district: true,
+                ward: true
+            };
+        },
+
+        proceedToPaymentStep() {
+            if (this.hasProduct) {
+                this.touchAllCheckoutFields();
+                if (!this.isCheckoutShippingFormValid) {
+                    alert('⚠️ Vui lòng kiểm tra lại các trường thông tin nhận hàng còn thiếu hoặc chưa đúng định dạng!');
+                    return;
+                }
+            }
+            this.goToCartStep(3);
+        },
+
+        // VietQR Dynamic Generator (Requirement 2.2)
+        get vietQrUrl() {
+            const bankId = 'MB';
+            const accountNo = '888899996666';
+            const template = 'compact2';
+            const amount = (this.currentPendingOrder ? this.currentPendingOrder.amount_paid : this.currentPayment) || 0;
+            const orderCode = (this.currentPendingOrder ? this.currentPendingOrder.orderCode : this.completedOrderNumber) || '#DH157817';
+            const cleanCode = orderCode.replace('#', '');
+            const memo = encodeURIComponent('PETCARE360 ' + cleanCode);
+            const accountName = encodeURIComponent('CT CP PETCARE360 VIETNAM');
+            return `https://img.vietqr.io/image/${bankId}-${accountNo}-${template}.png?amount=${amount}&addInfo=${memo}&accountName=${accountName}`;
+        },
+
+        get formattedCountdown() {
+            const m = Math.floor(this.orderCountdownSeconds / 60);
+            const s = this.orderCountdownSeconds % 60;
+            return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+        },
+
+        startOrderCountdown() {
+            if (this.orderCountdownTimer) clearInterval(this.orderCountdownTimer);
+            this.orderCountdownSeconds = 900; // 15 phút
+            this.orderCountdownTimer = setInterval(() => {
+                if (this.orderCountdownSeconds > 0) {
+                    this.orderCountdownSeconds--;
+                } else {
+                    clearInterval(this.orderCountdownTimer);
+                    this.handleOrderTimeout();
+                }
+            }, 1000);
+        },
+
+        handleOrderTimeout() {
+            if (this.currentPendingOrder && this.currentPendingOrder.status === 'PENDING_PAYMENT') {
+                this.currentPendingOrder.status = 'CANCELLED';
+                this.currentPendingOrder.statusText = 'Đã hủy (Hết thời gian giữ chỗ 15p)';
+                this.currentPendingOrder.badgeColor = 'bg-rose-100 text-rose-800 border-rose-200';
+                this.releaseStock(this.currentPendingOrder);
+                alert('⚠️ Đơn hàng ' + this.currentPendingOrder.orderCode + ' đã hết 15 phút giữ chỗ và tự động bị hủy. Toàn bộ tồn kho đã được hoàn trả.');
+            }
+        },
+
+        holdStockForCart() {
+            this.cart.forEach(item => {
+                if (this.isProductItem(item)) {
+                    const prod = this.products.find(p => p.id === item.id);
+                    if (prod) {
+                        const qty = Number(item.qty || item.quantity) || 1;
+                        if (typeof prod.stock === 'number') {
+                            prod.stock = Math.max(0, prod.stock - qty);
+                        }
+                        if (typeof prod.stockQ1 === 'number') {
+                            prod.stockQ1 = Math.max(0, prod.stockQ1 - qty);
+                        }
+                        prod.reservedStock = (prod.reservedStock || 0) + qty;
+                    }
+                }
+            });
+            this.orderStockHeld = true;
+        },
+
+        releaseStock(order) {
+            if (!order || !order.items) return;
+            order.items.forEach(item => {
+                if (this.isProductItem(item)) {
+                    const prod = this.products.find(p => p.id === item.id);
+                    if (prod) {
+                        const qty = Number(item.qty || item.quantity) || 1;
+                        if (typeof prod.stock === 'number') {
+                            prod.stock += qty;
+                        }
+                        if (typeof prod.stockQ1 === 'number') {
+                            prod.stockQ1 += qty;
+                        }
+                        if (prod.reservedStock) {
+                            prod.reservedStock = Math.max(0, prod.reservedStock - qty);
+                        }
+                    }
+                }
+            });
+            this.orderStockHeld = false;
+        },
+
+        deductStockPermanently(order) {
+            if (!order || !order.items) return;
+            order.items.forEach(item => {
+                if (this.isProductItem(item)) {
+                    const prod = this.products.find(p => p.id === item.id);
+                    if (prod && prod.reservedStock) {
+                        const qty = Number(item.qty || item.quantity) || 1;
+                        prod.reservedStock = Math.max(0, prod.reservedStock - qty);
+                    }
+                }
+            });
+            this.orderStockHeld = false;
+        },
+
+        // Finalize Order (Requirement 1.6 & 2.3)
         finalizeOrder() {
             this.completedOrderNumber = '#' + Math.floor(100000 + Math.random() * 900000);
             this.completedOrderDate = new Date().toLocaleDateString('vi-VN');
+
+            // Hold Stock for 15 mins
+            this.holdStockForCart();
+
+            let paymentType = 'product_only';
+            if (this.hasProduct && this.hasService) {
+                paymentType = 'mixed_cart';
+            } else if (this.hasHotel) {
+                paymentType = 'hotel_deposit';
+            } else if (this.hasOtherService) {
+                paymentType = 'service_full';
+            }
+
             const newOrder = {
                 id: 'ORD-' + Math.floor(1000 + Math.random() * 9000),
                 orderCode: this.completedOrderNumber,
                 date: this.completedOrderDate,
-                status: 'pending',
-                statusText: 'Chờ xác nhận',
+                status: 'PENDING_PAYMENT',
+                statusText: 'Chờ thanh toán (Giữ chỗ 15p)',
                 badgeColor: 'bg-amber-100 text-amber-800 border-amber-200',
-                paymentMethod: this.paymentMethod === 'bank' ? 'Chuyển khoản MB Bank' : (this.paymentMethod === 'momo' ? 'Ví MoMo' : 'QR Pay ATM'),
-                paymentStatus: 'Đã hoàn tất thanh toán',
-                recipient: { ...this.checkoutShippingForm },
-                items: [...this.cart],
+                payment_type: paymentType,
+                has_mixed_cart: this.hasProduct && this.hasService,
+                amount_paid: this.currentPayment,
+                balance_due: this.remainingBalance,
+                total: this.grandTotal,
+                grandTotal: this.grandTotal,
+                currentPayment: this.currentPayment,
+                remainingBalance: this.remainingBalance,
                 subtotal: this.cartSubtotal,
-                shippingFee: this.deliveryMethod === 'door' ? this.shippingFee : 0,
-                discount: this.discountAmount,
-                total: this.finalCartTotal
+                totalProduct: this.totalProduct,
+                totalOtherService: this.totalOtherService,
+                totalHotel: this.totalHotel,
+                hotelDeposit: this.hotelDeposit,
+                shippingFee: this.effectiveShippingFee,
+                shippingDiscount: this.shippingDiscount,
+                orderDiscount: this.orderDiscount,
+                totalDiscount: this.totalDiscount,
+                appliedVouchers: { ...this.appliedVouchers },
+                paymentMethod: this.paymentMethod,
+                paymentMethodLabel: this.paymentMethod === 'vietqr' ? 'Chuyển khoản VietQR MB Bank' : (this.paymentMethod === 'atm' ? 'Thẻ ATM / Internet Banking' : (this.paymentMethod === 'visa' ? 'Thẻ Quốc tế Visa/Mastercard' : (this.paymentMethod === 'ewallet' ? 'Ví điện tử' : 'Thanh toán COD'))),
+                paymentStatus: 'unpaid',
+                recipient: { ...this.checkoutShippingForm },
+                items: JSON.parse(JSON.stringify(this.cart)),
+                holdStockExpiresAt: Date.now() + 15 * 60 * 1000,
+                receiptUrl: null
             };
+
+            this.currentPendingOrder = newOrder;
             this.customerOrdersEnhanced.unshift(newOrder);
+            this.orders.unshift(newOrder);
+
+            this.startOrderCountdown();
+            this.webhookSuccessReceived = false;
+            this.uploadedReceiptUrl = null;
+
             this.cart = [];
             this.cartStep = 4;
             window.scrollTo({ top: 0, behavior: 'smooth' });
         },
 
+        // Webhook Simulator (Requirement 2.3)
+        simulatePaymentWebhook() {
+            if (!this.currentPendingOrder) return;
+            if (this.orderCountdownTimer) clearInterval(this.orderCountdownTimer);
+
+            const isDeposit = (this.currentPendingOrder.payment_type === 'hotel_deposit' || (this.currentPendingOrder.has_mixed_cart && this.currentPendingOrder.balance_due > 0));
+            const finalStatus = isDeposit ? 'DEPOSIT_PAID' : 'PAID';
+            const finalStatusText = isDeposit ? ('Đã cọc 50% (Còn thu: ' + this.formatCurrency(this.currentPendingOrder.balance_due) + ')') : 'Đã thanh toán 100%';
+
+            this.currentPendingOrder.status = finalStatus;
+            this.currentPendingOrder.statusText = finalStatusText;
+            this.currentPendingOrder.badgeColor = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+            this.currentPendingOrder.paymentStatus = 'paid';
+
+            this.deductStockPermanently(this.currentPendingOrder);
+            this.webhookSuccessReceived = true;
+
+            alert(`⚡ [WEBHOOK PAYMENT.SUCCESS]\nĐã nhận thông báo thanh toán ' + this.formatCurrency(this.currentPendingOrder.amount_paid) + ' cho đơn ' + this.currentPendingOrder.orderCode + '!
+Trạng thái đơn: ' + finalStatus + ' | Đã trừ kho vĩnh viễn.`);
+        },
+
+        handleReceiptUpload(event) {
+            const file = event.target.files && event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.uploadedReceiptUrl = e.target.result;
+                    if (this.currentPendingOrder) {
+                        this.currentPendingOrder.receiptUrl = this.uploadedReceiptUrl;
+                    }
+                    alert('📷 Đã tải lên biên lai chuyển khoản thành công! Bạn có thể nhấn "Duyệt đơn thủ công" để hoàn tất.');
+                };
+                reader.readAsDataURL(file);
+            }
+        },
+
+        adminManualApprove() {
+            if (!this.currentPendingOrder) return;
+            this.simulatePaymentWebhook();
+        },
         // 8. TÀI KHOẢN SAAS HELPERS
         saveAccountProfile() {
             alert('🎉 Đã lưu thông tin tài khoản cá nhân thành công!');

@@ -1811,5 +1811,172 @@ MODALS_HTML = '''<!-- ==================== CÁC MODAL HỆ THỐNG TOÀN DIỆN 
     </div>
 
 </div>
+    <!-- 15. MODAL KHO VOUCHER THÔNG MINH (VOUCHER WALLET MODAL - YÊU CẦU 3.2) -->
+    <div x-show="voucherWalletModalOpen" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-xl w-full p-6 md:p-8 shadow-2xl border border-slate-100 relative animate-fadeIn flex flex-col max-h-[90vh]">
+            
+            <!-- Nút đóng -->
+            <button @click="voucherWalletModalOpen = false" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <!-- Header Modal -->
+            <div class="text-center mb-5">
+                <div class="w-12 h-12 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-2xl mx-auto shadow-sm mb-2">
+                    <i class="fa-solid fa-ticket"></i>
+                </div>
+                <h3 class="text-xl sm:text-2xl font-black text-slate-900">Kho Voucher PetCare360</h3>
+                <p class="text-xs text-slate-500 mt-1">Áp dụng tối đa 1 Mã Vận Chuyển + 1 Mã Giảm Giá Đơn Hàng</p>
+            </div>
+
+            <!-- Thanh tìm kiếm / Nhập mã thủ công -->
+            <div class="mb-4">
+                <form @submit.prevent="applyManualVoucherCode()" class="flex gap-2">
+                    <div class="relative flex-1">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" x-model="voucherSearchInput" placeholder="Nhập mã ưu đãi (VD: PETCARE50K, FREESHIP35K...)" class="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-3 py-2.5 text-xs font-semibold uppercase tracking-wider focus:outline-none focus:bg-white focus:border-orange-500">
+                    </div>
+                    <button type="submit" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs rounded-xl transition shadow flex items-center gap-1.5 flex-shrink-0">
+                        <span>Áp dụng</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- 2 Tabs: Mã Vận Chuyển & Mã Giảm Giá Đơn Hàng -->
+            <div class="grid grid-cols-2 gap-2 p-1.5 bg-slate-100 rounded-2xl mb-4 text-xs font-bold">
+                <button type="button" @click="voucherWalletTab = 'shipping'" class="py-2.5 px-3 rounded-xl transition flex items-center justify-center gap-2" :class="voucherWalletTab === 'shipping' ? 'bg-white text-orange-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'">
+                    <i class="fa-solid fa-truck-fast"></i>
+                    <span>Mã Vận Chuyển</span>
+                    <span class="w-2 h-2 rounded-full bg-blue-500" x-show="appliedVouchers.shipping"></span>
+                </button>
+                <button type="button" @click="voucherWalletTab = 'order'" class="py-2.5 px-3 rounded-xl transition flex items-center justify-center gap-2" :class="voucherWalletTab === 'order' ? 'bg-white text-orange-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'">
+                    <i class="fa-solid fa-tags"></i>
+                    <span>Mã Giảm Giá Đơn</span>
+                    <span class="w-2 h-2 rounded-full bg-emerald-500" x-show="appliedVouchers.order"></span>
+                </button>
+            </div>
+
+            <!-- Danh sách Voucher theo Tab (Ticket Style Cards) -->
+            <div class="flex-1 overflow-y-auto pr-1 space-y-3 max-h-72">
+                
+                <!-- TAB 1: MÃ VẬN CHUYỂN -->
+                <div x-show="voucherWalletTab === 'shipping'" class="space-y-3">
+                    <template x-for="v in availableVouchers.filter(it => it.type === 'shipping')" :key="v.id">
+                        <div class="relative flex items-stretch rounded-2xl border transition shadow-sm overflow-hidden" :class="isVoucherEligible(v).eligible ? (appliedVouchers.shipping && appliedVouchers.shipping.code === v.code ? 'border-orange-500 bg-orange-50/40' : 'border-slate-200 bg-white hover:border-orange-300') : 'border-slate-200 bg-slate-100/70 opacity-60'">
+                            
+                            <!-- Left: Icon & Badge -->
+                            <div class="w-24 bg-blue-500 text-white p-3 flex flex-col items-center justify-center text-center relative border-r-2 border-dashed border-white">
+                                <i class="fa-solid fa-truck-fast text-lg mb-1"></i>
+                                <span class="text-[10px] font-black uppercase tracking-wider" x-text="v.badge || 'Freeship'"></span>
+                                <span class="text-xs font-black mt-0.5" x-text="formatCurrency(v.discountAmount)"></span>
+                            </div>
+
+                            <!-- Middle: Nội dung chi tiết & Điều kiện -->
+                            <div class="flex-1 p-3.5 flex flex-col justify-between text-xs">
+                                <div>
+                                    <div class="flex items-center justify-between gap-2">
+                                        <h5 class="font-black text-slate-900 text-xs sm:text-sm" x-text="v.title"></h5>
+                                        <span class="font-mono text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-bold" x-text="v.code"></span>
+                                    </div>
+                                    <p class="text-slate-500 text-[11px] mt-1" x-text="v.description"></p>
+                                    
+                                    <!-- Cảnh báo nếu không đủ điều kiện (Smart Validation) -->
+                                    <template x-if="!isVoucherEligible(v).eligible">
+                                        <p class="text-rose-500 text-[11px] font-semibold mt-1 flex items-center gap-1">
+                                            <i class="fa-solid fa-circle-exclamation text-[10px]"></i>
+                                            <span x-text="isVoucherEligible(v).reason"></span>
+                                        </p>
+                                    </template>
+                                </div>
+                                <div class="flex items-center justify-between pt-2 border-t border-slate-100 mt-2 text-[10px] text-slate-400">
+                                    <span x-text="'HSD: ' + v.expiry"></span>
+                                    <!-- Nút Áp dụng -->
+                                    <template x-if="isVoucherEligible(v).eligible">
+                                        <div>
+                                            <template x-if="appliedVouchers.shipping && appliedVouchers.shipping.code === v.code">
+                                                <button type="button" @click="removeVoucher('shipping')" class="px-3 py-1 bg-orange-100 text-orange-700 font-extrabold rounded-lg hover:bg-orange-200 transition">
+                                                    Đang dùng (Bỏ)
+                                                </button>
+                                            </template>
+                                            <template x-if="!appliedVouchers.shipping || appliedVouchers.shipping.code !== v.code">
+                                                <button type="button" @click="applyVoucher(v)" class="px-3 py-1 bg-orange-500 hover:bg-orange-600 text-white font-extrabold rounded-lg transition shadow-sm">
+                                                    Áp dụng
+                                                </button>
+                                            </template>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- TAB 2: MÃ GIẢM GIÁ ĐƠN HÀNG -->
+                <div x-show="voucherWalletTab === 'order'" class="space-y-3">
+                    <template x-for="v in availableVouchers.filter(it => it.type === 'order')" :key="v.id">
+                        <div class="relative flex items-stretch rounded-2xl border transition shadow-sm overflow-hidden" :class="isVoucherEligible(v).eligible ? (appliedVouchers.order && appliedVouchers.order.code === v.code ? 'border-orange-500 bg-orange-50/40' : 'border-slate-200 bg-white hover:border-orange-300') : 'border-slate-200 bg-slate-100/70 opacity-60'">
+                            
+                            <!-- Left: Icon & Badge -->
+                            <div class="w-24 bg-gradient-to-br from-orange-500 to-amber-500 text-white p-3 flex flex-col items-center justify-center text-center relative border-r-2 border-dashed border-white">
+                                <i class="fa-solid fa-gift text-lg mb-1"></i>
+                                <span class="text-[10px] font-black uppercase tracking-wider" x-text="v.badge || 'Giảm Giá'"></span>
+                                <span class="text-xs font-black mt-0.5" x-text="v.discountType === 'percent' ? ('-' + v.discountPercent + '%') : formatCurrency(v.discountAmount)"></span>
+                            </div>
+
+                            <!-- Middle: Nội dung chi tiết & Điều kiện -->
+                            <div class="flex-1 p-3.5 flex flex-col justify-between text-xs">
+                                <div>
+                                    <div class="flex items-center justify-between gap-2">
+                                        <h5 class="font-black text-slate-900 text-xs sm:text-sm" x-text="v.title"></h5>
+                                        <span class="font-mono text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-bold" x-text="v.code"></span>
+                                    </div>
+                                    <p class="text-slate-500 text-[11px] mt-1" x-text="v.description"></p>
+                                    
+                                    <!-- Cảnh báo nếu không đủ điều kiện (Smart Validation) -->
+                                    <template x-if="!isVoucherEligible(v).eligible">
+                                        <p class="text-rose-500 text-[11px] font-semibold mt-1 flex items-center gap-1">
+                                            <i class="fa-solid fa-circle-exclamation text-[10px]"></i>
+                                            <span x-text="isVoucherEligible(v).reason"></span>
+                                        </p>
+                                    </template>
+                                </div>
+                                <div class="flex items-center justify-between pt-2 border-t border-slate-100 mt-2 text-[10px] text-slate-400">
+                                    <span x-text="'HSD: ' + v.expiry"></span>
+                                    <!-- Nút Áp dụng -->
+                                    <template x-if="isVoucherEligible(v).eligible">
+                                        <div>
+                                            <template x-if="appliedVouchers.order && appliedVouchers.order.code === v.code">
+                                                <button type="button" @click="removeVoucher('order')" class="px-3 py-1 bg-orange-100 text-orange-700 font-extrabold rounded-lg hover:bg-orange-200 transition">
+                                                    Đang dùng (Bỏ)
+                                                </button>
+                                            </template>
+                                            <template x-if="!appliedVouchers.order || appliedVouchers.order.code !== v.code">
+                                                <button type="button" @click="applyVoucher(v)" class="px-3 py-1 bg-orange-500 hover:bg-orange-600 text-white font-extrabold rounded-lg transition shadow-sm">
+                                                    Áp dụng
+                                                </button>
+                                            </template>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Footer Modal: Tóm tắt mã đã chọn & Nút hoàn tất -->
+            <div class="pt-4 border-t border-slate-100 mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                <div>
+                    <span class="text-slate-400 block text-[11px]">Tổng giảm giá dự kiến:</span>
+                    <strong class="text-emerald-600 text-base font-black" x-text="'-' + formatCurrency(totalDiscount)"></strong>
+                </div>
+                <button type="button" @click="voucherWalletModalOpen = false" class="w-full sm:w-auto px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-extrabold rounded-xl transition shadow">
+                    Xác nhận & Sử dụng
+                </button>
+            </div>
+        </div>
+    </div>
+
 <!-- ==================== HẾT CÁC MODAL HỆ THỐNG ==================== -->
 '''
