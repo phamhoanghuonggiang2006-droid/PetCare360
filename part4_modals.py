@@ -2322,7 +2322,7 @@ MODALS_HTML = '''<!-- ==================== CÁC MODAL HỆ THỐNG TOÀN DIỆN 
                         <div>
                             <label class="block text-slate-600 font-bold mb-1">Quận / Huyện: <span class="text-rose-500">*</span></label>
                             <select x-model="addressForm.district" @change="onAddressModalDistrictChange()" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#F97316]">
-                                <template x-for="d in (vnProvinces[0] ? vnProvinces[0].districts : [])" :key="d.name">
+                                <template x-for="d in ((vnProvinces && vnProvinces[0] && Array.isArray(vnProvinces[0].districts)) ? vnProvinces[0].districts : [])" :key="d.name">
                                     <option :value="d.name" x-text="d.name"></option>
                                 </template>
                             </select>
@@ -2330,7 +2330,7 @@ MODALS_HTML = '''<!-- ==================== CÁC MODAL HỆ THỐNG TOÀN DIỆN 
                         <div>
                             <label class="block text-slate-600 font-bold mb-1">Phường / Xã: <span class="text-rose-500">*</span></label>
                             <select x-model="addressForm.ward" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#F97316]">
-                                <template x-for="w in addressModalWards" :key="w">
+                                <template x-for="w in (Array.isArray(addressModalWards) ? addressModalWards : [])" :key="w">
                                     <option :value="w" x-text="w"></option>
                                 </template>
                             </select>
@@ -2359,8 +2359,12 @@ MODALS_HTML = '''<!-- ==================== CÁC MODAL HỆ THỐNG TOÀN DIỆN 
     <!-- ========================================================================= -->
     <!-- MODAL 3: PETCAM360 - XEM TRỰC TIẾP PHÒNG HOTEL 24/7 (YÊU CẦU 1.1 & 3.3) -->
     <!-- ========================================================================= -->
-    <div x-show="showPetCamModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-100 relative animate-fadeIn space-y-5">
+    <div x-show="showPetCamModal || isPetCamModalOpen" x-cloak 
+         class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4"
+         @click.self="showPetCamModal = false; isPetCamModalOpen = false;"
+         @keydown.escape.window="showPetCamModal = false; isPetCamModalOpen = false;">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-100 relative animate-fadeIn space-y-5"
+             @click.stop>
             
             <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div class="flex items-center gap-3">
@@ -2375,7 +2379,7 @@ MODALS_HTML = '''<!-- ==================== CÁC MODAL HỆ THỐNG TOÀN DIỆN 
                         <p class="text-xs text-slate-400">Xem trực tiếp camera phòng lưu trú riêng biệt của thú cưng</p>
                     </div>
                 </div>
-                <button @click="showPetCamModal = false" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+                <button @click="showPetCamModal = false; isPetCamModalOpen = false;" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition" title="Đóng camera">
                     <i class="fa-solid fa-xmark text-sm"></i>
                 </button>
             </div>
@@ -2450,7 +2454,7 @@ MODALS_HTML = '''<!-- ==================== CÁC MODAL HỆ THỐNG TOÀN DIỆN 
 
             <div class="pt-1 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100">
                 <span class="flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-emerald-600"></i> Hệ thống mã hóa bảo mật chuẩn P2P</span>
-                <button @click="showPetCamModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition">Đóng lại</button>
+                <button @click="showPetCamModal = false; isPetCamModalOpen = false;" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition">Đóng lại</button>
             </div>
         </div>
     </div>

@@ -4,11 +4,39 @@ function superPetCareApp() {
     return {
         init() {
             if (typeof window !== 'undefined') {
-                const h = window.location.hash;
-                const s = window.location.search;
-                if (h === '#booking' || h === '#services' || h === '#dichvu' || s.includes('tab=booking')) {
-                    this.activeCustomerTab = 'booking';
-                }
+                const syncCustomerRoute = () => {
+                    const rawHash = (window.location.hash || '').replace('#', '').trim().toLowerCase();
+                    const urlParams = new URLSearchParams(window.location.search || '');
+                    const tab = (urlParams.get('tab') || rawHash);
+                    if (tab === 'booking' || tab === 'services' || tab === 'dichvu') {
+                        this.activeCustomerTab = 'booking';
+                    } else if (tab === 'shop' || tab === 'products' || tab === 'sanpham') {
+                        this.activeCustomerTab = 'shop';
+                    } else if (tab === 'petshare' || tab === 'community') {
+                        this.activeCustomerTab = 'petshare';
+                    } else if (tab === 'cart' || tab === 'giohang') {
+                        this.activeCustomerTab = 'cart';
+                        this.cartStep = 1;
+                    } else if (tab === 'checkout' || tab === 'thanhtoan') {
+                        this.activeCustomerTab = 'checkout';
+                        this.cartStep = 2;
+                    } else if (tab === 'account' || tab === 'profile' || tab === 'taikhoan') {
+                        this.activeCustomerTab = 'account';
+                    } else if (tab === 'orders' || tab === 'donhang') {
+                        this.activeCustomerTab = 'orders';
+                    } else if (tab === 'petcam') {
+                        this.openPetCamModal();
+                    } else if (tab === 'home' || tab === 'trangchu') {
+                        this.activeCustomerTab = 'home';
+                    }
+                };
+                syncCustomerRoute();
+                window.addEventListener('hashchange', syncCustomerRoute);
+                
+                // Global Error Boundary listener to prevent unhandled JS errors from blanking UI
+                window.addEventListener('error', (evt) => {
+                    console.warn('[PetCare360 Safe ErrorBoundary Handled]:', evt.error || evt.message);
+                });
             }
             this.syncPetBookingDetails(this.serviceBookingForm.petId);
             
@@ -1536,17 +1564,24 @@ function superPetCareApp() {
 
         // Modal PetCam360 State (Hotel Camera Live Stream)
         showPetCamModal: false,
+        isPetCamModalOpen: false,
         petCamRoomInput: 'HT-VIP-01',
         petCamConnected: true,
         petCamError: '',
         petCamAngle: 0,
         petCamMicActive: false,
- // 'info' | 'tier' | 'pets' | 'addresses'
+        accountSubTab: 'info', // 'info' | 'tier' | 'pets' | 'addresses' | 'orders'
         showChangePasswordModal: false,
         changePasswordForm: { current: '', newPass: '', confirm: '' },
         showAddressModal: false,
-        editingAddress: null,
-        addressForm: { id: null, label: 'Nhà riêng', receiver: 'Nguyễn Hoàng Giang', phone: '0909 123 456', fullAddress: '125 Hoàng Quốc Việt, P. Nghĩa Đô, Q. Cầu Giấy, Hà Nội', isDefault: true },
+        
+        // Error Boundary State
+        hasRenderError: false,
+        renderErrorMessage: '',
+        resetRenderError() {
+            this.hasRenderError = false;
+            this.renderErrorMessage = '';
+        },
 
         filterCategory: 'all', // 'all' | 'Thức ăn & Dinh dưỡng' | 'Phụ kiện & Vệ sinh' | 'Thuốc & Y tế'
         filterServiceCategory: 'all', // 'all' | 'Y Tế & Chăm Sóc Sức Khỏe' | 'Cấp Cứu & Điều Trị Chuyên Sâu' | 'Spa & Làm Đẹp' | 'Lưu Trú & Tiện Ích'
@@ -1729,8 +1764,32 @@ function superPetCareApp() {
 
         // Danh sách địa chỉ nhận hàng
         addresses: [
-            { id: 1, tag: 'Nhà riêng', fullAddress: 'Căn hộ 12.04 Tòa Park 6, Vinhomes Central Park, Bình Thạnh, TP.HCM', phone: '0988 123 456', isDefault: true },
-            { id: 2, tag: 'Văn phòng', fullAddress: 'Tầng 18 Tòa nhà Bitexco, Số 2 Hải Triều, Bến Nghé, Quận 1, TP.HCM', phone: '0988 123 456', isDefault: false }
+            { 
+                id: 1, 
+                tag: 'Nhà riêng', 
+                name: 'Nguyễn Phương Thảo',
+                receiver: 'Nguyễn Phương Thảo',
+                phone: '0988 123 456',
+                street: 'Căn hộ 12.04 Tòa Park 6, Vinhomes Central Park',
+                district: 'Bình Thạnh',
+                ward: 'Phường 22',
+                city: 'TP. Hồ Chí Minh',
+                fullAddress: 'Căn hộ 12.04 Tòa Park 6, Vinhomes Central Park, Phường 22, Bình Thạnh, TP. Hồ Chí Minh', 
+                isDefault: true 
+            },
+            { 
+                id: 2, 
+                tag: 'Văn phòng', 
+                name: 'Nguyễn Phương Thảo',
+                receiver: 'Nguyễn Phương Thảo',
+                phone: '0988 123 456',
+                street: 'Tầng 18 Tòa nhà Bitexco, Số 2 Hải Triều',
+                district: 'Quận 1',
+                ward: 'Phường Bến Nghé',
+                city: 'TP. Hồ Chí Minh',
+                fullAddress: 'Tầng 18 Tòa nhà Bitexco, Số 2 Hải Triều, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh', 
+                isDefault: false 
+            }
         ],
 
         // Đơn hàng của khách hàng
@@ -5926,44 +5985,7 @@ Trạng thái đơn: ' + finalStatus + ' | Đã trừ kho vĩnh viễn.`);
             alert('🔒 Đã đổi mật khẩu tài khoản thành công!');
         },
 
-        openAddAddressModal() {
-            this.editingAddress = null;
-            this.addressForm = { id: Date.now(), label: 'Địa chỉ mới', receiver: this.customerProfile.name, phone: this.customerProfile.phone, fullAddress: '', isDefault: false };
-            this.showAddressModal = true;
-        },
-
-        openEditAddressModal(addr) {
-            this.editingAddress = addr;
-            this.addressForm = { ...addr };
-            this.showAddressModal = true;
-        },
-
-        saveAddressForm() {
-            if (!this.addressForm.fullAddress.trim()) {
-                alert('Vui lòng nhập địa chỉ chi tiết!');
-                return;
-            }
-            if (this.editingAddress) {
-                const idx = this.addresses.findIndex(a => a.id === this.editingAddress.id);
-                if (idx > -1) this.addresses[idx] = { ...this.addressForm };
-            } else {
-                this.addresses.push({ ...this.addressForm, id: Date.now() });
-            }
-            this.showAddressModal = false;
-            alert('Đã cập nhật sổ địa chỉ thành công!');
-        },
-
-        deleteAddress(id) {
-            if (confirm('Bạn có chắc muốn xóa địa chỉ này không?')) {
-                this.addresses = this.addresses.filter(a => a.id !== id);
-                alert('Đã xóa địa chỉ thành công!');
-            }
-        },
-
-        setDefaultAddress(id) {
-            this.addresses.forEach(a => a.isDefault = (a.id === id));
-            alert('Đã đặt làm địa chỉ giao hàng mặc định!');
-        },
+// [Removed legacy duplicate address methods - unified modern implementation active below]
 
         
         // ========================================================
@@ -6405,12 +6427,14 @@ Trạng thái đơn: ' + finalStatus + ' | Đã trừ kho vĩnh viễn.`);
             return [...this.articles].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 4);
         },
 
-        // Wards dropdown cho AddressModal TP.HCM
+        // Wards dropdown cho AddressModal TP.HCM (Defensive check against undefined)
         get addressModalWards() {
-            if (!this.vnProvinces || this.vnProvinces.length === 0) return [];
+            if (!this.vnProvinces || !Array.isArray(this.vnProvinces) || this.vnProvinces.length === 0) return [];
             const prov = this.vnProvinces[0];
-            const dist = prov.districts.find(d => d.name === this.addressForm.district);
-            return dist ? dist.wards : [];
+            if (!prov || !Array.isArray(prov.districts)) return [];
+            const targetDistName = (this.addressForm && this.addressForm.district) ? this.addressForm.district : (prov.districts[0] ? prov.districts[0].name : '');
+            const dist = prov.districts.find(d => d && d.name === targetDistName);
+            return (dist && Array.isArray(dist.wards)) ? dist.wards : [];
         },
 
         toggleHomeFaq(idx) {
@@ -6560,10 +6584,13 @@ Trạng thái đơn: ' + finalStatus + ' | Đã trừ kho vĩnh viễn.`);
         },
 
         onAddressModalDistrictChange() {
-            if (this.vnProvinces && this.vnProvinces[0]) {
-                const dist = this.vnProvinces[0].districts.find(d => d.name === this.addressForm.district);
-                if (dist && dist.wards && dist.wards.length > 0) {
-                    this.addressForm.ward = dist.wards[0];
+            if (this.vnProvinces && Array.isArray(this.vnProvinces) && this.vnProvinces[0] && Array.isArray(this.vnProvinces[0].districts)) {
+                const targetDistName = (this.addressForm && this.addressForm.district) ? this.addressForm.district : '';
+                const dist = this.vnProvinces[0].districts.find(d => d && d.name === targetDistName);
+                if (dist && Array.isArray(dist.wards) && dist.wards.length > 0) {
+                    if (this.addressForm) {
+                        this.addressForm.ward = dist.wards[0];
+                    }
                 }
             }
         },
@@ -6638,9 +6665,16 @@ Trạng thái đơn: ' + finalStatus + ' | Đã trừ kho vĩnh viễn.`);
         },
 
         // --- PETCAM360 METHODS ---
-        openPetCamModal() {
+        openPetCamModal(roomCode = 'HT-VIP-01') {
             this.showPetCamModal = true;
+            this.isPetCamModalOpen = true;
+            this.petCamRoomInput = roomCode || 'HT-VIP-01';
             this.petCamError = '';
+        },
+
+        closePetCamModal() {
+            this.showPetCamModal = false;
+            this.isPetCamModalOpen = false;
         },
 
         connectPetCam() {

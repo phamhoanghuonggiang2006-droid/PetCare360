@@ -21,8 +21,11 @@ CUSTOMER_HTML = """
                         </div>
                     </div>
 
-                    <!-- Cột Giữa (Menu Navigation): "Sản phẩm", "Dịch vụ", "PetShare360", "PetCam360" -->
+                    <!-- Cột Giữa (Menu Navigation): "Trang chủ", "Sản phẩm", "Dịch vụ", "PetShare360", "PetCam360" -->
                     <nav class="hidden md:flex items-center gap-1 lg:gap-2">
+                        <button @click="activeCustomerTab = 'home'" :class="activeCustomerTab === 'home' ? 'text-[#F97316] bg-orange-50 font-bold' : 'text-slate-600 hover:text-[#F97316] hover:bg-slate-50'" class="px-3.5 py-2 rounded-xl text-xs lg:text-sm transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-house text-xs"></i>Trang chủ
+                        </button>
                         <button @click="activeCustomerTab = 'shop'" :class="activeCustomerTab === 'shop' ? 'text-[#F97316] bg-orange-50 font-bold' : 'text-slate-600 hover:text-[#F97316] hover:bg-slate-50'" class="px-3.5 py-2 rounded-xl text-xs lg:text-sm transition flex items-center gap-1.5">
                             <i class="fa-solid fa-box-open text-xs"></i>Sản phẩm
                         </button>
@@ -97,6 +100,25 @@ CUSTOMER_HTML = """
 
         <!-- Main Content Area Customer -->
         <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            
+            <!-- Safe Error Boundary Fallback Alert Component -->
+            <template x-if="hasRenderError">
+                <div class="mb-6 bg-rose-50 border-2 border-rose-300 rounded-2xl p-4 flex items-center justify-between text-rose-800 shadow-sm animate-fadeIn">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-lg flex-shrink-0">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-extrabold text-sm text-rose-900">Chế độ Bảo vệ An toàn Giao diện (Error Boundary)</h4>
+                            <p class="text-xs text-rose-700" x-text="renderErrorMessage || 'Hệ thống đã tự động cách ly sự cố hiển thị để các trang khác vẫn hoạt động bình thường.'"></p>
+                        </div>
+                    </div>
+                    <button @click="resetRenderError()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 flex-shrink-0">
+                        <i class="fa-solid fa-arrow-rotate-right"></i>
+                        <span>Khôi phục giao diện</span>
+                    </button>
+                </div>
+            </template>
 
             <!-- ======================================================== -->
             <!-- TAB 1: TRANG CHỦ (HOME) -->
@@ -561,7 +583,7 @@ CUSTOMER_HTML = """
                         </aside>
 
                         <!-- CỘT BÊN PHẢI: PRODUCT GRID (RỘNG 1100PX) -->
-                        <main class="flex-1 w-full space-y-6">
+                        <div class="flex-1 w-full space-y-6">
                             
                             <!-- Thanh Sắp Xếp Phía Trên -->
                             <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -668,7 +690,7 @@ CUSTOMER_HTML = """
                                     </button>
                                 </div>
                             </div>
-                        </main>
+                        </div>
                     </div>
                 </div>
 
@@ -1864,6 +1886,7 @@ CUSTOMER_HTML = """
                         </div>
                     </div>
                 </div>
+            </div>
             </div>
 
             <!-- ======================================================== -->
@@ -3168,9 +3191,9 @@ CUSTOMER_HTML = """
             </div>
 
             <!-- ======================================================== -->
-            <!-- TAB 8: GIỎ HÀNG (QUY TRÌNH 5 BƯỚC HOÀN THIỆN THEO YÊU CẦU) -->
+            <!-- TAB 8: GIỎ HÀNG & CHECKOUT (QUY TRÌNH 5 BƯỚC HOÀN THIỆN THEO YÊU CẦU) -->
             <!-- ======================================================== -->
-            <div x-show="activeCustomerTab === 'cart'" class="space-y-6" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0">
+            <div x-show="activeCustomerTab === 'cart' || activeCustomerTab === 'checkout'" class="space-y-6" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0">
                 
                 <!-- BƯỚC 1: XEM GIỎ HÀNG ĐANG CÓ NHỮNG GÌ -->
                 <div x-show="cartStep === 1" class="space-y-6">
