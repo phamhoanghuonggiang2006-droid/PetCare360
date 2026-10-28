@@ -968,8 +968,13 @@ function superPetCareApp() {
             ],
             addons: ['massage'],
             needPetShip: true,
-            petShipAddress: '88 Nguyễn Thị Minh Khai, Quận 1, TP.HCM',
-            specialNotes: 'Bé sợ tiếng máy sấy to, cần làm nhẹ nhàng vùng tai.'
+            petShip: true,
+            petShipPickupTime: '08:30 - 09:30',
+            petShipDropoffTime: '16:30 - 17:30',
+            petShipCommitment: false,
+            notes: 'Bé sợ tiếng máy sấy to, có tiền sử da mẫn cảm (Dị ứng xà phòng thơm).',
+            specialNotes: 'Bé sợ tiếng máy sấy to, có tiền sử da mẫn cảm (Dị ứng xà phòng thơm).',
+            petShipAddress: '88 Nguyễn Thị Minh Khai, Quận 1, TP.HCM'
         },
 
         // ==================== 3. POPUP MODAL THÔNG TIN CHI TIẾT THÚ CƯNG (800PX) ====================
@@ -1258,6 +1263,29 @@ function superPetCareApp() {
                 likeAnimating: false,
                 shares: 9,
                 comments: []
+            },
+            {
+                id: 9,
+                authorId: 103,
+                isVet: true,
+                badge: 'Bác sĩ Thú y',
+                author: 'BS. Vũ Mai Anh (Chuyên khoa Cấp cứu Thú y)',
+                petName: 'PetCare360 Clinic',
+                breed: 'Bác Sĩ Thú Y',
+                avatar: 'https://images.unsplash.com/photo-1594824813583-9b2f6efd559a?auto=format&fit=crop&w=150&q=80',
+                time: '1 giờ trước',
+                content: '🚨 [CẨM NANG KHẨN CẤP] Cách sơ cứu hạ thân nhiệt cho thú cưng vào mùa nóng: Khi thời tiết nắng gắt vượt 35°C, chó mèo rất dễ bị sốc nhiệt (Heatstroke) do không có tuyến mồ hôi dưới da. Nắm vững các bước sơ cứu tức thì: 1. Di chuyển vào bóng râm mát. 2. Làm mát từ từ bằng khăn thấm nước mát. 3. Cấp ẩm nhẹ nhàng vào môi lưỡi. 4. Liên hệ hotline Cấp Cứu PetCare360 24/7 (1900 6868)! #HạThânNhiệt #SơCứuThúCưng #SốcNhiệtMùaNóng #BácSĩThúY #PetCare360',
+                images: [
+                    'https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=800&q=80'
+                ],
+                likes: 248,
+                isLiked: false,
+                isSaved: true,
+                likeAnimating: false,
+                shares: 65,
+                comments: [
+                    { id: 1, user: 'Nguyễn Phương Thảo', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80', text: 'Kiến thức rất bổ ích và kịp thời cho mùa hè Sài Gòn, cảm ơn BS Mai Anh nhiều ạ! ❤️', time: '45 phút trước' }
+                ]
             }
         ],
 
@@ -1578,11 +1606,10 @@ function superPetCareApp() {
         showPriceMatrixModal: false,
         hotelServiceType: 'overnight', // 'overnight' | 'daycare'
         
-        // Account Tab State
-        accountSubTab: 'profile', // 'profile' | 'pets' | 'address'
-        get activeTab() { return this.accountSubTab; },
-        set activeTab(val) { this.accountSubTab = val; },
-        accountSubTab: 'info', // 'info' | 'tier' | 'pets' | 'addresses' | 'orders'
+        // Account Tab State (Yêu cầu 3: Tạo state activeTab mặc định là 'profile')
+        activeTab: 'profile', // 'profile' | 'pets' | 'address'
+        get accountSubTab() { return this.activeTab; },
+        set accountSubTab(val) { this.activeTab = val; },
         showChangePasswordModal: false,
         changePasswordForm: { current: '', newPass: '', confirm: '' },
         showAddressModal: false,
@@ -4829,17 +4856,23 @@ function superPetCareApp() {
         },
 
         get petShipCost() {
-            return (this.serviceBookingForm.usePetShip || this.serviceBookingForm.needPetShip) ? 60000 : 0;
+            return (this.serviceBookingForm.petShip || this.serviceBookingForm.usePetShip || this.serviceBookingForm.needPetShip) ? 60000 : 0;
+        },
+
+        getGroomingUpgradeDiff() {
+            if (this.groomingCutType === 'grooming') {
+                return Math.max(0, this.getGroomingCutPrice() - this.getGroomingSpaPrice());
+            } else if (this.groomingCutType === 'shave') {
+                return Math.max(0, this.getGroomingShavePrice() - this.getGroomingSpaPrice());
+            }
+            return 0;
         },
 
         get totalServiceCost() {
             if (this.servicePricingTab === 'hotel') {
                 return this.hotelFee + this.totalAddonsCost + this.petShipCost;
             } else {
-                const base = (this.baseServicePrice !== undefined && this.baseServicePrice !== null) 
-                    ? Number(this.baseServicePrice) 
-                    : 380000;
-                return base + this.totalAddonsCost + this.petShipCost;
+                return this.getGroomingSpaPrice() + this.getGroomingUpgradeDiff() + this.totalAddonsCost + this.petShipCost;
             }
         },
 
@@ -4868,6 +4901,11 @@ function superPetCareApp() {
         },
 
         submitServiceBooking(isDirectCheckout = false) {
+            if (this.serviceBookingForm.petShip && !this.serviceBookingForm.petShipCommitment) {
+                alert('Vui lòng tích chọn xác nhận: "Tôi cam kết sẽ có mặt tại nhà vào các khung giờ trên để bàn giao/nhận lại bé" để điều phối xe PetShip!');
+                this.bookingWizardStep = 2;
+                return;
+            }
             const pet = this.pets.find(p => p.id === Number(this.serviceBookingForm.petId)) || this.pets[0];
             const petWeight = pet ? (parseFloat(pet.weight) || 5) : (parseFloat(this.petBookingDetail.weight) || 5);
             const isHotel = (this.servicePricingTab === 'hotel');

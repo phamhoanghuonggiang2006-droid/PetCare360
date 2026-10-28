@@ -326,11 +326,14 @@ MODALS_HTML = '''<!-- ==================== CÁC MODAL HỆ THỐNG TOÀN DIỆN 
                 </button>
 
                 <div class="h-64 overflow-hidden rounded-t-3xl relative">
-                    <img :src="(selectedArticleModal || selectedArticle).coverImage || (selectedArticleModal || selectedArticle).image" :alt="selectedArticleModal.title" @error=".target.src='https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=800&q=80'" class="w-full h-full object-cover">
+                    <img :src="(selectedArticleModal || selectedArticle)?.coverImage || (selectedArticleModal || selectedArticle)?.image || 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=800&q=80'" 
+                         :alt="(selectedArticleModal || selectedArticle)?.title || 'Bài viết PetCare360'" 
+                         @error="$event.target.src='https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=800&q=80'" 
+                         class="w-full h-full object-cover">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-black/20"></div>
                     <div class="absolute bottom-4 left-6 right-6 text-white">
-                        <span class="px-2.5 py-1 bg-emerald-500 text-white text-[10px] font-black rounded-lg uppercase tracking-wider inline-block mb-2 shadow" x-text="selectedArticleModal.category"></span>
-                        <h3 class="text-xl md:text-2xl font-black leading-snug" x-text="selectedArticleModal.title"></h3>
+                        <span class="px-2.5 py-1 bg-emerald-500 text-white text-[10px] font-black rounded-lg uppercase tracking-wider inline-block mb-2 shadow" x-text="(selectedArticleModal || selectedArticle)?.category || 'Cẩm Nang Thú Y'"></span>
+                        <h3 class="text-xl md:text-2xl font-black leading-snug" x-text="(selectedArticleModal || selectedArticle)?.title"></h3>
                         <div class="flex items-center gap-3 text-xs text-slate-300 mt-2 flex-wrap">
                             <span class="flex items-center gap-1.5">
                                 <img :src="(selectedArticleModal || selectedArticle).doctorAvatar || (selectedArticleModal || selectedArticle).authorAvatar || 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=150&q=80'" class="w-6 h-6 rounded-full object-cover border border-white/40">
@@ -348,7 +351,7 @@ MODALS_HTML = '''<!-- ==================== CÁC MODAL HỆ THỐNG TOÀN DIỆN 
                     <!-- Key takeaway alert -->
                     <div class="p-4 bg-emerald-50/70 rounded-2xl border border-emerald-100 text-xs text-emerald-900 space-y-1">
                         <p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-bookmark text-emerald-600"></i> Lời khuyên trọng tâm từ Ban Chuyên Môn Thú Y PetCare360:</p>
-                        <p class="text-emerald-800 leading-relaxed" x-text="selectedArticleModal.summary"></p>
+                        <p class="text-emerald-800 leading-relaxed" x-text="(selectedArticleModal || selectedArticle)?.summary || ''"></p>
                     </div>
 
                     <!-- Article Body Content -->
@@ -360,7 +363,7 @@ MODALS_HTML = '''<!-- ==================== CÁC MODAL HỆ THỐNG TOÀN DIỆN 
                             <i class="fa-solid fa-user-doctor"></i>
                         </div>
                         <div>
-                            <h4 class="text-xs font-bold text-slate-800" x-text="'Tác giả: ' + selectedArticleModal.author"></h4>
+                            <h4 class="text-xs font-bold text-slate-800" x-text="'Tác giả: ' + ((selectedArticleModal || selectedArticle)?.author || (selectedArticleModal || selectedArticle)?.doctorName || 'BS. Vũ Mai Anh')"></h4>
                             <p class="text-[11px] text-slate-500 mt-0.5">Hội đồng Cố vấn Y khoa & Dinh dưỡng Thú cưng - Hệ thống PetCare360 Việt Nam</p>
                         </div>
                     </div>

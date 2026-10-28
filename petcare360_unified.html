@@ -1317,33 +1317,45 @@
                     <!-- BƯỚC 1: CHỌN THÚ CƯNG & DỊCH VỤ CHÍNH (AUTO-PRICING) -->
                     <!-- ==================================================== -->
                     <div x-show="bookingWizardStep === 1" class="space-y-6 animate-fadeIn" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0">
-                        <div class="border-b border-slate-100 pb-4">
-                            <h3 class="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2">
-                                <span class="w-7 h-7 rounded-lg bg-orange-100 text-[#F97316] text-xs flex items-center justify-center font-black">1</span>
-                                <span>Chọn Thú Cưng Từ Hồ Sơ & Dịch Vụ Chính</span>
+                        
+                        <div class="pb-3 border-b border-slate-100">
+                            <h3 class="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+                                <span class="w-7 h-7 rounded-full bg-[#F97316] text-white flex items-center justify-center text-xs font-black">1</span>
+                                <span>Chọn Thú Cưng & Cấu Trúc Gói Dịch Vụ</span>
                             </h3>
-                            <p class="text-xs text-slate-500 mt-1">Hệ thống tự động tra cứu cân nặng của bé để báo giá chính xác, loại bỏ các mức giá không liên quan</p>
+                            <p class="text-xs text-slate-500 mt-1">Hệ thống tự động map cân nặng của bé để tính chính xác mức giá sàn và chênh lệch nâng cấp</p>
                         </div>
 
-                        <!-- 1. CHỌN THÚ CƯNG TỪ HỒ SƠ LÊN ĐẦU TIÊN (MỤC TIÊU AUTO-PRICING) -->
-                        <div class="space-y-3">
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
-                                <span>Thú Cưng Tiếp Nhận:</span>
-                                <span class="text-orange-600 font-semibold cursor-pointer hover:underline text-[11px]" @click="activeCustomerTab = 'account'; activeTab = 'pets'">+ Thêm bé mới</span>
-                            </label>
-                            
-                            <select x-model.number="serviceBookingForm.petId" @change="syncPetBookingDetails(serviceBookingForm.petId)" class="w-full bg-slate-50 border border-slate-300 rounded-2xl px-4 py-3.5 text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white shadow-2xs">
-                                <template x-for="p in (pets || customerProfile.pets)" :key="p.id">
-                                    <option :value="p.id" x-text="p.name + ' - ' + (p.breed || p.species) + ' (' + p.weight + ' kg)'"></option>
-                                </template>
-                            </select>
+                        <!-- 1. TỰ ĐỘNG BÁO GIÁ: DROPDOWN CHỌN THÚ CƯNG TỪ HỒ SƠ LÊN ĐẦU -->
+                        <div class="bg-gradient-to-br from-orange-50/90 to-amber-50/70 p-5 rounded-3xl border border-orange-200/90 space-y-4">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div>
+                                    <label class="block text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                                        <i class="fa-solid fa-paw text-[#F97316]"></i>
+                                        <span>Chọn Thú Cưng Từ Hồ Sơ:</span>
+                                    </label>
+                                    <p class="text-[11px] text-slate-500 mt-0.5">Giá dịch vụ sẽ tự động điều chỉnh theo đúng cân nặng bé cưng</p>
+                                </div>
+                                
+                                <div class="w-full sm:w-72">
+                                    <select x-model="serviceBookingForm.petId" 
+                                            @change="syncPetBookingDetails(serviceBookingForm.petId)"
+                                            class="w-full bg-white border-2 border-orange-300 rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-sm cursor-pointer">
+                                        <template x-for="p in pets" :key="'wizard-pet-' + p.id">
+                                            <option :value="p.id" x-text="p.name + ' (' + p.breed + ' - ' + p.weight + 'kg)'"></option>
+                                        </template>
+                                    </select>
+                                </div>
+                            </div>
 
-                            <!-- Thẻ tóm tắt thông tin bé cưng đã chọn -->
-                            <div class="p-4 bg-orange-50/70 rounded-2xl border border-orange-200/90 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                            <!-- Thẻ Tóm Tắt Bé Đang Được Chọn & Phân Hạng Cân Nặng Tự Động -->
+                            <div class="bg-white/95 backdrop-blur-sm rounded-2xl p-4 border border-orange-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
                                 <div class="flex items-center gap-3">
-                                    <img :src="petBookingDetail.vaccinePhoto || petBookingDetail.avatar || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=150&q=80'" class="w-14 h-14 rounded-2xl object-cover border-2 border-orange-200 shadow-sm">
+                                    <img :src="petBookingDetail.vaccinePhoto || petBookingDetail.avatar || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=150&q=80'" 
+                                         @error="$event.target.src='https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=150&q=80'"
+                                         class="w-14 h-14 rounded-2xl object-cover border-2 border-orange-200 shadow-sm flex-shrink-0">
                                     <div>
-                                        <div class="flex items-center gap-2">
+                                        <div class="flex items-center gap-2 flex-wrap">
                                             <h5 class="font-black text-slate-900 text-sm sm:text-base" x-text="petBookingDetail.name"></h5>
                                             <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
                                                 <i class="fa-solid fa-circle-check text-[9px]"></i>Đã tiêm vắc-xin
@@ -1351,211 +1363,280 @@
                                         </div>
                                         <p class="text-xs text-slate-500 mt-0.5">
                                             Giống: <strong class="text-slate-700" x-text="petBookingDetail.breed"></strong> • 
-                                            Cân nặng: <strong class="text-[#F97316]" x-text="petBookingDetail.weight + ' kg'"></strong>
+                                            Cân nặng: <strong class="text-[#F97316] font-black" x-text="petBookingDetail.weight + ' kg'"></strong>
                                         </p>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-2 self-end sm:self-auto">
-                                    <div class="text-right">
-                                        <div class="text-[10px] text-slate-400 font-bold uppercase">Hạng Size Áp Dụng</div>
-                                        <div class="text-xs font-black text-orange-700 bg-orange-200/60 px-2.5 py-1 rounded-xl" x-text="servicePricingTab === 'hotel' ? currentPetHotelTier : currentPetGroomingTier"></div>
+                                <div class="flex items-center gap-2 self-start sm:self-auto">
+                                    <div class="text-left sm:text-right">
+                                        <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Hạng Size Áp Dụng</div>
+                                        <div class="text-xs font-black text-orange-700 bg-orange-100/90 px-3 py-1 rounded-xl border border-orange-200" x-text="servicePricingTab === 'hotel' ? currentPetHotelTier : currentPetGroomingTier"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 2. BIẾN TÙY CHỌN DỊCH VỤ THÀNH CÁC CARD TRỰC QUAN LỚN VỚI GIÁ TỰ ĐỘNG TÍNH -->
-                        <div class="space-y-3">
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                                Chọn Gói Dịch Vụ Chính (Đã tự động tính giá chính xác theo cân nặng <span class="text-[#F97316]" x-text="petBookingDetail.weight + ' kg'"></span>):
-                            </label>
-
-                            <!-- NHÓM CARD GROOMING & SPA -->
-                            <div x-show="servicePricingTab === 'grooming' || servicePricingTab === 'spa'" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                
-                                <!-- Card 1: Gói Spa Thảo Mộc Tắm Sấy -->
-                                <div @click="selectGroomingPackage('spa')"
-                                     :class="(groomingIncludeSpa && groomingCutType === 'none') ? 'border-2 border-[#F97316] bg-orange-50/60 shadow-md ring-2 ring-orange-200' : 'border border-slate-200 bg-white hover:border-orange-300 hover:shadow-sm'"
-                                     class="p-5 rounded-3xl transition duration-200 cursor-pointer flex flex-col justify-between space-y-4 group">
-                                    <div class="space-y-3">
-                                        <div class="flex items-center justify-between">
-                                            <div class="w-12 h-12 rounded-2xl bg-cyan-100 text-cyan-600 flex items-center justify-center text-xl group-hover:scale-105 transition">
-                                                <i class="fa-solid fa-shower"></i>
-                                            </div>
-                                            <div class="w-6 h-6 rounded-full flex items-center justify-center border transition"
-                                                 :class="(groomingIncludeSpa && groomingCutType === 'none') ? 'bg-[#F97316] border-[#F97316] text-white' : 'border-slate-300 bg-white'">
-                                                <i class="fa-solid fa-check text-[10px]" x-show="groomingIncludeSpa && groomingCutType === 'none'"></i>
-                                            </div>
+                        <!-- 2. CẤU TRÚC GÓI DỊCH VỤ (TAB GROOMING & SPA): GÓI CƠ BẢN VÀ GÓI NÂNG CẤP -->
+                        <div x-show="servicePricingTab === 'grooming' || servicePricingTab === 'spa'" class="space-y-4">
+                            
+                            <!-- GÓI CƠ BẢN: SPA TẮM SẤY THẢO MỘC (MẶC ĐỊNH LUÔN ĐƯỢC CHỌN - HIỂN THỊ GIÁ SÀN) -->
+                            <div class="p-5 rounded-3xl border-2 border-[#F97316] bg-orange-50/50 shadow-md ring-2 ring-orange-200/70 relative transition duration-200">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                    <div class="flex items-start gap-4">
+                                        <div class="w-12 h-12 rounded-2xl bg-[#F97316] text-white flex items-center justify-center text-xl shadow-md shadow-orange-500/30 flex-shrink-0">
+                                            <i class="fa-solid fa-shower"></i>
                                         </div>
-                                        <div>
-                                            <h4 class="font-black text-base text-slate-900 group-hover:text-[#F97316] transition">Spa Thảo Mộc Tắm Sấy</h4>
-                                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">Tắm thảo dược khử mùi, vệ sinh tai sâu, cắt mài móng, vắt tuyến hôi và sấy tạo phồng lông êm ái.</p>
+                                        <div class="space-y-1">
+                                            <div class="flex items-center gap-2 flex-wrap">
+                                                <span class="text-[10px] font-black uppercase tracking-wider bg-[#F97316] text-white px-2.5 py-0.5 rounded-full shadow-2xs">Gói Cơ Bản Bắt Buộc</span>
+                                                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                                    <i class="fa-solid fa-circle-check text-[9px]"></i> Mặc định đã chọn
+                                                </span>
+                                            </div>
+                                            <h4 class="font-black text-base sm:text-lg text-slate-900">Gói Cơ Bản: Spa Tắm Sấy Thảo Mộc</h4>
+                                            <p class="text-xs text-slate-600 leading-relaxed max-w-xl">
+                                                Quy trình nền tảng 7 bước: Tắm sữa tắm thảo mộc dưỡng ẩm, vệ sinh tai 2 lớp chuyên sâu, cắt & mài móng, vắt tuyến hôi, sấy phồng lông và xịt tinh dầu lưu hương.
+                                            </p>
                                         </div>
                                     </div>
-                                    <div class="pt-3 border-t border-slate-100/80 flex items-baseline justify-between">
-                                        <span class="text-[11px] text-slate-400 font-semibold">Giá trọn gói:</span>
-                                        <span class="text-lg font-black text-[#F97316]" x-text="formatCurrency(getGroomingSpaPrice())"></span>
-                                    </div>
-                                </div>
-
-                                <!-- Card 2: Gói Cắt Tỉa Tạo Kiểu (Grooming) -->
-                                <div @click="selectGroomingPackage('grooming')"
-                                     :class="(groomingIncludeSpa && groomingCutType === 'grooming') ? 'border-2 border-[#F97316] bg-orange-50/60 shadow-md ring-2 ring-orange-200' : 'border border-slate-200 bg-white hover:border-orange-300 hover:shadow-sm'"
-                                     class="p-5 rounded-3xl transition duration-200 cursor-pointer flex flex-col justify-between space-y-4 group">
-                                    <div class="space-y-3">
-                                        <div class="flex items-center justify-between">
-                                            <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center text-xl group-hover:scale-105 transition">
-                                                <i class="fa-solid fa-scissors"></i>
-                                            </div>
-                                            <span class="text-[10px] font-extrabold bg-amber-500 text-white px-2 py-0.5 rounded-full uppercase">Hot</span>
+                                    
+                                    <!-- Cột giá sàn & checkbox cố định -->
+                                    <div class="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center pt-3 sm:pt-0 border-t sm:border-t-0 border-orange-200/60 flex-shrink-0">
+                                        <span class="text-[11px] text-slate-500 font-semibold uppercase tracking-wider">Giá Sàn Áp Dụng:</span>
+                                        <span class="text-xl sm:text-2xl font-black text-[#F97316]" x-text="formatCurrency(getGroomingSpaPrice())"></span>
+                                        <div class="mt-1 flex items-center gap-1.5 text-xs text-emerald-700 font-extrabold bg-emerald-50 px-2.5 py-1 rounded-xl border border-emerald-200">
+                                            <i class="fa-solid fa-square-check text-emerald-600 text-sm"></i>
+                                            <span>Đã Chọn</span>
                                         </div>
-                                        <div>
-                                            <h4 class="font-black text-base text-slate-900 group-hover:text-[#F97316] transition">Cắt Tỉa Tạo Kiểu (Grooming)</h4>
-                                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">Bao gồm trọn gói Spa Tắm Sấy + Tạo kiểu theo yêu cầu (Teddy Bear, Corgi mông tròn, Boo style) bởi Master Groomer.</p>
-                                        </div>
-                                    </div>
-                                    <div class="pt-3 border-t border-slate-100/80 flex items-baseline justify-between">
-                                        <span class="text-[11px] text-slate-400 font-semibold">Giá trọn gói:</span>
-                                        <span class="text-lg font-black text-[#F97316]" x-text="formatCurrency(getGroomingCutPrice())"></span>
-                                    </div>
-                                </div>
-
-                                <!-- Card 3: Gói Cạo Lông Vệ Sinh (Shave) -->
-                                <div @click="selectGroomingPackage('shave')"
-                                     :class="(groomingIncludeSpa && groomingCutType === 'shave') ? 'border-2 border-[#F97316] bg-orange-50/60 shadow-md ring-2 ring-orange-200' : 'border border-slate-200 bg-white hover:border-orange-300 hover:shadow-sm'"
-                                     class="p-5 rounded-3xl transition duration-200 cursor-pointer flex flex-col justify-between space-y-4 group">
-                                    <div class="space-y-3">
-                                        <div class="flex items-center justify-between">
-                                            <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl group-hover:scale-105 transition">
-                                                <i class="fa-solid fa-wand-magic-sparkles"></i>
-                                            </div>
-                                            <div class="w-6 h-6 rounded-full flex items-center justify-center border transition"
-                                                 :class="(groomingIncludeSpa && groomingCutType === 'shave') ? 'bg-[#F97316] border-[#F97316] text-white' : 'border-slate-300 bg-white'">
-                                                <i class="fa-solid fa-check text-[10px]" x-show="groomingIncludeSpa && groomingCutType === 'shave'"></i>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <h4 class="font-black text-base text-slate-900 group-hover:text-[#F97316] transition">Cạo Lông Vệ Sinh (Shave)</h4>
-                                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">Cạo sạch lông sát da (3mm-6mm) giúp thoáng mát ngừa ve rận nấm da, giữ vệ sinh + Bao gồm Spa Tắm Thảo Dược.</p>
-                                        </div>
-                                    </div>
-                                    <div class="pt-3 border-t border-slate-100/80 flex items-baseline justify-between">
-                                        <span class="text-[11px] text-slate-400 font-semibold">Giá trọn gói:</span>
-                                        <span class="text-lg font-black text-[#F97316]" x-text="formatCurrency(getGroomingShavePrice())"></span>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- NHÓM CARD PET HOTEL 5 SAO -->
-                            <div x-show="servicePricingTab === 'hotel'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                
-                                <!-- Card Hotel 1: Lưu Trú Qua Đêm 5 Sao -->
-                                <div @click="selectHotelPackage('overnight')"
-                                     :class="hotelServiceType === 'overnight' ? 'border-2 border-[#F97316] bg-orange-50/60 shadow-md ring-2 ring-orange-200' : 'border border-slate-200 bg-white hover:border-orange-300 hover:shadow-sm'"
-                                     class="p-5 rounded-3xl transition duration-200 cursor-pointer flex flex-col justify-between space-y-4 group">
-                                    <div class="space-y-3">
-                                        <div class="flex items-center justify-between">
-                                            <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl group-hover:scale-105 transition">
-                                                <i class="fa-solid fa-moon"></i>
-                                            </div>
-                                            <span class="text-[10px] font-extrabold bg-indigo-500 text-white px-2 py-0.5 rounded-full uppercase">Chuẩn VIP 24h</span>
-                                        </div>
-                                        <div>
-                                            <h4 class="font-black text-base text-slate-900 group-hover:text-[#F97316] transition">Lưu Trú Qua Đêm 5 Sao (Overnight)</h4>
-                                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">Phòng điều hòa riêng biệt 2 chiều, lọc không khí HEPA, Camera HD Live Stream 24/7 xem trên app, 3 bữa thức ăn cao cấp Royal Canin.</p>
-                                        </div>
-                                    </div>
-                                    <div class="pt-3 border-t border-slate-100/80 flex items-baseline justify-between">
-                                        <span class="text-[11px] text-slate-400 font-semibold">Chi phí tính theo đêm:</span>
-                                        <span class="text-lg font-black text-[#F97316]" x-text="formatCurrency(getPetHotelPriceByWeight(petBookingDetail.weight || 5)) + '/đêm'"></span>
-                                    </div>
+                            <!-- BÊN DƯỚI: 2 CARD TÙY CHỌN NÂNG CẤP (RADIO BUTTONS) -->
+                            <div class="space-y-2 pt-2">
+                                <div class="flex items-center justify-between">
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                        Chọn Gói Nâng Cấp (Tùy Chọn - Cộng Thêm Chênh Lệch):
+                                    </label>
+                                    <button type="button" @click="setGroomingCutType('none')" x-show="groomingCutType !== 'none'" class="text-xs text-[#F97316] hover:underline font-bold">
+                                        Bỏ chọn nâng cấp (Chỉ dùng Spa cơ bản)
+                                    </button>
                                 </div>
 
-                                <!-- Card Hotel 2: Bán Trú Daycare Trong Ngày -->
-                                <div @click="selectHotelPackage('daycare')"
-                                     :class="hotelServiceType === 'daycare' ? 'border-2 border-[#F97316] bg-orange-50/60 shadow-md ring-2 ring-orange-200' : 'border border-slate-200 bg-white hover:border-orange-300 hover:shadow-sm'"
-                                     class="p-5 rounded-3xl transition duration-200 cursor-pointer flex flex-col justify-between space-y-4 group">
-                                    <div class="space-y-3">
-                                        <div class="flex items-center justify-between">
-                                            <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center text-xl group-hover:scale-105 transition">
-                                                <i class="fa-solid fa-sun"></i>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    
+                                    <!-- Card Nâng Cấp 1: Cắt Tỉa Tạo Kiểu (Grooming) -->
+                                    <div @click="setGroomingCutType(groomingCutType === 'grooming' ? 'none' : 'grooming')"
+                                         :class="groomingCutType === 'grooming' ? 'border-2 border-[#F97316] bg-orange-50/70 shadow-md ring-2 ring-orange-200' : 'border border-slate-200 bg-white hover:border-orange-300 hover:shadow-sm'"
+                                         class="p-5 rounded-3xl transition duration-200 cursor-pointer flex flex-col justify-between space-y-4 group">
+                                        <div class="space-y-3">
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="w-10 h-10 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg group-hover:scale-105 transition">
+                                                        <i class="fa-solid fa-scissors"></i>
+                                                    </div>
+                                                    <div>
+                                                        <span class="text-[10px] font-extrabold bg-amber-500 text-white px-2 py-0.5 rounded-full uppercase">Hot Style</span>
+                                                        <h5 class="font-black text-sm sm:text-base text-slate-900 group-hover:text-[#F97316] transition">Nâng cấp: + Cắt Tỉa Tạo Kiểu (Grooming)</h5>
+                                                    </div>
+                                                </div>
+                                                <!-- Radio Indicator -->
+                                                <div class="w-6 h-6 rounded-full flex items-center justify-center border transition"
+                                                     :class="groomingCutType === 'grooming' ? 'border-[#F97316] bg-white ring-2 ring-orange-400' : 'border-slate-300 bg-white'">
+                                                    <div class="w-3 h-3 rounded-full bg-[#F97316]" x-show="groomingCutType === 'grooming'"></div>
+                                                </div>
                                             </div>
-                                            <span class="text-[10px] font-extrabold bg-amber-500 text-white px-2 py-0.5 rounded-full uppercase">08:00 - 18:00</span>
+                                            <p class="text-xs text-slate-500 leading-relaxed">
+                                                Cắt tỉa tạo dáng theo yêu cầu (Teddy Bear, Corgi mông tròn, Boo style, phom sư tử) bởi Master Groomer tay nghề cao.
+                                            </p>
                                         </div>
-                                        <div>
-                                            <h4 class="font-black text-base text-slate-900 group-hover:text-[#F97316] transition">Bán Trú Gửi Trong Ngày (Daycare)</h4>
-                                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">Chăm sóc ban ngày khi sen bận đi làm: Vui chơi sân cỏ tương tác, vận động thể chất, bữa xế dinh dưỡng và nghỉ trưa điều hòa mát mẻ.</p>
+                                        <div class="pt-3 border-t border-slate-100 flex items-baseline justify-between">
+                                            <span class="text-xs text-slate-400 font-semibold">Phí chênh lệch cộng thêm:</span>
+                                            <div class="text-right">
+                                                <span class="text-base font-black text-[#F97316]" x-text="'+' + formatCurrency(Math.max(0, getGroomingCutPrice() - getGroomingSpaPrice()))"></span>
+                                                <div class="text-[10px] text-slate-400" x-text="'(Tổng gói: ' + formatCurrency(getGroomingCutPrice()) + ')'"></div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="pt-3 border-t border-slate-100/80 flex items-baseline justify-between">
-                                        <span class="text-[11px] text-slate-400 font-semibold">Chi phí tính trong ngày:</span>
-                                        <span class="text-lg font-black text-[#F97316]" x-text="formatCurrency(Math.round(getPetHotelPriceByWeight(petBookingDetail.weight || 5) * 0.6)) + '/ngày'"></span>
+
+                                    <!-- Card Nâng Cấp 2: Cạo Lông Vệ Sinh (Shave) -->
+                                    <div @click="setGroomingCutType(groomingCutType === 'shave' ? 'none' : 'shave')"
+                                         :class="groomingCutType === 'shave' ? 'border-2 border-[#F97316] bg-orange-50/70 shadow-md ring-2 ring-orange-200' : 'border border-slate-200 bg-white hover:border-orange-300 hover:shadow-sm'"
+                                         class="p-5 rounded-3xl transition duration-200 cursor-pointer flex flex-col justify-between space-y-4 group">
+                                        <div class="space-y-3">
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg group-hover:scale-105 transition">
+                                                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                                    </div>
+                                                    <div>
+                                                        <span class="text-[10px] font-extrabold bg-emerald-500 text-white px-2 py-0.5 rounded-full uppercase">Mát Mẻ & Sạch Sẽ</span>
+                                                        <h5 class="font-black text-sm sm:text-base text-slate-900 group-hover:text-[#F97316] transition">Nâng cấp: + Cạo Lông Vệ Sinh (Shave)</h5>
+                                                    </div>
+                                                </div>
+                                                <!-- Radio Indicator -->
+                                                <div class="w-6 h-6 rounded-full flex items-center justify-center border transition"
+                                                     :class="groomingCutType === 'shave' ? 'border-[#F97316] bg-white ring-2 ring-orange-400' : 'border-slate-300 bg-white'">
+                                                    <div class="w-3 h-3 rounded-full bg-[#F97316]" x-show="groomingCutType === 'shave'"></div>
+                                                </div>
+                                            </div>
+                                            <p class="text-xs text-slate-500 leading-relaxed">
+                                                Cạo phom lông sát da an toàn (độ dài 3mm - 6mm) giúp hạ nhiệt mùa nóng, điều trị nấm ve rận, đồng thời vệ sinh gọn gàng đệm chân và hậu môn.
+                                            </p>
+                                        </div>
+                                        <div class="pt-3 border-t border-slate-100 flex items-baseline justify-between">
+                                            <span class="text-xs text-slate-400 font-semibold">Phí chênh lệch cộng thêm:</span>
+                                            <div class="text-right">
+                                                <span class="text-base font-black text-[#F97316]" x-text="'+' + formatCurrency(Math.max(0, getGroomingShavePrice() - getGroomingSpaPrice()))"></span>
+                                                <div class="text-[10px] text-slate-400" x-text="'(Tổng gói: ' + formatCurrency(getGroomingShavePrice()) + ')'"></div>
+                                            </div>
+                                        </div>
                                     </div>
+
                                 </div>
                             </div>
                         </div>
 
-                        <!-- NÚT TIẾP TỤC BƯỚC 1 -->
+                        <!-- CẤU TRÚC GÓI HOTEL 5 SAO (KHI CHỌN TAB HOTEL) -->
+                        <div x-show="servicePricingTab === 'hotel'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Card Hotel 1: Lưu Trú Qua Đêm 5 Sao -->
+                            <div @click="selectHotelPackage('overnight')"
+                                 :class="hotelServiceType === 'overnight' ? 'border-2 border-[#F97316] bg-orange-50/60 shadow-md ring-2 ring-orange-200' : 'border border-slate-200 bg-white hover:border-orange-300 hover:shadow-sm'"
+                                 class="p-5 rounded-3xl transition duration-200 cursor-pointer flex flex-col justify-between space-y-4 group">
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center text-xl group-hover:scale-105 transition">
+                                            <i class="fa-solid fa-moon"></i>
+                                        </div>
+                                        <span class="text-[10px] font-extrabold bg-[#F97316] text-white px-2 py-0.5 rounded-full uppercase">Lưu Trú 24/7</span>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-black text-base text-slate-900 group-hover:text-[#F97316] transition">Lưu Trú Qua Đêm 5 Sao (24 Giờ)</h4>
+                                        <p class="text-xs text-slate-500 mt-1 leading-relaxed">Phòng điều hòa riêng biệt 24/24, đệm êm, 3 bữa hạt và pate cao cấp, dắt đi dạo sân cỏ 2 lần/ngày kèm Camera PetCam xem trực tiếp.</p>
+                                    </div>
+                                </div>
+                                <div class="pt-3 border-t border-slate-100 flex items-baseline justify-between">
+                                    <span class="text-[11px] text-slate-400 font-semibold">Giá 1 đêm:</span>
+                                    <span class="text-lg font-black text-[#F97316]" x-text="formatCurrency(getPetHotelPriceByWeight(petBookingDetail.weight || 5)) + '/đêm'"></span>
+                                </div>
+                            </div>
+
+                            <!-- Card Hotel 2: Gửi Bán Trú Daycare Trong Ngày -->
+                            <div @click="selectHotelPackage('daycare')"
+                                 :class="hotelServiceType === 'daycare' ? 'border-2 border-[#F97316] bg-orange-50/60 shadow-md ring-2 ring-orange-200' : 'border border-slate-200 bg-white hover:border-orange-300 hover:shadow-sm'"
+                                 class="p-5 rounded-3xl transition duration-200 cursor-pointer flex flex-col justify-between space-y-4 group">
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <div class="w-12 h-12 rounded-2xl bg-sky-100 text-sky-600 flex items-center justify-center text-xl group-hover:scale-105 transition">
+                                            <i class="fa-solid fa-sun"></i>
+                                        </div>
+                                        <span class="text-[10px] font-extrabold bg-sky-500 text-white px-2 py-0.5 rounded-full uppercase">Trong Ngày</span>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-black text-base text-slate-900 group-hover:text-[#F97316] transition">Gửi Bán Trú Daycare (08:00 - 18:00)</h4>
+                                        <p class="text-xs text-slate-500 mt-1 leading-relaxed">Giải pháp hoàn hảo cho chủ bận đi làm ban ngày. Bé được vui chơi với bạn cùng size, ăn trưa dinh dưỡng và ngủ trưa máy lạnh an toàn.</p>
+                                    </div>
+                                </div>
+                                <div class="pt-3 border-t border-slate-100 flex items-baseline justify-between">
+                                    <span class="text-[11px] text-slate-400 font-semibold">Giá trọn ngày:</span>
+                                    <span class="text-lg font-black text-[#F97316]" x-text="formatCurrency(Math.round(getPetHotelPriceByWeight(petBookingDetail.weight || 5) * 0.6)) + '/ngày'"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- NÚT TIẾP TỤC SANG BƯỚC 2 -->
                         <div class="pt-4 border-t border-slate-100 flex justify-end">
                             <button type="button" @click="bookingWizardStep = 2" class="px-6 py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-xs sm:text-sm rounded-2xl shadow-md shadow-orange-500/25 transition flex items-center gap-2 cursor-pointer active:scale-95">
-                                <span>Tiếp tục: Chọn Thời Gian & Tiện Ích</span>
+                                <span>Tiếp tục: Chọn Thời Gian & Logistics</span>
                                 <i class="fa-solid fa-arrow-right"></i>
                             </button>
                         </div>
                     </div>
 
                     <!-- ==================================================== -->
-                    <!-- BƯỚC 2: THỜI GIAN, TIỆN ÍCH & PETSHIP -->
+                    <!-- BƯỚC 2: CHI TIẾT THỜI GIAN, TIỆN ÍCH & LOGISTICS PETSHIP -->
                     <!-- ==================================================== -->
                     <div x-show="bookingWizardStep === 2" class="space-y-6 animate-fadeIn" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0">
-                        <div class="border-b border-slate-100 pb-4">
-                            <h3 class="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2">
-                                <span class="w-7 h-7 rounded-lg bg-orange-100 text-[#F97316] text-xs flex items-center justify-center font-black">2</span>
-                                <span>Thời Gian Hẹn, Tiện Ích Cộng Thêm & Đưa Đón PetShip</span>
+                        
+                        <div class="pb-3 border-b border-slate-100">
+                            <h3 class="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+                                <span class="w-7 h-7 rounded-full bg-[#F97316] text-white flex items-center justify-center text-xs font-black">2</span>
+                                <span>Chi Tiết Thời Gian, Tiện Ích & Logistics PetShip</span>
                             </h3>
-                            <p class="text-xs text-slate-500 mt-1">Lựa chọn khung giờ thuận tiện và các dịch vụ bổ sung để bé cưng được trải nghiệm trọn vẹn</p>
+                            <p class="text-xs text-slate-500 mt-1">Lựa chọn khung giờ thuận tiện và các dịch vụ bổ sung để bé cưng được chăm sóc chu đáo nhất</p>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- CHỌN THỜI GIAN DÀNH CHO GROOMING -->
+                            <!-- CHỌN THỜI GIAN DÀNH CHO GROOMING / SPA -->
                             <div x-show="servicePricingTab !== 'hotel'" class="space-y-3">
                                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                                    Ngày Hẹn Làm Dịch Vụ:
+                                    <i class="fa-solid fa-calendar-day text-[#F97316] mr-1"></i> Ngày Hẹn Làm Dịch Vụ:
                                 </label>
                                 <input type="date" x-model="serviceBookingForm.date" class="w-full bg-slate-50 border border-slate-300 rounded-2xl px-4 py-3 text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500">
                                 
                                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider pt-2">
-                                    Khung Giờ Nhận Pet:
+                                    <i class="fa-solid fa-clock text-[#F97316] mr-1"></i> Khung Giờ Bắt Đầu:
                                 </label>
-                                <div class="grid grid-cols-2 gap-2">
+                                <div class="grid grid-cols-3 gap-2">
                                     <template x-for="slot in ['08:30', '10:00', '13:30', '15:00', '16:30', '18:00']" :key="slot">
                                         <button type="button" @click="serviceBookingForm.timeSlot = slot"
                                                 :class="serviceBookingForm.timeSlot === slot ? 'bg-[#F97316] text-white font-bold shadow-xs' : 'bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100'"
                                                 class="py-2.5 px-3 rounded-xl text-xs transition font-semibold" x-text="slot"></button>
                                     </template>
                                 </div>
+
+                                <!-- TEXT TỰ ĐỘNG TÍNH THỜI GIAN DỰ KIẾN HOÀN THÀNH (YÊU CẦU 2) -->
+                                <div class="p-3 bg-amber-50 rounded-2xl border border-amber-200 text-xs text-amber-900 font-bold flex items-center gap-2">
+                                    <i class="fa-solid fa-stopwatch text-[#F97316] text-sm"></i>
+                                    <span>Thời gian dự kiến hoàn thành: <strong>90 - 120 phút</strong></span>
+                                </div>
                             </div>
 
-                            <!-- CHỌN THỜI GIAN DÀNH CHO HOTEL -->
-                            <div x-show="servicePricingTab === 'hotel'" class="space-y-3 md:col-span-2">
+                            <!-- CHỌN THỜI GIAN DÀNH CHO HOTEL 5 SAO: ĐẦY ĐỦ NGÀY VÀ GIỜ CHECK-IN CÙNG NGÀY VÀ GIỜ CHECK-OUT -->
+                            <div x-show="servicePricingTab === 'hotel'" class="space-y-4 md:col-span-2">
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div class="space-y-1.5">
-                                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Ngày Nhận Phòng (Check-in):</label>
-                                        <input type="date" x-model="hotelCheckInDate" @change="recalculateHotelFee()" class="w-full bg-slate-50 border border-slate-300 rounded-2xl px-4 py-3 text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                    <div class="space-y-2 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                            <i class="fa-solid fa-calendar-check text-[#F97316] mr-1"></i> Ngày & Giờ Check-in (Nhận phòng):
+                                        </label>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <span class="text-[10px] text-slate-400 font-bold block mb-1">Ngày nhận:</span>
+                                                <input type="date" x-model="hotelCheckInDate" @change="recalculateHotelFee()" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                            </div>
+                                            <div>
+                                                <span class="text-[10px] text-slate-400 font-bold block mb-1">Giờ nhận:</span>
+                                                <input type="time" x-model="serviceBookingForm.hotelCheckInTime" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="space-y-1.5">
-                                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Ngày Trả Phòng (Check-out):</label>
-                                        <input type="date" x-model="hotelCheckOutDate" @change="recalculateHotelFee()" class="w-full bg-slate-50 border border-slate-300 rounded-2xl px-4 py-3 text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                    <div class="space-y-2 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                            <i class="fa-solid fa-calendar-xmark text-[#F97316] mr-1"></i> Ngày & Giờ Check-out (Trả phòng):
+                                        </label>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <span class="text-[10px] text-slate-400 font-bold block mb-1">Ngày trả:</span>
+                                                <input type="date" x-model="hotelCheckOutDate" @change="recalculateHotelFee()" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                            </div>
+                                            <div>
+                                                <span class="text-[10px] text-slate-400 font-bold block mb-1">Giờ trả:</span>
+                                                <input type="time" x-model="serviceBookingForm.hotelCheckOutTime" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <p class="text-[11px] text-orange-700 font-semibold bg-orange-50 p-2.5 rounded-xl border border-orange-200 flex items-center gap-1.5">
-                                    <i class="fa-solid fa-calendar-days text-[#F97316]"></i>
-                                    <span>Thời gian lưu trú: <strong x-text="hotelNights"></strong> đêm (<strong x-text="formatCurrency(hotelFee)"></strong>)</span>
+                                <p class="text-[11px] text-orange-700 font-semibold bg-orange-50 p-2.5 rounded-xl border border-orange-200 flex items-center justify-between flex-wrap gap-1">
+                                    <span class="flex items-center gap-1.5">
+                                        <i class="fa-solid fa-calendar-days text-[#F97316]"></i>
+                                        <span>Thời gian lưu trú: <strong x-text="hotelNights"></strong> đêm (<strong x-text="formatCurrency(hotelFee)"></strong>)</span>
+                                    </span>
+                                    <span class="text-[10px] text-slate-500 italic">* Tính phụ phí nếu check-out trễ sau 12:00 trưa</span>
                                 </p>
                             </div>
 
                             <!-- CHI NHÁNH CỐ ĐỊNH -->
-                            <div class="space-y-3">
+                            <div class="space-y-3" x-show="servicePricingTab !== 'hotel'">
                                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
                                     Địa Điểm Thực Hiện:
                                 </label>
@@ -1592,24 +1673,58 @@
                             </div>
                         </div>
 
-                        <!-- ĐƯA ĐÓN PETSHIP: THẺ CHECKBOX ĐĂNG KÝ (ẨN FORM ĐỊA CHỈ TẠI ĐÂY THEO YÊU CẦU) -->
-                        <div class="p-4 bg-orange-50/80 rounded-2xl border border-orange-200/90 space-y-2">
+                        <!-- ĐƯA ĐÓN PETSHIP (ĐIỀU PHỐI XE): LẬP TỨC MỞ RỘNG (EXPAND) CÁC TRƯỜNG KHI TICK CHỌN -->
+                        <div class="p-5 bg-orange-50/80 rounded-3xl border border-orange-200/90 space-y-4">
                             <label class="flex items-start gap-3 cursor-pointer">
-                                <input type="checkbox" x-model="serviceBookingForm.petShip" class="w-5 h-5 rounded text-orange-600 focus:ring-orange-500 border-slate-300 mt-0.5">
+                                <input type="checkbox" x-model="serviceBookingForm.petShip" class="w-5 h-5 rounded text-[#F97316] focus:ring-orange-500 border-slate-300 mt-0.5">
                                 <div class="flex-1">
                                     <div class="flex items-center justify-between flex-wrap gap-1">
-                                        <h5 class="font-bold text-xs sm:text-sm text-slate-900 flex items-center gap-1.5">
+                                        <h5 class="font-bold text-sm text-slate-900 flex items-center gap-2">
                                             <i class="fa-solid fa-van-shuttle text-[#F97316]"></i>
-                                            <span>Đăng ký dịch vụ đưa đón PetShip tận nhà (2 chiều)</span>
+                                            <span>Đăng ký dịch vụ đưa đón PetShip</span>
                                         </h5>
-                                        <span class="text-xs font-extrabold text-orange-600 bg-white px-2 py-0.5 rounded-md shadow-2xs">+60.000đ</span>
+                                        <span class="text-xs font-extrabold text-[#F97316] bg-white px-2.5 py-1 rounded-xl shadow-2xs border border-orange-200">+60.000đ (2 chiều)</span>
                                     </div>
-                                    <p class="text-xs text-slate-500 mt-1">Xe chuyên dụng có lồng thoáng khí và điều hòa mát mẻ. Tài xế giàu kinh nghiệm bế dỗ các bé.</p>
-                                    <p class="text-[11px] text-orange-700 italic mt-1 font-medium">
-                                        * Lưu ý: Địa chỉ đón rước cụ thể sẽ được đồng bộ và xác nhận tại màn hình Thanh toán Checkout của giỏ hàng hỗn hợp.
-                                    </p>
+                                    <p class="text-xs text-slate-500 mt-1">Xe chuyên dụng điều hòa mát lạnh, lồng thoáng khí riêng biệt, tài xế có bảo hiểm và chứng chỉ an toàn thú cưng.</p>
                                 </div>
                             </label>
+
+                            <!-- FORM LẬP TỨC MỞ RỘNG (EXPAND) THÊM CÁC TRƯỜNG THEO YÊU CẦU -->
+                            <div x-show="serviceBookingForm.petShip" x-collapse x-transition class="pt-3 border-t border-orange-200/60 space-y-3">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                                    <div>
+                                        <label class="block font-bold text-slate-700 mb-1">
+                                            <i class="fa-solid fa-clock text-[#F97316] mr-1"></i> Khung giờ tài xế đón bé tại nhà:
+                                        </label>
+                                        <select x-model="serviceBookingForm.petShipPickupTime" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2.5 text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                            <option value="08:00 - 09:00">08:00 - 09:00 (Sáng sớm)</option>
+                                            <option value="08:30 - 09:30">08:30 - 09:30 (Đầu giờ sáng)</option>
+                                            <option value="09:30 - 10:30">09:30 - 10:30 (Giữa buổi sáng)</option>
+                                            <option value="13:30 - 14:30">13:30 - 14:30 (Đầu giờ chiều)</option>
+                                            <option value="15:00 - 16:00">15:00 - 16:00 (Chiều mát)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block font-bold text-slate-700 mb-1">
+                                            <i class="fa-solid fa-house-chimney-user text-emerald-600 mr-1"></i> Khung giờ tài xế trả bé về nhà:
+                                        </label>
+                                        <select x-model="serviceBookingForm.petShipDropoffTime" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2.5 text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                            <option value="16:00 - 17:00">16:00 - 17:00 (Cuối buổi chiều)</option>
+                                            <option value="16:30 - 17:30">16:30 - 17:30 (Tan tầm)</option>
+                                            <option value="17:30 - 18:30">17:30 - 18:30 (Đầu giờ tối)</option>
+                                            <option value="18:30 - 19:30">18:30 - 19:30 (Buổi tối)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- CHECKBOX BẮT BUỘC -->
+                                <label class="flex items-start gap-2.5 p-3 rounded-2xl bg-white border border-orange-300 cursor-pointer text-xs">
+                                    <input type="checkbox" x-model="serviceBookingForm.petShipCommitment" required class="w-4 h-4 rounded text-[#F97316] focus:ring-orange-500 border-slate-300 mt-0.5">
+                                    <span class="text-slate-800 font-bold leading-relaxed">
+                                        Tôi cam kết sẽ có mặt tại nhà vào các khung giờ trên để bàn giao/nhận lại bé. <span class="text-rose-500 font-extrabold">* (Bắt buộc)</span>
+                                    </span>
+                                </label>
+                            </div>
                         </div>
 
                         <!-- NÚT ĐIỀU HƯỚNG BƯỚC 2: QUAY LẠI & TIẾP TỤC -->
@@ -1626,66 +1741,75 @@
                     </div>
 
                     <!-- ==================================================== -->
-                    <!-- BƯỚC 3: GHI CHÚ Y TẾ & XÁC NHẬN CHI PHÍ -->
+                    <!-- BƯỚC 3: GHI CHÚ Y TẾ & TÓM TẮT THANH TOÁN -->
                     <!-- ==================================================== -->
                     <div x-show="bookingWizardStep === 3" class="space-y-6 animate-fadeIn" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0">
-                        <div class="border-b border-slate-100 pb-4">
-                            <h3 class="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2">
-                                <span class="w-7 h-7 rounded-lg bg-orange-100 text-[#F97316] text-xs flex items-center justify-center font-black">3</span>
-                                <span>Ghi Chú Đặc Nhiệm & Tóm Tắt Xác Nhận Chi Phí</span>
+                        
+                        <div class="pb-3 border-b border-slate-100">
+                            <h3 class="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+                                <span class="w-7 h-7 rounded-full bg-[#F97316] text-white flex items-center justify-center text-xs font-black">3</span>
+                                <span>Ghi Chú Y Tế & Tóm Tắt Thanh Toán</span>
                             </h3>
-                            <p class="text-xs text-slate-500 mt-1">Kiểm tra lại toàn bộ chi phí minh bạch trước khi thêm vào giỏ hàng hoặc thanh toán ngay</p>
+                            <p class="text-xs text-slate-500 mt-1">Kiểm tra thông tin chi phí minh bạch và xác nhận đặt lịch</p>
                         </div>
 
-                        <!-- 1. TEXTAREA NHẬP GHI CHÚ ĐẶC NHIỆM -->
+                        <!-- 1. TEXTAREA GHI CHÚ ĐẶC NHIỆM -->
                         <div class="space-y-2">
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                                <i class="fa-solid fa-notes-medical text-rose-500"></i>
-                                <span>Ghi Chú Đặc Nhiệm Dành Cho Bé:</span>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                <i class="fa-solid fa-notes-medical text-[#F97316] mr-1"></i> Ghi chú đặc nhiệm (Dị ứng, Tính cách...):
                             </label>
-                            <textarea x-model="serviceBookingForm.specialNotes" rows="3"
-                                      placeholder="Nhập thông tin dặn dò chuyên viên: Tiền sử dị ứng sữa tắm, vết mổ mới lành, tính cách nhút nhát hoặc hung dữ khi sấy lông, thói quen ăn uống đặc biệt..."
+                            <textarea x-model="serviceBookingForm.notes" rows="3"
+                                      placeholder="VD: Bé sợ tiếng máy sấy to, dị ứng xà phòng bạc hà, da mẫn cảm hoặc đang có vết xước nhẹ..."
                                       class="w-full bg-slate-50 border border-slate-300 rounded-2xl p-4 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white resize-none shadow-2xs"></textarea>
                         </div>
 
-                        <!-- 2. KHỐI TỔNG KẾT ORDER SUMMARY (PHÂN TÁCH CHI PHÍ RẠCH RÒI) -->
+                        <!-- 2. KHỐI TÓM TẮT CHI PHÍ (ORDER SUMMARY): BÓC TÁCH RÕ RÀNG 4 KHOẢN THEO YÊU CẦU -->
                         <div class="bg-slate-50 rounded-3xl p-5 sm:p-6 border border-slate-200 space-y-4">
                             <h4 class="font-black text-sm uppercase tracking-wider text-slate-800 flex items-center justify-between pb-2 border-b border-slate-200">
-                                <span>Tóm Tắt Chi Phí Lịch Hẹn</span>
+                                <span>Tóm Tắt Chi Phí Lịch Hẹn (Order Summary)</span>
                                 <span class="text-xs text-[#F97316] font-extrabold" x-text="petBookingDetail.name + ' (' + petBookingDetail.weight + ' kg)'"></span>
                             </h4>
 
-                            <div class="space-y-2 text-xs sm:text-sm">
-                                <!-- Giá gốc dịch vụ chính -->
+                            <div class="space-y-3 text-xs sm:text-sm">
+                                <!-- Khoản 1: Giá Spa Cơ Bản -->
                                 <div class="flex items-center justify-between text-slate-700">
-                                    <span class="flex items-center gap-1.5">
-                                        <i class="fa-solid fa-tag text-slate-400 text-xs"></i>
-                                        <span x-text="selectedBaseService ? selectedBaseService.name : 'Dịch vụ chính'"></span>
+                                    <span class="flex items-center gap-2">
+                                        <i class="fa-solid fa-shower text-cyan-600 text-xs"></i>
+                                        <span>[Giá Spa Cơ Bản] Spa Tắm Sấy Thảo Mộc:</span>
                                     </span>
-                                    <span class="font-bold text-slate-900" x-text="formatCurrency(servicePricingTab === 'hotel' ? hotelFee : baseServicePrice)"></span>
+                                    <span class="font-bold text-slate-900" x-text="formatCurrency(servicePricingTab === 'hotel' ? hotelFee : getGroomingSpaPrice())"></span>
                                 </div>
 
-                                <!-- Tiền Add-ons -->
-                                <div class="flex items-center justify-between text-slate-700" x-show="totalAddonsCost > 0">
-                                    <span class="flex items-center gap-1.5">
-                                        <i class="fa-solid fa-plus-circle text-slate-400 text-xs"></i>
-                                        <span>Dịch vụ cộng thêm (<span x-text="serviceBookingForm.addons.length"></span> mục):</span>
+                                <!-- Khoản 2: Phí Nâng Cấp Groom/Shave -->
+                                <div class="flex items-center justify-between text-slate-700" x-show="servicePricingTab !== 'hotel'">
+                                    <span class="flex items-center gap-2">
+                                        <i class="fa-solid fa-scissors text-amber-600 text-xs"></i>
+                                        <span>[Phí Nâng Cấp Groom/Shave] <span x-text="groomingCutType === 'grooming' ? 'Cắt Tỉa Tạo Kiểu (Grooming)' : (groomingCutType === 'shave' ? 'Cạo Lông Vệ Sinh (Shave)' : 'Không nâng cấp')"></span>:</span>
                                     </span>
-                                    <span class="font-bold text-slate-900" x-text="'+' + formatCurrency(totalAddonsCost)"></span>
+                                    <span class="font-bold text-slate-900" x-text="getGroomingUpgradeDiff() > 0 ? ('+' + formatCurrency(getGroomingUpgradeDiff())) : '0 đ'"></span>
                                 </div>
 
-                                <!-- Tiền PetShip -->
-                                <div class="flex items-center justify-between text-slate-700" x-show="petShipCost > 0">
-                                    <span class="flex items-center gap-1.5">
-                                        <i class="fa-solid fa-truck text-slate-400 text-xs"></i>
-                                        <span>Đưa đón PetShip tận nơi (2 chiều):</span>
+                                <!-- Khoản 3: Phí Add-ons -->
+                                <div class="flex items-center justify-between text-slate-700">
+                                    <span class="flex items-center gap-2">
+                                        <i class="fa-solid fa-plus-circle text-purple-600 text-xs"></i>
+                                        <span>[Phí Add-ons] Dịch vụ cộng thêm (<span x-text="serviceBookingForm.addons ? serviceBookingForm.addons.length : 0"></span> mục):</span>
                                     </span>
-                                    <span class="font-bold text-slate-900" x-text="'+' + formatCurrency(petShipCost)"></span>
+                                    <span class="font-bold text-slate-900" x-text="totalAddonsCost > 0 ? ('+' + formatCurrency(totalAddonsCost)) : '0 đ'"></span>
                                 </div>
 
-                                <!-- Dòng phân cách tổng tiền -->
+                                <!-- Khoản 4: Phí PetShip -->
+                                <div class="flex items-center justify-between text-slate-700">
+                                    <span class="flex items-center gap-2">
+                                        <i class="fa-solid fa-van-shuttle text-[#F97316] text-xs"></i>
+                                        <span>[Phí PetShip] Đưa đón tận nơi (2 chiều):</span>
+                                    </span>
+                                    <span class="font-bold text-slate-900" x-text="serviceBookingForm.petShip ? ('+' + formatCurrency(60000)) : '0 đ'"></span>
+                                </div>
+
+                                <!-- Dòng tổng chi phí -->
                                 <div class="pt-3 border-t border-slate-200 flex items-center justify-between">
-                                    <span class="text-sm sm:text-base font-extrabold text-slate-900">Tổng Chi Phí:</span>
+                                    <span class="text-sm sm:text-base font-extrabold text-slate-900">Tổng Chi Phí Dự Kiến:</span>
                                     <span class="text-xl sm:text-2xl font-black text-[#F97316]" x-text="formatCurrency(totalServiceCost)"></span>
                                 </div>
 
@@ -1705,35 +1829,35 @@
                             </div>
                         </div>
 
-                        <!-- 3. CÁC NÚT ĐIỀU HƯỚNG & CALL-TO-ACTION (CTA) -->
+                        <!-- 3. NÚT HÀNH ĐỘNG (FOOTER FORM) -->
                         <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-                            <!-- Nút quay lại Bước 2 -->
+                            <!-- Nút Quay lại -->
                             <button type="button" @click="bookingWizardStep = 2" class="px-5 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 cursor-pointer">
                                 <i class="fa-solid fa-arrow-left"></i>
-                                <span>Quay lại Bước 2</span>
+                                <span>Quay lại</span>
                             </button>
 
-                            <!-- Hai Nút Hành Động: Thêm Giỏ Hàng & Thanh Toán Ngay -->
+                            <!-- Hai Nút Hành Động: Thêm vào giỏ hàng (Secondary) & Thanh toán ngay (Primary) -->
                             <div class="flex flex-col sm:flex-row items-stretch gap-3">
-                                <!-- Nút Outline: Thêm vào giỏ hàng -->
+                                <!-- Nút Secondary: Thêm vào giỏ hàng -->
                                 <button type="button" @click="submitServiceBooking(false)"
                                         class="border-2 border-[#F97316] bg-white text-[#F97316] hover:bg-orange-50 font-black text-xs sm:text-sm px-6 py-3.5 rounded-2xl transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 shadow-2xs">
                                     <i class="fa-solid fa-cart-plus"></i>
-                                    <span>THÊM VÀO GIỎ HÀNG</span>
+                                    <span>Thêm vào giỏ hàng</span>
                                 </button>
 
                                 <!-- Nút Primary: Thanh toán ngay & Đặt lịch -->
                                 <button type="button" @click="submitServiceBooking(true)"
                                         class="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black text-xs sm:text-sm px-8 py-3.5 rounded-2xl shadow-lg shadow-orange-500/30 transition transform flex items-center justify-center gap-2 cursor-pointer active:scale-95">
                                     <i class="fa-solid fa-calendar-check"></i>
-                                    <span x-text="servicePricingTab === 'hotel' ? 'THANH TOÁN CỌC 50% & ĐẶT LỊCH' : 'THANH TOÁN NGAY & ĐẶT LỊCH'"></span>
+                                    <span x-text="servicePricingTab === 'hotel' ? 'Thanh toán cọc 50% & Đặt lịch' : 'Thanh toán ngay & Đặt lịch'"></span>
                                     <i class="fa-solid fa-arrow-right text-xs"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                </div>
+</div>
             </div>
 
             <!-- ======================================================== -->
@@ -2820,14 +2944,14 @@
                     </div>
                     <!-- Subtabs Bar (3 nút: Hồ Sơ Của Tôi, Hồ Sơ Thú Cưng, Sổ Địa Chỉ) -->
                     <div class="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl self-start sm:self-auto overflow-x-auto text-xs font-bold">
-                        <button @click="activeTab = 'profile'; accountSubTab = 'profile'" :class="(activeTab === 'profile' || accountSubTab === 'profile' || accountSubTab === 'info') ? 'bg-[#F97316] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-3.5 py-1.5 rounded-xl transition cursor-pointer">
+                        <button @click="activeTab = 'profile'" :class="activeTab === 'profile' ? 'bg-[#F97316] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-3.5 py-1.5 rounded-xl transition cursor-pointer">
                             Hồ Sơ Của Tôi
                         </button>
-                        <button @click="activeTab = 'pets'; accountSubTab = 'pets'" :class="(activeTab === 'pets' || accountSubTab === 'pets') ? 'bg-[#F97316] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-3.5 py-1.5 rounded-xl transition flex items-center gap-1 cursor-pointer">
+                        <button @click="activeTab = 'pets'" :class="activeTab === 'pets' ? 'bg-[#F97316] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-3.5 py-1.5 rounded-xl transition flex items-center gap-1 cursor-pointer">
                             <i class="fa-solid fa-paw text-[11px]"></i>
                             <span>Hồ Sơ Thú Cưng</span>
                         </button>
-                        <button @click="activeTab = 'address'; accountSubTab = 'address'" :class="(activeTab === 'address' || activeTab === 'addresses' || accountSubTab === 'address' || accountSubTab === 'addresses') ? 'bg-[#F97316] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-3.5 py-1.5 rounded-xl transition flex items-center gap-1 cursor-pointer">
+                        <button @click="activeTab = 'address'" :class="activeTab === 'address' ? 'bg-[#F97316] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-3.5 py-1.5 rounded-xl transition flex items-center gap-1 cursor-pointer">
                             <i class="fa-solid fa-map-location-dot text-[11px]"></i>
                             <span>Sổ Địa Chỉ</span>
                         </button>
@@ -2859,10 +2983,10 @@
                             <div class="text-[11px] font-black uppercase text-slate-400 tracking-wider px-3 py-1">Menu Quản Lý</div>
                             
                             <!-- Nút 1: Hồ Sơ Của Tôi -->
-                            <button type="button" @click="activeTab = 'profile'; accountSubTab = 'profile'" 
-                                    :class="(activeTab === 'profile' || accountSubTab === 'profile' || accountSubTab === 'info') ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold shadow-md shadow-orange-500/25' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 font-semibold'"
+                            <button type="button" @click="activeTab = 'profile'" 
+                                    :class="activeTab === 'profile' ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold shadow-md shadow-orange-500/25' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 font-semibold'"
                                     class="w-full py-3 px-4 rounded-2xl flex items-center gap-3 text-left transition duration-200 cursor-pointer">
-                                <i class="fa-solid fa-user-circle text-lg" :class="(activeTab === 'profile' || accountSubTab === 'profile' || accountSubTab === 'info') ? 'text-white' : 'text-[#F97316]'"></i>
+                                <i class="fa-solid fa-user-circle text-lg" :class="activeTab === 'profile' ? 'text-white' : 'text-[#F97316]'"></i>
                                 <div class="flex-1">
                                     <div class="text-xs sm:text-sm">Hồ Sơ Của Tôi</div>
                                     <div class="text-[10px] opacity-80 font-normal">Thông tin cá nhân & mật khẩu</div>
@@ -2871,10 +2995,10 @@
                             </button>
 
                             <!-- Nút 2: Hồ Sơ Thú Cưng -->
-                            <button type="button" @click="activeTab = 'pets'; accountSubTab = 'pets'" 
-                                    :class="(activeTab === 'pets' || accountSubTab === 'pets') ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold shadow-md shadow-orange-500/25' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 font-semibold'"
+                            <button type="button" @click="activeTab = 'pets'" 
+                                    :class="activeTab === 'pets' ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold shadow-md shadow-orange-500/25' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 font-semibold'"
                                     class="w-full py-3 px-4 rounded-2xl flex items-center gap-3 text-left transition duration-200 cursor-pointer">
-                                <i class="fa-solid fa-paw text-lg" :class="(activeTab === 'pets' || accountSubTab === 'pets') ? 'text-white' : 'text-[#F97316]'"></i>
+                                <i class="fa-solid fa-paw text-lg" :class="activeTab === 'pets' ? 'text-white' : 'text-[#F97316]'"></i>
                                 <div class="flex-1">
                                     <div class="text-xs sm:text-sm">Hồ Sơ Thú Cưng</div>
                                     <div class="text-[10px] opacity-80 font-normal">Quản lý bé cưng & cân nặng</div>
@@ -2883,10 +3007,10 @@
                             </button>
 
                             <!-- Nút 3: Sổ Địa Chỉ -->
-                            <button type="button" @click="activeTab = 'address'; accountSubTab = 'address'" 
-                                    :class="(activeTab === 'address' || activeTab === 'addresses' || accountSubTab === 'address' || accountSubTab === 'addresses') ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold shadow-md shadow-orange-500/25' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 font-semibold'"
+                            <button type="button" @click="activeTab = 'address'" 
+                                    :class="activeTab === 'address' ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold shadow-md shadow-orange-500/25' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 font-semibold'"
                                     class="w-full py-3 px-4 rounded-2xl flex items-center gap-3 text-left transition duration-200 cursor-pointer">
-                                <i class="fa-solid fa-map-location-dot text-lg" :class="(activeTab === 'address' || activeTab === 'addresses' || accountSubTab === 'address' || accountSubTab === 'addresses') ? 'text-white' : 'text-[#F97316]'"></i>
+                                <i class="fa-solid fa-map-location-dot text-lg" :class="activeTab === 'address' ? 'text-white' : 'text-[#F97316]'"></i>
                                 <div class="flex-1">
                                     <div class="text-xs sm:text-sm">Sổ Địa Chỉ</div>
                                     <div class="text-[10px] opacity-80 font-normal">Giao hàng & PetShip đón rước</div>
@@ -2923,7 +3047,7 @@
                     <div class="lg:col-span-2 space-y-6">
                         
                         <!-- TAB 1: FORM HỒ SƠ CỦA TÔI (Hiển thị khi activeTab === 'profile') -->
-                        <div x-show="activeTab === 'profile' || accountSubTab === 'profile' || accountSubTab === 'info'" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 animate-fadeIn">
+                        <div x-show="activeTab === 'profile'" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 animate-fadeIn">
                             <div class="flex items-center justify-between pb-4 border-b border-slate-100">
                                 <div>
                                     <h3 class="font-extrabold text-base sm:text-lg text-slate-900 flex items-center gap-2">
@@ -2964,7 +3088,7 @@
                         </div>
 
                         <!-- TAB 2: HỒ SƠ THÚ CƯNG ĐÃ LƯU (Hiển thị khi activeTab === 'pets') -->
-                        <div x-show="activeTab === 'pets' || accountSubTab === 'pets'" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 animate-fadeIn">
+                        <div x-show="activeTab === 'pets'" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 animate-fadeIn">
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
                                 <div>
                                     <h3 class="font-extrabold text-base sm:text-lg text-slate-900 flex items-center gap-2">
@@ -3041,7 +3165,7 @@
                         </div>
 
                         <!-- TAB 3: SỔ ĐỊA CHỈ GIAO HÀNG & ĐƯA ĐÓN (Hiển thị khi activeTab === 'address') -->
-                        <div x-show="activeTab === 'address' || activeTab === 'addresses' || accountSubTab === 'address' || accountSubTab === 'addresses'" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 animate-fadeIn">
+                        <div x-show="activeTab === 'address'" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 animate-fadeIn">
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
                                 <div>
                                     <h3 class="font-extrabold text-base sm:text-lg text-slate-900 flex items-center gap-2">
@@ -6480,11 +6604,14 @@
                 </button>
 
                 <div class="h-64 overflow-hidden rounded-t-3xl relative">
-                    <img :src="(selectedArticleModal || selectedArticle).coverImage || (selectedArticleModal || selectedArticle).image" :alt="selectedArticleModal.title" @error=".target.src='https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=800&q=80'" class="w-full h-full object-cover">
+                    <img :src="(selectedArticleModal || selectedArticle)?.coverImage || (selectedArticleModal || selectedArticle)?.image || 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=800&q=80'" 
+                         :alt="(selectedArticleModal || selectedArticle)?.title || 'Bài viết PetCare360'" 
+                         @error="$event.target.src='https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=800&q=80'" 
+                         class="w-full h-full object-cover">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-black/20"></div>
                     <div class="absolute bottom-4 left-6 right-6 text-white">
-                        <span class="px-2.5 py-1 bg-emerald-500 text-white text-[10px] font-black rounded-lg uppercase tracking-wider inline-block mb-2 shadow" x-text="selectedArticleModal.category"></span>
-                        <h3 class="text-xl md:text-2xl font-black leading-snug" x-text="selectedArticleModal.title"></h3>
+                        <span class="px-2.5 py-1 bg-emerald-500 text-white text-[10px] font-black rounded-lg uppercase tracking-wider inline-block mb-2 shadow" x-text="(selectedArticleModal || selectedArticle)?.category || 'Cẩm Nang Thú Y'"></span>
+                        <h3 class="text-xl md:text-2xl font-black leading-snug" x-text="(selectedArticleModal || selectedArticle)?.title"></h3>
                         <div class="flex items-center gap-3 text-xs text-slate-300 mt-2 flex-wrap">
                             <span class="flex items-center gap-1.5">
                                 <img :src="(selectedArticleModal || selectedArticle).doctorAvatar || (selectedArticleModal || selectedArticle).authorAvatar || 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=150&q=80'" class="w-6 h-6 rounded-full object-cover border border-white/40">
@@ -6502,7 +6629,7 @@
                     <!-- Key takeaway alert -->
                     <div class="p-4 bg-emerald-50/70 rounded-2xl border border-emerald-100 text-xs text-emerald-900 space-y-1">
                         <p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-bookmark text-emerald-600"></i> Lời khuyên trọng tâm từ Ban Chuyên Môn Thú Y PetCare360:</p>
-                        <p class="text-emerald-800 leading-relaxed" x-text="selectedArticleModal.summary"></p>
+                        <p class="text-emerald-800 leading-relaxed" x-text="(selectedArticleModal || selectedArticle)?.summary || ''"></p>
                     </div>
 
                     <!-- Article Body Content -->
@@ -6514,7 +6641,7 @@
                             <i class="fa-solid fa-user-doctor"></i>
                         </div>
                         <div>
-                            <h4 class="text-xs font-bold text-slate-800" x-text="'Tác giả: ' + selectedArticleModal.author"></h4>
+                            <h4 class="text-xs font-bold text-slate-800" x-text="'Tác giả: ' + ((selectedArticleModal || selectedArticle)?.author || (selectedArticleModal || selectedArticle)?.doctorName || 'BS. Vũ Mai Anh')"></h4>
                             <p class="text-[11px] text-slate-500 mt-0.5">Hội đồng Cố vấn Y khoa & Dinh dưỡng Thú cưng - Hệ thống PetCare360 Việt Nam</p>
                         </div>
                     </div>
@@ -10984,8 +11111,13 @@ function superPetCareApp() {
             ],
             addons: ['massage'],
             needPetShip: true,
-            petShipAddress: '88 Nguyễn Thị Minh Khai, Quận 1, TP.HCM',
-            specialNotes: 'Bé sợ tiếng máy sấy to, cần làm nhẹ nhàng vùng tai.'
+            petShip: true,
+            petShipPickupTime: '08:30 - 09:30',
+            petShipDropoffTime: '16:30 - 17:30',
+            petShipCommitment: false,
+            notes: 'Bé sợ tiếng máy sấy to, có tiền sử da mẫn cảm (Dị ứng xà phòng thơm).',
+            specialNotes: 'Bé sợ tiếng máy sấy to, có tiền sử da mẫn cảm (Dị ứng xà phòng thơm).',
+            petShipAddress: '88 Nguyễn Thị Minh Khai, Quận 1, TP.HCM'
         },
 
         // ==================== 3. POPUP MODAL THÔNG TIN CHI TIẾT THÚ CƯNG (800PX) ====================
@@ -11274,6 +11406,29 @@ function superPetCareApp() {
                 likeAnimating: false,
                 shares: 9,
                 comments: []
+            },
+            {
+                id: 9,
+                authorId: 103,
+                isVet: true,
+                badge: 'Bác sĩ Thú y',
+                author: 'BS. Vũ Mai Anh (Chuyên khoa Cấp cứu Thú y)',
+                petName: 'PetCare360 Clinic',
+                breed: 'Bác Sĩ Thú Y',
+                avatar: 'https://images.unsplash.com/photo-1594824813583-9b2f6efd559a?auto=format&fit=crop&w=150&q=80',
+                time: '1 giờ trước',
+                content: '🚨 [CẨM NANG KHẨN CẤP] Cách sơ cứu hạ thân nhiệt cho thú cưng vào mùa nóng: Khi thời tiết nắng gắt vượt 35°C, chó mèo rất dễ bị sốc nhiệt (Heatstroke) do không có tuyến mồ hôi dưới da. Nắm vững các bước sơ cứu tức thì: 1. Di chuyển vào bóng râm mát. 2. Làm mát từ từ bằng khăn thấm nước mát. 3. Cấp ẩm nhẹ nhàng vào môi lưỡi. 4. Liên hệ hotline Cấp Cứu PetCare360 24/7 (1900 6868)! #HạThânNhiệt #SơCứuThúCưng #SốcNhiệtMùaNóng #BácSĩThúY #PetCare360',
+                images: [
+                    'https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=800&q=80'
+                ],
+                likes: 248,
+                isLiked: false,
+                isSaved: true,
+                likeAnimating: false,
+                shares: 65,
+                comments: [
+                    { id: 1, user: 'Nguyễn Phương Thảo', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80', text: 'Kiến thức rất bổ ích và kịp thời cho mùa hè Sài Gòn, cảm ơn BS Mai Anh nhiều ạ! ❤️', time: '45 phút trước' }
+                ]
             }
         ],
 
@@ -11594,11 +11749,10 @@ function superPetCareApp() {
         showPriceMatrixModal: false,
         hotelServiceType: 'overnight', // 'overnight' | 'daycare'
         
-        // Account Tab State
-        accountSubTab: 'profile', // 'profile' | 'pets' | 'address'
-        get activeTab() { return this.accountSubTab; },
-        set activeTab(val) { this.accountSubTab = val; },
-        accountSubTab: 'info', // 'info' | 'tier' | 'pets' | 'addresses' | 'orders'
+        // Account Tab State (Yêu cầu 3: Tạo state activeTab mặc định là 'profile')
+        activeTab: 'profile', // 'profile' | 'pets' | 'address'
+        get accountSubTab() { return this.activeTab; },
+        set accountSubTab(val) { this.activeTab = val; },
         showChangePasswordModal: false,
         changePasswordForm: { current: '', newPass: '', confirm: '' },
         showAddressModal: false,
@@ -14845,17 +14999,23 @@ function superPetCareApp() {
         },
 
         get petShipCost() {
-            return (this.serviceBookingForm.usePetShip || this.serviceBookingForm.needPetShip) ? 60000 : 0;
+            return (this.serviceBookingForm.petShip || this.serviceBookingForm.usePetShip || this.serviceBookingForm.needPetShip) ? 60000 : 0;
+        },
+
+        getGroomingUpgradeDiff() {
+            if (this.groomingCutType === 'grooming') {
+                return Math.max(0, this.getGroomingCutPrice() - this.getGroomingSpaPrice());
+            } else if (this.groomingCutType === 'shave') {
+                return Math.max(0, this.getGroomingShavePrice() - this.getGroomingSpaPrice());
+            }
+            return 0;
         },
 
         get totalServiceCost() {
             if (this.servicePricingTab === 'hotel') {
                 return this.hotelFee + this.totalAddonsCost + this.petShipCost;
             } else {
-                const base = (this.baseServicePrice !== undefined && this.baseServicePrice !== null) 
-                    ? Number(this.baseServicePrice) 
-                    : 380000;
-                return base + this.totalAddonsCost + this.petShipCost;
+                return this.getGroomingSpaPrice() + this.getGroomingUpgradeDiff() + this.totalAddonsCost + this.petShipCost;
             }
         },
 
@@ -14884,6 +15044,11 @@ function superPetCareApp() {
         },
 
         submitServiceBooking(isDirectCheckout = false) {
+            if (this.serviceBookingForm.petShip && !this.serviceBookingForm.petShipCommitment) {
+                alert('Vui lòng tích chọn xác nhận: "Tôi cam kết sẽ có mặt tại nhà vào các khung giờ trên để bàn giao/nhận lại bé" để điều phối xe PetShip!');
+                this.bookingWizardStep = 2;
+                return;
+            }
             const pet = this.pets.find(p => p.id === Number(this.serviceBookingForm.petId)) || this.pets[0];
             const petWeight = pet ? (parseFloat(pet.weight) || 5) : (parseFloat(this.petBookingDetail.weight) || 5);
             const isHotel = (this.servicePricingTab === 'hotel');
