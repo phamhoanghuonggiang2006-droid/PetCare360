@@ -3365,78 +3365,177 @@ CUSTOMER_HTML = """
                                             </div>
                                         </div>
 
-                                        <!-- Dynamic Form cho Phương thức đưa đón PetShip -->
-                                        <div class="space-y-2 text-xs sm:text-sm">
-                                            <label class="text-slate-700 text-xs font-bold block flex items-center justify-between">
-                                                <span>Phương thức đưa đón PetShip:</span>
-                                                <template x-if="hasPetShip">
-                                                    <span class="text-[10px] text-orange-600 font-bold bg-orange-100 px-2 py-0.5 rounded-full">Đã chọn dịch vụ PetShip tận nhà</span>
-                                                </template>
-                                                <template x-if="!hasPetShip">
-                                                    <span class="text-[10px] text-slate-500 font-bold bg-slate-200 px-2 py-0.5 rounded-full">Tự đưa đón tại cơ sở</span>
-                                                </template>
-                                            </label>
+                                                                                <!-- Khối Phương thức đưa đón PetShip (Case 2: Dịch vụ đơn lẻ) -->
+                                        <div class="space-y-3 text-xs sm:text-sm">
+                                            <div class="flex items-center justify-between">
+                                                <label class="text-slate-700 text-xs font-bold flex items-center gap-1.5">
+                                                    <i class="fa-solid fa-truck-ramp-box text-orange-500"></i>
+                                                    <span>Phương thức đưa đón PetShip:</span>
+                                                </label>
+                                                <div>
+                                                    <template x-if="hasPetShip">
+                                                        <span class="text-[10px] text-orange-700 font-extrabold bg-orange-100 px-2.5 py-0.5 rounded-full border border-orange-200 flex items-center gap-1">
+                                                            <span class="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span>
+                                                            Đã chọn dịch vụ PetShip tận nhà
+                                                        </span>
+                                                    </template>
+                                                    <template x-if="!hasPetShip">
+                                                        <span class="text-[10px] text-slate-600 font-bold bg-slate-200 px-2.5 py-0.5 rounded-full border border-slate-300">
+                                                            Tự đưa đón tại cơ sở
+                                                        </span>
+                                                    </template>
+                                                </div>
+                                            </div>
 
-                                            <!-- Khi hasPetShip === false -->
-                                            <template x-if="!hasPetShip">
-                                                <div class="p-3.5 bg-white rounded-xl border border-slate-200 text-slate-700 flex items-center gap-2.5">
-                                                    <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-sm flex-shrink-0">
-                                                        <i class="fa-solid fa-person-walking"></i>
-                                                    </div>
+                                            <!-- 2 tùy chọn trực quan -->
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                                <!-- Tự đưa đón -->
+                                                <div @click="setPetShipMode(false)"
+                                                     class="p-3.5 rounded-2xl border-2 cursor-pointer transition flex items-start gap-3 select-none"
+                                                     :class="!hasPetShip ? 'border-brand-500 bg-brand-50/30 shadow-sm' : 'border-slate-200 bg-white hover:border-slate-300'">
+                                                    <input type="radio" name="petship_method_case2" :checked="!hasPetShip" class="mt-0.5 text-brand-600 focus:ring-brand-500 cursor-pointer">
                                                     <div>
-                                                        <span class="font-bold text-slate-900 block">Khách hàng tự mang thú cưng tới cơ sở</span>
-                                                        <span class="text-slate-500 text-[11px] block">Cơ sở Chính: 88 Nguyễn Thị Minh Khai, Phường Đa Kao, Quận 1, TPHCM</span>
+                                                        <span class="font-extrabold text-xs text-slate-900 block flex items-center gap-1.5">
+                                                            <i class="fa-solid fa-person-walking text-slate-500"></i>
+                                                            <span>Tự đưa đón tại cơ sở</span>
+                                                        </span>
+                                                        <span class="text-[11px] text-slate-500 block mt-0.5 leading-snug">Khách mang bé đến 88 NTMK, Q1 (Miễn phí)</span>
                                                     </div>
                                                 </div>
-                                            </template>
 
-                                            <!-- Khi hasPetShip === true: Render Dynamic Address Form -->
+                                                <!-- Xe PetShip -->
+                                                <div @click="setPetShipMode(true)"
+                                                     class="p-3.5 rounded-2xl border-2 cursor-pointer transition flex items-start gap-3 select-none"
+                                                     :class="hasPetShip ? 'border-orange-500 bg-orange-50/40 shadow-sm ring-2 ring-orange-500/20' : 'border-slate-200 bg-white hover:border-slate-300'">
+                                                    <input type="radio" name="petship_method_case2" :checked="hasPetShip" class="mt-0.5 text-orange-600 focus:ring-orange-500 cursor-pointer">
+                                                    <div>
+                                                        <span class="font-extrabold text-xs text-slate-900 block flex items-center gap-1.5">
+                                                            <i class="fa-solid fa-van-shuttle text-orange-600"></i>
+                                                            <span>Xe đưa đón PetShip tận nhà</span>
+                                                        </span>
+                                                        <span class="text-[11px] text-orange-600 font-bold block mt-0.5 leading-snug">Đón & trả bé tận cửa (+60.000đ)</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Form Nhập Địa Chỉ PetShip (Render khi hasPetShip === true) -->
                                             <template x-if="hasPetShip">
-                                                <div class="p-4 bg-orange-50/50 rounded-2xl border border-orange-200 space-y-3">
-                                                    <div class="flex items-center gap-2 text-orange-800 font-extrabold text-xs">
-                                                        <i class="fa-solid fa-van-shuttle text-orange-600 text-sm"></i>
-                                                        <span>Địa Chỉ Đưa Đón PetShip360 Tận Nhà (Khu vực TP.HCM)</span>
+                                                <div class="p-4 sm:p-5 bg-gradient-to-br from-orange-50/70 to-amber-50/40 rounded-2xl border-2 border-orange-200 space-y-3.5 animate-fadeIn">
+                                                    <div class="flex items-center justify-between pb-2 border-b border-orange-200/70">
+                                                        <div class="flex items-center gap-2 text-orange-900 font-extrabold text-xs sm:text-sm">
+                                                            <div class="w-6 h-6 rounded-lg bg-orange-500 text-white flex items-center justify-center text-xs shadow-xs">
+                                                                <i class="fa-solid fa-location-dot"></i>
+                                                            </div>
+                                                            <span>Địa Chỉ Đón & Trả Thú Cưng (Khu vực TP.HCM)</span>
+                                                        </div>
+                                                        <span class="text-[11px] text-orange-700 font-bold bg-white px-2 py-0.5 rounded-full border border-orange-200 shadow-xs">
+                                                            Tài xế chuyên dụng
+                                                        </span>
                                                     </div>
 
-                                                    <!-- Ô nhập Địa chỉ cụ thể -->
+                                                    <!-- Ô input: Địa chỉ cụ thể (Số nhà, tên đường) (Bắt buộc) -->
                                                     <div>
-                                                        <label class="block text-slate-700 text-xs font-bold mb-1">Địa chỉ cụ thể (Số nhà, tên đường): <span class="text-rose-500">*</span></label>
-                                                        <input type="text" x-model="checkoutPetShipAddress.street" @input="checkoutBookingContactTouched.street = true" placeholder="Ví dụ: 125 Hoàng Quốc Việt, Tòa A" class="w-full bg-white border rounded-xl px-4 py-2.5 text-slate-800 font-semibold focus:outline-none focus:border-orange-500" :class="(checkoutBookingContactTouched.street && (!checkoutPetShipAddress.street || checkoutPetShipAddress.street.trim().length < 5)) ? 'border-rose-400 bg-rose-50/20' : 'border-slate-300'">
-                                                        <p x-show="checkoutBookingContactTouched.street && (!checkoutPetShipAddress.street || checkoutPetShipAddress.street.trim().length < 5)" class="text-rose-500 text-[11px] font-semibold mt-1 flex items-center gap-1">
-                                                            <i class="fa-solid fa-circle-exclamation"></i> Vui lòng nhập địa chỉ cụ thể để xe PetShip đến đón
+                                                        <label class="block text-slate-700 text-xs font-bold mb-1.5 flex items-center justify-between">
+                                                            <span>Địa chỉ cụ thể (Số nhà, tên đường): <span class="text-rose-500">*</span></span>
+                                                            <span class="text-[10px] text-slate-400 font-normal">Tối thiểu 5 ký tự</span>
+                                                        </label>
+                                                        <div class="relative">
+                                                            <input type="text"
+                                                                   x-model="petShipAddress.street"
+                                                                   @input="petShipAddressTouched.street = true"
+                                                                   @blur="petShipAddressTouched.street = true"
+                                                                   placeholder="Ví dụ: 125 Hoàng Quốc Việt, Tòa A, Phòng 402..."
+                                                                   class="w-full bg-white border rounded-xl pl-10 pr-4 py-2.5 text-slate-800 text-xs sm:text-sm font-semibold focus:outline-none transition"
+                                                                   :class="(petShipAddressTouched.street && (!petShipAddress.street || petShipAddress.street.trim().length < 5))
+                                                                           ? 'border-rose-400 bg-rose-50/20 focus:border-rose-500 focus:ring-2 focus:ring-rose-200'
+                                                                           : 'border-slate-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200'">
+                                                            <i class="fa-solid fa-house text-slate-400 absolute left-3.5 top-3.5 text-xs"></i>
+                                                        </div>
+                                                        <p x-show="petShipAddressTouched.street && (!petShipAddress.street || petShipAddress.street.trim().length < 5)"
+                                                           class="text-rose-500 text-[11px] font-semibold mt-1 flex items-center gap-1">
+                                                            <i class="fa-solid fa-circle-exclamation"></i> Vui lòng nhập địa chỉ cụ thể (tối thiểu 5 ký tự)
                                                         </p>
                                                     </div>
 
-                                                    <!-- 3 dropdowns Tỉnh/Thành, Quận/Huyện, Phường/Xã -->
-                                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                                                    <!-- Tái sử dụng component AddressSelector (Dropdown Tỉnh/Thành khóa cứng, dropdown Quận/Huyện, Phường/Xã) -->
+                                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                                        <!-- Dropdown Tỉnh/Thành phố bị khóa cứng ở 'TP. Hồ Chí Minh' -->
                                                         <div>
-                                                            <label class="block text-slate-600 text-[11px] font-bold mb-1">Tỉnh / Thành phố: <span class="text-rose-500">*</span></label>
-                                                            <input type="text" value="TP. Hồ Chí Minh" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-600 cursor-not-allowed">
+                                                            <label class="block text-slate-700 text-[11px] font-bold mb-1">
+                                                                Tỉnh / Thành phố: <span class="text-rose-500">*</span>
+                                                            </label>
+                                                            <div class="relative">
+                                                                <select disabled class="w-full bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-600 cursor-not-allowed appearance-none">
+                                                                    <option value="TP. Hồ Chí Minh" selected>TP. Hồ Chí Minh</option>
+                                                                </select>
+                                                                <i class="fa-solid fa-lock text-slate-400 absolute right-3 top-2.5 text-xs"></i>
+                                                            </div>
                                                         </div>
+
+                                                        <!-- Dropdown Quận / Huyện -->
                                                         <div>
-                                                            <label class="block text-slate-600 text-[11px] font-bold mb-1">Quận / Huyện: <span class="text-rose-500">*</span></label>
-                                                            <select x-model="checkoutPetShipAddress.district" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:border-orange-500">
-                                                                <template x-for="d in (vnProvinces[0]?.districts || [])" :key="d.name">
-                                                                    <option :value="d.name" x-text="d.name"></option>
-                                                                </template>
-                                                            </select>
+                                                            <label class="block text-slate-700 text-[11px] font-bold mb-1">
+                                                                Quận / Huyện: <span class="text-rose-500">*</span>
+                                                            </label>
+                                                            <div class="relative">
+                                                                <select x-model="petShipAddress.district"
+                                                                        @change="onPetShipDistrictChange()"
+                                                                        @blur="petShipAddressTouched.district = true"
+                                                                        class="w-full bg-white border rounded-xl pl-3 pr-8 py-2 text-xs font-semibold focus:outline-none transition appearance-none cursor-pointer"
+                                                                        :class="(petShipAddressTouched.district && (!petShipAddress.district || !petShipAddress.district.trim()))
+                                                                                ? 'border-rose-400 bg-rose-50/20 focus:border-rose-500'
+                                                                                : 'border-slate-300 focus:border-orange-500'">
+                                                                    <option value="">-- Chọn Quận/Huyện --</option>
+                                                                    <template x-for="d in petShipDistricts" :key="d.name">
+                                                                        <option :value="d.name" x-text="d.name" :selected="d.name === petShipAddress.district"></option>
+                                                                    </template>
+                                                                </select>
+                                                                <i class="fa-solid fa-chevron-down text-slate-400 absolute right-3 top-2.5 text-[10px] pointer-events-none"></i>
+                                                            </div>
+                                                            <p x-show="petShipAddressTouched.district && (!petShipAddress.district || !petShipAddress.district.trim())"
+                                                               class="text-rose-500 text-[11px] font-semibold mt-1 flex items-center gap-1">
+                                                                <i class="fa-solid fa-circle-exclamation"></i> Vui lòng chọn Quận/Huyện
+                                                            </p>
                                                         </div>
+
+                                                        <!-- Dropdown Phường / Xã -->
                                                         <div>
-                                                            <label class="block text-slate-600 text-[11px] font-bold mb-1">Phường / Xã: <span class="text-rose-500">*</span></label>
-                                                            <select x-model="checkoutPetShipAddress.ward" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:border-orange-500">
-                                                                <template x-for="w in ((vnProvinces[0]?.districts || []).find(d => d.name === checkoutPetShipAddress.district)?.wards || [])" :key="w">
-                                                                    <option :value="w" x-text="w"></option>
-                                                                </template>
-                                                            </select>
+                                                            <label class="block text-slate-700 text-[11px] font-bold mb-1">
+                                                                Phường / Xã: <span class="text-rose-500">*</span>
+                                                            </label>
+                                                            <div class="relative">
+                                                                <select x-model="petShipAddress.ward"
+                                                                        @change="petShipAddressTouched.ward = true"
+                                                                        @blur="petShipAddressTouched.ward = true"
+                                                                        :disabled="!petShipAddress.district"
+                                                                        class="w-full bg-white border rounded-xl pl-3 pr-8 py-2 text-xs font-semibold focus:outline-none transition appearance-none cursor-pointer disabled:bg-slate-100 disabled:cursor-not-allowed"
+                                                                        :class="(petShipAddressTouched.ward && (!petShipAddress.ward || !petShipAddress.ward.trim()))
+                                                                                ? 'border-rose-400 bg-rose-50/20 focus:border-rose-500'
+                                                                                : 'border-slate-300 focus:border-orange-500'">
+                                                                    <option value="">-- Chọn Phường/Xã --</option>
+                                                                    <template x-for="w in petShipWards" :key="w">
+                                                                        <option :value="w" x-text="w" :selected="w === petShipAddress.ward"></option>
+                                                                    </template>
+                                                                </select>
+                                                                <i class="fa-solid fa-chevron-down text-slate-400 absolute right-3 top-2.5 text-[10px] pointer-events-none"></i>
+                                                            </div>
+                                                            <p x-show="petShipAddressTouched.ward && (!petShipAddress.ward || !petShipAddress.ward.trim())"
+                                                               class="text-rose-500 text-[11px] font-semibold mt-1 flex items-center gap-1">
+                                                                <i class="fa-solid fa-circle-exclamation"></i> Vui lòng chọn Phường/Xã
+                                                            </p>
                                                         </div>
                                                     </div>
-                                                    <p class="text-[11px] text-slate-500 italic flex items-center gap-1.5 pt-0.5">
-                                                        <i class="fa-solid fa-circle-info text-orange-500"></i>
-                                                        <span>PetCare360 hiện tại chỉ phục vụ giao hàng và đưa đón thú cưng trong khu vực TP.HCM.</span>
-                                                    </p>
+
+                                                    <!-- Ghi chú vận chuyển -->
+                                                    <div class="flex items-center gap-2 text-[11px] text-slate-500 bg-white/60 p-2.5 rounded-xl border border-orange-200/60">
+                                                        <i class="fa-solid fa-circle-info text-orange-500 text-xs"></i>
+                                                        <span>Tài xế PetCare360 sẽ gọi trước 15-30 phút trước khi đến đón thú cưng tại địa chỉ trên.</span>
+                                                    </div>
                                                 </div>
                                             </template>
                                         </div>
+
+
 
                                         <!-- Danh sách dịch vụ trong giỏ -->
                                         <div class="pt-3 border-t border-slate-200/80">
@@ -3600,38 +3699,190 @@ CUSTOMER_HTML = """
                                             </div>
                                         </div>
 
-                                        <!-- Dynamic Form cho PetShip -->
-                                        <div class="space-y-2 text-xs sm:text-sm">
-                                            <label class="text-slate-700 text-xs font-bold block">Phương thức đưa đón PetShip:</label>
-                                            <template x-if="!hasPetShip">
-                                                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-slate-600 flex items-center gap-2">
-                                                    <i class="fa-solid fa-person-walking text-slate-400"></i>
-                                                    <span>Khách hàng tự đưa đón bé cưng tại Cơ sở 88 Nguyễn Thị Minh Khai</span>
+                                                                                <!-- Khối Phương thức đưa đón PetShip (Case 3: Giỏ hàng hỗn hợp Mixed Cart) -->
+                                        <div class="space-y-3 text-xs sm:text-sm">
+                                            <div class="flex items-center justify-between">
+                                                <label class="text-slate-700 text-xs font-bold flex items-center gap-1.5">
+                                                    <i class="fa-solid fa-truck-ramp-box text-orange-500"></i>
+                                                    <span>Phương thức đưa đón PetShip:</span>
+                                                </label>
+                                                <div>
+                                                    <template x-if="hasPetShip">
+                                                        <span class="text-[10px] text-orange-700 font-extrabold bg-orange-100 px-2.5 py-0.5 rounded-full border border-orange-200 flex items-center gap-1">
+                                                            <span class="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span>
+                                                            Đã chọn dịch vụ PetShip tận nhà
+                                                        </span>
+                                                    </template>
+                                                    <template x-if="!hasPetShip">
+                                                        <span class="text-[10px] text-slate-600 font-bold bg-slate-200 px-2.5 py-0.5 rounded-full border border-slate-300">
+                                                            Tự đưa đón tại cơ sở
+                                                        </span>
+                                                    </template>
                                                 </div>
-                                            </template>
-                                            <template x-if="hasPetShip">
-                                                <div class="p-3.5 bg-orange-50/50 rounded-2xl border border-orange-200 space-y-2.5">
-                                                    <div class="flex items-center gap-2 text-orange-800 font-bold text-xs">
-                                                        <i class="fa-solid fa-van-shuttle text-orange-600"></i>
-                                                        <span>Địa Chỉ Đón PetShip360 Tận Nhà</span>
+                                            </div>
+
+                                            <!-- 2 tùy chọn trực quan -->
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                                <!-- Tự đưa đón -->
+                                                <div @click="setPetShipMode(false)"
+                                                     class="p-3.5 rounded-2xl border-2 cursor-pointer transition flex items-start gap-3 select-none"
+                                                     :class="!hasPetShip ? 'border-brand-500 bg-brand-50/30 shadow-sm' : 'border-slate-200 bg-white hover:border-slate-300'">
+                                                    <input type="radio" name="petship_method_case3" :checked="!hasPetShip" class="mt-0.5 text-brand-600 focus:ring-brand-500 cursor-pointer">
+                                                    <div>
+                                                        <span class="font-extrabold text-xs text-slate-900 block flex items-center gap-1.5">
+                                                            <i class="fa-solid fa-person-walking text-slate-500"></i>
+                                                            <span>Tự đưa đón tại cơ sở</span>
+                                                        </span>
+                                                        <span class="text-[11px] text-slate-500 block mt-0.5 leading-snug">Khách mang bé đến 88 NTMK, Q1 (Miễn phí)</span>
                                                     </div>
-                                                    <input type="text" x-model="checkoutPetShipAddress.street" @input="checkoutBookingContactTouched.street = true" placeholder="Địa chỉ cụ thể (Số nhà, tên đường)..." class="w-full bg-white border rounded-xl px-3.5 py-2 text-xs font-semibold focus:outline-none focus:border-orange-500" :class="(checkoutBookingContactTouched.street && (!checkoutPetShipAddress.street || checkoutPetShipAddress.street.trim().length < 5)) ? 'border-rose-400 bg-rose-50/20' : 'border-slate-300'">
-                                                    <div class="grid grid-cols-3 gap-2 text-xs">
-                                                        <input type="text" value="TP. Hồ Chí Minh" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-600 cursor-not-allowed">
-                                                        <select x-model="checkoutPetShipAddress.district" class="w-full bg-white border border-slate-300 rounded-xl px-2 py-1.5 text-xs">
-                                                            <template x-for="d in (vnProvinces[0]?.districts || [])" :key="d.name">
-                                                                <option :value="d.name" x-text="d.name"></option>
-                                                            </template>
-                                                        </select>
-                                                        <select x-model="checkoutPetShipAddress.ward" class="w-full bg-white border border-slate-300 rounded-xl px-2 py-1.5 text-xs">
-                                                            <template x-for="w in ((vnProvinces[0]?.districts || []).find(d => d.name === checkoutPetShipAddress.district)?.wards || [])" :key="w">
-                                                                <option :value="w" x-text="w"></option>
-                                                            </template>
-                                                        </select>
+                                                </div>
+
+                                                <!-- Xe PetShip -->
+                                                <div @click="setPetShipMode(true)"
+                                                     class="p-3.5 rounded-2xl border-2 cursor-pointer transition flex items-start gap-3 select-none"
+                                                     :class="hasPetShip ? 'border-orange-500 bg-orange-50/40 shadow-sm ring-2 ring-orange-500/20' : 'border-slate-200 bg-white hover:border-slate-300'">
+                                                    <input type="radio" name="petship_method_case3" :checked="hasPetShip" class="mt-0.5 text-orange-600 focus:ring-orange-500 cursor-pointer">
+                                                    <div>
+                                                        <span class="font-extrabold text-xs text-slate-900 block flex items-center gap-1.5">
+                                                            <i class="fa-solid fa-van-shuttle text-orange-600"></i>
+                                                            <span>Xe đưa đón PetShip tận nhà</span>
+                                                        </span>
+                                                        <span class="text-[11px] text-orange-600 font-bold block mt-0.5 leading-snug">Đón & trả bé tận cửa (+60.000đ)</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Form Nhập Địa Chỉ PetShip (Render khi hasPetShip === true) -->
+                                            <template x-if="hasPetShip">
+                                                <div class="p-4 sm:p-5 bg-gradient-to-br from-orange-50/70 to-amber-50/40 rounded-2xl border-2 border-orange-200 space-y-3.5 animate-fadeIn">
+                                                    <div class="flex items-center justify-between pb-2 border-b border-orange-200/70">
+                                                        <div class="flex items-center gap-2 text-orange-900 font-extrabold text-xs sm:text-sm">
+                                                            <div class="w-6 h-6 rounded-lg bg-orange-500 text-white flex items-center justify-center text-xs shadow-xs">
+                                                                <i class="fa-solid fa-location-dot"></i>
+                                                            </div>
+                                                            <span>Địa Chỉ Đón & Trả Thú Cưng (Khu vực TP.HCM)</span>
+                                                        </div>
+                                                        <span class="text-[11px] text-orange-700 font-bold bg-white px-2 py-0.5 rounded-full border border-orange-200 shadow-xs">
+                                                            Tài xế chuyên dụng
+                                                        </span>
+                                                    </div>
+
+                                                    <!-- TỐI ƯU UX CHO GIỎ HÀNG HỖN HỢP: Checkbox đồng bộ địa chỉ -->
+                                                    <div class="p-3 bg-white/95 rounded-xl border border-orange-300 flex items-center justify-between shadow-xs">
+                                                        <label class="flex items-center gap-2.5 cursor-pointer text-xs font-bold text-slate-800 select-none">
+                                                            <input type="checkbox"
+                                                                   x-model="syncWithShippingAddress"
+                                                                   @change="onToggleSyncWithShippingAddress()"
+                                                                   class="w-4 h-4 rounded text-orange-600 focus:ring-orange-500 border-slate-300 cursor-pointer">
+                                                            <span>Sử dụng cùng địa chỉ nhận hàng phía trên</span>
+                                                        </label>
+                                                        <span class="text-[10px] text-orange-700 font-extrabold bg-orange-100 px-2 py-0.5 rounded-md flex items-center gap-1">
+                                                            <i class="fa-solid fa-copy text-[10px]"></i> Tự động sao chép
+                                                        </span>
+                                                    </div>
+
+                                                    <!-- Ô input: Địa chỉ cụ thể (Số nhà, tên đường) (Bắt buộc) -->
+                                                    <div>
+                                                        <label class="block text-slate-700 text-xs font-bold mb-1.5 flex items-center justify-between">
+                                                            <span>Địa chỉ cụ thể (Số nhà, tên đường): <span class="text-rose-500">*</span></span>
+                                                            <span class="text-[10px] text-slate-400 font-normal">Tối thiểu 5 ký tự</span>
+                                                        </label>
+                                                        <div class="relative">
+                                                            <input type="text"
+                                                                   x-model="petShipAddress.street"
+                                                                   @input="petShipAddressTouched.street = true"
+                                                                   @blur="petShipAddressTouched.street = true"
+                                                                   placeholder="Ví dụ: 125 Hoàng Quốc Việt, Tòa A, Phòng 402..."
+                                                                   class="w-full bg-white border rounded-xl pl-10 pr-4 py-2.5 text-slate-800 text-xs sm:text-sm font-semibold focus:outline-none transition"
+                                                                   :class="(petShipAddressTouched.street && (!petShipAddress.street || petShipAddress.street.trim().length < 5))
+                                                                           ? 'border-rose-400 bg-rose-50/20 focus:border-rose-500 focus:ring-2 focus:ring-rose-200'
+                                                                           : 'border-slate-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200'">
+                                                            <i class="fa-solid fa-house text-slate-400 absolute left-3.5 top-3.5 text-xs"></i>
+                                                        </div>
+                                                        <p x-show="petShipAddressTouched.street && (!petShipAddress.street || petShipAddress.street.trim().length < 5)"
+                                                           class="text-rose-500 text-[11px] font-semibold mt-1 flex items-center gap-1">
+                                                            <i class="fa-solid fa-circle-exclamation"></i> Vui lòng nhập địa chỉ cụ thể (tối thiểu 5 ký tự)
+                                                        </p>
+                                                    </div>
+
+                                                    <!-- Tái sử dụng component AddressSelector (Dropdown Tỉnh/Thành khóa cứng, dropdown Quận/Huyện, Phường/Xã) -->
+                                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                                        <!-- Dropdown Tỉnh/Thành phố bị khóa cứng ở 'TP. Hồ Chí Minh' -->
+                                                        <div>
+                                                            <label class="block text-slate-700 text-[11px] font-bold mb-1">
+                                                                Tỉnh / Thành phố: <span class="text-rose-500">*</span>
+                                                            </label>
+                                                            <div class="relative">
+                                                                <select disabled class="w-full bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-600 cursor-not-allowed appearance-none">
+                                                                    <option value="TP. Hồ Chí Minh" selected>TP. Hồ Chí Minh</option>
+                                                                </select>
+                                                                <i class="fa-solid fa-lock text-slate-400 absolute right-3 top-2.5 text-xs"></i>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Dropdown Quận / Huyện -->
+                                                        <div>
+                                                            <label class="block text-slate-700 text-[11px] font-bold mb-1">
+                                                                Quận / Huyện: <span class="text-rose-500">*</span>
+                                                            </label>
+                                                            <div class="relative">
+                                                                <select x-model="petShipAddress.district"
+                                                                        @change="onPetShipDistrictChange()"
+                                                                        @blur="petShipAddressTouched.district = true"
+                                                                        class="w-full bg-white border rounded-xl pl-3 pr-8 py-2 text-xs font-semibold focus:outline-none transition appearance-none cursor-pointer"
+                                                                        :class="(petShipAddressTouched.district && (!petShipAddress.district || !petShipAddress.district.trim()))
+                                                                                ? 'border-rose-400 bg-rose-50/20 focus:border-rose-500'
+                                                                                : 'border-slate-300 focus:border-orange-500'">
+                                                                    <option value="">-- Chọn Quận/Huyện --</option>
+                                                                    <template x-for="d in petShipDistricts" :key="d.name">
+                                                                        <option :value="d.name" x-text="d.name" :selected="d.name === petShipAddress.district"></option>
+                                                                    </template>
+                                                                </select>
+                                                                <i class="fa-solid fa-chevron-down text-slate-400 absolute right-3 top-2.5 text-[10px] pointer-events-none"></i>
+                                                            </div>
+                                                            <p x-show="petShipAddressTouched.district && (!petShipAddress.district || !petShipAddress.district.trim())"
+                                                               class="text-rose-500 text-[11px] font-semibold mt-1 flex items-center gap-1">
+                                                                <i class="fa-solid fa-circle-exclamation"></i> Vui lòng chọn Quận/Huyện
+                                                            </p>
+                                                        </div>
+
+                                                        <!-- Dropdown Phường / Xã -->
+                                                        <div>
+                                                            <label class="block text-slate-700 text-[11px] font-bold mb-1">
+                                                                Phường / Xã: <span class="text-rose-500">*</span>
+                                                            </label>
+                                                            <div class="relative">
+                                                                <select x-model="petShipAddress.ward"
+                                                                        @change="petShipAddressTouched.ward = true"
+                                                                        @blur="petShipAddressTouched.ward = true"
+                                                                        :disabled="!petShipAddress.district"
+                                                                        class="w-full bg-white border rounded-xl pl-3 pr-8 py-2 text-xs font-semibold focus:outline-none transition appearance-none cursor-pointer disabled:bg-slate-100 disabled:cursor-not-allowed"
+                                                                        :class="(petShipAddressTouched.ward && (!petShipAddress.ward || !petShipAddress.ward.trim()))
+                                                                                ? 'border-rose-400 bg-rose-50/20 focus:border-rose-500'
+                                                                                : 'border-slate-300 focus:border-orange-500'">
+                                                                    <option value="">-- Chọn Phường/Xã --</option>
+                                                                    <template x-for="w in petShipWards" :key="w">
+                                                                        <option :value="w" x-text="w" :selected="w === petShipAddress.ward"></option>
+                                                                    </template>
+                                                                </select>
+                                                                <i class="fa-solid fa-chevron-down text-slate-400 absolute right-3 top-2.5 text-[10px] pointer-events-none"></i>
+                                                            </div>
+                                                            <p x-show="petShipAddressTouched.ward && (!petShipAddress.ward || !petShipAddress.ward.trim())"
+                                                               class="text-rose-500 text-[11px] font-semibold mt-1 flex items-center gap-1">
+                                                                <i class="fa-solid fa-circle-exclamation"></i> Vui lòng chọn Phường/Xã
+                                                            </p>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Ghi chú vận chuyển -->
+                                                    <div class="flex items-center gap-2 text-[11px] text-slate-500 bg-white/60 p-2.5 rounded-xl border border-orange-200/60">
+                                                        <i class="fa-solid fa-circle-info text-orange-500 text-xs"></i>
+                                                        <span>Tài xế PetCare360 sẽ gọi trước 15-30 phút trước khi đến đón thú cưng tại địa chỉ trên.</span>
                                                     </div>
                                                 </div>
                                             </template>
                                         </div>
+                                    
                                     </div>
                                 </div>
                             </template>

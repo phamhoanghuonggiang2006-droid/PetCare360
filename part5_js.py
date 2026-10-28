@@ -970,11 +970,26 @@ function superPetCareApp() {
             district: false,
             ward: false
         },
-        checkoutPetShipAddress: {
+        // PetShip Address State (Yêu cầu bắt buộc)
+        petShipAddress: {
             street: '',
             city: 'TP. Hồ Chí Minh',
             district: 'Quận 1',
             ward: 'Phường Đa Kao'
+        },
+        syncWithShippingAddress: false,
+        petShipAddressTouched: {
+            street: false,
+            district: false,
+            ward: false
+        },
+        checkoutPetShipMode: null, // null (tự động theo giỏ) | 'petship' | 'facility'
+
+        get checkoutPetShipAddress() {
+            return this.petShipAddress;
+        },
+        set checkoutPetShipAddress(v) {
+            this.petShipAddress = v;
         },
         selectedPaymentMethod: 'vietqr',
 
@@ -3066,6 +3081,7 @@ function superPetCareApp() {
                 paymentMethod: this.checkoutForm.paymentMethod,
                 paymentMethodLabel: this.checkoutForm.paymentMethod === 'momo' ? 'Ví điện tử MoMo' : (this.checkoutForm.paymentMethod === 'vietqr' ? 'Chuyển khoản VietQR MB Bank' : 'Thanh toán COD'),
                 paymentStatus: 'unpaid',
+                pet_ship_address: this.hasPetShip ? ((this.petShipAddress.street || '') + ', ' + (this.petShipAddress.ward || '') + ', ' + (this.petShipAddress.district || '') + ', TP. Hồ Chí Minh') : null,
                 recipient: {
                     name: this.checkoutForm.name,
                     phone: this.checkoutForm.phone,
@@ -3552,6 +3568,32 @@ function superPetCareApp() {
         },
 
         // CHECKOUT STEP 2 BOOKING & PETSHIP VALIDATION GETTERS
+        get hasPetShip() {
+            if (this.checkoutPetShipMode === 'petship') return true;
+            if (this.checkoutPetShipMode === 'facility') return false;
+            return this.cart.some(it => it.isService && (it.needPetShip || (it.bookingDetails && it.bookingDetails.needPetShip) || (it.bookingDetails && it.bookingDetails.hasPetShip) || it.hasPetShip || it.usePetShip));
+        },
+
+        get petShipDistricts() {
+            return (this.vnProvinces && this.vnProvinces[0] && this.vnProvinces[0].districts) ? this.vnProvinces[0].districts : [];
+        },
+
+        get petShipWards() {
+            if (!this.petShipAddress || !this.petShipAddress.district) return [];
+            const d = this.petShipDistricts.find(item => item.name === this.petShipAddress.district);
+            return (d && d.wards) ? d.wards : [];
+        },
+
+        get isPetShipAddressValid() {
+            if (!this.hasPetShip) return true;
+            const addr = this.petShipAddress;
+            if (!addr) return false;
+            const street = (addr.street || '').trim();
+            const district = (addr.district || '').trim();
+            const ward = (addr.ward || '').trim();
+            return street.length >= 5 && district.length > 0 && ward.length > 0;
+        },
+
         get isCheckoutBookingFormValid() {
             if (!this.hasService) return true;
             const name = (this.checkoutBookingContactName || '').trim();
@@ -3559,17 +3601,17 @@ function superPetCareApp() {
             const vnPhoneRegex = /^(0[35789])[0-9]{8}$/;
             if (name.length < 2) return false;
             if (!phone || !vnPhoneRegex.test(phone)) return false;
-            if (this.hasPetShip) {
-                const addr = this.checkoutPetShipAddress;
-                if (!addr.street || addr.street.trim().length < 5) return false;
-                if (!addr.district || !addr.district.trim()) return false;
-                if (!addr.ward || !addr.ward.trim()) return false;
+            if (this.hasPetShip && !this.isPetShipAddressValid) {
+                return false;
             }
             return true;
         },
 
         get isStep2CheckoutValid() {
-            return this.isCheckoutShippingFormValid && this.isCheckoutBookingFormValid;
+            if (this.hasProduct && !this.isCheckoutShippingFormValid) return false;
+            if (this.hasService && !this.isCheckoutBookingFormValid) return false;
+            if (this.hasPetShip && !this.isPetShipAddressValid) return false;
+            return true;
         },
 
 
@@ -4877,6 +4919,45 @@ function superPetCareApp() {
             };
         },
 
+        setPetShipMode(usePetShip) {
+            this.checkoutPetShipMode = usePetShip ? 'petship' : 'facility';
+            if (usePetShip) {
+                if (!this.petShipAddress.district && this.petShipDistricts.length > 0) {
+                    this.petShipAddress.district = this.petShipDistricts[0].name;
+                }
+                if (!this.petShipAddress.ward) {
+                    this.onPetShipDistrictChange();
+                }
+            }
+        },
+
+        onPetShipDistrictChange() {
+            this.petShipAddressTouched.district = true;
+            const wards = this.petShipWards;
+            if (wards.length > 0 && !wards.includes(this.petShipAddress.ward)) {
+                this.petShipAddress.ward = wards[0];
+            } else if (wards.length === 0) {
+                this.petShipAddress.ward = '';
+            }
+        },
+
+        onToggleSyncWithShippingAddress() {
+            if (this.syncWithShippingAddress) {
+                if (this.checkoutShippingForm) {
+                    this.petShipAddress.street = this.checkoutShippingForm.address || '';
+                    if (this.checkoutShippingForm.district) {
+                        this.petShipAddress.district = this.checkoutShippingForm.district;
+                    }
+                    if (this.checkoutShippingForm.ward) {
+                        this.petShipAddress.ward = this.checkoutShippingForm.ward;
+                    }
+                    this.petShipAddressTouched.street = true;
+                    this.petShipAddressTouched.district = true;
+                    this.petShipAddressTouched.ward = true;
+                }
+            }
+        },
+
         proceedToPaymentStep() {
             if (this.hasProduct) {
                 this.touchAllCheckoutFields();
@@ -4884,11 +4965,11 @@ function superPetCareApp() {
             if (this.hasService) {
                 this.checkoutBookingContactTouched.name = true;
                 this.checkoutBookingContactTouched.phone = true;
-                if (this.hasPetShip) {
-                    this.checkoutBookingContactTouched.street = true;
-                    this.checkoutBookingContactTouched.district = true;
-                    this.checkoutBookingContactTouched.ward = true;
-                }
+            }
+            if (this.hasPetShip) {
+                this.petShipAddressTouched.street = true;
+                this.petShipAddressTouched.district = true;
+                this.petShipAddressTouched.ward = true;
             }
             if (!this.isStep2CheckoutValid) {
                 alert('⚠️ Vui lòng hoàn tất đầy đủ thông tin nhận hàng / lịch hẹn hợp lệ trước khi tiếp tục!');
@@ -5039,11 +5120,35 @@ function superPetCareApp() {
                 paymentMethod: this.paymentMethod,
                 paymentMethodLabel: this.paymentMethod === 'vietqr' ? 'Chuyển khoản VietQR MB Bank' : (this.paymentMethod === 'atm' ? 'Thẻ ATM / Internet Banking' : (this.paymentMethod === 'visa' ? 'Thẻ Quốc tế Visa/Mastercard' : (this.paymentMethod === 'ewallet' ? 'Ví điện tử' : 'Thanh toán COD'))),
                 paymentStatus: 'unpaid',
+                pet_ship_address: this.hasPetShip ? ((this.petShipAddress.street || '') + ', ' + (this.petShipAddress.ward || '') + ', ' + (this.petShipAddress.district || '') + ', TP. Hồ Chí Minh') : null,
                 recipient: { ...this.checkoutShippingForm },
                 items: this.cart.map(i => ({ ...i, img: i.img || i.image || this.getItemImage(i), image: i.image || i.img || this.getItemImage(i) })),
                 holdStockExpiresAt: Date.now() + 15 * 60 * 1000,
                 receiptUrl: null
             };
+
+            // Đồng bộ sang Admin Lịch hẹn nếu có dịch vụ
+            const serviceItems = this.cart.filter(item => item.isService);
+            const todayStr = this.completedOrderDate || new Date().toLocaleDateString('vi-VN');
+            const petShipFullAddr = this.hasPetShip ? ((this.petShipAddress.street || '') + ', ' + (this.petShipAddress.ward || '') + ', ' + (this.petShipAddress.district || '') + ', TP. Hồ Chí Minh') : null;
+            serviceItems.forEach(serv => {
+                this.appointments.unshift({
+                    id: 'APT-' + Math.floor(1000 + Math.random() * 9000),
+                    customerName: this.checkoutBookingContactName || this.checkoutShippingForm.name || (this.customerProfile ? this.customerProfile.name : 'Khách hàng'),
+                    customerPhone: this.checkoutBookingContactPhone || this.checkoutShippingForm.phone || (this.customerProfile ? this.customerProfile.phone : ''),
+                    petship_address: petShipFullAddr,
+                    pet_ship_address: petShipFullAddr,
+                    payment_method: this.paymentMethod,
+                    petName: serv.selectedPet || (serv.bookingDetails ? serv.bookingDetails.petName : 'Bé cưng'),
+                    petType: 'Thú cưng khách chọn',
+                    serviceName: serv.name,
+                    date: serv.bookingDate || (serv.bookingDetails ? serv.bookingDetails.date : todayStr),
+                    time: serv.bookingTime || (serv.bookingDetails ? serv.bookingDetails.slot : '09:00'),
+                    branch: 'Cơ sở Chính: 88 Nguyễn Thị Minh Khai, Q1, TPHCM',
+                    status: 'Đã đặt hẹn',
+                    notes: petShipFullAddr ? ('PetShip đón tại: ' + petShipFullAddr) : 'Khách tự đưa đón tại cơ sở 88 NTMK'
+                });
+            });
 
             this.currentPendingOrder = newOrder;
             this.customerOrdersEnhanced.unshift(newOrder);
