@@ -3088,101 +3088,72 @@ CUSTOMER_HTML = """
 
                         <!-- TAB 3: SỔ ĐỊA CHỈ GIAO HÀNG & ĐƯA ĐÓN (Hiển thị khi activeTab === 'address') -->
                         <div x-show="activeTab === 'address'" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 animate-fadeIn">
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
                                 <div>
-                                    <h3 class="font-extrabold text-base sm:text-lg text-slate-900 flex items-center gap-2">
+                                    <h3 class="font-black text-lg sm:text-xl text-slate-900 flex items-center gap-2">
                                         <i class="fa-solid fa-map-location-dot text-[#F97316]"></i>Sổ Địa Chỉ Giao Hàng & Đưa Đón PetShip
                                     </h3>
-                                    <p class="text-xs text-slate-500 mt-0.5">Địa chỉ lưu sẵn giúp đặt hàng và gọi xe PetShip nhanh chóng chỉ trong 1 chạm</p>
+                                    <p class="text-xs text-slate-500 mt-1">Quản lý danh sách địa chỉ nhận hàng Shopee, giao hàng hỏa tốc 2H và đón/trả bé PetShip</p>
                                 </div>
-                                <button type="button" @click="showAddAddressForm = !showAddAddressForm" class="px-4 py-2 bg-orange-50 hover:bg-orange-100 text-[#F97316] font-bold text-xs rounded-xl border border-orange-200 transition flex items-center gap-1.5 shadow-2xs self-start sm:self-auto cursor-pointer">
-                                    <i class="fa-solid" :class="showAddAddressForm ? 'fa-minus' : 'fa-plus'"></i>
-                                    <span x-text="showAddAddressForm ? 'Đóng Form' : 'Thêm Địa Chỉ Mới'"></span>
+                                <button type="button" @click="openAddAddressModal()" class="px-4 py-2.5 bg-[#F97316] hover:bg-orange-600 text-white font-extrabold text-xs rounded-xl shadow-md shadow-orange-500/25 transition-all transform hover:-translate-y-0.5 flex items-center gap-2 self-start sm:self-auto cursor-pointer">
+                                    <i class="fa-solid fa-plus text-xs"></i>
+                                    <span>+ Thêm địa chỉ mới</span>
                                 </button>
                             </div>
 
-                            <!-- FORM THÊM ĐỊA CHỈ MỚI VỚI <AddressSelector> -->
-                            <div x-show="showAddAddressForm" class="p-5 bg-orange-50/50 rounded-3xl border border-orange-200 space-y-4 animate-fadeIn">
-                                <h4 class="font-black text-sm text-slate-900">Thêm Địa Chỉ Nhận Hàng Mới</h4>
-                                
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                                    <div>
-                                        <label class="block text-slate-700 font-bold mb-1">Tên người nhận:</label>
-                                        <input type="text" x-model="addressForm.recipient" placeholder="VD: Nguyễn Hoàng Giang" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-slate-800 font-semibold focus:outline-none focus:ring-1 focus:ring-orange-500">
-                                    </div>
-                                    <div>
-                                        <label class="block text-slate-700 font-bold mb-1">Số điện thoại:</label>
-                                        <input type="tel" x-model="addressForm.phone" placeholder="VD: 0987654321" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-slate-800 font-semibold focus:outline-none focus:ring-1 focus:ring-orange-500">
-                                    </div>
-                                </div>
+                            <!-- DANH SÁCH CÁC CARD ĐỊA CHỈ NẰM DỌC CHUẨN E-COMMERCE -->
+                            <div class="space-y-4">
+                                <template x-for="addr in (addresses || savedAddresses || [])" :key="'addr-card-' + addr.id">
+                                    <div class="p-5 rounded-2xl border transition-all duration-200 bg-white hover:shadow-sm"
+                                         :class="addr.isDefault ? 'border-[#F97316] ring-1 ring-orange-400/40 bg-orange-50/20' : 'border-slate-200 hover:border-slate-300'">
+                                        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                                            <!-- CỘT TRÁI: Tên người nhận | SĐT | Địa chỉ chi tiết | Tag Mặc định -->
+                                            <div class="space-y-2 flex-1">
+                                                <div class="flex flex-wrap items-center gap-2.5">
+                                                    <span class="font-black text-sm text-slate-900" x-text="addr.name || addr.receiver || addr.recipient || 'Nguyễn Phương Thảo'"></span>
+                                                    <span class="text-slate-300 text-xs">|</span>
+                                                    <span class="font-mono font-bold text-xs text-slate-600" x-text="addr.phone || '0988 123 456'"></span>
+                                                    <!-- Badge [Mặc định] màu cam nổi bật -->
+                                                    <template x-if="addr.isDefault">
+                                                        <span class="inline-flex items-center gap-1 bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-2xs">
+                                                            <i class="fa-solid fa-star text-[9px]"></i> [Mặc định]
+                                                        </span>
+                                                    </template>
+                                                </div>
 
-                                <!-- DROPDOWNS: Tỉnh/TP, Quận/Huyện, Phường/Xã (Component AddressSelector) -->
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                                    <div>
-                                        <label class="block text-slate-700 font-bold mb-1">Tỉnh / Thành phố:</label>
-                                        <input type="text" value="TP. Hồ Chí Minh" readonly disabled class="w-full bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-slate-600 font-bold cursor-not-allowed">
-                                    </div>
-                                    <div>
-                                        <label class="block text-slate-700 font-bold mb-1">Quận / Huyện:</label>
-                                        <select x-model="addressForm.district" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-slate-800 font-semibold focus:outline-none focus:ring-1 focus:ring-orange-500">
-                                            <template x-for="d in hcmDistricts" :key="d">
-                                                <option :value="d" x-text="d"></option>
-                                            </template>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-slate-700 font-bold mb-1">Phường / Xã:</label>
-                                        <select x-model="addressForm.ward" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-slate-800 font-semibold focus:outline-none focus:ring-1 focus:ring-orange-500">
-                                            <template x-for="w in getWards(addressForm.district)" :key="w">
-                                                <option :value="w" x-text="w"></option>
-                                            </template>
-                                        </select>
-                                    </div>
-                                </div>
+                                                <div class="flex items-start gap-2 text-xs text-slate-700 leading-relaxed font-medium">
+                                                    <i class="fa-solid fa-location-dot text-[#F97316] text-sm mt-0.5 shrink-0"></i>
+                                                    <span x-text="addr.fullAddress || ((addr.street ? addr.street + ', ' : '') + (addr.ward ? addr.ward + ', ' : '') + (addr.district ? addr.district + ', ' : '') + 'TP. Hồ Chí Minh')"></span>
+                                                </div>
 
-                                <div class="text-xs">
-                                    <label class="block text-slate-700 font-bold mb-1">Địa chỉ chi tiết (Số nhà, tên đường, căn hộ):</label>
-                                    <input type="text" x-model="addressForm.street" placeholder="VD: 123/45 Lê Lợi" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-slate-800 font-semibold focus:outline-none focus:ring-1 focus:ring-orange-500">
-                                </div>
+                                                <div class="text-[11px] text-slate-400 flex items-center gap-2 pt-0.5">
+                                                    <span class="inline-flex items-center gap-1 text-emerald-600 font-semibold">
+                                                        <i class="fa-solid fa-shield-check"></i>Đã xác thực tọa độ PetShip
+                                                    </span>
+                                                </div>
+                                            </div>
 
-                                <div class="flex justify-end gap-2 pt-2">
-                                    <button type="button" @click="showAddAddressForm = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition cursor-pointer">
-                                        Hủy
-                                    </button>
-                                    <button type="button" @click="saveNewAddress()" class="px-5 py-2 bg-[#F97316] hover:bg-orange-600 text-white font-bold text-xs rounded-xl shadow-xs transition cursor-pointer">
-                                        Lưu Địa Chỉ Này
-                                    </button>
-                                </div>
-                            </div>
+                                            <!-- CỘT PHẢI (ACTIONS): Hai nút text link 'Chỉnh sửa' và 'Xóa' -->
+                                            <div class="flex items-center sm:flex-col sm:items-end justify-end gap-2.5 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                                                <div class="flex items-center gap-3 text-xs font-bold">
+                                                    <button type="button" @click="openEditAddressModal(addr)" class="text-[#F97316] hover:text-orange-700 hover:underline flex items-center gap-1 cursor-pointer transition">
+                                                        <i class="fa-regular fa-pen-to-square"></i>
+                                                        <span>Chỉnh sửa</span>
+                                                    </button>
+                                                    <span class="text-slate-300">|</span>
+                                                    <button type="button" @click="deleteAddress(addr.id)" class="text-slate-400 hover:text-rose-600 hover:underline flex items-center gap-1 cursor-pointer transition">
+                                                        <i class="fa-regular fa-trash-can"></i>
+                                                        <span>Xóa</span>
+                                                    </button>
+                                                </div>
 
-                            <!-- DANH SÁCH ĐỊA CHỈ ĐÃ LƯU -->
-                            <div class="space-y-3">
-                                <template x-for="addr in (customerProfile.addresses || savedAddresses)" :key="'addr-card-' + addr.id">
-                                    <div class="p-4 rounded-2xl border transition"
-                                         :class="addr.isDefault ? 'border-orange-500 bg-orange-50/30 shadow-2xs' : 'border-slate-200 bg-white hover:border-slate-300'">
-                                        <div class="flex items-center justify-between pb-2 border-b border-slate-100">
-                                            <div class="flex items-center gap-2">
-                                                <span class="font-extrabold text-xs text-slate-900" x-text="addr.recipient || customerProfile.name"></span>
-                                                <span class="text-xs text-slate-400">•</span>
-                                                <span class="text-xs text-slate-600 font-mono" x-text="addr.phone || customerProfile.phone"></span>
-                                                <template x-if="addr.isDefault">
-                                                    <span class="text-[10px] bg-orange-500 text-white font-black px-2 py-0.5 rounded-full uppercase ml-1">Mặc Định</span>
+                                                <template x-if="!addr.isDefault">
+                                                    <button type="button" @click="setDefaultAddress(addr.id)" class="text-[11px] text-slate-500 hover:text-[#F97316] font-semibold underline cursor-pointer">
+                                                        Thiết lập làm mặc định
+                                                    </button>
                                                 </template>
                                             </div>
-                                            <div class="flex items-center gap-1.5 text-xs">
-                                                <button type="button" @click="setDefaultAddress(addr.id)" x-show="!addr.isDefault" class="text-slate-500 hover:text-orange-600 text-[11px] font-semibold underline cursor-pointer">
-                                                    Đặt làm mặc định
-                                                </button>
-                                                <span x-show="!addr.isDefault" class="text-slate-300">•</span>
-                                                <button type="button" @click="deleteAddress(addr.id)" x-show="!addr.isDefault" class="text-slate-400 hover:text-rose-500 cursor-pointer">
-                                                    <i class="fa-solid fa-trash-can"></i>
-                                                </button>
-                                            </div>
                                         </div>
-                                        <p class="text-xs text-slate-600 mt-2 flex items-start gap-1.5 leading-relaxed">
-                                            <i class="fa-solid fa-location-dot text-[#F97316] text-xs mt-0.5"></i>
-                                            <span x-text="addr.fullAddress || (addr.street + ', ' + addr.ward + ', ' + addr.district + ', TP. Hồ Chí Minh')"></span>
-                                        </p>
                                     </div>
                                 </template>
                             </div>

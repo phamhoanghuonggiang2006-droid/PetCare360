@@ -26,14 +26,8 @@ ADMIN_HTML = """
 
                 <!-- Global Branch Select -->
                 <div class="relative hidden md:block">
-                    <div class="flex items-center bg-slate-100 border border-slate-200 rounded-xl px-2.5 py-1 text-xs">
-                        <i class="fa-solid fa-location-dot text-sky-600 mr-2 text-xs"></i>
-                        <select x-model="globalBranch" @change="showToast('Đã lọc cơ sở: ' + globalBranch)" class="bg-transparent text-xs font-semibold text-slate-800 focus:outline-none cursor-pointer pr-4">
-                            <option value="ALL">Tất cả chi nhánh (3 cơ sở)</option>
-                            <option value="Q1">Chi nhánh Quận 1 (TP.HCM)</option>
-                            <option value="BT">Chi nhánh Bình Thạnh (TP.HCM)</option>
-                            <option value="Q7">Chi nhánh Quận 7 (TP.HCM)</option>
-                        </select>
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-sky-50 border border-sky-200/80 rounded-xl text-xs font-bold text-sky-900 shadow-2xs select-none">
+                        <span>📍 Cơ sở Chính: Quận 1, TP.HCM</span>
                     </div>
                 </div>
             </div>
@@ -771,7 +765,7 @@ ADMIN_HTML = """
 
                                                 <!-- Tổng tồn kho (Kèm logic note tự động trừ) -->
                                                 <td class="py-3.5 px-3 text-center font-black text-slate-800">
-                                                    <div x-text="item.stock + ' ' + item.unit"></div>
+                                                    <div x-text="(item.stock_quantity ?? item.stock) + ' ' + (item.unit || 'sản phẩm')"></div>
                                                     <div class="text-[9px] text-slate-400 font-normal">Tự động trừ khi bán</div>
                                                 </td>
 
@@ -988,7 +982,7 @@ ADMIN_HTML = """
                                     <i class="fa-solid fa-id-badge text-purple-600"></i>
                                     <span>Quản lý Nhân sự</span>
                                 </h2>
-                                <p class="text-xs text-slate-500">Phân ca trực tuyến, toggle lịch làm tuần và quản lý bằng cấp bác sĩ.</p>
+                                <p class="text-xs text-slate-500">Phân ca trực tuyến, toggle lịch làm tuần và quản lý hồ sơ chuyên gia chăm sóc.</p>
                             </div>
 
                             <div class="flex items-center gap-2">
@@ -1141,7 +1135,10 @@ ADMIN_HTML = """
 
                                                 <!-- Membership (Huy hiệu phân cấp rõ ràng) -->
                                                 <td class="py-3.5 px-4 text-center">
-                                                    <span :class="cust.tier === 'Platinum' ? 'bg-slate-800 text-white' : (cust.tier === 'Gold' ? 'bg-amber-100 text-amber-900 border border-amber-300' : (cust.tier === 'Silver' ? 'bg-slate-200 text-slate-800' : 'bg-orange-100 text-orange-900'))" class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider" x-text="cust.tier"></span>
+                                                    <span :class="getMembershipBadgeClass(cust)" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wide shadow-2xs select-none">
+                                                        <i class="fa-solid fa-crown text-[10px]"></i>
+                                                        <span x-text="getMembershipBadgeText(cust)"></span>
+                                                    </span>
                                                 </td>
 
                                                 <!-- Thú cưng -->
@@ -1233,7 +1230,7 @@ ADMIN_HTML = """
 
                                                 <!-- Tên Chủ (link click) -->
                                                 <td class="py-3.5 px-4">
-                                                    <button @click="showToast('Liên hệ chủ: ' + pet.ownerPhone)" class="font-bold text-sky-600 hover:underline" x-text="pet.ownerName"></button>
+                                                    <button @click="showToast('Liên hệ chủ: ' + (pet.ownerPhone || '0901 234 567'))" class="font-bold text-sky-600 hover:underline flex items-center gap-1.5" x-text="getPetOwnerName(pet)"></button>
                                                 </td>
 
                                                 <!-- Cân nặng -->
@@ -1312,7 +1309,7 @@ ADMIN_HTML = """
                                             <th class="py-3 px-3 text-right">Tổng tiền & TT</th>
                                             <th class="py-3 px-3 text-center">Trạng thái</th>
                                             <th class="py-3 px-3">PetShip (Điều phối)</th>
-                                            <th class="py-3 px-3 text-center">Chi tiết</th>
+                                            <th class="py-3 px-3 text-center">Thao tác</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-100 font-medium text-slate-700">

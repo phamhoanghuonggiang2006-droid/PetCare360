@@ -2,7 +2,80 @@ JS_HTML = '''<!-- ==================== LOGIC XỬ LÝ DỮ LIỆU & ALPINE.JS ST
 <script>
 function superPetCareApp() {
     return {
+        
+        // --- CUSTOMER & PET ADMIN HELPERS ---
+        getPetOwnerName(pet) {
+            if (!pet) return 'Trần Thị Mai';
+            if (pet.ownerName) return pet.ownerName;
+            if (pet.owner) return pet.owner;
+            if (pet.ownerFullName) return pet.ownerFullName;
+            if (pet.owner_id && this.adminCustomersList) {
+                const found = this.adminCustomersList.find(c => c.id === pet.owner_id || c.customerId === pet.owner_id);
+                if (found) return found.name;
+            }
+            return 'Trần Thị Mai';
+        },
+
+        getMembershipBadgeText(cust) {
+            if (!cust) return 'Đồng';
+            const m = ((cust.membership || cust.tier || cust.tierLabel || '') + '').toLowerCase();
+            if (m.includes('plat') || m.includes('bạch kim')) return 'Bạch Kim';
+            if (m.includes('gold') || m.includes('vàng')) return 'Vàng';
+            if (m.includes('silv') || m.includes('bạc')) return 'Bạc';
+            return 'Đồng';
+        },
+
+        getMembershipBadgeClass(cust) {
+            const t = this.getMembershipBadgeText(cust);
+            if (t === 'Bạch Kim') return 'bg-purple-100 text-purple-900 border border-purple-300 font-black';
+            if (t === 'Vàng') return 'bg-amber-100 text-amber-900 border border-amber-300 font-extrabold';
+            if (t === 'Bạc') return 'bg-slate-100 text-slate-800 border border-slate-300 font-bold';
+            return 'bg-orange-100 text-orange-900 border border-orange-300 font-bold';
+        },
+
+        getMembershipIconClass(cust) {
+            const t = this.getMembershipBadgeText(cust);
+            if (t === 'Bạch Kim') return 'text-purple-600';
+            if (t === 'Vàng') return 'text-amber-600';
+            if (t === 'Bạc') return 'text-slate-500';
+            return 'text-orange-600';
+        },
+
         init() {
+            // Normalize adminCustomersList customerId
+            if (Array.isArray(this.adminCustomersList)) {
+                this.adminCustomersList.forEach(c => {
+                    if (!c.customerId) c.customerId = c.id;
+                    if (!c.tier) c.tier = this.getMembershipBadgeText(c);
+                });
+            }
+
+            // Normalize adminPetProfilesList petId and ownerName
+            if (Array.isArray(this.adminPetProfilesList)) {
+                this.adminPetProfilesList.forEach(p => {
+                    if (!p.petId) p.petId = p.code;
+                    if (!p.ownerName) p.ownerName = p.owner;
+                });
+            }
+
+            // Normalize dogRooms and catRooms
+            if (Array.isArray(this.dogRooms)) {
+                this.dogRooms.forEach(r => {
+                    if (!r.serviceId) r.serviceId = r.serviceCode;
+                    if (!r.customerName) r.customerName = r.guestName;
+                    if (r.status === 'empty') r.status = 'available';
+                    if (r.status === 'deposit') r.status = 'reserved';
+                });
+            }
+            if (Array.isArray(this.catRooms)) {
+                this.catRooms.forEach(r => {
+                    if (!r.serviceId) r.serviceId = r.serviceCode;
+                    if (!r.customerName) r.customerName = r.guestName;
+                    if (r.status === 'empty') r.status = 'available';
+                    if (r.status === 'deposit') r.status = 'reserved';
+                });
+            }
+
             if (typeof window !== 'undefined') {
                 const syncCustomerRoute = () => {
                     const rawHash = (window.location.hash || '').replace('#', '').trim().toLowerCase();
@@ -100,11 +173,28 @@ function superPetCareApp() {
         adminDashboardTimeFilter: 'month', // 'today' | 'yesterday' | '7days' | 'month' | 'custom'
         dashboardChartMetric: 'revenue', // 'revenue' | 'profit' | 'orders'
         adminRevenueMetrics: {
+            totalRevenue: 485620000,
+            totalRevenueFormatted: '485.620.000đ',
+            totalOrders: 1284,
+            completedOrders: 1150,
+            processingOrders: 134,
+            averageOrderValue: 378000,
+            aov: 378000,
+            aovFormatted: '378.000đ',
+            websiteTraffic: { pageviews: '48.290', visitors: '18.640', total: 48290 },
+            growthRevenue: '+18.4%',
+            growthOrders: '+12.6%',
+            growthAov: '+5.2%',
+            growthTraffic: '+24.8%',
             revenue: { current: 485620000, growth: '+18.4%', isUp: true },
             orders: { total: 1284, success: 1150, pending: 134, growth: '+12.6%', isUp: true },
-            aov: { current: 378000, growth: '+5.2%', isUp: true },
-            traffic: { pageviews: 48290, visitors: 18640, growth: '+24.8%', isUp: true }
+            aovObj: { current: 378000, growth: '+5.2%', isUp: true },
+            traffic: { pageviews: '48.290', visitors: '18.640', growth: '+24.8%', isUp: true }
         },
+        get totalOrders() { return this.adminRevenueMetrics.totalOrders; },
+        get averageOrderValue() { return this.adminRevenueMetrics.aov; },
+        get websiteTraffic() { return this.adminRevenueMetrics.websiteTraffic; },
+        get conversionFunnel() { return this.adminConversionFunnel; },
         adminTrafficSources: [
             { source: 'Google Search (Organic & Ads)', percent: 42, visits: '20.280', color: 'bg-blue-600', textCol: 'text-blue-600' },
             { source: 'Mạng xã hội (Facebook, TikTok, PetShare)', percent: 28, visits: '13.520', color: 'bg-pink-500', textCol: 'text-pink-600' },
@@ -112,17 +202,17 @@ function superPetCareApp() {
             { source: 'Khách hàng cũ quay lại (Referral)', percent: 12, visits: '5.800', color: 'bg-amber-500', textCol: 'text-amber-600' }
         ],
         adminConversionFunnel: [
-            { step: '1. Lượt truy cập Website', count: '48.290', rate: '100%', drop: null },
-            { step: '2. Thêm vào giỏ hàng', count: '12.480', rate: '25.8%', drop: '-74.2%' },
-            { step: '3. Tiến hành đặt hàng / hẹn', count: '3.820', rate: '7.9%', drop: '-69.4%' },
-            { step: '4. Hoàn tất thanh toán', count: '1.284', rate: '2.66%', drop: '-66.4%' }
+            { step: '1. Lượt truy cập Website', count: '48.290', percent: 100, rate: '100%', drop: null },
+            { step: '2. Thêm vào giỏ hàng', count: '12.480', percent: 25.8, rate: '25.8%', drop: '-74.2%' },
+            { step: '3. Tiến hành đặt hàng / hẹn', count: '3.820', percent: 7.9, rate: '7.9%', drop: '-69.4%' },
+            { step: '4. Hoàn tất thanh toán', count: '1.284', percent: 3.36, rate: '3.36%', drop: '-66.4%' }
         ],
         adminTopProducts: [
-            { rank: 1, name: 'Thức Ăn Hạt Royal Canin Mini Adult (Chó Nhỏ)', img: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&w=200&q=80', soldQty: 540, revenue: 280800000 },
-            { rank: 2, name: 'Cát Đậu Nành Tofu Cature Kháng Khuẩn 6L', img: 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=200&q=80', soldQty: 380, revenue: 55100000 },
-            { rank: 3, name: 'Sữa Tắm Trị Nấm & Viêm Da Davis 4%', img: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=200&q=80', soldQty: 210, revenue: 49350000 },
-            { rank: 4, name: 'Pate Monge Cá Hồi & Lê Tươi Siêu Mịn', img: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=200&q=80', soldQty: 490, revenue: 19600000 },
-            { rank: 5, name: 'Xịt Khử Khuẩn Chuồng Trại Bioline', img: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=200&q=80', soldQty: 185, revenue: 24050000 }
+            { rank: 1, sku: 'SKU-RC-01', name: 'Thức Ăn Hạt Royal Canin Mini Adult (Chó Nhỏ)', image: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&w=200&q=80', img: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&w=200&q=80', sold: 540, soldQty: 540, quantity_sold: 540, revenue: 280800000 },
+            { rank: 2, sku: 'SKU-TC-02', name: 'Cát Đậu Nành Tofu Cature Kháng Khuẩn 6L', image: 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=200&q=80', img: 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=200&q=80', sold: 380, soldQty: 380, quantity_sold: 380, revenue: 55100000 },
+            { rank: 3, sku: 'SKU-DV-03', name: 'Sữa Tắm Trị Nấm & Viêm Da Davis 4%', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=200&q=80', img: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=200&q=80', sold: 210, soldQty: 210, quantity_sold: 210, revenue: 49350000 },
+            { rank: 4, sku: 'SKU-MG-04', name: 'Pate Monge Cá Hồi & Lê Tươi Siêu Mịn', image: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=200&q=80', img: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=200&q=80', sold: 490, soldQty: 490, quantity_sold: 490, revenue: 19600000 },
+            { rank: 5, sku: 'SKU-BL-05', name: 'Xịt Khử Khuẩn Chuồng Trại Bioline', image: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=200&q=80', img: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=200&q=80', sold: 185, soldQty: 185, quantity_sold: 185, revenue: 24050000 }
         ],
         adminRecentOrders: [
             {
@@ -322,17 +412,18 @@ function superPetCareApp() {
             notes: 'Phiếu nhập lô số L-2026-Q4, HSD 12/2027'
         },
         inventoryItems: [
-            { id: 1, sku: 'SKU-RC-01', name: 'Thức Ăn Hạt Royal Canin Mini Adult (Chó Nhỏ)', img: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&w=150&q=80', category: 'Dùng để bán', catType: 'sale', buyPrice: 185000, sellPrice: 245000, stock: 48, status: 'in_stock', statusLabel: 'Còn hàng' },
-            { id: 2, sku: 'SKU-TC-02', name: 'Cát Đậu Nành Tofu Cature Kháng Khuẩn 6L', img: 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=150&q=80', category: 'Dùng để bán', catType: 'sale', buyPrice: 95000, sellPrice: 145000, stock: 85, status: 'in_stock', statusLabel: 'Còn hàng' },
-            { id: 3, sku: 'SKU-DV-03', name: 'Sữa Tắm Trị Nấm & Viêm Da Davis 4% 355ml', img: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=150&q=80', category: 'Dùng cho cơ sở', catType: 'facility', buyPrice: 160000, sellPrice: 235000, stock: 6, status: 'low_stock', statusLabel: 'Sắp hết' },
-            { id: 4, sku: 'SKU-MG-04', name: 'Pate Monge Cá Hồi & Lê Tươi Siêu Mịn', img: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=150&q=80', category: 'Dùng để bán', catType: 'sale', buyPrice: 28000, sellPrice: 42000, stock: 120, status: 'in_stock', statusLabel: 'Còn hàng' },
-            { id: 5, sku: 'SKU-BL-05', name: 'Xịt Khử Khuẩn Chuồng Trại Bioline 500ml', img: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=150&q=80', category: 'Dùng cho cơ sở', catType: 'facility', buyPrice: 85000, sellPrice: 130000, stock: 18, status: 'in_stock', statusLabel: 'Còn hàng' },
-            { id: 6, sku: 'SKU-FL-06', name: 'Thuốc Nhỏ Gáy Trị Ve Rận Frontline Plus', img: 'https://images.unsplash.com/photo-1512069772995-ec65ed45afd6?auto=format&fit=crop&w=150&q=80', category: 'Dùng để bán', catType: 'sale', buyPrice: 195000, sellPrice: 275000, stock: 0, status: 'out_of_stock', statusLabel: 'Hết hàng' },
-            { id: 7, sku: 'SKU-NP-07', name: 'Gel Dinh Dưỡng Virbac Nutri-plus 120g', img: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=150&q=80', category: 'Dùng cho cơ sở', catType: 'facility', buyPrice: 110000, sellPrice: 165000, stock: 5, status: 'low_stock', statusLabel: 'Sắp hết' },
-            { id: 8, sku: 'SKU-CC-08', name: 'Bánh Thưởng Súp Ciao Churu Gà & Sò Điệp', img: 'https://images.unsplash.com/photo-1574158622682-e40e69881006?auto=format&fit=crop&w=150&q=80', category: 'Dùng để bán', catType: 'sale', buyPrice: 32000, sellPrice: 50000, stock: 65, status: 'in_stock', statusLabel: 'Còn hàng' }
+            { id: 1, sku: 'SKU-RC-01', name: 'Thức Ăn Hạt Royal Canin Mini Adult (Chó Nhỏ)', img: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&w=150&q=80', category: 'Dùng để bán', catType: 'sale', buyPrice: 185000, sellPrice: 245000, stock: 48, stock_quantity: 48, unit: 'gói', status: 'in_stock', statusLabel: 'Còn hàng' },
+            { id: 2, sku: 'SKU-TC-02', name: 'Cát Đậu Nành Tofu Cature Kháng Khuẩn 6L', img: 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=150&q=80', category: 'Dùng để bán', catType: 'sale', buyPrice: 95000, sellPrice: 145000, stock: 85, stock_quantity: 85, unit: 'túi', status: 'in_stock', statusLabel: 'Còn hàng' },
+            { id: 3, sku: 'SKU-DV-03', name: 'Sữa Tắm Trị Nấm & Viêm Da Davis 4% 355ml', img: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=150&q=80', category: 'Dùng cho cơ sở', catType: 'facility', buyPrice: 160000, sellPrice: 235000, stock: 6, stock_quantity: 6, unit: 'chai', status: 'low_stock', statusLabel: 'Sắp hết' },
+            { id: 4, sku: 'SKU-MG-04', name: 'Pate Monge Cá Hồi & Lê Tươi Siêu Mịn', img: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=150&q=80', category: 'Dùng để bán', catType: 'sale', buyPrice: 28000, sellPrice: 42000, stock: 120, stock_quantity: 120, unit: 'hộp', status: 'in_stock', statusLabel: 'Còn hàng' },
+            { id: 5, sku: 'SKU-BL-05', name: 'Xịt Khử Khuẩn Chuồng Trại Bioline 500ml', img: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=150&q=80', category: 'Dùng cho cơ sở', catType: 'facility', buyPrice: 85000, sellPrice: 130000, stock: 18, stock_quantity: 18, unit: 'chai', status: 'in_stock', statusLabel: 'Còn hàng' },
+            { id: 6, sku: 'SKU-FL-06', name: 'Thuốc Nhỏ Gáy Trị Ve Rận Frontline Plus', img: 'https://images.unsplash.com/photo-1512069772995-ec65ed45afd6?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1512069772995-ec65ed45afd6?auto=format&fit=crop&w=150&q=80', category: 'Dùng để bán', catType: 'sale', buyPrice: 195000, sellPrice: 275000, stock: 0, stock_quantity: 0, unit: 'hộp', status: 'out_of_stock', statusLabel: 'Hết hàng' },
+            { id: 7, sku: 'SKU-NP-07', name: 'Gel Dinh Dưỡng Virbac Nutri-plus 120g', img: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=150&q=80', category: 'Dùng cho cơ sở', catType: 'facility', buyPrice: 110000, sellPrice: 165000, stock: 5, stock_quantity: 5, unit: 'tuýp', status: 'low_stock', statusLabel: 'Sắp hết' },
+            { id: 8, sku: 'SKU-CC-08', name: 'Bánh Thưởng Súp Ciao Churu Gà & Sò Điệp', img: 'https://images.unsplash.com/photo-1574158622682-e40e69881006?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1574158622682-e40e69881006?auto=format&fit=crop&w=150&q=80', category: 'Dùng để bán', catType: 'sale', buyPrice: 32000, sellPrice: 50000, stock: 65, stock_quantity: 65, unit: 'gói', status: 'in_stock', statusLabel: 'Còn hàng' }
         ],
 
         // MODULE 5: QUẢN LÝ HOTEL (20 PHÒNG CHÓ & 20 PHÒNG MÈO - GRID 5x4)
+        activeHotelSubTab: 'dog',
         hotelActiveArea: 'dog', // 'dog' | 'cat'
         hotelStatusFilter: 'all', // 'all' | 'empty' | 'deposit' | 'occupied' | 'cleaning'
         selectedQueueServiceCode: null,
@@ -697,6 +788,8 @@ function superPetCareApp() {
             { id: 'ORD1001', code: '#PC-2026-1088', productSummary: '2x Thức Ăn Hạt Royal Canin Mini Adult (3kg)', customerName: 'Lê Văn Cường', phone: '0912 345 678', address: '450 Nguyễn Thị Thập, P. Tân Quy, Quận 7, TP.HCM', total: 1040000, paymentMethod: 'Chuyển khoản VietQR', notes: 'Giao giờ hành chính, gọi trước 15 phút', status: 'delivering', shipper: 'Trần Thanh Phong' },
             { id: 'ORD1002', code: '#PC-2026-1087', productSummary: '1x Cát Tofu 6L + 1x Sữa Tắm Davis 355ml', customerName: 'Trần Thị Mai', phone: '0901 234 567', address: '88 Nguyễn Thị Minh Khai, P. Đa Kao, Quận 1, TP.HCM', total: 380000, paymentMethod: 'COD', notes: 'Để trước cửa bảo vệ nếu vắng nhà', status: 'pending', shipper: 'Chưa gán' }
         ],
+        activePetShipSubTab: 'service',
+        availableShippers: ['Lê Hoàng Nam', 'Trần Văn Mạnh', 'Nguyễn Quốc Tuấn', 'Tài xế đối tác Ahamove'],
         petShipServiceList: [
             {
                 id: 'SRV2002',
@@ -1801,35 +1894,39 @@ function superPetCareApp() {
         get userProfile() { return this.customerProfile; },
         set userProfile(val) { this.customerProfile = val; },
 
-        // Danh sách địa chỉ nhận hàng
+        // Danh sách địa chỉ nhận hàng (Mock data: 1 ở Quận 1 gắn tag Mặc định, 1 ở Quận 7)
         addresses: [
             { 
                 id: 1, 
-                tag: 'Nhà riêng', 
+                tag: 'Cơ sở / Văn phòng', 
                 name: 'Nguyễn Phương Thảo',
                 receiver: 'Nguyễn Phương Thảo',
-                phone: '0988 123 456',
-                street: 'Căn hộ 12.04 Tòa Park 6, Vinhomes Central Park',
-                district: 'Bình Thạnh',
-                ward: 'Phường 22',
-                city: 'TP. Hồ Chí Minh',
-                fullAddress: 'Căn hộ 12.04 Tòa Park 6, Vinhomes Central Park, Phường 22, Bình Thạnh, TP. Hồ Chí Minh', 
-                isDefault: true 
-            },
-            { 
-                id: 2, 
-                tag: 'Văn phòng', 
-                name: 'Nguyễn Phương Thảo',
-                receiver: 'Nguyễn Phương Thảo',
+                recipient: 'Nguyễn Phương Thảo',
                 phone: '0988 123 456',
                 street: 'Tầng 18 Tòa nhà Bitexco, Số 2 Hải Triều',
                 district: 'Quận 1',
                 ward: 'Phường Bến Nghé',
                 city: 'TP. Hồ Chí Minh',
                 fullAddress: 'Tầng 18 Tòa nhà Bitexco, Số 2 Hải Triều, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh', 
+                isDefault: true 
+            },
+            { 
+                id: 2, 
+                tag: 'Biệt thự riêng', 
+                name: 'Nguyễn Phương Thảo',
+                receiver: 'Nguyễn Phương Thảo',
+                recipient: 'Nguyễn Phương Thảo',
+                phone: '0988 123 456',
+                street: 'Biệt thự Chateau, Số 12 Đường 19, Phú Mỹ Hưng',
+                district: 'Quận 7',
+                ward: 'Phường Tân Phú',
+                city: 'TP. Hồ Chí Minh',
+                fullAddress: 'Biệt thự Chateau, Số 12 Đường 19, Phú Mỹ Hưng, Phường Tân Phú, Quận 7, TP. Hồ Chí Minh', 
                 isDefault: false 
             }
         ],
+        get savedAddresses() { return this.addresses; },
+        set savedAddresses(val) { this.addresses = val; },
 
         // Đơn hàng của khách hàng
         customerOrders: [
@@ -3481,7 +3578,7 @@ function superPetCareApp() {
                             borderRadius: 6
                         },
                         {
-                            label: 'Dịch vụ Y tế & Spa (Triệu VNĐ)',
+                            label: 'Dịch vụ Spa & Hotel (Triệu VNĐ)',
                             data: servData,
                             backgroundColor: '#6366f1', // indigo-500
                             borderColor: '#4f46e5',
@@ -6120,7 +6217,7 @@ Trạng thái đơn: ' + finalStatus + ' | Đã trừ kho vĩnh viễn.`);
                         pointHoverRadius: 8
                     },
                     {
-                        label: 'Doanh thu Dịch vụ Y tế - Spa - Hotel (Triệu đ)',
+                        label: 'Doanh thu Dịch vụ Spa & Hotel (Triệu đ)',
                         data: [160, 190, 230, 280, 330, 420],
                         borderColor: '#0d9488',
                         backgroundColor: 'rgba(13, 148, 136, 0.12)',
