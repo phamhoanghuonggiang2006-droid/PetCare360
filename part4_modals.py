@@ -318,25 +318,28 @@ MODALS_HTML = '''<!-- ==================== CÁC MODAL HỆ THỐNG TOÀN DIỆN 
     </div>
 
     <!-- 5. MODAL BÀI VIẾT PETSHARE360 CHI TIẾT -->
-    <div x-show="selectedArticleModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
-        <template x-if="selectedArticleModal">
+    <div x-show="selectedArticleModal || selectedArticle" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <template x-if="selectedArticleModal || selectedArticle">
             <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100 relative animate-fadeIn">
-                <button @click="selectedArticleModal = null" class="absolute top-4 right-4 z-10 text-slate-500 hover:text-slate-800 w-9 h-9 rounded-full bg-white/80 backdrop-blur-md flex items-center justify-center shadow transition-colors">
+                <button @click="selectedArticleModal = null; selectedArticle = null;" class="absolute top-4 right-4 z-10 text-slate-500 hover:text-slate-800 w-9 h-9 rounded-full bg-white/80 backdrop-blur-md flex items-center justify-center shadow transition-colors">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
 
                 <div class="h-64 overflow-hidden rounded-t-3xl relative">
-                    <img :src="selectedArticleModal.image" :alt="selectedArticleModal.title" class="w-full h-full object-cover">
+                    <img :src="(selectedArticleModal || selectedArticle).coverImage || (selectedArticleModal || selectedArticle).image" :alt="selectedArticleModal.title" class="w-full h-full object-cover">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-black/20"></div>
                     <div class="absolute bottom-4 left-6 right-6 text-white">
                         <span class="px-2.5 py-1 bg-emerald-500 text-white text-[10px] font-black rounded-lg uppercase tracking-wider inline-block mb-2 shadow" x-text="selectedArticleModal.category"></span>
                         <h3 class="text-xl md:text-2xl font-black leading-snug" x-text="selectedArticleModal.title"></h3>
-                        <div class="flex items-center gap-3 text-xs text-slate-300 mt-2">
-                            <span><i class="fa-solid fa-user-pen mr-1"></i> <strong x-text="selectedArticleModal.author"></strong></span>
+                        <div class="flex items-center gap-3 text-xs text-slate-300 mt-2 flex-wrap">
+                            <span class="flex items-center gap-1.5">
+                                <img :src="(selectedArticleModal || selectedArticle).doctorAvatar || (selectedArticleModal || selectedArticle).authorAvatar || 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=150&q=80'" class="w-6 h-6 rounded-full object-cover border border-white/40">
+                                <strong class="text-white font-bold" x-text="(selectedArticleModal || selectedArticle).doctorName || (selectedArticleModal || selectedArticle).author"></strong>
+                            </span>
                             <span>•</span>
-                            <span><i class="fa-solid fa-calendar mr-1"></i> <span x-text="selectedArticleModal.date"></span></span>
+                            <span><i class="fa-solid fa-calendar mr-1"></i> <span x-text="(selectedArticleModal || selectedArticle).publishDate || (selectedArticleModal || selectedArticle).date"></span></span>
                             <span>•</span>
-                            <span><i class="fa-solid fa-eye mr-1"></i> <span x-text="selectedArticleModal.views"></span> lượt xem</span>
+                            <span><i class="fa-solid fa-eye mr-1"></i> <span x-text="(selectedArticleModal || selectedArticle).views || 2500"></span> lượt xem</span>
                         </div>
                     </div>
                 </div>
@@ -349,7 +352,7 @@ MODALS_HTML = '''<!-- ==================== CÁC MODAL HỆ THỐNG TOÀN DIỆN 
                     </div>
 
                     <!-- Article Body Content -->
-                    <div class="prose prose-sm max-w-none text-slate-700 space-y-4 text-xs md:text-sm leading-relaxed" x-html="selectedArticleModal.content"></div>
+                    <div class="prose prose-sm max-w-none text-slate-700 space-y-4 text-xs md:text-sm leading-relaxed" x-html="(selectedArticleModal || selectedArticle).fullContent || (selectedArticleModal || selectedArticle).content"></div>
 
                     <!-- Author box -->
                     <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
@@ -363,7 +366,7 @@ MODALS_HTML = '''<!-- ==================== CÁC MODAL HỆ THỐNG TOÀN DIỆN 
                     </div>
 
                     <div class="flex items-center justify-between pt-2 border-t border-slate-100">
-                        <button @click="selectedArticleModal = null" class="px-5 py-2.5 border border-slate-200 text-slate-600 font-bold rounded-xl text-xs hover:bg-slate-50">
+                        <button @click="selectedArticleModal = null; selectedArticle = null;" class="px-5 py-2.5 border border-slate-200 text-slate-600 font-bold rounded-xl text-xs hover:bg-slate-50">
                             Đóng bài viết
                         </button>
                         <button @click="alert('Đã sao chép liên kết bài viết vào bộ nhớ tạm!')" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-md shadow-emerald-600/30">
@@ -2400,6 +2403,121 @@ MODALS_HTML = '''<!-- ==================== CÁC MODAL HỆ THỐNG TOÀN DIỆN 
         <div class="flex-1 text-xs sm:text-sm font-semibold" x-text="toastNotification.message"></div>
         <button @click="toastNotification.show = false" class="text-slate-400 hover:text-white transition">
             <i class="fa-solid fa-xmark text-xs"></i>
+        </button>
+    </div>
+
+
+    <!-- ==================== MODAL VIẾT ĐÁNH GIÁ SẢN PHẨM (PDP REVIEW FORM MODAL) ==================== -->
+    <div x-show="showCustomerReviewFormModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 relative animate-fadeIn space-y-5">
+            <!-- Header Modal -->
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-base text-slate-900">Viết Đánh Giá Sản Phẩm</h3>
+                        <p class="text-xs text-slate-400">Chia sẻ cảm nhận chân thật giúp cộng đồng PetCare360 chọn mua tốt hơn</p>
+                    </div>
+                </div>
+                <button @click="showCustomerReviewFormModal = false" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Sản phẩm đang đánh giá -->
+            <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                <img :src="mainProductImage || currentProductDetail.image || currentProductDetail.img" class="w-12 h-12 rounded-xl object-cover border border-slate-200">
+                <div class="flex-1 min-w-0">
+                    <h5 class="font-bold text-xs text-slate-900 truncate" x-text="currentProductDetail.name"></h5>
+                    <p class="text-[11px] text-slate-400 mt-0.5" x-text="'Phân loại: ' + (currentProductDetail.variantConfig ? (selectedWeight || '3kg') : 'Tiêu chuẩn')"></p>
+                </div>
+            </div>
+
+            <!-- Đánh giá số sao (Interactive Star Rating) -->
+            <div class="space-y-1.5 text-center py-2">
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Chất lượng sản phẩm</label>
+                <div class="flex items-center justify-center gap-2 pt-1">
+                    <template x-for="star in [1, 2, 3, 4, 5]" :key="star">
+                        <button type="button" @click="newReviewRating = star" @mouseenter="hoverReviewRating = star" @mouseleave="hoverReviewRating = 0" class="text-3xl transition transform hover:scale-125 focus:outline-none">
+                            <i class="fa-solid fa-star transition-colors" :class="(hoverReviewRating ? (star <= hoverReviewRating) : (star <= newReviewRating)) ? 'text-amber-400' : 'text-slate-200'"></i>
+                        </button>
+                    </template>
+                </div>
+                <p class="text-xs font-bold text-amber-600 pt-1" x-text="getRatingLabel(hoverReviewRating || newReviewRating)"></p>
+            </div>
+
+            <!-- Khung Textarea nhận xét -->
+            <div class="space-y-1">
+                <label class="block text-xs font-bold text-slate-700">Chia sẻ trải nghiệm của bạn: <span class="text-rose-500">*</span></label>
+                <textarea x-model="newReviewText" rows="4" placeholder="Chia sẻ cảm nhận của bạn về sản phẩm... (Mùi vị, chất lượng hạt, bao bì, thời gian giao hàng, phản ứng của bé cưng)" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm focus:outline-none focus:bg-white focus:border-orange-500 transition"></textarea>
+            </div>
+
+            <!-- Khu vực tải Media (Ảnh / Video) -->
+            <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                    <label class="text-xs font-bold text-slate-700">Hình ảnh / Video thực tế:</label>
+                    <span class="text-[11px] text-slate-400">Tối đa 5 tệp</span>
+                </div>
+                <input type="file" id="customerReviewMediaInput" accept="image/*,video/*" multiple class="hidden" @change="handleReviewMediaUpload($event)">
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <button type="button" @click="document.getElementById('customerReviewMediaInput').click()" class="h-16 px-4 rounded-2xl border-2 border-dashed border-slate-300 hover:border-orange-400 bg-slate-50 hover:bg-orange-50/50 text-slate-600 hover:text-orange-600 text-xs font-bold transition flex items-center gap-2">
+                        <i class="fa-solid fa-camera text-base"></i>
+                        <span>Thêm ảnh/video</span>
+                    </button>
+                    <!-- Thumbnails preview with remove button -->
+                    <template x-for="(m, midx) in newReviewMediaList" :key="midx">
+                        <div class="relative w-16 h-16 rounded-2xl overflow-hidden border border-slate-200 shadow-sm group">
+                            <img :src="m" class="w-full h-full object-cover">
+                            <button type="button" @click="removeReviewMedia(midx)" class="absolute top-1 right-1 w-5 h-5 rounded-full bg-slate-900/80 hover:bg-rose-600 text-white flex items-center justify-center text-[10px] transition">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Nút gửi đánh giá -->
+            <div class="pt-2 flex items-center gap-3">
+                <button type="button" @click="showCustomerReviewFormModal = false" class="w-1/3 py-3 rounded-2xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition">
+                    Hủy bỏ
+                </button>
+                <button type="button" @click="submitCustomerReview()" :disabled="newReviewRating === 0 || !newReviewText.trim()" :class="(newReviewRating === 0 || !newReviewText.trim()) ? 'opacity-50 cursor-not-allowed bg-slate-300 text-slate-500' : 'bg-orange-500 hover:bg-orange-600 text-white shadow-lg shadow-orange-500/25'" class="flex-1 py-3 rounded-2xl font-extrabold text-xs sm:text-sm transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                    <span>Gửi Đánh Giá</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL LIGHTBOX XEM ẢNH THỰC TẾ FULLSCREEN ==================== -->
+    <div x-show="showReviewLightboxModal" x-cloak class="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-4 select-none animate-fadeIn" @keydown.window.escape="showReviewLightboxModal = false">
+        <!-- Nút đóng (X) -->
+        <button @click="showReviewLightboxModal = false" class="absolute top-5 right-5 w-11 h-11 rounded-full bg-white/20 hover:bg-rose-600 text-white text-lg flex items-center justify-center transition z-20 backdrop-blur-md">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <!-- Nút điều hướng Trái (Prev) -->
+        <button @click="reviewLightboxPrev()" class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/30 text-white text-xl flex items-center justify-center transition z-20 backdrop-blur-md">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+
+        <!-- Ảnh trung tâm phóng to -->
+        <div class="max-w-4xl max-h-[85vh] flex flex-col items-center justify-center">
+            <template x-if="reviewLightboxImages && reviewLightboxImages.length > 0">
+                <img :src="reviewLightboxImages[reviewLightboxIndex]" class="max-w-full max-h-[80vh] rounded-2xl object-contain shadow-2xl">
+            </template>
+            <!-- Chỉ số ảnh (Ví dụ: 2 / 5) -->
+            <div class="mt-4 px-4 py-1.5 rounded-full bg-white/20 text-white text-xs font-bold backdrop-blur-md flex items-center gap-2">
+                <i class="fa-solid fa-camera"></i>
+                <span x-text="(reviewLightboxIndex + 1) + ' / ' + (reviewLightboxImages ? reviewLightboxImages.length : 1)"></span>
+            </div>
+        </div>
+
+        <!-- Nút điều hướng Phải (Next) -->
+        <button @click="reviewLightboxNext()" class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/30 text-white text-xl flex items-center justify-center transition z-20 backdrop-blur-md">
+            <i class="fa-solid fa-chevron-right"></i>
         </button>
     </div>
 

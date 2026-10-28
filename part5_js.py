@@ -137,9 +137,77 @@ function superPetCareApp() {
         productDetailTab: 'desc', // 'desc' | 'feeding' | 'reviews'
         reviewFilterPhotosOnly: false,
         productReviewsList: [
-            { id: 1, user: 'Nguyễn Văn Minh', avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80', rating: 5, date: '25/10/2026', variant: '3kg - Vị Cá Hồi', comment: 'Hạt thơm ngậy, cún nhà mình rất thích. Lông mượt hơn rõ sau 2 tuần sử dụng. Giao hàng PetShip360 chỉ 1 tiếng là tới!', photo: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=400&q=80', verified: true },
-            { id: 2, user: 'Trần Thị Thu Hà', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80', rating: 5, date: '20/10/2026', variant: '1kg - Vị Thịt Bò', comment: 'Bao bì zip đóng kín bảo quản tốt. Viên hạt vừa miệng không bị vụn bở, bé ăn sạch bát!', photo: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=400&q=80', verified: true },
-            { id: 3, user: 'Lê Hoàng Nam', avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80', rating: 4.8, date: '15/10/2026', variant: '10kg - Vị Cá Hồi', comment: 'Mua bao 10kg tiết kiệm được nhiều. Hàng chính hãng 100% có tem kiểm định y tế đầy đủ.', photo: '', verified: true }
+            {
+                id: 1,
+                author: 'Nguyễn Văn Minh',
+                user: 'Nguyễn Văn Minh',
+                avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
+                rating: 5,
+                stars: [1, 2, 3, 4, 5],
+                date: '25/10/2026',
+                variant: '3kg - Vị Cá Hồi',
+                comment: 'Hạt thơm ngậy, cún nhà mình rất thích. Lông mượt hơn rõ sau 2 tuần sử dụng. Giao hàng PetShip360 chỉ 1 tiếng là tới tận nhà!',
+                photos: [
+                    'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=600&q=80',
+                    'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=600&q=80'
+                ],
+                photo: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=600&q=80',
+                verified: true,
+                likes: 18,
+                isLiked: false,
+                showReplyInput: false,
+                newReplyText: '',
+                replies: [
+                    {
+                        author: 'PetCare360 Support',
+                        isAdmin: true,
+                        date: '25/10/2026',
+                        content: 'Cảm ơn anh Minh đã tin tưởng lựa chọn PetCare360! Chúc bé cún luôn khỏe mạnh và năng động ạ.'
+                    }
+                ]
+            },
+            {
+                id: 2,
+                author: 'Trần Thị Thu Hà',
+                user: 'Trần Thị Thu Hà',
+                avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80',
+                rating: 5,
+                stars: [1, 2, 3, 4, 5],
+                date: '20/10/2026',
+                variant: '1kg - Vị Thịt Bò',
+                comment: 'Bao bì zip đóng kín bảo quản tốt. Viên hạt vừa miệng không bị vụn bở, bé ăn sạch bát!',
+                photos: [
+                    'https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=600&q=80'
+                ],
+                photo: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=600&q=80',
+                verified: true,
+                likes: 12,
+                isLiked: false,
+                showReplyInput: false,
+                newReplyText: '',
+                replies: []
+            },
+            {
+                id: 3,
+                author: 'Lê Hoàng Nam',
+                user: 'Lê Hoàng Nam',
+                avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80',
+                rating: 4.8,
+                stars: [1, 2, 3, 4, 5],
+                date: '15/10/2026',
+                variant: '10kg - Vị Cá Hồi',
+                comment: 'Mua bao 10kg tiết kiệm được nhiều. Hàng chính hãng 100% có tem kiểm định y tế đầy đủ.',
+                photos: [
+                    'https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=600&q=80'
+                ],
+                photo: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=600&q=80',
+                verified: true,
+                likes: 9,
+                isLiked: false,
+                showReplyInput: false,
+                newReplyText: '',
+                replies: []
+            }
         ],
 
         // ==================== 2. DỊCH VỤ & PRICING MATRIX & BOOKING ====================
@@ -628,9 +696,9 @@ function superPetCareApp() {
             name: 'Nguyễn Hoàng Giang',
             phone: '0909123456',
             address: '125 Hoàng Quốc Việt',
-            city: 'Hà Nội',
-            district: 'Quận Cầu Giấy',
-            ward: 'Phường Nghĩa Đô',
+            city: 'TP. Hồ Chí Minh',
+            district: 'Quận 1',
+            ward: 'Phường Đa Kao',
             notes: '',
             touched: {
                 name: false,
@@ -645,34 +713,28 @@ function superPetCareApp() {
             {
                 name: 'TP. Hồ Chí Minh',
                 districts: [
-                    { name: 'Quận 1', wards: ['Phường Đa Kao', 'Phường Bến Nghé', 'Phường Bến Thành', 'Phường Tân Định'] },
-                    { name: 'Quận 3', wards: ['Phường Võ Thị Sáu', 'Phường 1', 'Phường 2', 'Phường 3'] },
-                    { name: 'Quận 7', wards: ['Phường Tân Quy', 'Phường Tân Phong', 'Phường Phú Mỹ', 'Phường Tân Thuận Đông'] },
-                    { name: 'Quận Bình Thạnh', wards: ['Phường 25', 'Phường 26', 'Phường 27', 'Phường 28'] },
-                    { name: 'TP. Thủ Đức', wards: ['Phường Thảo Điền', 'Phường An Phú', 'Phường Linh Trung', 'Phường Hiệp Bình Chánh'] }
-                ]
-            },
-            {
-                name: 'Hà Nội',
-                districts: [
-                    { name: 'Quận Cầu Giấy', wards: ['Phường Nghĩa Đô', 'Phường Dịch Vọng', 'Phường Mai Dịch', 'Phường Quan Hoa'] },
-                    { name: 'Quận Ba Đình', wards: ['Phường Liễu Giai', 'Phường Kim Mã', 'Phường Giảng Võ', 'Phường Đội Cấn'] },
-                    { name: 'Quận Hoàn Kiếm', wards: ['Phường Hàng Trống', 'Phường Hàng Bài', 'Phường Tràng Tiền'] },
-                    { name: 'Quận Đống Đa', wards: ['Phường Láng Hạ', 'Phường Ô Chợ Dừa', 'Phường Nam Đồng'] }
-                ]
-            },
-            {
-                name: 'Đà Nẵng',
-                districts: [
-                    { name: 'Quận Hải Châu', wards: ['Phường Hải Châu 1', 'Phường Thạch Thang', 'Phường Hòa Thuận Đông'] },
-                    { name: 'Quận Sơn Trà', wards: ['Phường An Hải Bắc', 'Phường Phước Mỹ'] }
-                ]
-            },
-            {
-                name: 'Bình Dương',
-                districts: [
-                    { name: 'TP. Thủ Dầu Một', wards: ['Phường Phú Hòa', 'Phường Phú Cường'] },
-                    { name: 'TP. Thuận An', wards: ['Phường Lái Thiêu', 'Phường An Phú'] }
+                    { name: 'Quận 1', wards: ['Phường Bến Nghé', 'Phường Bến Thành', 'Phường Đa Kao', 'Phường Tân Định', 'Phường Nguyễn Thái Bình', 'Phường Phạm Ngũ Lão', 'Phường Cầu Kho', 'Phường Cầu Ông Lãnh', 'Phường Cô Giang', 'Phường Nguyễn Cư Trinh'] },
+                    { name: 'Quận 3', wards: ['Phường Võ Thị Sáu', 'Phường 1', 'Phường 2', 'Phường 3', 'Phường 4', 'Phường 5', 'Phường 9', 'Phường 10', 'Phường 11', 'Phường 12', 'Phường 14'] },
+                    { name: 'Quận 4', wards: ['Phường 1', 'Phường 2', 'Phường 3', 'Phường 4', 'Phường 6', 'Phường 8', 'Phường 9', 'Phường 10', 'Phường 13', 'Phường 14', 'Phường 15', 'Phường 16', 'Phường 18'] },
+                    { name: 'Quận 5', wards: ['Phường 1', 'Phường 2', 'Phường 3', 'Phường 4', 'Phường 5', 'Phường 6', 'Phường 7', 'Phường 8', 'Phường 9', 'Phường 10', 'Phường 11', 'Phường 12', 'Phường 13', 'Phường 14'] },
+                    { name: 'Quận 6', wards: ['Phường 1', 'Phường 2', 'Phường 3', 'Phường 4', 'Phường 5', 'Phường 6', 'Phường 7', 'Phường 8', 'Phường 9', 'Phường 10', 'Phường 11', 'Phường 12', 'Phường 13', 'Phường 14'] },
+                    { name: 'Quận 7', wards: ['Phường Tân Phong', 'Phường Tân Quy', 'Phường Phú Mỹ', 'Phường Tân Thuận Đông', 'Phường Tân Thuận Tây', 'Phường Tân Kiểng', 'Phường Tân Hưng', 'Phường Bình Thuận', 'Phường Phú Thuận', 'Phường Tân Phú'] },
+                    { name: 'Quận 8', wards: ['Phường 1', 'Phường 2', 'Phường 3', 'Phường 4', 'Phường 5', 'Phường 6', 'Phường 7', 'Phường 8', 'Phường 9', 'Phường 10', 'Phường 11', 'Phường 12', 'Phường 13', 'Phường 14', 'Phường 15', 'Phường 16'] },
+                    { name: 'Quận 10', wards: ['Phường 1', 'Phường 2', 'Phường 4', 'Phường 5', 'Phường 6', 'Phường 7', 'Phường 8', 'Phường 9', 'Phường 10', 'Phường 11', 'Phường 12', 'Phường 13', 'Phường 14', 'Phường 15'] },
+                    { name: 'Quận 11', wards: ['Phường 1', 'Phường 2', 'Phường 3', 'Phường 4', 'Phường 5', 'Phường 6', 'Phường 7', 'Phường 8', 'Phường 9', 'Phường 10', 'Phường 11', 'Phường 12', 'Phường 13', 'Phường 14', 'Phường 15', 'Phường 16'] },
+                    { name: 'Quận 12', wards: ['Phường Tân Chánh Hiệp', 'Phường Tân Thới Hiệp', 'Phường Thạnh Lộc', 'Phường Thạnh Xuân', 'Phường Thới An', 'Phường An Phú Đông', 'Phường Hiệp Thành', 'Phường Đông Hưng Thuận', 'Phường Tân Hưng Thuận', 'Phường Trung Mỹ Tây', 'Phường Tân Thới Nhất'] },
+                    { name: 'Bình Thạnh', wards: ['Phường 1', 'Phường 2', 'Phường 3', 'Phường 5', 'Phường 6', 'Phường 7', 'Phường 11', 'Phường 12', 'Phường 13', 'Phường 14', 'Phường 15', 'Phường 17', 'Phường 19', 'Phường 21', 'Phường 22', 'Phường 24', 'Phường 25', 'Phường 26', 'Phường 27', 'Phường 28'] },
+                    { name: 'Phú Nhuận', wards: ['Phường 1', 'Phường 2', 'Phường 3', 'Phường 4', 'Phường 5', 'Phường 7', 'Phường 8', 'Phường 9', 'Phường 10', 'Phường 11', 'Phường 13', 'Phường 15', 'Phường 17'] },
+                    { name: 'Gò Vấp', wards: ['Phường 1', 'Phường 3', 'Phường 4', 'Phường 5', 'Phường 6', 'Phường 7', 'Phường 8', 'Phường 9', 'Phường 10', 'Phường 11', 'Phường 12', 'Phường 13', 'Phường 14', 'Phường 15', 'Phường 16', 'Phường 17'] },
+                    { name: 'Tân Bình', wards: ['Phường 1', 'Phường 2', 'Phường 3', 'Phường 4', 'Phường 5', 'Phường 6', 'Phường 7', 'Phường 8', 'Phường 9', 'Phường 10', 'Phường 11', 'Phường 12', 'Phường 13', 'Phường 14', 'Phường 15'] },
+                    { name: 'Tân Phú', wards: ['Phường Hiệp Tân', 'Phường Hòa Thạnh', 'Phường Phú Thạnh', 'Phường Phú Thọ Hòa', 'Phường Phú Trung', 'Phường Sơn Kỳ', 'Phường Tân Quý', 'Phường Tân Sơn Nhì', 'Phường Tân Thành', 'Phường Tân Thới Hòa', 'Phường Tây Thạnh'] },
+                    { name: 'Bình Tân', wards: ['Phường An Lạc', 'Phường An Lạc A', 'Phường Bình Hưng Hòa', 'Phường Bình Hưng Hòa A', 'Phường Bình Hưng Hòa B', 'Phường Bình Trị Đông', 'Phường Bình Trị Đông A', 'Phường Bình Trị Đông B', 'Phường Tân Tạo', 'Phường Tân Tạo A'] },
+                    { name: 'TP. Thủ Đức', wards: ['Phường Thảo Điền', 'Phường An Phú', 'Phường An Khánh', 'Phường Bình Trưng Đông', 'Phường Bình Trưng Tây', 'Phường Cát Lái', 'Phường Thạnh Mỹ Lợi', 'Phường Hiệp Phú', 'Phường Tăng Nhơn Phú A', 'Phường Tăng Nhơn Phú B', 'Phường Phước Long A', 'Phường Phước Long B', 'Phường Trường Thọ', 'Phường Linh Chiểu', 'Phường Linh Tây', 'Phường Linh Trung', 'Phường Linh Xuân', 'Phường Linh Đông', 'Phường Tam Phú', 'Phường Tam Bình', 'Phường Hiệp Bình Chánh', 'Phường Hiệp Bình Phước'] },
+                    { name: 'Bình Chánh', wards: ['Thị trấn Tân Túc', 'Xã An Phú Tây', 'Xã Bình Chánh', 'Xã Bình Hưng', 'Xã Bình Lợi', 'Xã Đa Phước', 'Xã Hưng Long', 'Xã Lê Minh Xuân', 'Xã Phạm Văn Hai', 'Xã Phong Phú', 'Xã Quy Đức', 'Xã Tân Kiên', 'Xã Tân Nhựt', 'Xã Tân Quý Tây', 'Xã Vĩnh Lộc A', 'Xã Vĩnh Lộc B'] },
+                    { name: 'Hóc Môn', wards: ['Thị trấn Hóc Môn', 'Xã Bà Điểm', 'Xã Đông Thạnh', 'Xã Nhị Bình', 'Xã Tân Hiệp', 'Xã Tân Thới Nhì', 'Xã Tân Xuân', 'Xã Thới Tam Thôn', 'Xã Trung Chánh', 'Xã Xuân Thới Đông', 'Xã Xuân Thới Sơn', 'Xã Xuân Thới Thượng'] },
+                    { name: 'Củ Chi', wards: ['Thị trấn Củ Chi', 'Xã An Nhơn Tây', 'Xã An Phú', 'Xã Bình Mỹ', 'Xã Hòa Phú', 'Xã Nhuận Đức', 'Xã Phạm Văn Cội', 'Xã Phú Hòa Đông', 'Xã Phú Mỹ Hưng', 'Xã Tân An Hội', 'Xã Tân Thông Hội', 'Xã Thái Mỹ', 'Xã Trung An', 'Xã Trung Lập Hạ', 'Xã Trung Lập Thượng'] },
+                    { name: 'Nhà Bè', wards: ['Thị trấn Nhà Bè', 'Xã Hiệp Phước', 'Xã Long Thới', 'Xã Nhơn Đức', 'Xã Phú Xuân', 'Xã Phước Kiển', 'Xã Phước Lộc'] },
+                    { name: 'Cần Giờ', wards: ['Thị trấn Cần Thạnh', 'Xã An Thới Đông', 'Xã Bình Khánh', 'Xã Cần Giờ', 'Xã Long Hòa', 'Xã Lý Nhơn', 'Xã Tam Thôn Hiệp', 'Xã Thạnh An'] }
                 ]
             }
         ],
@@ -823,6 +885,99 @@ function superPetCareApp() {
 
         selectedServiceModal: null,
         selectedProductModal: null,
+        
+        // Khối Bác Sĩ Thú Y Tư Vấn (PetShare360)
+        selectedArticle: null,
+        vetConsultArticles: [
+            {
+                id: 'vet-art-1',
+                title: 'Lịch tiêm phòng dại & 7 bệnh chuẩn nhất cho cún con 2026',
+                doctorName: 'BS. Nguyễn Thanh Tùng',
+                author: 'BS. Nguyễn Thanh Tùng',
+                doctorAvatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=150&q=80',
+                coverImage: 'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?auto=format&fit=crop&w=800&q=80',
+                image: 'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?auto=format&fit=crop&w=800&q=80',
+                publishDate: '26/10/2026',
+                date: '26/10/2026',
+                category: 'Y Khoa Dự Phòng',
+                views: 3120,
+                summary: 'Phác đồ tiêm chủng ngừa Dại và vắc-xin tổng hợp 7 bệnh theo khuyến cáo mới nhất từ Hiệp hội Thú y Thế giới (WSAVA), bảo vệ cún cưng toàn diện trước Parvovirus và Care.',
+                fullContent: `
+                    <p class="lead font-medium text-slate-700">Tiêm phòng đúng độ tuổi và đủ mũi là biện pháp duy nhất giúp cún con hình thành kháng thể chủ động, tránh nguy cơ tử vong lên đến 90% khi mắc bệnh truyền nhiễm nguy hiểm.</p>
+                    <h4 class="font-extrabold text-slate-900 text-sm mt-4 mb-2 flex items-center gap-2"><i class="fa-solid fa-syringe text-teal-600"></i> Phác Đồ 3 Mũi Vắc-Xin Cơ Bản Cho Cún Con</h4>
+                    <ul class="list-disc list-inside space-y-1.5 text-slate-600">
+                        <li><strong>Mũi 1 (6 - 8 tuần tuổi):</strong> Vắc-xin phòng 5 bệnh cơ bản (Care, Parvo, Viêm gan truyền nhiễm, Ho cũi chó, Cúm).</li>
+                        <li><strong>Mũi 2 (10 - 12 tuần tuổi):</strong> Vắc-xin phòng 7 bệnh (Bổ sung thêm 2 chủng xoắn khuẩn Leptospira lây sang người).</li>
+                        <li><strong>Mũi 3 (14 - 16 tuần tuổi):</strong> Vắc-xin 7 bệnh nhắc lại kết hợp Vắc-xin phòng bệnh Dại (Rabies bắt buộc theo quy định thú y).</li>
+                        <li><strong>Nhắc lại hàng năm:</strong> 01 mũi 7 bệnh và 01 mũi Dại định kỳ mỗi 12 tháng một lần suốt đời bé.</li>
+                    </ul>
+                    <div class="my-4 p-4 rounded-2xl bg-teal-50 border border-teal-200">
+                        <h5 class="font-bold text-teal-900 text-xs mb-1 flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation text-teal-600"></i> Lưu ý đặc biệt từ Bác sĩ Tùng:</h5>
+                        <p class="text-teal-800 text-xs leading-relaxed">Tuyệt đối không tắm cho cún trong vòng 7 ngày sau khi tiêm. Tránh cho bé tiếp xúc với chó lạ hoặc đi dạo nơi công cộng khi chưa hoàn thành đủ 3 mũi vắc-xin cơ sở.</p>
+                    </div>
+                `
+            },
+            {
+                id: 'vet-art-2',
+                title: 'Cách sơ cứu hạ thân nhiệt cho thú cưng vào mùa nóng',
+                doctorName: 'BS. Vũ Mai Anh',
+                author: 'BS. Vũ Mai Anh',
+                doctorAvatar: 'https://images.unsplash.com/photo-1594824813583-9b2f6efd559a?auto=format&fit=crop&w=150&q=80',
+                coverImage: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=800&q=80',
+                image: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=800&q=80',
+                publishDate: '24/10/2026',
+                date: '24/10/2026',
+                category: 'Cấp Cứu Thường Thức',
+                views: 2840,
+                summary: 'Sốc nhiệt (Heatstroke) diễn ra rất nhanh ở vùng khí hậu nhiệt đới như TP.HCM. Nắm rõ các bước sơ cứu tức thì sẽ cứu sống bé cưng trong gang tấc.',
+                fullContent: `
+                    <p class="lead font-medium text-slate-700">Chó mèo không có tuyến mồ hôi dưới da như người mà chỉ thoát nhiệt qua hơi thở và đệm bàn chân. Khi nhiệt độ môi trường vượt quá 35°C, bé rất dễ rơi vào tình trạng suy hô hấp và trụy tim mạch.</p>
+                    <h4 class="font-extrabold text-slate-900 text-sm mt-4 mb-2 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation text-amber-500"></i> Dấu Hiệu Nhận Biết Thú Cưng Bị Sốc Nhiệt</h4>
+                    <ul class="list-disc list-inside space-y-1.5 text-slate-600">
+                        <li>Thở dốc dữ dội, lưỡi thè dài và chuyển sang màu tím tái hoặc đỏ sẫm.</li>
+                        <li>Chảy nhiều dãi nhớt, mắt đờ đẫn, đứng không vững, run rẩy co giật.</li>
+                        <li>Thân nhiệt hậu môn tăng cao vượt mức 40°C.</li>
+                    </ul>
+                    <h4 class="font-extrabold text-slate-900 text-sm mt-4 mb-2 flex items-center gap-2"><i class="fa-solid fa-kit-medical text-rose-500"></i> 4 Bước Sơ Cứu Khẩn Cấp Tại Chỗ</h4>
+                    <ol class="list-decimal list-inside space-y-1.5 text-slate-600">
+                        <li><strong>Di chuyển ngay:</strong> Đưa thú cưng vào bóng râm mát, phòng điều hòa hoặc trước quạt gió.</li>
+                        <li><strong>Làm mát từ từ:</strong> Dùng khăn thấm nước mát (nhiệt độ phòng) đắp lên đệm bàn chân, bụng, bẹn và nách. Tuyệt đối KHÔNG dội nước đá lạnh vì sẽ gây co mạch ngoại vi và sốc nhiệt ngược.</li>
+                        <li><strong>Cấp ẩm:</strong> Thấm một ít nước mát vào môi lưỡi, KHÔNG ép bé uống nước ừng ực nếu bé đang khó thở.</li>
+                        <li><strong>Chuyển viện khẩn cấp:</strong> Liên hệ ngay Hotline Cấp cứu PetCare360 24/7 (1900 6868) để được bác sĩ đón và cấp cứu kịp thời.</li>
+                    </ol>
+                `
+            }
+        ],
+
+        // Customer Reviews & Lightbox State (PDP)
+        showCustomerReviewFormModal: false,
+        newReviewRating: 5,
+        hoverReviewRating: 0,
+        newReviewText: '',
+        newReviewMediaList: [],
+        showReviewLightboxModal: false,
+        reviewLightboxImages: [],
+        reviewLightboxIndex: 0,
+        onlyWithPhotos: false,
+
+        // Thông tin người đại diện đặt lịch & Địa chỉ PetShip (Checkout Step 2)
+        checkoutBookingContactName: 'Nguyễn Phương Thảo',
+        checkoutBookingContactPhone: '0988 123 456',
+        checkoutBookingContactTouched: {
+            name: false,
+            phone: false,
+            street: false,
+            district: false,
+            ward: false
+        },
+        checkoutPetShipAddress: {
+            street: '',
+            city: 'TP. Hồ Chí Minh',
+            district: 'Quận 1',
+            ward: 'Phường Đa Kao'
+        },
+        selectedPaymentMethod: 'vietqr',
+
         selectedArticleModal: null,
         selectedPetHealthModal: null,
         selectedOrder: null,
@@ -998,6 +1153,22 @@ function superPetCareApp() {
                 id: 1,
                 sku: 'PET-FD01',
                 name: 'Thức Ăn Hạt Royal Canin Mini Adult (Chó Nhỏ)',
+                variantConfig: {
+                    weights: [
+                        { label: '1kg', price: 185000, sub: 'Dùng thử' },
+                        { label: '3kg', price: 520000, sub: 'Phổ biến nhất', tag: 'Hot' },
+                        { label: '10kg', price: 1650000, sub: 'Tiết kiệm' }
+                    ],
+                    flavors: [
+                        { label: 'Vị Cá Hồi (Dưỡng lông & Da)', id: 'salmon' },
+                        { label: 'Vị Thịt Bò (Phát triển cơ bắp)', id: 'beef' }
+                    ]
+                },
+                variants: [
+                    { label: '1kg', price: 185000 },
+                    { label: '3kg', price: 520000 },
+                    { label: '10kg', price: 1650000 }
+                ],
                 brand: 'Royal Canin (Pháp)',
                 price: 360000,
                 rating: 4.9,
@@ -1021,6 +1192,22 @@ function superPetCareApp() {
                 id: 2,
                 sku: 'PET-FD02',
                 name: 'Hạt Royal Canin Kitten Dinh Dưỡng Toàn Diện Cho Mèo Con',
+                variantConfig: {
+                    weights: [
+                        { label: '1kg', price: 195000, sub: 'Gói nhỏ' },
+                        { label: '2kg', price: 380000, sub: 'Phổ biến nhất', tag: 'Best Seller' },
+                        { label: '10kg', price: 1750000, sub: 'Bao lớn' }
+                    ],
+                    flavors: [
+                        { label: 'Vị Cá Ngừ & Gà', id: 'tuna' },
+                        { label: 'Vị Cá Hồi & Sữa', id: 'salmon' }
+                    ]
+                },
+                variants: [
+                    { label: '1kg', price: 195000 },
+                    { label: '2kg', price: 380000 },
+                    { label: '10kg', price: 1750000 }
+                ],
                 species: 'Mèo',
                 productType: 'Thức ăn hạt',
                 brandName: 'Royal Canin',
@@ -1050,6 +1237,18 @@ function superPetCareApp() {
                 id: 3,
                 sku: 'PET-FD03',
                 name: 'Thức Ăn Hạt Orijen Original Biologically Appropriate',
+                variantConfig: {
+                    weights: [
+                        { label: '1kg', price: 295000, sub: 'Gói dùng thử' },
+                        { label: '2kg', price: 560000, sub: 'Phổ biến nhất', tag: 'Khuyên Dùng' },
+                        { label: '6kg', price: 1550000, sub: 'Tiết kiệm' }
+                    ]
+                },
+                variants: [
+                    { label: '1kg', price: 295000 },
+                    { label: '2kg', price: 560000 },
+                    { label: '6kg', price: 1550000 }
+                ],
                 brand: 'Orijen (Canada)',
                 price: 890000,
                 rating: 4.9,
@@ -1073,6 +1272,8 @@ function superPetCareApp() {
                 id: 4,
                 sku: 'PET-PT01',
                 name: 'Combo 12 Lon Pate Monge Hạt Bổ Dưỡng Cho Chó (Ý)',
+                variantConfig: null,
+                variants: [],
                 species: 'Chó',
                 productType: 'Pate',
                 brandName: 'Monge',
@@ -1102,6 +1303,8 @@ function superPetCareApp() {
                 id: 5,
                 sku: 'PET-PT02',
                 name: 'Pate Ciao Churu Cá Ngừ & Sò Điệp Bổ Sung Nước Cho Mèo (Gói 20 Thanh)',
+                variantConfig: null,
+                variants: [],
                 species: 'Mèo',
                 productType: 'Pate',
                 brandName: 'Ciao Churu',
@@ -1131,6 +1334,8 @@ function superPetCareApp() {
                 id: 6,
                 sku: 'PET-MD03',
                 name: 'Gel Dinh Dưỡng Bổ Sung Năng Lượng & Vitamin Nutri-plus Gel',
+                variantConfig: null,
+                variants: [],
                 species: 'Chó',
                 productType: 'Thuốc thú y',
                 brandName: 'Virbac',
@@ -1162,6 +1367,12 @@ function superPetCareApp() {
                 id: 7,
                 sku: 'PET-VS01',
                 name: 'Cát Đậu Nành Tofu Cature Kháng Khuẩn Tự Nhiên (Hương Trà Xanh 6L)',
+                variantConfig: null,
+                variants: [
+                    { label: '1kg', price: 165000 },
+                    { label: '3kg', price: 462000 },
+                    { label: '10kg', price: 1465000 }
+                ],
                 species: 'Mèo',
                 productType: 'Cát vệ sinh',
                 brandName: 'Cature',
@@ -1191,6 +1402,8 @@ function superPetCareApp() {
                 id: 8,
                 sku: 'PET-VS02',
                 name: 'Sữa Tắm Trị Nấm & Khử Mùi Hôi Cho Thú Cưng Davis Chlorhexidine 4%',
+                variantConfig: null,
+                variants: [],
                 species: 'Chó',
                 productType: 'Thuốc thú y',
                 brandName: 'Davis',
@@ -1220,6 +1433,8 @@ function superPetCareApp() {
                 id: 9,
                 sku: 'PET-PK01',
                 name: 'Balo Phi Thuyền Vận Chuyển Thú Cưng Thông Khí Đa Chiều VIP',
+                variantConfig: null,
+                variants: [],
                 species: 'Mèo',
                 productType: 'Phụ kiện & Đồ chơi',
                 brandName: 'PetCare Pro',
@@ -1249,6 +1464,8 @@ function superPetCareApp() {
                 id: 10,
                 sku: 'PET-PK02',
                 name: 'Trụ Cào Móng Cây Cat Tree 3 Tầng Kèm Nhà Cầu Ngủ Mèo',
+                variantConfig: null,
+                variants: [],
                 species: 'Mèo',
                 productType: 'Phụ kiện & Đồ chơi',
                 brandName: 'CozyPet',
@@ -1280,6 +1497,8 @@ function superPetCareApp() {
                 id: 11,
                 sku: 'PET-MD01',
                 name: 'Thuốc Trị Ve Rận & Tẩy Giun NexGard Spectra (Dạng Viên Nhai Thịt Bò)',
+                variantConfig: null,
+                variants: [],
                 species: 'Chó',
                 productType: 'Thuốc thú y',
                 brandName: 'Boehringer Ingelheim',
@@ -1309,6 +1528,8 @@ function superPetCareApp() {
                 id: 12,
                 sku: 'PET-MD02',
                 name: 'Tuýp Nhỏ Gáy Phòng Trị Ký Sinh Trùng Toàn Diện Cho Mèo Revolution Plus',
+                variantConfig: null,
+                variants: [],
                 species: 'Mèo',
                 productType: 'Thuốc thú y',
                 brandName: 'Zoetis',
@@ -2587,6 +2808,7 @@ function superPetCareApp() {
         },
 
         openArticleDetail(article) {
+            this.selectedArticle = article;
             this.selectedArticleModal = article;
         },
 
@@ -2864,8 +3086,10 @@ function superPetCareApp() {
             serviceItems.forEach(serv => {
                 this.appointments.unshift({
                     id: 'APT-' + Math.floor(1000 + Math.random() * 9000),
-                    customerName: this.checkoutForm.name,
-                    customerPhone: this.checkoutForm.phone,
+                    customerName: this.checkoutBookingContactName || this.checkoutShippingForm.name || this.customerProfile.name,
+                    customerPhone: this.checkoutBookingContactPhone || this.checkoutShippingForm.phone || this.customerProfile.phone,
+                    petship_address: this.hasPetShip ? (this.checkoutPetShipAddress.street + ', ' + this.checkoutPetShipAddress.ward + ', ' + this.checkoutPetShipAddress.district + ', TP. Hồ Chí Minh') : null,
+                    payment_method: this.paymentMethod,
                     petName: serv.selectedPet || 'Bé cưng',
                     petType: 'Thú cưng khách chọn',
                     serviceName: serv.name,
@@ -3173,12 +3397,181 @@ function superPetCareApp() {
         },
 
         get currentProductDetailPrice() {
-            const base = this.currentProductDetail.price || 395000;
-            if (this.selectedWeight === '1kg') return Math.round(base * 0.5);
-            if (this.selectedWeight === '3kg') return base;
-            if (this.selectedWeight === '10kg') return Math.round(base * 2.8);
-            return base;
+            return this.currentPrice;
         },
+
+        // PDP VARIANT & PRICING ENGINE
+        get selectedVariant() {
+            const prod = this.currentProductDetail;
+            if (prod && prod.variantConfig && prod.variantConfig.weights && prod.variantConfig.weights.length > 0) {
+                const found = prod.variantConfig.weights.find(w => w.label === this.selectedWeight);
+                if (found) return found;
+                return prod.variantConfig.weights[0];
+            }
+            return { label: 'Tiêu chuẩn', price: (prod ? prod.price : 395000) };
+        },
+
+        get currentPrice() {
+            return this.selectedVariant ? this.selectedVariant.price : (this.currentProductDetail?.price || 395000);
+        },
+
+        get currentProductDetailTotalPrice() {
+            return this.currentPrice * (Number(this.productDetailQty) || 1);
+        },
+
+        selectProductWeight(w) {
+            this.selectedWeight = w.label;
+        },
+
+        // CART ITEM QUANTITY ENGINE (Realtime update & badge reactivity)
+        updateCartItemQuantity(id, variantLabel, newQty) {
+            const item = this.cart.find(i => i.id === id || (i.productId === id && (i.variantLabel === variantLabel || i.variant === variantLabel)));
+            if (!item) return;
+            const targetQty = Number(newQty);
+            if (targetQty <= 0) {
+                if (confirm('Bạn có chắc muốn xóa sản phẩm "' + item.name + '" khỏi giỏ hàng?')) {
+                    this.cart = this.cart.filter(i => i !== item);
+                }
+            } else {
+                item.qty = targetQty;
+                item.quantity = targetQty;
+            }
+        },
+
+        // PDP CUSTOMER REVIEW & LIGHTBOX ACTIONS
+        openProductReviewModal() {
+            this.showCustomerReviewFormModal = true;
+            this.newReviewRating = 5;
+            this.hoverReviewRating = 0;
+            this.newReviewText = '';
+            this.newReviewMediaList = [];
+        },
+
+        handleReviewMediaUpload(e) {
+            const files = e.target.files;
+            if (!files || files.length === 0) return;
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    this.newReviewMediaList.push(event.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        },
+
+        removeReviewMedia(index) {
+            this.newReviewMediaList.splice(index, 1);
+        },
+
+        submitCustomerReview() {
+            if (this.newReviewRating === 0 || !this.newReviewText.trim()) return;
+            const newRev = {
+                id: Date.now(),
+                author: this.customerProfile?.name || 'Nguyễn Phương Thảo',
+                user: this.customerProfile?.name || 'Nguyễn Phương Thảo',
+                avatar: this.customerProfile?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
+                rating: this.newReviewRating,
+                stars: Array.from({ length: this.newReviewRating }, (_, i) => i + 1),
+                date: 'Hôm nay',
+                variant: this.currentProductDetail?.variantConfig ? (this.selectedWeight || '3kg') : 'Tiêu chuẩn',
+                comment: this.newReviewText.trim(),
+                photos: [...this.newReviewMediaList],
+                photo: this.newReviewMediaList[0] || '',
+                verified: true,
+                likes: 0,
+                isLiked: false,
+                showReplyInput: false,
+                newReplyText: '',
+                replies: []
+            };
+            this.productReviewsList.unshift(newRev);
+            this.showCustomerReviewFormModal = false;
+            alert('🎉 Cảm ơn bạn đã gửi đánh giá sản phẩm thành công!');
+        },
+
+        openReviewPhotosLightbox() {
+            const allPhotos = [];
+            (this.productReviewsList || []).forEach(r => {
+                if (r.photos && r.photos.length) {
+                    r.photos.forEach(p => { if (p && !allPhotos.includes(p)) allPhotos.push(p); });
+                } else if (r.photo && !allPhotos.includes(r.photo)) {
+                    allPhotos.push(r.photo);
+                }
+            });
+            if (allPhotos.length === 0) {
+                allPhotos.push(this.mainProductImage || this.currentProductDetail?.image || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=800&q=80');
+            }
+            this.reviewLightboxImages = allPhotos;
+            this.reviewLightboxIndex = 0;
+            this.showReviewLightboxModal = true;
+        },
+
+        openSingleReviewLightbox(photos, idx) {
+            if (photos && photos.length) {
+                this.reviewLightboxImages = photos;
+                this.reviewLightboxIndex = idx || 0;
+            } else {
+                this.reviewLightboxImages = [this.mainProductImage];
+                this.reviewLightboxIndex = 0;
+            }
+            this.showReviewLightboxModal = true;
+        },
+
+        reviewLightboxPrev() {
+            if (!this.reviewLightboxImages.length) return;
+            this.reviewLightboxIndex = (this.reviewLightboxIndex - 1 + this.reviewLightboxImages.length) % this.reviewLightboxImages.length;
+        },
+
+        reviewLightboxNext() {
+            if (!this.reviewLightboxImages.length) return;
+            this.reviewLightboxIndex = (this.reviewLightboxIndex + 1) % this.reviewLightboxImages.length;
+        },
+
+        toggleReviewLike(rev) {
+            rev.isLiked = !rev.isLiked;
+            rev.likes = (rev.likes || 0) + (rev.isLiked ? 1 : -1);
+        },
+
+        addReviewReply(rev) {
+            if (!rev.newReplyText || !rev.newReplyText.trim()) return;
+            if (!rev.replies) rev.replies = [];
+            rev.replies.push({
+                author: this.customerProfile?.name || 'Khách hàng',
+                isAdmin: false,
+                date: 'Vừa xong',
+                content: rev.newReplyText.trim()
+            });
+            rev.newReplyText = '';
+            rev.showReplyInput = false;
+        },
+
+        getRatingLabel(r) {
+            const labels = { 1: 'Rất tệ (1 sao)', 2: 'Không hài lòng (2 sao)', 3: 'Bình thường (3 sao)', 4: 'Hài lòng (4 sao)', 5: 'Tuyệt vời (5 sao)' };
+            return labels[r] || 'Chọn mức đánh giá';
+        },
+
+        // CHECKOUT STEP 2 BOOKING & PETSHIP VALIDATION GETTERS
+        get isCheckoutBookingFormValid() {
+            if (!this.hasService) return true;
+            const name = (this.checkoutBookingContactName || '').trim();
+            const phone = (this.checkoutBookingContactPhone || '').trim().replace(/\s/g, '');
+            const vnPhoneRegex = /^(0[35789])[0-9]{8}$/;
+            if (name.length < 2) return false;
+            if (!phone || !vnPhoneRegex.test(phone)) return false;
+            if (this.hasPetShip) {
+                const addr = this.checkoutPetShipAddress;
+                if (!addr.street || addr.street.trim().length < 5) return false;
+                if (!addr.district || !addr.district.trim()) return false;
+                if (!addr.ward || !addr.ward.trim()) return false;
+            }
+            return true;
+        },
+
+        get isStep2CheckoutValid() {
+            return this.isCheckoutShippingFormValid && this.isCheckoutBookingFormValid;
+        },
+
 
         get currentProductOriginalPrice() {
             return Math.round(this.currentProductDetailPrice * 1.25);
@@ -3194,22 +3587,34 @@ function superPetCareApp() {
 
         addProductDetailToCart() {
             const prod = this.currentProductDetail;
+            const hasVariants = prod.variantConfig && prod.variantConfig.weights && prod.variantConfig.weights.length > 0;
+            const variantLabel = hasVariants ? (this.selectedWeight + (this.selectedFlavor && prod.variantConfig.flavors ? (' - ' + (prod.variantConfig.flavors.find(f => f.id === this.selectedFlavor)?.label || this.selectedFlavor)) : '')) : 'Tiêu chuẩn';
+            const unitPrice = this.currentPrice;
+            const qty = Math.max(1, Number(this.productDetailQty) || 1);
+
             const item = {
-                id: 'PD-' + prod.id + '-' + this.selectedWeight + '-' + this.selectedFlavor,
+                id: 'PD-' + prod.id + '-' + variantLabel.replace(/[\s\W]+/g, '_'),
+                productId: prod.id,
                 name: prod.name,
-                variant: this.selectedWeight + ' - ' + this.selectedFlavor,
-                price: this.currentProductDetailPrice,
-                img: this.mainProductImage,
-                qty: this.productDetailQty,
+                variantLabel: variantLabel,
+                variant: variantLabel,
+                unitPrice: unitPrice,
+                price: unitPrice,
+                quantity: qty,
+                qty: qty,
+                img: this.mainProductImage || prod.image || prod.img,
+                image: this.mainProductImage || prod.image || prod.img,
+                isProduct: true,
                 isService: false
             };
             const existing = this.cart.find(i => i.id === item.id);
             if (existing) {
-                existing.qty += item.qty;
+                existing.qty += qty;
+                existing.quantity = (existing.quantity || 0) + qty;
             } else {
                 this.cart.push(item);
             }
-            alert('🎉 Đã thêm ' + item.qty + ' sản phẩm "' + item.name + ' (' + item.variant + ')" vào giỏ hàng!');
+            alert('🎉 Đã thêm ' + qty + ' sản phẩm "' + item.name + ' (' + item.variantLabel + ')" vào giỏ hàng!');
         },
 
         buyNowProductDetail() {
@@ -4475,10 +4880,19 @@ function superPetCareApp() {
         proceedToPaymentStep() {
             if (this.hasProduct) {
                 this.touchAllCheckoutFields();
-                if (!this.isCheckoutShippingFormValid) {
-                    alert('⚠️ Vui lòng kiểm tra lại các trường thông tin nhận hàng còn thiếu hoặc chưa đúng định dạng!');
-                    return;
+            }
+            if (this.hasService) {
+                this.checkoutBookingContactTouched.name = true;
+                this.checkoutBookingContactTouched.phone = true;
+                if (this.hasPetShip) {
+                    this.checkoutBookingContactTouched.street = true;
+                    this.checkoutBookingContactTouched.district = true;
+                    this.checkoutBookingContactTouched.ward = true;
                 }
+            }
+            if (!this.isStep2CheckoutValid) {
+                alert('⚠️ Vui lòng hoàn tất đầy đủ thông tin nhận hàng / lịch hẹn hợp lệ trước khi tiếp tục!');
+                return;
             }
             this.goToCartStep(3);
         },

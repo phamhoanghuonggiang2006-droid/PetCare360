@@ -648,46 +648,46 @@ CUSTOMER_HTML = """
                                 </div>
                             </div>
 
-                            <!-- Khối Bảng Giá: Giá khuyến mãi to nổi bật (màu Cam), Giá niêm yết gạch ngang -->
+                            <!-- Khối Bảng Giá: Giá khuyến mãi to nổi bật (màu Cam), Giá niêm yết gạch ngang (Dynamic Realtime Price) -->
                             <div class="bg-orange-50/60 rounded-2xl p-4 sm:p-5 border border-orange-100 flex items-baseline gap-4">
-                                <div class="text-3xl sm:text-4xl font-extrabold text-orange-600 tracking-tight" x-text="formatCurrency(currentProductPrice)"></div>
-                                <div class="text-base sm:text-lg text-slate-400 line-through font-medium" x-text="formatCurrency(currentProductOriginalPrice)"></div>
+                                <div class="text-3xl sm:text-4xl font-extrabold text-orange-600 tracking-tight" x-text="formatCurrency(currentProductDetailTotalPrice)"></div>
+                                <div class="text-base sm:text-lg text-slate-400 line-through font-medium" x-text="formatCurrency(currentProductOriginalPrice * (productDetailQty || 1))"></div>
                                 <span class="bg-orange-500 text-white text-xs font-bold px-2 py-0.5 rounded-md shadow-sm">Tiết kiệm 75.000đ</span>
                             </div>
 
-                            <!-- Bộ chọn Biến thể (Variants selector) -->
+                            <!-- Bộ chọn Biến thể (Variants selector có Conditional Rendering theo variantConfig) -->
                             <div class="space-y-4 pt-1">
-                                <!-- Khối chọn Trọng lượng (1kg, 3kg, 10kg) -->
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Chọn Trọng Lượng:</label>
-                                    <div class="flex flex-wrap gap-2.5">
-                                        <button @click="selectedWeight = '1kg'" :class="selectedWeight === '1kg' ? 'border-2 border-orange-500 bg-orange-50 text-orange-700 font-bold shadow-sm' : 'border border-slate-200 bg-white text-slate-700 hover:border-slate-300'" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5">
-                                            <span>1kg (Dùng thử)</span>
-                                        </button>
-                                        <button @click="selectedWeight = '3kg'" :class="selectedWeight === '3kg' ? 'border-2 border-orange-500 bg-orange-50 text-orange-700 font-bold shadow-sm' : 'border border-slate-200 bg-white text-slate-700 hover:border-slate-300'" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5">
-                                            <span>3kg (Phổ biến nhất)</span>
-                                            <span class="text-[9px] bg-orange-500 text-white font-bold px-1.5 py-0.2 rounded-full">Hot</span>
-                                        </button>
-                                        <button @click="selectedWeight = '10kg'" :class="selectedWeight === '10kg' ? 'border-2 border-orange-500 bg-orange-50 text-orange-700 font-bold shadow-sm' : 'border border-slate-200 bg-white text-slate-700 hover:border-slate-300'" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5">
-                                            <span>10kg (Bao lớn tiết kiệm)</span>
-                                        </button>
+                                <!-- Khối chọn Trọng lượng (Chỉ render nếu variantConfig có weights) -->
+                                <template x-if="currentProductDetail.variantConfig && currentProductDetail.variantConfig.weights && currentProductDetail.variantConfig.weights.length > 0">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Chọn Trọng Lượng:</label>
+                                        <div class="flex flex-wrap gap-2.5">
+                                            <template x-for="w in currentProductDetail.variantConfig.weights" :key="w.label">
+                                                <button type="button" @click="selectProductWeight(w)" :class="selectedWeight === w.label ? 'border-2 border-orange-500 bg-orange-50 text-orange-700 font-bold shadow-sm' : 'border border-slate-200 bg-white text-slate-700 hover:border-slate-300'" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5">
+                                                    <span x-text="w.label + (w.sub ? (' (' + w.sub + ')') : '')"></span>
+                                                    <template x-if="w.tag">
+                                                        <span class="text-[9px] bg-orange-500 text-white font-bold px-1.5 py-0.2 rounded-full" x-text="w.tag"></span>
+                                                    </template>
+                                                </button>
+                                            </template>
+                                        </div>
                                     </div>
-                                </div>
+                                </template>
 
-                                <!-- Khối chọn Hương vị (Vị Cá Hồi, Vị Thịt Bò) -->
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Chọn Hương Vị:</label>
-                                    <div class="flex flex-wrap gap-2.5">
-                                        <button @click="selectedFlavor = 'salmon'" :class="selectedFlavor === 'salmon' ? 'border-2 border-orange-500 bg-orange-50 text-orange-700 font-bold shadow-sm' : 'border border-slate-200 bg-white text-slate-700 hover:border-slate-300'" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-2">
-                                            <i class="fa-solid fa-fish text-brand-600"></i>
-                                            <span>Vị Cá Hồi (Dưỡng lông & Da)</span>
-                                        </button>
-                                        <button @click="selectedFlavor = 'beef'" :class="selectedFlavor === 'beef' ? 'border-2 border-orange-500 bg-orange-50 text-orange-700 font-bold shadow-sm' : 'border border-slate-200 bg-white text-slate-700 hover:border-slate-300'" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-2">
-                                            <i class="fa-solid fa-drumstick-bite text-amber-600"></i>
-                                            <span>Vị Thịt Bò (Phát triển cơ bắp)</span>
-                                        </button>
+                                <!-- Khối chọn Hương vị (Chỉ render nếu variantConfig có flavors) -->
+                                <template x-if="currentProductDetail.variantConfig && currentProductDetail.variantConfig.flavors && currentProductDetail.variantConfig.flavors.length > 0">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Chọn Hương Vị:</label>
+                                        <div class="flex flex-wrap gap-2.5">
+                                            <template x-for="fl in currentProductDetail.variantConfig.flavors" :key="fl.id">
+                                                <button type="button" @click="selectedFlavor = fl.id" :class="selectedFlavor === fl.id ? 'border-2 border-orange-500 bg-orange-50 text-orange-700 font-bold shadow-sm' : 'border border-slate-200 bg-white text-slate-700 hover:border-slate-300'" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-2">
+                                                    <i class="fa-solid fa-bone text-brand-600"></i>
+                                                    <span x-text="fl.label"></span>
+                                                </button>
+                                            </template>
+                                        </div>
                                     </div>
-                                </div>
+                                </template>
 
                                 <!-- Bộ chọn Số lượng (Nút - 1 +) -->
                                 <div class="pt-2 flex items-center gap-4">
@@ -866,11 +866,11 @@ CUSTOMER_HTML = """
                                 </div>
                             </div>
                             <div class="flex flex-col sm:flex-row items-center gap-3">
-                                <button @click="onlyWithPhotos = !onlyWithPhotos" :class="onlyWithPhotos ? 'bg-orange-500 text-white font-bold' : 'bg-white border border-slate-200 text-slate-700'" class="px-4 py-2.5 rounded-xl text-xs transition shadow-sm flex items-center gap-2">
-                                    <i class="fa-solid fa-camera"></i>
-                                    <span>Xem ảnh thực tế (24)</span>
+                                <button type="button" @click="openReviewPhotosLightbox()" class="px-4 py-2.5 rounded-xl text-xs bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center gap-2">
+                                    <i class="fa-solid fa-camera text-orange-500"></i>
+                                    <span>Xem ảnh thực tế (<span x-text="productReviewsList.reduce((acc, r) => acc + (r.photos ? r.photos.length : (r.photo ? 1 : 0)), 0)"></span>)</span>
                                 </button>
-                                <button @click="openReviewModal(customerOrdersEnhanced[0])" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition shadow flex items-center gap-2">
+                                <button type="button" @click="openProductReviewModal()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition shadow flex items-center gap-2">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                     <span>Viết Đánh Giá</span>
                                 </button>
@@ -905,7 +905,47 @@ CUSTOMER_HTML = """
                                     <template x-if="rev.photos && rev.photos.length > 0">
                                         <div class="flex gap-2 pt-1">
                                             <template x-for="(p, pidx) in rev.photos" :key="pidx">
-                                                <img :src="p" class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover border border-slate-200 shadow-sm hover:scale-105 transition cursor-pointer">
+                                                <img :src="p" @click="openSingleReviewLightbox(rev.photos, pidx)" class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover border border-slate-200 shadow-sm hover:scale-105 transition cursor-pointer">
+                                            </template>
+                                        </div>
+                                    </template>
+
+                                    <!-- Thanh tương tác: Hữu ích / Thích & Trả lời -->
+                                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                                        <div class="flex items-center gap-4">
+                                            <button type="button" @click="toggleReviewLike(rev)" class="flex items-center gap-1.5 transition font-semibold" :class="rev.isLiked ? 'text-orange-600' : 'text-slate-500 hover:text-slate-800'">
+                                                <i :class="rev.isLiked ? 'fa-solid fa-thumbs-up' : 'fa-regular fa-thumbs-up'"></i>
+                                                <span>Hữu ích (<span x-text="rev.likes || 0"></span>)</span>
+                                            </button>
+                                            <button type="button" @click="rev.showReplyInput = !rev.showReplyInput" class="flex items-center gap-1.5 text-slate-500 hover:text-slate-800 transition font-semibold">
+                                                <i class="fa-regular fa-comment-dots"></i>
+                                                <span>Trả lời</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Khung nhập trả lời phản hồi -->
+                                    <template x-if="rev.showReplyInput">
+                                        <div class="pt-2 flex gap-2">
+                                            <input type="text" x-model="rev.newReplyText" @keydown.enter="addReviewReply(rev)" placeholder="Nhập phản hồi cho đánh giá này..." class="flex-1 px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:bg-white focus:border-brand-500">
+                                            <button type="button" @click="addReviewReply(rev)" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-sm">Gửi</button>
+                                        </div>
+                                    </template>
+
+                                    <!-- Danh sách các phản hồi (Threaded Nested Replies) -->
+                                    <template x-if="rev.replies && rev.replies.length > 0">
+                                        <div class="mt-2.5 pl-4 border-l-2 border-orange-200 space-y-2">
+                                            <template x-for="(rep, repIdx) in rev.replies" :key="repIdx">
+                                                <div class="p-3 bg-slate-50/80 rounded-xl text-xs space-y-1">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="font-bold text-slate-900" x-text="rep.author"></span>
+                                                        <template x-if="rep.isAdmin">
+                                                            <span class="px-2 py-0.2 bg-teal-100 text-teal-800 font-bold rounded text-[10px]">Đội Ngũ Bác Sĩ CSKH</span>
+                                                        </template>
+                                                        <span class="text-[10px] text-slate-400" x-text="rep.date"></span>
+                                                    </div>
+                                                    <p class="text-slate-700 leading-relaxed" x-text="rep.content"></p>
+                                                </div>
                                             </template>
                                         </div>
                                     </template>
@@ -2513,20 +2553,22 @@ CUSTOMER_HTML = """
                     <!-- CỘT PHẢI (SIDEBAR PHẢI - 300PX) -->
                     <div class="w-full lg:w-[300px] flex-shrink-0 space-y-4">
                         
-                        <!-- Khối "Bác sĩ Thú y Tư vấn" -->
+                        <!-- Khối "Bác sĩ Thú y Tư vấn" (Interactive Cards with Modal Reading) -->
                         <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
                             <h5 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
                                 <i class="fa-solid fa-user-doctor text-brand-600"></i>Bác Sĩ Thú Y Tư Vấn
                             </h5>
                             <div class="space-y-3 text-xs">
-                                <div class="p-2.5 rounded-2xl bg-slate-50 hover:bg-brand-50/60 transition cursor-pointer space-y-1">
-                                    <span class="text-[10px] text-teal-600 font-bold">BS. Nguyễn Thanh Tùng</span>
-                                    <h6 class="font-bold text-slate-800 leading-snug">Lịch tiêm phòng dại & 7 bệnh chuẩn nhất cho cún con 2026</h6>
-                                </div>
-                                <div class="p-2.5 rounded-2xl bg-slate-50 hover:bg-brand-50/60 transition cursor-pointer space-y-1">
-                                    <span class="text-[10px] text-teal-600 font-bold">BS. Vũ Mai Anh</span>
-                                    <h6 class="font-bold text-slate-800 leading-snug">Cách sơ cứu hạ thân nhiệt cho thú cưng vào mùa nóng</h6>
-                                </div>
+                                <template x-for="art in vetConsultArticles" :key="art.id">
+                                    <button type="button" @click="openArticleDetail(art)" class="w-full text-left p-3 rounded-2xl bg-slate-50 hover:bg-gray-50 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 cursor-pointer space-y-1.5 border border-slate-100 block group">
+                                        <div class="flex items-center gap-2">
+                                            <img :src="art.doctorAvatar" :alt="art.doctorName" class="w-6 h-6 rounded-full object-cover border border-teal-200 shadow-sm flex-shrink-0">
+                                            <span class="text-[10px] text-teal-600 font-bold" x-text="art.doctorName"></span>
+                                            <span class="text-[10px] text-slate-400 ml-auto" x-text="art.publishDate"></span>
+                                        </div>
+                                        <h6 class="font-bold text-slate-800 leading-snug text-xs group-hover:text-brand-600 transition" x-text="art.title"></h6>
+                                    </button>
+                                </template>
                             </div>
                         </div>
 
@@ -3048,18 +3090,18 @@ CUSTOMER_HTML = """
                                                         <span class="font-bold text-slate-900 line-clamp-1 max-w-[180px]" x-text="item.name"></span>
                                                     </div>
                                                 </td>
-                                                <td class="py-3.5 px-2 text-xs text-slate-500" x-text="item.weight ? (item.weight + ' • ' + (item.flavor || 'Vị chuẩn')) : 'Tiêu chuẩn'"></td>
+                                                <td class="py-3.5 px-2 text-xs text-slate-600 font-medium" x-text="item.variantLabel || item.variant || (item.weight ? (item.weight + ' • ' + (item.flavor || 'Vị chuẩn')) : 'Tiêu chuẩn')"></td>
                                                 <td class="py-3.5 px-2 text-center">
-                                                    <div class="inline-flex items-center border border-slate-200 rounded-lg overflow-hidden bg-white">
-                                                        <button @click="decreaseQty(item.id)" class="px-2 py-1 text-slate-500 hover:bg-slate-100 font-bold">−</button>
-                                                        <span class="px-2 py-1 font-bold text-xs" x-text="item.quantity || 1"></span>
-                                                        <button @click="increaseQty(item.id)" class="px-2 py-1 text-slate-500 hover:bg-slate-100 font-bold">+</button>
+                                                    <div class="inline-flex items-center border border-slate-200 rounded-lg overflow-hidden bg-white shadow-sm">
+                                                        <button type="button" @click="updateCartItemQuantity(item.id, item.variantLabel || item.variant, (item.quantity || item.qty || 1) - 1)" class="px-2.5 py-1 text-slate-500 hover:bg-slate-100 font-bold transition">−</button>
+                                                        <span class="px-2.5 py-1 font-bold text-xs text-slate-800" x-text="item.quantity || item.qty || 1"></span>
+                                                        <button type="button" @click="updateCartItemQuantity(item.id, item.variantLabel || item.variant, (item.quantity || item.qty || 1) + 1)" class="px-2.5 py-1 text-slate-500 hover:bg-slate-100 font-bold transition">+</button>
                                                     </div>
                                                 </td>
-                                                <td class="py-3.5 px-2 text-right text-slate-700" x-text="formatCurrency(item.price)"></td>
-                                                <td class="py-3.5 px-2 text-right font-extrabold text-orange-600" x-text="formatCurrency(item.price * (item.quantity || 1))"></td>
+                                                <td class="py-3.5 px-2 text-right text-slate-700 font-medium" x-text="formatCurrency(item.unitPrice || item.price)"></td>
+                                                <td class="py-3.5 px-2 text-right font-extrabold text-orange-600" x-text="formatCurrency((item.unitPrice || item.price) * (item.quantity || item.qty || 1))"></td>
                                                 <td class="py-3.5 px-2 text-center">
-                                                    <button @click="removeFromCart(item.id)" class="text-slate-400 hover:text-rose-600 transition" title="Xóa món này">
+                                                    <button type="button" @click="removeFromCart(item.id)" class="text-slate-400 hover:text-rose-600 transition" title="Xóa món này">
                                                         <i class="fa-solid fa-trash-can"></i>
                                                     </button>
                                                 </td>
@@ -3238,11 +3280,7 @@ CUSTOMER_HTML = """
                                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                                                     <div>
                                                         <label class="block text-slate-500 text-[11px] font-bold mb-1">Tỉnh / Thành phố: <span class="text-rose-500">*</span></label>
-                                                        <select x-model="checkoutShippingForm.city" @change="onCityChange(); checkoutShippingForm.touched.city = true" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:bg-white">
-                                                            <template x-for="p in vnProvinces" :key="p.name">
-                                                                <option :value="p.name" x-text="p.name"></option>
-                                                            </template>
-                                                        </select>
+                                                        <input type="text" value="TP. Hồ Chí Minh (Mã 79)" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-600 cursor-not-allowed">
                                                     </div>
                                                     <div>
                                                         <label class="block text-slate-500 text-[11px] font-bold mb-1">Quận / Huyện: <span class="text-rose-500">*</span></label>
@@ -3290,28 +3328,34 @@ CUSTOMER_HTML = """
                                             </h3>
                                             <p class="text-xs text-slate-400">Dịch vụ thực hiện trực tiếp tại cơ sở hoặc qua PetShip đưa đón</p>
                                         </div>
-                                        <span class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-200 flex items-center gap-1">
-                                            <i class="fa-solid fa-lock text-[10px]"></i> Read-only
-                                        </span>
+                                        <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 flex items-center gap-1"><i class="fa-solid fa-pen-to-square text-[10px]"></i> Có thể chỉnh sửa</span>
                                     </div>
 
                                     <!-- Khối Read-only: Tên khách hàng, SĐT, Cơ sở thực hiện và Địa chỉ PetShip -->
+                                                                        <!-- Khối Thông Tin Lịch Hẹn Dịch Vụ (Đã Mở Khóa Chỉnh Sửa & Form Đưa Đón PetShip) -->
                                     <div class="bg-slate-50 rounded-2xl p-5 border border-slate-200 space-y-4">
+                                        <!-- Mở khóa Thông tin liên hệ (Editable Contact Info) -->
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
                                             <div class="space-y-1">
-                                                <label class="text-slate-500 text-xs font-bold block">Tên khách hàng:</label>
-                                                <div class="p-3 bg-white rounded-xl border border-slate-200 font-extrabold text-slate-800" x-text="checkoutShippingForm.name || customerProfile.name"></div>
+                                                <label class="text-slate-700 text-xs font-bold block">Tên người đại diện đặt lịch: <span class="text-rose-500">*</span></label>
+                                                <input type="text" x-model="checkoutBookingContactName" @input="checkoutBookingContactTouched.name = true" placeholder="Nguyễn Phương Thảo" class="w-full bg-white border rounded-xl px-4 py-2.5 text-slate-800 font-semibold focus:outline-none focus:border-brand-500" :class="(checkoutBookingContactTouched.name && (!checkoutBookingContactName || checkoutBookingContactName.trim().length < 2)) ? 'border-rose-400 bg-rose-50/20' : 'border-slate-300'">
+                                                <p x-show="checkoutBookingContactTouched.name && (!checkoutBookingContactName || checkoutBookingContactName.trim().length < 2)" class="text-rose-500 text-[11px] font-semibold mt-0.5 flex items-center gap-1">
+                                                    <i class="fa-solid fa-circle-exclamation"></i> Vui lòng nhập họ và tên (tối thiểu 2 ký tự)
+                                                </p>
                                             </div>
                                             <div class="space-y-1">
-                                                <label class="text-slate-500 text-xs font-bold block">Số điện thoại liên hệ:</label>
-                                                <div class="p-3 bg-white rounded-xl border border-slate-200 font-extrabold text-slate-800 font-mono" x-text="checkoutShippingForm.phone || customerProfile.phone"></div>
+                                                <label class="text-slate-700 text-xs font-bold block">Số điện thoại liên hệ: <span class="text-rose-500">*</span></label>
+                                                <input type="tel" x-model="checkoutBookingContactPhone" @input="checkoutBookingContactTouched.phone = true" placeholder="0988 123 456 (10 số)" class="w-full bg-white border rounded-xl px-4 py-2.5 text-slate-800 font-semibold focus:outline-none focus:border-brand-500 font-mono" :class="(checkoutBookingContactTouched.phone && (!checkoutBookingContactPhone || !/^(0[35789])[0-9]{8}$/.test(checkoutBookingContactPhone.trim().replace(/\s/g,'')))) ? 'border-rose-400 bg-rose-50/20' : 'border-slate-300'">
+                                                <p x-show="checkoutBookingContactTouched.phone && (!checkoutBookingContactPhone || !/^(0[35789])[0-9]{8}$/.test(checkoutBookingContactPhone.trim().replace(/\s/g,'')))" class="text-rose-500 text-[11px] font-semibold mt-0.5 flex items-center gap-1">
+                                                    <i class="fa-solid fa-circle-exclamation"></i> Vui lòng nhập số điện thoại hợp lệ (10 số)
+                                                </p>
                                             </div>
                                         </div>
 
                                         <div class="space-y-1 text-xs sm:text-sm">
-                                            <label class="text-slate-500 text-xs font-bold block">Cơ sở thực hiện:</label>
+                                            <label class="text-slate-600 text-xs font-bold block">Cơ sở thực hiện:</label>
                                             <div class="p-3.5 bg-white rounded-xl border border-blue-200 text-slate-800 font-bold flex items-center gap-2.5 shadow-sm">
-                                                <div class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center font-bold text-sm">
+                                                <div class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center font-bold text-sm flex-shrink-0">
                                                     <i class="fa-solid fa-location-dot"></i>
                                                 </div>
                                                 <div>
@@ -3321,26 +3365,77 @@ CUSTOMER_HTML = """
                                             </div>
                                         </div>
 
-                                        <div class="space-y-1 text-xs sm:text-sm">
-                                            <label class="text-slate-500 text-xs font-bold block">Phương thức đưa đón PetShip:</label>
-                                            <div class="p-3.5 bg-white rounded-xl border border-slate-200 text-slate-700">
-                                                <template x-if="servicePetShipAddress">
-                                                    <div class="flex items-start gap-2.5 text-orange-700">
-                                                        <i class="fa-solid fa-van-shuttle mt-1 text-orange-600 text-sm"></i>
+                                        <!-- Dynamic Form cho Phương thức đưa đón PetShip -->
+                                        <div class="space-y-2 text-xs sm:text-sm">
+                                            <label class="text-slate-700 text-xs font-bold block flex items-center justify-between">
+                                                <span>Phương thức đưa đón PetShip:</span>
+                                                <template x-if="hasPetShip">
+                                                    <span class="text-[10px] text-orange-600 font-bold bg-orange-100 px-2 py-0.5 rounded-full">Đã chọn dịch vụ PetShip tận nhà</span>
+                                                </template>
+                                                <template x-if="!hasPetShip">
+                                                    <span class="text-[10px] text-slate-500 font-bold bg-slate-200 px-2 py-0.5 rounded-full">Tự đưa đón tại cơ sở</span>
+                                                </template>
+                                            </label>
+
+                                            <!-- Khi hasPetShip === false -->
+                                            <template x-if="!hasPetShip">
+                                                <div class="p-3.5 bg-white rounded-xl border border-slate-200 text-slate-700 flex items-center gap-2.5">
+                                                    <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-sm flex-shrink-0">
+                                                        <i class="fa-solid fa-person-walking"></i>
+                                                    </div>
+                                                    <div>
+                                                        <span class="font-bold text-slate-900 block">Khách hàng tự mang thú cưng tới cơ sở</span>
+                                                        <span class="text-slate-500 text-[11px] block">Cơ sở Chính: 88 Nguyễn Thị Minh Khai, Phường Đa Kao, Quận 1, TPHCM</span>
+                                                    </div>
+                                                </div>
+                                            </template>
+
+                                            <!-- Khi hasPetShip === true: Render Dynamic Address Form -->
+                                            <template x-if="hasPetShip">
+                                                <div class="p-4 bg-orange-50/50 rounded-2xl border border-orange-200 space-y-3">
+                                                    <div class="flex items-center gap-2 text-orange-800 font-extrabold text-xs">
+                                                        <i class="fa-solid fa-van-shuttle text-orange-600 text-sm"></i>
+                                                        <span>Địa Chỉ Đưa Đón PetShip360 Tận Nhà (Khu vực TP.HCM)</span>
+                                                    </div>
+
+                                                    <!-- Ô nhập Địa chỉ cụ thể -->
+                                                    <div>
+                                                        <label class="block text-slate-700 text-xs font-bold mb-1">Địa chỉ cụ thể (Số nhà, tên đường): <span class="text-rose-500">*</span></label>
+                                                        <input type="text" x-model="checkoutPetShipAddress.street" @input="checkoutBookingContactTouched.street = true" placeholder="Ví dụ: 125 Hoàng Quốc Việt, Tòa A" class="w-full bg-white border rounded-xl px-4 py-2.5 text-slate-800 font-semibold focus:outline-none focus:border-orange-500" :class="(checkoutBookingContactTouched.street && (!checkoutPetShipAddress.street || checkoutPetShipAddress.street.trim().length < 5)) ? 'border-rose-400 bg-rose-50/20' : 'border-slate-300'">
+                                                        <p x-show="checkoutBookingContactTouched.street && (!checkoutPetShipAddress.street || checkoutPetShipAddress.street.trim().length < 5)" class="text-rose-500 text-[11px] font-semibold mt-1 flex items-center gap-1">
+                                                            <i class="fa-solid fa-circle-exclamation"></i> Vui lòng nhập địa chỉ cụ thể để xe PetShip đến đón
+                                                        </p>
+                                                    </div>
+
+                                                    <!-- 3 dropdowns Tỉnh/Thành, Quận/Huyện, Phường/Xã -->
+                                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                                                         <div>
-                                                            <span class="font-bold">Đưa đón PetShip tận nơi: </span>
-                                                            <strong class="text-slate-900 font-semibold" x-text="servicePetShipAddress"></strong>
-                                                            <p class="text-[11px] text-slate-500 font-normal mt-0.5">Phí PetShip đã được tính trọn gói trong giá dịch vụ</p>
+                                                            <label class="block text-slate-600 text-[11px] font-bold mb-1">Tỉnh / Thành phố: <span class="text-rose-500">*</span></label>
+                                                            <input type="text" value="TP. Hồ Chí Minh" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-600 cursor-not-allowed">
+                                                        </div>
+                                                        <div>
+                                                            <label class="block text-slate-600 text-[11px] font-bold mb-1">Quận / Huyện: <span class="text-rose-500">*</span></label>
+                                                            <select x-model="checkoutPetShipAddress.district" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:border-orange-500">
+                                                                <template x-for="d in (vnProvinces[0]?.districts || [])" :key="d.name">
+                                                                    <option :value="d.name" x-text="d.name"></option>
+                                                                </template>
+                                                            </select>
+                                                        </div>
+                                                        <div>
+                                                            <label class="block text-slate-600 text-[11px] font-bold mb-1">Phường / Xã: <span class="text-rose-500">*</span></label>
+                                                            <select x-model="checkoutPetShipAddress.ward" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:border-orange-500">
+                                                                <template x-for="w in ((vnProvinces[0]?.districts || []).find(d => d.name === checkoutPetShipAddress.district)?.wards || [])" :key="w">
+                                                                    <option :value="w" x-text="w"></option>
+                                                                </template>
+                                                            </select>
                                                         </div>
                                                     </div>
-                                                </template>
-                                                <template x-if="!servicePetShipAddress">
-                                                    <div class="flex items-center gap-2 text-slate-600">
-                                                        <i class="fa-solid fa-person-walking text-slate-400 text-sm"></i>
-                                                        <span class="font-medium">Khách hàng tự đưa đón thú cưng tại Cơ sở 88 Nguyễn Thị Minh Khai</span>
-                                                    </div>
-                                                </template>
-                                            </div>
+                                                    <p class="text-[11px] text-slate-500 italic flex items-center gap-1.5 pt-0.5">
+                                                        <i class="fa-solid fa-circle-info text-orange-500"></i>
+                                                        <span>PetCare360 hiện tại chỉ phục vụ giao hàng và đưa đón thú cưng trong khu vực TP.HCM.</span>
+                                                    </p>
+                                                </div>
+                                            </template>
                                         </div>
 
                                         <!-- Danh sách dịch vụ trong giỏ -->
@@ -3467,50 +3562,75 @@ CUSTOMER_HTML = """
                                         </div>
                                     </div>
 
-                                    <!-- Khối 2 - "Thông tin Lịch hẹn Dịch vụ" (Thẻ/Card có viền xám nhạt) -->
+                                    <!-- Khối 2 - "Thông tin Lịch hẹn Dịch vụ" (Đã Mở Khóa Chỉnh Sửa & Form Đưa Đón PetShip) -->
                                     <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
                                         <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                                             <div class="flex items-center gap-2.5">
                                                 <span class="w-7 h-7 rounded-lg bg-blue-600 text-white font-black text-xs flex items-center justify-center shadow-sm">2</span>
                                                 <h4 class="font-extrabold text-base text-slate-900">Thông tin Lịch hẹn Dịch vụ</h4>
                                             </div>
-                                            <span class="text-xs text-blue-700 font-bold bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">Read-only</span>
+                                            <span class="text-xs text-emerald-700 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+                                                <i class="fa-solid fa-pen-to-square text-[10px]"></i> Cho phép sửa
+                                            </span>
                                         </div>
 
-                                        <!-- Nội dung Read-only cho dịch vụ -->
-                                        <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-3 text-xs sm:text-sm">
-                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                <div>
-                                                    <span class="text-slate-500 text-xs font-bold block">Khách hàng đặt lịch:</span>
-                                                    <strong class="text-slate-800" x-text="checkoutShippingForm.name || customerProfile.name"></strong>
-                                                </div>
-                                                <div>
-                                                    <span class="text-slate-500 text-xs font-bold block">Số điện thoại liên hệ:</span>
-                                                    <strong class="text-slate-800 font-mono" x-text="checkoutShippingForm.phone || customerProfile.phone"></strong>
-                                                </div>
+                                        <!-- Mở khóa Thông tin liên hệ (Editable Contact Info) -->
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+                                            <div class="space-y-1">
+                                                <label class="text-slate-700 text-xs font-bold block">Tên người đại diện đặt lịch: <span class="text-rose-500">*</span></label>
+                                                <input type="text" x-model="checkoutBookingContactName" @input="checkoutBookingContactTouched.name = true" placeholder="Nguyễn Phương Thảo" class="w-full bg-white border rounded-xl px-4 py-2.5 text-slate-800 font-semibold focus:outline-none focus:border-brand-500" :class="(checkoutBookingContactTouched.name && (!checkoutBookingContactName || checkoutBookingContactName.trim().length < 2)) ? 'border-rose-400 bg-rose-50/20' : 'border-slate-300'">
+                                                <p x-show="checkoutBookingContactTouched.name && (!checkoutBookingContactName || checkoutBookingContactName.trim().length < 2)" class="text-rose-500 text-[11px] font-semibold mt-0.5 flex items-center gap-1">
+                                                    <i class="fa-solid fa-circle-exclamation"></i> Vui lòng nhập họ tên
+                                                </p>
                                             </div>
-                                            <div class="pt-2 border-t border-slate-200">
-                                                <span class="text-slate-500 text-xs font-bold block">Cơ sở thực hiện:</span>
-                                                <div class="font-bold text-slate-900 flex items-center gap-2 mt-0.5">
-                                                    <i class="fa-solid fa-location-dot text-rose-500"></i>
-                                                    <span>Cơ sở Chính: 88 Nguyễn Thị Minh Khai, Phường Đa Kao, Quận 1, TPHCM</span>
-                                                </div>
+                                            <div class="space-y-1">
+                                                <label class="text-slate-700 text-xs font-bold block">Số điện thoại liên hệ: <span class="text-rose-500">*</span></label>
+                                                <input type="tel" x-model="checkoutBookingContactPhone" @input="checkoutBookingContactTouched.phone = true" placeholder="0988 123 456" class="w-full bg-white border rounded-xl px-4 py-2.5 text-slate-800 font-semibold focus:outline-none focus:border-brand-500 font-mono" :class="(checkoutBookingContactTouched.phone && (!checkoutBookingContactPhone || !/^(0[35789])[0-9]{8}$/.test(checkoutBookingContactPhone.trim().replace(/\s/g,'')))) ? 'border-rose-400 bg-rose-50/20' : 'border-slate-300'">
+                                                <p x-show="checkoutBookingContactTouched.phone && (!checkoutBookingContactPhone || !/^(0[35789])[0-9]{8}$/.test(checkoutBookingContactPhone.trim().replace(/\s/g,'')))" class="text-rose-500 text-[11px] font-semibold mt-0.5 flex items-center gap-1">
+                                                    <i class="fa-solid fa-circle-exclamation"></i> SĐT không hợp lệ
+                                                </p>
                                             </div>
-                                            <div class="pt-2 border-t border-slate-200">
-                                                <span class="text-slate-500 text-xs font-bold block">Đưa đón PetShip:</span>
-                                                <template x-if="servicePetShipAddress">
-                                                    <div class="font-semibold text-orange-700 flex items-center gap-2 mt-0.5">
+                                        </div>
+
+                                        <div class="space-y-1 text-xs sm:text-sm">
+                                            <label class="text-slate-600 text-xs font-bold block">Cơ sở thực hiện:</label>
+                                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 font-bold flex items-center gap-2">
+                                                <i class="fa-solid fa-location-dot text-rose-500"></i>
+                                                <span>Cơ sở Chính: 88 Nguyễn Thị Minh Khai, Phường Đa Kao, Quận 1, TPHCM</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Dynamic Form cho PetShip -->
+                                        <div class="space-y-2 text-xs sm:text-sm">
+                                            <label class="text-slate-700 text-xs font-bold block">Phương thức đưa đón PetShip:</label>
+                                            <template x-if="!hasPetShip">
+                                                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-slate-600 flex items-center gap-2">
+                                                    <i class="fa-solid fa-person-walking text-slate-400"></i>
+                                                    <span>Khách hàng tự đưa đón bé cưng tại Cơ sở 88 Nguyễn Thị Minh Khai</span>
+                                                </div>
+                                            </template>
+                                            <template x-if="hasPetShip">
+                                                <div class="p-3.5 bg-orange-50/50 rounded-2xl border border-orange-200 space-y-2.5">
+                                                    <div class="flex items-center gap-2 text-orange-800 font-bold text-xs">
                                                         <i class="fa-solid fa-van-shuttle text-orange-600"></i>
-                                                        <span x-text="'Đón tại: ' + servicePetShipAddress"></span>
+                                                        <span>Địa Chỉ Đón PetShip360 Tận Nhà</span>
                                                     </div>
-                                                </template>
-                                                <template x-if="!servicePetShipAddress">
-                                                    <div class="text-slate-600 flex items-center gap-2 mt-0.5">
-                                                        <i class="fa-solid fa-person-walking text-slate-400"></i>
-                                                        <span>Khách hàng tự đưa đón bé cưng tại Cơ sở 88 Nguyễn Thị Minh Khai</span>
+                                                    <input type="text" x-model="checkoutPetShipAddress.street" @input="checkoutBookingContactTouched.street = true" placeholder="Địa chỉ cụ thể (Số nhà, tên đường)..." class="w-full bg-white border rounded-xl px-3.5 py-2 text-xs font-semibold focus:outline-none focus:border-orange-500" :class="(checkoutBookingContactTouched.street && (!checkoutPetShipAddress.street || checkoutPetShipAddress.street.trim().length < 5)) ? 'border-rose-400 bg-rose-50/20' : 'border-slate-300'">
+                                                    <div class="grid grid-cols-3 gap-2 text-xs">
+                                                        <input type="text" value="TP. Hồ Chí Minh" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-600 cursor-not-allowed">
+                                                        <select x-model="checkoutPetShipAddress.district" class="w-full bg-white border border-slate-300 rounded-xl px-2 py-1.5 text-xs">
+                                                            <template x-for="d in (vnProvinces[0]?.districts || [])" :key="d.name">
+                                                                <option :value="d.name" x-text="d.name"></option>
+                                                            </template>
+                                                        </select>
+                                                        <select x-model="checkoutPetShipAddress.ward" class="w-full bg-white border border-slate-300 rounded-xl px-2 py-1.5 text-xs">
+                                                            <template x-for="w in ((vnProvinces[0]?.districts || []).find(d => d.name === checkoutPetShipAddress.district)?.wards || [])" :key="w">
+                                                                <option :value="w" x-text="w"></option>
+                                                            </template>
+                                                        </select>
                                                     </div>
-                                                </template>
-                                            </div>
+                                                </div>
+                                            </template>
                                         </div>
                                     </div>
                                 </div>
@@ -3522,7 +3642,7 @@ CUSTOMER_HTML = """
                                     <i class="fa-solid fa-arrow-left"></i>
                                     <span>Quay lại giỏ hàng</span>
                                 </button>
-                                <button @click="proceedToPaymentStep()" class="py-3.5 px-7 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs sm:text-sm transition shadow-lg shadow-orange-500/25 flex items-center gap-2">
+                                <button type="button" @click="proceedToPaymentStep()" :disabled="!isStep2CheckoutValid" :class="!isStep2CheckoutValid ? 'opacity-50 cursor-not-allowed bg-slate-300 text-slate-500' : 'bg-orange-500 hover:bg-orange-600 text-white shadow-lg shadow-orange-500/25'" class="py-3.5 px-7 rounded-2xl font-extrabold text-xs sm:text-sm transition flex items-center gap-2">
                                     <span>Tiếp tục đến phương thức thanh toán</span>
                                     <i class="fa-solid fa-arrow-right text-xs"></i>
                                 </button>
@@ -3774,50 +3894,78 @@ CUSTOMER_HTML = """
                                     </template>
                                 </div>
 
-                                <!-- 2. Thẻ ATM nội địa & Internet Banking -->
-                                <div class="rounded-2xl border transition overflow-hidden" :class="paymentMethod === 'atm' ? 'border-orange-500 bg-orange-50/20' : 'border-slate-200'">
+                                <!-- 2. Ví điện tử MoMo / ZaloPay (Có Accordion UI mở rộng mã QR MoMo tương tự VietQR) -->
+                                <div class="rounded-2xl border transition overflow-hidden" :class="(paymentMethod === 'ewallet' || paymentMethod === 'momo') ? 'border-orange-500 bg-orange-50/20 shadow-sm' : 'border-slate-200'">
                                     <label class="p-4 cursor-pointer flex items-center justify-between">
                                         <div class="flex items-center gap-3">
-                                            <input type="radio" value="atm" x-model="paymentMethod" class="text-orange-500">
-                                            <div>
-                                                <span class="font-extrabold text-xs sm:text-sm text-slate-900 block">Thẻ ATM nội địa & Internet Banking</span>
-                                                <span class="text-slate-400 text-[11px]">Hỗ trợ 40+ ngân hàng trong nước qua cổng Napas</span>
-                                            </div>
-                                        </div>
-                                        <i class="fa-solid fa-building-columns text-slate-400 text-lg"></i>
-                                    </label>
-                                </div>
-
-                                <!-- 3. Thẻ Quốc tế (Visa / Mastercard / JCB) -->
-                                <div class="rounded-2xl border transition overflow-hidden" :class="paymentMethod === 'visa' ? 'border-orange-500 bg-orange-50/20' : 'border-slate-200'">
-                                    <label class="p-4 cursor-pointer flex items-center justify-between">
-                                        <div class="flex items-center gap-3">
-                                            <input type="radio" value="visa" x-model="paymentMethod" class="text-orange-500">
-                                            <div>
-                                                <span class="font-extrabold text-xs sm:text-sm text-slate-900 block">Thẻ tín dụng / Ghi nợ quốc tế</span>
-                                                <span class="text-slate-400 text-[11px]">Visa, MasterCard, JCB, American Express</span>
-                                            </div>
-                                        </div>
-                                        <div class="flex gap-1.5 text-slate-400 text-base">
-                                            <i class="fa-brands fa-cc-visa"></i>
-                                            <i class="fa-brands fa-cc-mastercard"></i>
-                                            <i class="fa-brands fa-cc-jcb"></i>
-                                        </div>
-                                    </label>
-                                </div>
-
-                                <!-- 4. Ví MoMo / ZaloPay -->
-                                <div class="rounded-2xl border transition overflow-hidden" :class="paymentMethod === 'ewallet' ? 'border-orange-500 bg-orange-50/20' : 'border-slate-200'">
-                                    <label class="p-4 cursor-pointer flex items-center justify-between">
-                                        <div class="flex items-center gap-3">
-                                            <input type="radio" value="ewallet" x-model="paymentMethod" class="text-orange-500">
+                                            <input type="radio" value="momo" x-model="paymentMethod" @change="selectedPaymentMethod = 'momo'" class="text-orange-500">
                                             <div>
                                                 <span class="font-extrabold text-xs sm:text-sm text-slate-900 block">Ví điện tử MoMo / ZaloPay</span>
-                                                <span class="text-slate-400 text-[11px]">Thanh toán nhanh qua ví điện tử liên kết</span>
+                                                <span class="text-slate-400 text-[11px]">Quét mã QR thanh toán tức thì qua ứng dụng MoMo hoặc ZaloPay</span>
                                             </div>
                                         </div>
-                                        <i class="fa-solid fa-wallet text-slate-400 text-lg"></i>
+                                        <div class="flex items-center gap-2">
+                                            <span class="px-2 py-0.5 bg-pink-100 text-pink-700 font-black text-[10px] rounded-md">MoMo</span>
+                                            <span class="px-2 py-0.5 bg-blue-100 text-blue-700 font-black text-[10px] rounded-md">ZaloPay</span>
+                                        </div>
                                     </label>
+
+                                    <!-- Khung thanh toán MoMo Accordion mở rộng -->
+                                    <template x-if="paymentMethod === 'ewallet' || paymentMethod === 'momo'">
+                                        <div class="p-4 sm:p-5 bg-white border-t border-orange-200 space-y-4 animate-fadeIn">
+                                            <div class="flex flex-col md:flex-row items-center gap-6">
+                                                <!-- Ảnh QR MoMo -->
+                                                <div class="flex flex-col items-center">
+                                                    <div class="p-3 bg-pink-50/60 rounded-2xl border border-pink-200 shadow-sm text-center">
+                                                        <img :src="momoQrImage" alt="QR MoMo Payment" class="w-48 h-auto rounded-xl object-contain shadow-sm border border-slate-100">
+                                                        <div class="mt-2 text-center">
+                                                            <span class="text-xs font-black text-slate-900 block">PHAM HOANG HUONG GIANG</span>
+                                                            <span class="text-[11px] text-slate-500 font-mono">*******199</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Thông tin thanh toán MoMo -->
+                                                <div class="flex-1 w-full space-y-3 text-xs sm:text-sm">
+                                                    <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                                                        <h5 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                                                            <i class="fa-solid fa-qrcode text-pink-600"></i>
+                                                            <span>Mã QR Thanh Toán Tự Động (MoMo/ZaloPay)</span>
+                                                        </h5>
+                                                        <span class="text-[10px] font-bold bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+                                                            <i class="fa-solid fa-circle-check text-[9px]"></i> Miễn phí giao dịch
+                                                        </span>
+                                                    </div>
+
+                                                    <div class="space-y-2">
+                                                        <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
+                                                            <div>
+                                                                <span class="text-slate-400 text-[11px] block">Người thụ hưởng:</span>
+                                                                <strong class="text-slate-900 font-bold">PHAM HOANG HUONG GIANG</strong>
+                                                            </div>
+                                                            <span class="font-mono text-xs text-slate-600 bg-white px-2 py-1 rounded border border-slate-200">*******199</span>
+                                                        </div>
+
+                                                        <div class="p-3 bg-orange-50 rounded-xl border border-orange-200 flex items-center justify-between">
+                                                            <div>
+                                                                <span class="text-orange-700 text-[11px] block font-bold">Số tiền cần thanh toán:</span>
+                                                                <strong class="text-orange-600 text-lg font-black" x-text="formatCurrency(currentPayment)"></strong>
+                                                            </div>
+                                                            <div class="text-right">
+                                                                <span class="text-slate-500 text-[11px] block">Lời nhắn/Nội dung:</span>
+                                                                <strong class="font-mono text-slate-900 bg-white px-2.5 py-1 rounded border border-slate-200 text-xs font-bold" x-text="'PETCARE360 ' + (completedOrderNumber ? completedOrderNumber.replace('#','') : 'DH157817')"></strong>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="p-3 bg-pink-50/60 rounded-xl border border-pink-100 flex items-center gap-2.5 text-xs text-pink-900">
+                                                        <i class="fa-solid fa-mobile-screen-button text-base text-pink-600 flex-shrink-0"></i>
+                                                        <span>Mở ứng dụng <strong>MoMo</strong> hoặc <strong>ZaloPay</strong> để quét mã, giao dịch được xác nhận tức thì.</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
                                 </div>
 
                                 <!-- 5. COD (Chỉ dành cho sản phẩm vật lý) -->
