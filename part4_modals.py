@@ -326,7 +326,7 @@ MODALS_HTML = '''<!-- ==================== CÁC MODAL HỆ THỐNG TOÀN DIỆN 
                 </button>
 
                 <div class="h-64 overflow-hidden rounded-t-3xl relative">
-                    <img :src="(selectedArticleModal || selectedArticle).coverImage || (selectedArticleModal || selectedArticle).image" :alt="selectedArticleModal.title" class="w-full h-full object-cover">
+                    <img :src="(selectedArticleModal || selectedArticle).coverImage || (selectedArticleModal || selectedArticle).image" :alt="selectedArticleModal.title" @error=".target.src='https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=800&q=80'" class="w-full h-full object-cover">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-black/20"></div>
                     <div class="absolute bottom-4 left-6 right-6 text-white">
                         <span class="px-2.5 py-1 bg-emerald-500 text-white text-[10px] font-black rounded-lg uppercase tracking-wider inline-block mb-2 shadow" x-text="selectedArticleModal.category"></span>
@@ -2411,50 +2411,219 @@ MODALS_HTML = '''<!-- ==================== CÁC MODAL HỆ THỐNG TOÀN DIỆN 
                 </template>
             </div>
 
-            <!-- Khung Màn Hình Live Camera Stream -->
-            <div class="relative aspect-video rounded-3xl overflow-hidden bg-slate-950 border border-slate-800 shadow-xl group">
-                <!-- Video Stream Feed -->
-                <img :src="petCamRoomInput === 'HT-CAT-02' ? 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=800&q=80' : 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=800&q=80'" class="w-full h-full object-cover opacity-90 transition-transform duration-500" :style="'transform: rotate(' + (petCamAngle * 0.1) + 'deg) scale(1.05)'">
+            <!-- Khung Màn Hình Live Camera Stream (4 Bước Mock Flow Chuẩn Yêu Cầu 5) -->
+            <div class="relative aspect-video rounded-3xl overflow-hidden bg-slate-950 border border-slate-800 shadow-2xl group flex items-center justify-center">
                 
-                <!-- Overlay Header -->
-                <div class="absolute top-3 left-3 right-3 flex items-center justify-between text-white text-xs pointer-events-none">
-                    <div class="flex items-center gap-2">
-                        <span class="bg-rose-600 text-white font-black text-[10px] px-2.5 py-0.5 rounded-full uppercase flex items-center gap-1 shadow-sm">
-                            <span class="w-2 h-2 rounded-full bg-white animate-ping"></span> REC
-                        </span>
-                        <span class="bg-black/60 backdrop-blur-md px-2.5 py-0.5 rounded-full font-mono text-[11px] font-bold" x-text="'PHÒNG: ' + (petCamRoomInput || 'HT-VIP-01')"></span>
+                <!-- TRƯỜNG HỢP 1: STANDBY (Chưa bấm kết nối) -->
+                <template x-if="!isConnecting && !isStreaming">
+                    <div class="text-center p-6 space-y-3 text-slate-300 animate-fadeIn">
+                        <div class="w-16 h-16 rounded-3xl bg-slate-900 border border-slate-800 text-sky-400 flex items-center justify-center mx-auto text-2xl shadow-inner">
+                            <i class="fa-solid fa-video-slash"></i>
+                        </div>
+                        <div>
+                            <h5 class="text-sm font-bold text-white">Camera Sẵn Sàng Kết Nối</h5>
+                            <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">Vui lòng nhập mã phòng Hotel của bé cưng (VD: HT-VIP-01) ở trên và bấm 'Kết Nối Camera'</p>
+                        </div>
+                        <button type="button" @click="connectPetCam()" class="px-5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs shadow-md transition inline-flex items-center gap-2">
+                            <i class="fa-solid fa-plug text-xs"></i>
+                            <span>Bắt đầu kết nối Camera</span>
+                        </button>
                     </div>
-                    <div class="flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[11px]">
-                        <span class="text-emerald-400 font-bold"><i class="fa-solid fa-temperature-half mr-1"></i>24.5°C</span>
-                        <span class="text-slate-400">•</span>
-                        <span class="text-sky-400 font-bold"><i class="fa-solid fa-droplet mr-1"></i>55%</span>
-                    </div>
-                </div>
+                </template>
 
-                <!-- Overlay Controls Bottom -->
-                <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-xs bg-slate-950/70 backdrop-blur-md p-2 rounded-2xl border border-white/10">
-                    <div class="flex items-center gap-2">
-                        <button @click="togglePetCamAngle()" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 font-bold text-[11px] flex items-center gap-1.5 transition" title="Xoay góc camera">
-                            <i class="fa-solid fa-arrows-rotate text-sky-400"></i>
-                            <span x-text="'Góc ' + petCamAngle + '°'"></span>
-                        </button>
-                        <button @click="togglePetCamMic()" :class="petCamMicActive ? 'bg-emerald-600 text-white' : 'bg-white/10 text-slate-300'" class="px-3 py-1.5 rounded-xl font-bold text-[11px] flex items-center gap-1.5 transition" title="Đàm thoại 2 chiều">
-                            <i class="fa-solid" :class="petCamMicActive ? 'fa-microphone text-white' : 'fa-microphone-slash'"></i>
-                            <span x-text="petCamMicActive ? 'Mic: Bật' : 'Mic: Tắt'"></span>
-                        </button>
+                <!-- TRƯỜNG HỢP 2: BƯỚC 2 - ĐANG KẾT NỐI (Hiệu ứng xoay loading trong 1.5 giây) -->
+                <template x-if="isConnecting">
+                    <div class="text-center p-6 space-y-4 animate-fadeIn">
+                        <div class="relative w-16 h-16 mx-auto flex items-center justify-center">
+                            <div class="w-16 h-16 rounded-full border-4 border-sky-500/20 border-t-sky-400 animate-spin"></div>
+                            <i class="fa-solid fa-wifi text-sky-400 absolute text-lg animate-pulse"></i>
+                        </div>
+                        <div class="space-y-1">
+                            <h5 class="text-sm font-extrabold text-white tracking-wide">Đang Thiết Lập Kênh P2P Bảo Mật...</h5>
+                            <p class="text-xs text-sky-300" x-text="'Đang kết nối camera phòng ' + (petCamRoomInput || 'HT-VIP-01') + ' (1080p 60FPS)...'"></p>
+                            <span class="inline-block px-3 py-1 rounded-full bg-sky-950 border border-sky-800 text-[10px] text-sky-400 font-mono font-semibold animate-pulse">
+                                Vui lòng đợi 1.5 giây...
+                            </span>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <button @click="snapPetCamPhoto()" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-extrabold text-[11px] flex items-center gap-1 shadow-sm transition">
-                            <i class="fa-solid fa-camera"></i>
-                            <span>Chụp Ảnh</span>
-                        </button>
+                </template>
+
+                <!-- TRƯỜNG HỢP 3: BƯỚC 3 & 4 - ĐANG PHÁT TRỰC TIẾP (Thẻ <video> phát MP4 + CSS Absolute HUD Overlay) -->
+                <template x-if="isStreaming">
+                    <div class="w-full h-full relative animate-fadeIn">
+                        <!-- Thẻ <video> phát file mp4 lặp lại không giới hạn -->
+                        <video autoplay loop muted playsinline 
+                               poster="https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=800&q=80"
+                               class="w-full h-full object-cover transition-transform duration-500"
+                               :style="'transform: rotate(' + (petCamAngle * 0.1) + 'deg) scale(1.05)'">
+                            <source src="https://vjs.zencdn.net/v/oceans.mp4" type="video/mp4">
+                            <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4">
+                        </video>
+
+                        <!-- BƯỚC 4 (Mock UI): Dùng CSS position: absolute đặt đè các thông số giả lập lên góc thẻ video -->
+                        <!-- Góc Trên (Top Overlay): Dấu chấm đỏ REC, Mã phòng, Nhiệt độ 24.5°C, Độ ẩm 55% -->
+                        <div class="absolute top-3 left-3 right-3 flex items-center justify-between text-white text-xs pointer-events-none z-10">
+                            <div class="flex items-center gap-2">
+                                <!-- Dấu chấm đỏ REC nhấp nháy -->
+                                <span class="bg-rose-600/90 backdrop-blur-md text-white font-black text-[10px] px-2.5 py-1 rounded-full uppercase flex items-center gap-1.5 shadow-md border border-rose-500/30">
+                                    <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+                                    <span>REC</span>
+                                    <span class="text-[9px] font-extrabold text-rose-200 border-l border-white/30 pl-1.5">1080P</span>
+                                </span>
+                                <!-- Mã phòng HT-VIP-01 -->
+                                <span class="bg-black/70 backdrop-blur-md px-3 py-1 rounded-full font-mono text-[11px] font-black text-white border border-white/10 shadow-sm" 
+                                      x-text="(petCamRoomInput || 'HT-VIP-01').toUpperCase()"></span>
+                            </div>
+
+                            <!-- Nhiệt độ: 24.5°C & Độ ẩm: 55% -->
+                            <div class="flex items-center gap-2 bg-black/70 backdrop-blur-md px-3 py-1 rounded-full text-[11px] border border-white/10 shadow-sm font-semibold">
+                                <span class="text-emerald-400 font-bold flex items-center gap-1">
+                                    <i class="fa-solid fa-temperature-half text-[10px]"></i>
+                                    <span>Nhiệt độ: 24.5°C</span>
+                                </span>
+                                <span class="text-slate-500">|</span>
+                                <span class="text-sky-400 font-bold flex items-center gap-1">
+                                    <i class="fa-solid fa-droplet text-[10px]"></i>
+                                    <span>Độ ẩm: 55%</span>
+                                </span>
+                                <span class="text-slate-500">|</span>
+                                <span class="text-emerald-400 flex items-center gap-1" title="Tín hiệu wifi mạnh">
+                                    <i class="fa-solid fa-wifi text-[10px]"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Góc Dưới (Bottom Overlay): Điều khiển góc xoay, Mic, Chụp ảnh & Ngắt kết nối -->
+                        <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-xs bg-slate-950/80 backdrop-blur-md p-2 rounded-2xl border border-white/10 z-10">
+                            <div class="flex items-center gap-2">
+                                <button type="button" @click="togglePetCamAngle()" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 font-bold text-[11px] flex items-center gap-1.5 transition" title="Xoay góc camera 360 độ">
+                                    <i class="fa-solid fa-arrows-rotate text-sky-400"></i>
+                                    <span x-text="'Góc ' + petCamAngle + '°'"></span>
+                                </button>
+                                <button type="button" @click="togglePetCamMic()" :class="petCamMicActive ? 'bg-emerald-600 text-white shadow-xs' : 'bg-white/10 text-slate-300'" class="px-3 py-1.5 rounded-xl font-bold text-[11px] flex items-center gap-1.5 transition" title="Đàm thoại 2 chiều với bé">
+                                    <i class="fa-solid" :class="petCamMicActive ? 'fa-microphone text-white' : 'fa-microphone-slash'"></i>
+                                    <span x-text="petCamMicActive ? 'Mic: Bật' : 'Mic: Tắt'"></span>
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button type="button" @click="snapPetCamPhoto()" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-extrabold text-[11px] flex items-center gap-1 shadow-sm transition active:scale-95">
+                                    <i class="fa-solid fa-camera"></i>
+                                    <span>Chụp Ảnh</span>
+                                </button>
+                                <button type="button" @click="disconnectPetCam()" class="px-2.5 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-600 text-rose-300 hover:text-white font-bold text-[11px] transition flex items-center gap-1" title="Ngắt kết nối luồng camera">
+                                    <i class="fa-solid fa-power-off"></i>
+                                    <span class="hidden sm:inline">Ngắt</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </template>
             </div>
 
             <div class="pt-1 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100">
                 <span class="flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-emerald-600"></i> Hệ thống mã hóa bảo mật chuẩn P2P</span>
                 <button @click="showPetCamModal = false; isPetCamModalOpen = false;" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition">Đóng lại</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL 4: BẢNG GIÁ DỊCH VỤ CHI TIẾT (PRICE MATRIX MODAL - TRA CỨU TOÀN DIỆN) -->
+    <!-- ========================================================================= -->
+    <div x-show="showPriceMatrixModal" x-cloak 
+         class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4"
+         @click.self="showPriceMatrixModal = false"
+         @keydown.escape.window="showPriceMatrixModal = false">
+        <div class="bg-white rounded-3xl max-w-4xl w-full p-6 sm:p-8 shadow-2xl border border-slate-100 relative animate-fadeIn space-y-6 max-h-[92vh] overflow-y-auto"
+             @click.stop>
+            
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-orange-100 text-[#F97316] flex items-center justify-center text-xl shadow-2xs">
+                        <i class="fa-solid fa-table-list"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-black text-lg text-slate-900">Bảng Giá Dịch Vụ Minh Bạch Chuẩn 5 Sao</h4>
+                        <p class="text-xs text-slate-400">Tra cứu chi tiết toàn bộ bảng giá Grooming & Spa và Khách Sạn Pet Hotel</p>
+                    </div>
+                </div>
+                <button type="button" @click="showPriceMatrixModal = false" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Tab Switcher inside Modal -->
+            <div class="flex items-center gap-2 p-1.5 bg-slate-100 rounded-2xl text-xs font-bold">
+                <button type="button" @click="servicePricingTab = 'grooming'" :class="servicePricingTab === 'grooming' ? 'bg-[#F97316] text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'" class="flex-1 py-2.5 rounded-xl transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-scissors"></i>
+                    <span>Bảng Giá Grooming & Spa</span>
+                </button>
+                <button type="button" @click="servicePricingTab = 'hotel'" :class="servicePricingTab === 'hotel' ? 'bg-[#F97316] text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'" class="flex-1 py-2.5 rounded-xl transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-hotel"></i>
+                    <span>Bảng Giá Pet Hotel 5 Sao</span>
+                </button>
+            </div>
+
+            <!-- Grooming Table Matrix -->
+            <div x-show="servicePricingTab === 'grooming'" class="space-y-4">
+                <div class="overflow-x-auto border border-slate-200 rounded-2xl">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead class="bg-orange-50 text-orange-950 font-bold border-b border-orange-200">
+                            <tr>
+                                <th class="py-3 px-4">Mốc Cân Nặng</th>
+                                <th class="py-3 px-4 text-right">Spa Tắm Sấy</th>
+                                <th class="py-3 px-4 text-right">Grooming Tạo Kiểu (Bao gồm Spa)</th>
+                                <th class="py-3 px-4 text-right">Shave Cạo Lông (Bao gồm Spa)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 font-semibold">
+                            <template x-for="row in groomingPriceList" :key="row.weight">
+                                <tr class="hover:bg-orange-50/40">
+                                    <td class="py-3.5 px-4 font-bold text-slate-800" x-text="row.weight"></td>
+                                    <td class="py-3.5 px-4 text-right text-slate-700" x-text="formatCurrency(row.spa)"></td>
+                                    <td class="py-3.5 px-4 text-right text-orange-600 font-extrabold" x-text="formatCurrency(row.grooming)"></td>
+                                    <td class="py-3.5 px-4 text-right text-amber-600 font-bold" x-text="formatCurrency(row.shave)"></td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="p-3 bg-slate-50 rounded-xl text-[11px] text-slate-500 leading-relaxed">
+                    * Giá trên đã bao gồm mỹ phẩm thảo dược Davis nhập khẩu Mỹ, vệ sinh tai móng và sấy ion âm dưỡng lông.
+                </div>
+            </div>
+
+            <!-- Hotel Table Matrix -->
+            <div x-show="servicePricingTab === 'hotel'" class="space-y-4">
+                <div class="overflow-x-auto border border-slate-200 rounded-2xl">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead class="bg-sky-50 text-sky-950 font-bold border-b border-sky-200">
+                            <tr>
+                                <th class="py-3 px-4">Mốc Cân Nặng Thú Cưng</th>
+                                <th class="py-3 px-4 text-right">Lưu Trú Qua Đêm 24h (Phòng VIP Camera)</th>
+                                <th class="py-3 px-4 text-right">Daycare Bán Trú (08h00 - 18h00)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 font-semibold">
+                            <tr class="hover:bg-sky-50/30"><td class="py-3.5 px-4 font-bold">Dưới 2kg</td><td class="py-3.5 px-4 text-right text-sky-700 font-bold">200.000 đ / ngày</td><td class="py-3.5 px-4 text-right text-slate-600">120.000 đ / ngày</td></tr>
+                            <tr class="hover:bg-sky-50/30"><td class="py-3.5 px-4 font-bold">2kg - 5kg</td><td class="py-3.5 px-4 text-right text-sky-700 font-bold">250.000 đ / ngày</td><td class="py-3.5 px-4 text-right text-slate-600">150.000 đ / ngày</td></tr>
+                            <tr class="hover:bg-sky-50/30"><td class="py-3.5 px-4 font-bold">5kg - 8kg</td><td class="py-3.5 px-4 text-right text-sky-700 font-bold">300.000 đ / ngày</td><td class="py-3.5 px-4 text-right text-slate-600">180.000 đ / ngày</td></tr>
+                            <tr class="hover:bg-sky-50/30"><td class="py-3.5 px-4 font-bold">8kg - 12kg</td><td class="py-3.5 px-4 text-right text-sky-700 font-bold">350.000 đ / ngày</td><td class="py-3.5 px-4 text-right text-slate-600">210.000 đ / ngày</td></tr>
+                            <tr class="hover:bg-sky-50/30"><td class="py-3.5 px-4 font-bold">12kg - 18kg</td><td class="py-3.5 px-4 text-right text-sky-700 font-bold">420.000 đ / ngày</td><td class="py-3.5 px-4 text-right text-slate-600">250.000 đ / ngày</td></tr>
+                            <tr class="hover:bg-sky-50/30"><td class="py-3.5 px-4 font-bold">18kg - 25kg</td><td class="py-3.5 px-4 text-right text-sky-700 font-bold">500.000 đ / ngày</td><td class="py-3.5 px-4 text-right text-slate-600">300.000 đ / ngày</td></tr>
+                            <tr class="hover:bg-sky-50/30"><td class="py-3.5 px-4 font-bold">Trên 25kg</td><td class="py-3.5 px-4 text-right text-sky-700 font-bold">600.000 đ / ngày</td><td class="py-3.5 px-4 text-right text-slate-600">360.000 đ / ngày</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="p-3 bg-sky-50 rounded-xl text-[11px] text-sky-800 leading-relaxed">
+                    * Phòng lưu trú có điều hòa 24/24, máy lọc không khí ion, hệ thống PetCam360 xem tận mắt và 3 bữa ăn tiêu chuẩn.
+                </div>
+            </div>
+
+            <div class="pt-2 flex justify-end">
+                <button type="button" @click="showPriceMatrixModal = false" class="px-6 py-2.5 bg-slate-900 text-white font-bold text-xs rounded-xl shadow-xs transition hover:bg-slate-800">
+                    Đóng bảng giá tra cứu
+                </button>
             </div>
         </div>
     </div>

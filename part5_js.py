@@ -1562,14 +1562,26 @@ function superPetCareApp() {
         },
         addressFormErrors: { name: '', phone: '', street: '' },
 
-        // Modal PetCam360 State (Hotel Camera Live Stream)
+        // Modal PetCam360 State (Hotel Camera Live Stream - Mock Simulation Flow)
         showPetCamModal: false,
         isPetCamModalOpen: false,
+        isConnecting: false,
+        isStreaming: false,
         petCamRoomInput: 'HT-VIP-01',
         petCamConnected: true,
         petCamError: '',
         petCamAngle: 0,
         petCamMicActive: false,
+
+        // Services 3-Step Wizard & Price Matrix Modal
+        bookingWizardStep: 1, // 1 | 2 | 3
+        showPriceMatrixModal: false,
+        hotelServiceType: 'overnight', // 'overnight' | 'daycare'
+        
+        // Account Tab State
+        accountSubTab: 'profile', // 'profile' | 'pets' | 'address'
+        get activeTab() { return this.accountSubTab; },
+        set activeTab(val) { this.accountSubTab = val; },
         accountSubTab: 'info', // 'info' | 'tier' | 'pets' | 'addresses' | 'orders'
         showChangePasswordModal: false,
         changePasswordForm: { current: '', newPass: '', confirm: '' },
@@ -6664,17 +6676,21 @@ Trạng thái đơn: ' + finalStatus + ' | Đã trừ kho vĩnh viễn.`);
             this.showToast('Đã đặt làm địa chỉ mặc định!');
         },
 
-        // --- PETCAM360 METHODS ---
+        // --- PETCAM360 METHODS (SIMULATION MOCK FLOW THEO YÊU CẦU 5) ---
         openPetCamModal(roomCode = 'HT-VIP-01') {
             this.showPetCamModal = true;
             this.isPetCamModalOpen = true;
             this.petCamRoomInput = roomCode || 'HT-VIP-01';
             this.petCamError = '';
+            this.isConnecting = false;
+            this.isStreaming = false;
         },
 
         closePetCamModal() {
             this.showPetCamModal = false;
             this.isPetCamModalOpen = false;
+            this.isConnecting = false;
+            this.isStreaming = false;
         },
 
         connectPetCam() {
@@ -6684,8 +6700,67 @@ Trạng thái đơn: ' + finalStatus + ' | Đã trừ kho vĩnh viễn.`);
                 return;
             }
             this.petCamError = '';
-            this.petCamConnected = true;
-            this.showToast('Kết nối Camera phòng ' + code + ' thành công!');
+            this.isConnecting = true;
+            this.isStreaming = false;
+            
+            // Simulation: 1.5s loading spinner then switch to live streaming
+            setTimeout(() => {
+                this.isConnecting = false;
+                this.isStreaming = true;
+                this.showToast('Kết nối Camera phòng ' + code + ' thành công! Đang phát trực tiếp.');
+            }, 1500);
+        },
+
+        disconnectPetCam() {
+            this.isStreaming = false;
+            this.isConnecting = false;
+            this.showToast('Đã ngắt kết nối Camera phòng ' + (this.petCamRoomInput || 'HT-VIP-01'));
+        },
+
+        // Helper Auto-Pricing Dịch vụ theo cân nặng bé pet
+        getGroomingSpaPrice() {
+            const row = (this.groomingPriceList && this.groomingPriceList.find(r => r.weight === this.currentPetGroomingTier)) || (this.groomingPriceList ? this.groomingPriceList[2] : { spa: 380000 });
+            return row ? row.spa : 380000;
+        },
+        getGroomingCutPrice() {
+            const row = (this.groomingPriceList && this.groomingPriceList.find(r => r.weight === this.currentPetGroomingTier)) || (this.groomingPriceList ? this.groomingPriceList[2] : { grooming: 590000 });
+            return row ? row.grooming : 590000;
+        },
+        getGroomingShavePrice() {
+            const row = (this.groomingPriceList && this.groomingPriceList.find(r => r.weight === this.currentPetGroomingTier)) || (this.groomingPriceList ? this.groomingPriceList[2] : { shave: 500000 });
+            return row ? row.shave : 500000;
+        },
+        selectGroomingPackage(pkgType) {
+            if (pkgType === 'spa') {
+                this.groomingIncludeSpa = true;
+                this.groomingCutType = 'none';
+            } else if (pkgType === 'grooming') {
+                this.groomingIncludeSpa = true;
+                this.groomingCutType = 'grooming';
+            } else if (pkgType === 'shave') {
+                this.groomingIncludeSpa = true;
+                this.groomingCutType = 'shave';
+            }
+            this.recalcGroomingService();
+        },
+        selectHotelPackage(type) {
+            this.hotelServiceType = type;
+            const w = this.petBookingDetail.weight || 5;
+            const baseOvernight = this.getPetHotelPriceByWeight(w);
+            const price = (type === 'daycare') ? Math.round(baseOvernight * 0.6) : baseOvernight;
+            this.baseServicePrice = price;
+            this.selectedBaseService = {
+                id: 'hotel_' + type + '_' + this.currentPetHotelTier,
+                name: (type === 'daycare') 
+                    ? 'Khách Sạn Thú Cưng: Bán Trú Daycare Trong Ngày (' + this.currentPetHotelTier + ')'
+                    : 'Khách Sạn Thú Cưng: Lưu Trú Qua Đêm 5 Sao 24h (' + this.currentPetHotelTier + ')',
+                category: 'hotel',
+                type: type,
+                weightTier: this.currentPetHotelTier,
+                price: price,
+                duration: (type === 'daycare') ? 'Bán trú 08:00 - 18:00' : 'Lưu trú qua đêm 24h'
+            };
+            this.serviceBookingForm.serviceName = this.selectedBaseService.name;
         },
 
         togglePetCamAngle() {
