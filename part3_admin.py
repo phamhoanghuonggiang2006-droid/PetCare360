@@ -1,1147 +1,1438 @@
 # -*- coding: utf-8 -*-
 ADMIN_HTML = """
     <!-- ======================================================== -->
-    <!-- VIEW 2: GIAO DIỆN QUẢN TRỊ VIÊN (ADMIN VIEW) -->
+    <!-- VIEW 2: GIAO DIỆN QUẢN TRỊ VIÊN CHUYÊN NGHIỆP (ADMIN VIEW) -->
     <!-- ======================================================== -->
-    <div x-show="currentRole === 'admin'" class="min-h-screen flex flex-col dark:bg-slate-900 dark:text-slate-100" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-98" x-transition:enter-end="opacity-100 scale-100">
+    <div x-show="currentRole === 'admin'" class="min-h-screen flex flex-col bg-slate-50 text-slate-800 font-sans" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-98" x-transition:enter-end="opacity-100 scale-100">
         
-        <!-- TOP BAR ADMIN -->
-        <header class="sticky top-0 z-30 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 h-16 flex items-center justify-between px-4 lg:px-6 shadow-sm">
+        <!-- TOP BAR ADMIN (SaaS Header) -->
+        <header class="sticky top-0 z-40 bg-white border-b border-slate-200 h-16 flex items-center justify-between px-4 lg:px-6 shadow-sm">
             <div class="flex items-center gap-3 md:gap-5">
-                <button @click="sidebarOpen = !sidebarOpen" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 focus:outline-none">
-                    <i data-lucide="menu" class="w-5 h-5"></i>
+                <button @click="sidebarOpen = !sidebarOpen" class="p-2 rounded-xl hover:bg-slate-100 text-slate-600 transition" title="Mở/Đóng menu">
+                    <i class="fa-solid fa-bars text-base"></i>
                 </button>
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">
-                        <i data-lucide="paw-print" class="w-5 h-5"></i>
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-600 to-teal-500 flex items-center justify-center text-white font-black text-lg shadow-sm shadow-sky-500/20">
+                        <i class="fa-solid fa-shield-cat text-lg"></i>
                     </div>
-                    <span class="font-bold text-slate-900 dark:text-white hidden sm:inline text-lg tracking-tight">PetCare<span class="text-teal-600 dark:text-teal-400">360</span> <span class="text-xs bg-teal-100 dark:bg-teal-950 text-teal-800 dark:text-teal-300 font-bold px-2 py-0.5 rounded-full ml-1">Admin</span></span>
+                    <div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="font-black text-slate-900 text-base tracking-tight leading-none">PetCare<span class="text-sky-600">360</span></span>
+                            <span class="text-[10px] bg-sky-100 text-sky-800 font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">Admin</span>
+                        </div>
+                        <span class="text-[10px] text-slate-400 font-medium">Hệ thống quản trị & điều hành</span>
+                    </div>
                 </div>
 
                 <!-- Global Branch Select -->
-                <div class="relative hidden sm:block">
-                    <div class="flex items-center bg-slate-100 dark:bg-slate-700/70 border border-slate-200 dark:border-slate-600 rounded-lg p-1">
-                        <i data-lucide="map-pin" class="w-4 h-4 text-teal-600 dark:text-teal-400 ml-2"></i>
-                        <select x-model="globalBranch" @change="showToast('Đã lọc cơ sở: ' + globalBranch)" class="bg-transparent text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-100 focus:outline-none px-2 py-1 pr-6 cursor-pointer">
-                            <option value="ALL" class="dark:bg-slate-800">Tất cả cơ sở (3)</option>
-                            <option value="Q1" class="dark:bg-slate-800">Chi nhánh Quận 1</option>
-                            <option value="BT" class="dark:bg-slate-800">Chi nhánh Bình Thạnh</option>
-                            <option value="Q7" class="dark:bg-slate-800">Chi nhánh Quận 7</option>
+                <div class="relative hidden md:block">
+                    <div class="flex items-center bg-slate-100 border border-slate-200 rounded-xl px-2.5 py-1 text-xs">
+                        <i class="fa-solid fa-location-dot text-sky-600 mr-2 text-xs"></i>
+                        <select x-model="globalBranch" @change="showToast('Đã lọc cơ sở: ' + globalBranch)" class="bg-transparent text-xs font-semibold text-slate-800 focus:outline-none cursor-pointer pr-4">
+                            <option value="ALL">Tất cả chi nhánh (3 cơ sở)</option>
+                            <option value="Q1">Chi nhánh Quận 1 (TP.HCM)</option>
+                            <option value="BT">Chi nhánh Bình Thạnh (TP.HCM)</option>
+                            <option value="Q7">Chi nhánh Quận 7 (TP.HCM)</option>
                         </select>
                     </div>
                 </div>
-
-                <!-- Time Filter Bar in Header -->
-                <div class="relative hidden lg:flex items-center bg-slate-100 dark:bg-slate-700/70 border border-slate-200 dark:border-slate-600 rounded-lg p-1 text-xs">
-                    <i data-lucide="calendar-range" class="w-4 h-4 text-amber-500 ml-2"></i>
-                    <select x-model="adminTimeFilter" @change="applyTimeFilter()" class="bg-transparent text-xs font-semibold text-slate-800 dark:text-slate-100 focus:outline-none px-2 py-1 cursor-pointer">
-                        <option value="ALL" class="dark:bg-slate-800">Toàn bộ thời gian</option>
-                        <option value="TODAY" class="dark:bg-slate-800">Hôm nay</option>
-                        <option value="7DAYS" class="dark:bg-slate-800">7 ngày gần nhất</option>
-                        <option value="THIS_MONTH" class="dark:bg-slate-800">Tháng này</option>
-                        <option value="THIS_QUARTER" class="dark:bg-slate-800">Quý này</option>
-                    </select>
-                </div>
             </div>
 
-            <div class="flex items-center gap-2.5 sm:gap-3">
-                <button @click="switchAdminTab('dashboard'); scrollToUrgentTasks()" class="relative p-2 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800 text-xs font-semibold flex items-center gap-1.5 hover:bg-amber-100 transition-colors">
-                    <i data-lucide="bell" class="w-4 h-4 text-amber-600 dark:text-amber-400"></i>
-                    <span class="hidden md:inline">Việc cần xử lý</span>
-                    <span class="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold" x-text="urgentTasksCount"></span>
+            <!-- Header Right Actions -->
+            <div class="flex items-center gap-3">
+                <!-- Nút chuyển sang giao diện Khách Hàng (Customer View) -->
+                <button @click="switchToCustomer()" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center gap-1.5 border border-slate-200 shadow-2xs">
+                    <i class="fa-solid fa-store text-sky-600"></i>
+                    <span class="hidden sm:inline">Về Shop Khách Hàng</span>
                 </button>
 
-                <!-- NÚT THÔNG BÁO CẬP NHẬT HỆ THỐNG MỚI NHẤT (THAY NÚT MẶT TRỜI - YÊU CẦU MỤC 6 & 7) -->
-                <div class="relative">
-                    <button @click="toggleAdminNotifications()" class="relative p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition" title="Thông báo cập nhật mới nhất">
-                        <i class="fa-solid fa-bell text-lg"></i>
-                        <span x-show="unreadNotificationsCount > 0" class="absolute top-1 right-1 w-4 h-4 bg-rose-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-pulse" x-text="unreadNotificationsCount"></span>
-                    </button>
+                <!-- Nút thông báo / Việc cần xử lý -->
+                <button @click="switchAdminTab('dashboard')" class="relative p-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 text-xs font-bold transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-bell text-amber-600"></i>
+                    <span class="hidden md:inline">Cần xử lý</span>
+                    <span class="w-5 h-5 bg-rose-500 text-white rounded-full text-[10px] font-black flex items-center justify-center">3</span>
+                </button>
 
-                    <!-- Dropdown danh sách những cập nhật mới nhất -->
-                    <div x-show="showAdminNotifications" @click.away="showAdminNotifications = false" x-cloak class="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 z-50 overflow-hidden animate-fadeIn">
-                        <div class="p-3.5 bg-gradient-to-r from-teal-600 to-teal-700 text-white flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                                <i class="fa-solid fa-bell"></i>
-                                <span class="font-bold text-sm">Cập nhật hệ thống mới nhất</span>
-                            </div>
-                            <button @click="markAllNotificationsRead()" class="text-[11px] underline text-teal-100 hover:text-white font-medium">
-                                Đã đọc tất cả
-                            </button>
-                        </div>
-                        <div class="max-h-80 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700">
-                            <template x-for="item in adminNotifications" :key="item.id">
-                                <div @click="markNotificationRead(item.id)" class="p-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition cursor-pointer flex gap-3 items-start" :class="item.read ? 'opacity-70' : 'bg-teal-50/40 dark:bg-teal-950/20'">
-                                    <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5" :class="item.read ? 'bg-slate-100 dark:bg-slate-700 text-slate-500' : 'bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300'">
-                                        <i :class="item.icon || 'fa-solid fa-bell'"></i>
-                                    </div>
-                                    <div class="flex-1">
-                                        <div class="flex items-center justify-between">
-                                            <h5 class="text-xs font-bold text-slate-800 dark:text-slate-100" x-text="item.title"></h5>
-                                            <span class="text-[10px] text-slate-400" x-text="item.time"></span>
-                                        </div>
-                                        <p class="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5 leading-snug" x-text="item.desc"></p>
-                                    </div>
-                                    <span x-show="!item.read" class="w-2 h-2 rounded-full bg-teal-500 shrink-0 mt-1.5"></span>
-                                </div>
-                            </template>
-                        </div>
-                        <div class="p-2.5 bg-slate-50 dark:bg-slate-700/50 text-center border-t border-slate-100 dark:border-slate-700">
-                            <span class="text-[11px] text-slate-500 dark:text-slate-400 font-semibold">Tự động đồng bộ thời gian thực 24/7</span>
-                        </div>
-                    </div>
-                </div>
+                <div class="h-6 w-px bg-slate-200 mx-1"></div>
 
-                <div class="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
-
-                <!-- Admin Profile Card & Logout button -->
+                <!-- Admin Profile Card -->
                 <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-full bg-teal-700 text-white flex items-center justify-center font-bold text-sm shadow">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-sky-600 to-indigo-600 text-white flex items-center justify-center font-black text-xs shadow-sm">
                         HL
                     </div>
-                    <div class="hidden xl:block text-left">
-                        <div class="text-sm font-bold text-slate-800 dark:text-slate-100 leading-tight">Hoàng Long</div>
-                        <div class="text-xs text-teal-600 dark:text-teal-400 font-medium">Chủ doanh nghiệp</div>
+                    <div class="hidden lg:block text-left">
+                        <div class="text-xs font-bold text-slate-800 leading-tight">Hoàng Long</div>
+                        <div class="text-[10px] text-sky-600 font-semibold">Quản Trị Viên Cấp Cao</div>
                     </div>
-                    <button @click="logout()" class="text-xs bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800 px-3 py-1.5 rounded-xl font-bold hover:bg-rose-100 dark:hover:bg-rose-900/60 transition flex items-center gap-1.5 shadow-xs" title="Đăng xuất khỏi hệ thống">
-                        <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
-                        <span class="hidden sm:inline">Đăng xuất</span>
+                    <button @click="logout()" class="text-xs bg-rose-50 text-rose-600 border border-rose-200 p-2 lg:px-2.5 lg:py-1.5 rounded-xl font-bold hover:bg-rose-100 transition flex items-center gap-1.5" title="Đăng xuất">
+                        <i class="fa-solid fa-power-off text-xs"></i>
+                        <span class="hidden xl:inline">Thoát</span>
                     </button>
                 </div>
             </div>
         </header>
 
+        <!-- MAIN LAYOUT: SIDEBAR + CONTENT -->
         <div class="flex-1 flex overflow-hidden">
-            <!-- SIDEBAR ADMIN -->
-            <aside x-show="sidebarOpen" class="w-64 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col transition-all duration-200 shrink-0">
-                <div class="p-4 space-y-1 overflow-y-auto flex-1">
-                    <div class="px-3 py-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Tổng quan</div>
-                    <button @click="switchAdminTab('dashboard')" :class="activeAdminTab === 'dashboard' ? 'text-teal-700 bg-teal-50 dark:bg-teal-950/50 dark:text-teal-300 font-bold' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition">
-                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard Báo cáo
-                    </button>
+            
+            <!-- SIDEBAR ADMIN CHUYÊN NGHIỆP -->
+            <aside x-show="sidebarOpen" class="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 transition-all duration-200 select-none">
+                <div class="p-3 space-y-1 overflow-y-auto flex-1">
                     
-                    <div class="px-3 py-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-4">Kinh doanh & Vận hành</div>
-                    <button @click="switchAdminTab('orders')" :class="activeAdminTab === 'orders' ? 'text-teal-700 bg-teal-50 dark:bg-teal-950/50 dark:text-teal-300 font-bold' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition">
-                        <div class="flex items-center gap-3">
-                            <i data-lucide="shopping-bag" class="w-4 h-4"></i> Quản lý Đơn hàng
-                        </div>
-                        <span x-show="pendingOrdersCount > 0" class="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" x-text="pendingOrdersCount"></span>
+                    <div class="px-3 pt-2 pb-1 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Báo cáo & Giám sát</div>
+                    
+                    <!-- 1. DASHBOARD BÁO CÁO -->
+                    <button @click="switchAdminTab('dashboard')" :class="activeAdminTab === 'dashboard' ? 'bg-sky-50 text-sky-700 font-bold border-r-4 border-sky-600 shadow-2xs' : 'text-slate-600 hover:bg-slate-50 font-medium'" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs transition text-left">
+                        <i class="fa-solid fa-chart-line text-sm w-4 text-center text-sky-600"></i>
+                        <span class="flex-1">Dashboard Tổng Quan</span>
                     </button>
 
-                    <!-- LỊCH HẸN (ĐÃ ĐỔI TÊN THEO YÊU CẦU MỤC 1) -->
-                    <button @click="switchAdminTab('appointments')" :class="activeAdminTab === 'appointments' ? 'text-teal-700 bg-teal-50 dark:bg-teal-950/50 dark:text-teal-300 font-bold' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition">
+                    <div class="px-3 pt-3 pb-1 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Kinh Doanh & Dịch Vụ</div>
+
+                    <!-- 2. QUẢN LÝ ĐƠN HÀNG -->
+                    <button @click="switchAdminTab('orders')" :class="activeAdminTab === 'orders' ? 'bg-sky-50 text-sky-700 font-bold border-r-4 border-sky-600 shadow-2xs' : 'text-slate-600 hover:bg-slate-50 font-medium'" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition text-left">
                         <div class="flex items-center gap-3">
-                            <i data-lucide="calendar" class="w-4 h-4"></i> Lịch hẹn
+                            <i class="fa-solid fa-bag-shopping text-sm w-4 text-center text-blue-600"></i>
+                            <span>Quản lý Đơn hàng</span>
                         </div>
-                        <span class="bg-teal-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" x-text="appointments.length"></span>
+                        <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full" x-text="adminRecentOrders.length"></span>
                     </button>
 
-                    <button @click="switchAdminTab('products')" :class="activeAdminTab === 'products' ? 'text-teal-700 bg-teal-50 dark:bg-teal-950/50 dark:text-teal-300 font-bold' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition">
-                        <i data-lucide="package" class="w-4 h-4"></i> Sản phẩm & Tồn kho
-                    </button>
-                    <button @click="switchAdminTab('customers')" :class="activeAdminTab === 'customers' ? 'text-teal-700 bg-teal-50 dark:bg-teal-950/50 dark:text-teal-300 font-bold' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition">
+                    <!-- 3. QUẢN LÝ DỊCH VỤ -->
+                    <button @click="switchAdminTab('services')" :class="activeAdminTab === 'services' ? 'bg-sky-50 text-sky-700 font-bold border-r-4 border-sky-600 shadow-2xs' : 'text-slate-600 hover:bg-slate-50 font-medium'" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition text-left">
                         <div class="flex items-center gap-3">
-                            <i data-lucide="users" class="w-4 h-4"></i> Quản lý Khách hàng
+                            <i class="fa-solid fa-scissors text-sm w-4 text-center text-teal-600"></i>
+                            <span>Quản lý Dịch vụ</span>
                         </div>
-                        <span class="text-[10px] text-teal-600 dark:text-teal-400 font-bold" x-text="customers.length"></span>
-                    </button>
-                    <button @click="switchAdminTab('pets')" :class="activeAdminTab === 'pets' ? 'text-teal-700 bg-teal-50 dark:bg-teal-950/50 dark:text-teal-300 font-bold' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition">
-                        <div class="flex items-center gap-3">
-                            <i data-lucide="dog" class="w-4 h-4"></i> Hồ sơ Thú cưng
-                        </div>
-                        <span class="text-[10px] text-teal-600 dark:text-teal-400 font-bold" x-text="allPets.length"></span>
+                        <span class="bg-teal-100 text-teal-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full" x-text="adminServicesList.length"></span>
                     </button>
 
-                    <div class="px-3 py-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-4">Hệ thống & Phân tích</div>
-                    <button @click="switchAdminTab('analytics')" :class="activeAdminTab === 'analytics' ? 'text-teal-700 bg-teal-50 dark:bg-teal-950/50 dark:text-teal-300 font-bold' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition">
-                        <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Phân tích Doanh thu & Web
-                    </button>
-                    <button @click="switchAdminTab('branches')" :class="activeAdminTab === 'branches' ? 'text-teal-700 bg-teal-50 dark:bg-teal-950/50 dark:text-teal-300 font-bold' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition">
-                        <i data-lucide="settings" class="w-4 h-4"></i> Cấu hình Chi nhánh
+                    <!-- 4. QUẢN LÝ TỒN KHO -->
+                    <button @click="switchAdminTab('inventory')" :class="activeAdminTab === 'inventory' ? 'bg-sky-50 text-sky-700 font-bold border-r-4 border-sky-600 shadow-2xs' : 'text-slate-600 hover:bg-slate-50 font-medium'" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition text-left">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-boxes-stacked text-sm w-4 text-center text-amber-600"></i>
+                            <span>Quản lý Tồn Kho</span>
+                        </div>
+                        <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full" x-text="inventoryItems.length"></span>
                     </button>
 
-                    <div class="pt-4 mt-4 border-t border-slate-200 dark:border-slate-700">
-                        <button @click="logout()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition">
-                            <i data-lucide="log-out" class="w-4 h-4 text-rose-500"></i> Đăng xuất
-                        </button>
-                    </div>
+                    <!-- 5. QUẢN LÝ HOTEL -->
+                    <button @click="switchAdminTab('hotel')" :class="activeAdminTab === 'hotel' ? 'bg-sky-50 text-sky-700 font-bold border-r-4 border-sky-600 shadow-2xs' : 'text-slate-600 hover:bg-slate-50 font-medium'" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition text-left">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-hotel text-sm w-4 text-center text-indigo-600"></i>
+                            <span>Quản lý Hotel</span>
+                        </div>
+                        <span class="bg-indigo-100 text-indigo-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full">40 Phòng</span>
+                    </button>
+
+                    <!-- 9. FLOW PETSHIP (ĐIỀU PHỐI VẬN CHUYỂN) -->
+                    <button @click="switchAdminTab('petship')" :class="activeAdminTab === 'petship' ? 'bg-sky-50 text-sky-700 font-bold border-r-4 border-sky-600 shadow-2xs' : 'text-slate-600 hover:bg-slate-50 font-medium'" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition text-left">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-truck-fast text-sm w-4 text-center text-emerald-600"></i>
+                            <span>Điều phối PetShip</span>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full">Live</span>
+                    </button>
+
+                    <div class="px-3 pt-3 pb-1 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Vận Hành & Khách Hàng</div>
+
+                    <!-- 6. QUẢN LÝ NHÂN SỰ -->
+                    <button @click="switchAdminTab('staff')" :class="activeAdminTab === 'staff' ? 'bg-sky-50 text-sky-700 font-bold border-r-4 border-sky-600 shadow-2xs' : 'text-slate-600 hover:bg-slate-50 font-medium'" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition text-left">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-id-badge text-sm w-4 text-center text-purple-600"></i>
+                            <span>Quản lý Nhân sự</span>
+                        </div>
+                        <span class="bg-purple-100 text-purple-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full" x-text="staffList.length"></span>
+                    </button>
+
+                    <!-- 7. QUẢN LÝ KHÁCH HÀNG -->
+                    <button @click="switchAdminTab('customers')" :class="activeAdminTab === 'customers' ? 'bg-sky-50 text-sky-700 font-bold border-r-4 border-sky-600 shadow-2xs' : 'text-slate-600 hover:bg-slate-50 font-medium'" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition text-left">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-users text-sm w-4 text-center text-sky-600"></i>
+                            <span>Quản lý Khách hàng</span>
+                        </div>
+                        <span class="bg-sky-100 text-sky-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full" x-text="adminCustomersList.length"></span>
+                    </button>
+
+                    <!-- 8. HỒ SƠ THÚ CƯNG -->
+                    <button @click="switchAdminTab('pets')" :class="activeAdminTab === 'pets' ? 'bg-sky-50 text-sky-700 font-bold border-r-4 border-sky-600 shadow-2xs' : 'text-slate-600 hover:bg-slate-50 font-medium'" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition text-left">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-paw text-sm w-4 text-center text-rose-600"></i>
+                            <span>Hồ sơ Thú cưng</span>
+                        </div>
+                        <span class="bg-rose-100 text-rose-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full" x-text="adminPetProfilesList.length"></span>
+                    </button>
+
+                </div>
+
+                <!-- Footer Sidebar -->
+                <div class="p-3 border-t border-slate-100 bg-slate-50 text-center">
+                    <div class="text-[11px] font-bold text-slate-600">PetCare360 Enterprise v4.2</div>
+                    <div class="text-[10px] text-slate-400">Đồng bộ Cloud Realtime 24/7</div>
                 </div>
             </aside>
 
-            <!-- MAIN CONTENT PANELS ADMIN -->
-            <main class="flex-1 overflow-y-auto p-4 lg:p-6 space-y-6">
+            <!-- MAIN WORKSPACE CONTAINER (Desktop-first 1440px) -->
+            <main class="flex-1 overflow-y-auto bg-slate-50/80 p-4 md:p-6 lg:p-8">
+                <div class="max-w-[1440px] mx-auto space-y-6">
 
-                <!-- MODULE 1: DASHBOARD -->
-                <section x-show="activeAdminTab === 'dashboard'" class="space-y-6">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div>
-                            <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Tổng quan Vận hành & Doanh thu</h1>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                Đang xem: <strong class="text-teal-600 dark:text-teal-400" x-text="getBranchLabel()"></strong>
-                                <span class="mx-2">•</span>
-                                Thời gian: <span class="font-bold text-amber-600" x-text="getTimeFilterLabel()"></span>
-                            </p>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <!-- Bộ lọc thời gian nhanh -->
-                            <div class="flex items-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 shadow-xs text-xs">
-                                <span class="text-slate-400 mr-2"><i class="fa-solid fa-clock"></i> Thời gian:</span>
-                                <select x-model="adminTimeFilter" @change="applyTimeFilter()" class="bg-transparent font-bold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer">
-                                    <option value="ALL">Toàn bộ</option>
-                                    <option value="TODAY">Hôm nay</option>
-                                    <option value="7DAYS">7 ngày qua</option>
-                                    <option value="THIS_MONTH">Tháng này</option>
-                                    <option value="THIS_QUARTER">Quý này</option>
-                                </select>
-                            </div>
-
-                            <span class="text-xs bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 font-semibold px-3 py-1.5 rounded-xl border border-emerald-300 flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                Real-time Sync
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- Metrics Grid -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                            <div class="flex items-center justify-between text-xs text-slate-500">
-                                <span>Doanh thu kỳ này</span>
-                                <i data-lucide="dollar-sign" class="w-4 h-4 text-emerald-500"></i>
-                            </div>
-                            <div class="text-xl font-bold text-slate-900 dark:text-white mt-2" x-text="formatCurrency(totalRevenueFiltered)"></div>
-                            <span class="text-[11px] text-emerald-600 font-medium">↑ +18.4% so với kỳ trước</span>
-                        </div>
-                        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                            <div class="flex items-center justify-between text-xs text-slate-500">
-                                <span>Đơn hàng E-Commerce</span>
-                                <i data-lucide="shopping-cart" class="w-4 h-4 text-teal-500"></i>
-                            </div>
-                            <div class="text-xl font-bold text-slate-900 dark:text-white mt-2" x-text="filteredOrdersByBranch.length + ' đơn'"></div>
-                            <span class="text-[11px] text-amber-600 font-medium" x-text="pendingProductOrdersCount + ' đơn chờ xác nhận'"></span>
-                        </div>
-                        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                            <div class="flex items-center justify-between text-xs text-slate-500">
-                                <span>Lịch hẹn Phòng khám & Spa</span>
-                                <i data-lucide="calendar" class="w-4 h-4 text-indigo-500"></i>
-                            </div>
-                            <div class="text-xl font-bold text-slate-900 dark:text-white mt-2" x-text="filteredAppointmentsByBranch.length + ' ca'"></div>
-                            <span class="text-[11px] text-teal-600 font-medium" x-text="inProgressAppointmentsCount + ' ca đang tiếp khách'"></span>
-                        </div>
-                        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                            <div class="flex items-center justify-between text-xs text-slate-500">
-                                <span>Cảnh báo Tồn kho</span>
-                                <i data-lucide="alert-triangle" class="w-4 h-4 text-red-500"></i>
-                            </div>
-                            <div class="text-xl font-bold text-slate-900 dark:text-white mt-2" x-text="lowStockCount + ' sản phẩm'"></div>
-                            <span class="text-[11px] text-red-500 font-medium">Dưới ngưỡng an toàn</span>
-                        </div>
-                    </div>
-
-                    <!-- Revenue Chart Section -->
-                    <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                        <div class="flex items-center justify-between mb-4">
+                    <!-- ======================================================== -->
+                    <!-- MODULE 1: DASHBOARD BÁO CÁO, PHÂN TÍCH DOANH THU & WEB -->
+                    <!-- ======================================================== -->
+                    <section x-show="activeAdminTab === 'dashboard'" class="space-y-6 animate-fadeIn">
+                        
+                        <!-- Header & Filters (Mục 2) -->
+                        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
                             <div>
-                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Biểu đồ Doanh thu (Triệu VNĐ)</h3>
-                                <p class="text-xs text-slate-500">So sánh doanh thu Sản phẩm E-Commerce & Dịch vụ Y tế - Spa 6 tháng gần nhất</p>
+                                <h1 class="text-xl md:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
+                                    <i class="fa-solid fa-chart-pie text-sky-600"></i>
+                                    <span>Báo cáo & Phân tích tổng quan</span>
+                                </h1>
+                                <p class="text-xs text-slate-500 mt-1">
+                                    Theo dõi các chỉ số doanh thu kinh doanh, lưu lượng truy cập website và hiệu quả bán hàng đa kênh PetCare360.
+                                </p>
                             </div>
-                            <button @click="refreshChart()" class="text-xs text-teal-600 hover:underline flex items-center gap-1 font-semibold">
-                                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Cập nhật biểu đồ
-                            </button>
-                        </div>
-                        <!-- FALLBACK UI VÀ CANVAS CHART (YÊU CẦU MỤC 1) -->
-                        <div class="h-64 relative">
-                            <canvas id="revenueChart" x-show="revenueMonthlyMock && revenueMonthlyMock.length > 0"></canvas>
-                            <div x-show="!revenueMonthlyMock || revenueMonthlyMock.length === 0" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-slate-50/50 dark:bg-slate-800 rounded-xl">
-                                <i class="fa-solid fa-chart-column text-4xl mb-2 text-slate-300"></i>
-                                <p class="text-xs font-semibold">Chưa có dữ liệu thống kê doanh thu</p>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Urgent Tasks Section -->
-                    <div id="urgent-tasks-section" class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                            <i data-lucide="alert-circle" class="w-5 h-5 text-amber-500"></i> Việc cần xử lý ngay
-                        </h3>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                            <div class="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-lg flex justify-between items-center">
-                                <div>
-                                    <div class="font-bold text-amber-900 dark:text-amber-300">Đơn hàng mới chờ duyệt</div>
-                                    <div class="text-amber-700 dark:text-amber-400"><span x-text="pendingProductOrdersCount"></span> đơn hàng E-Commerce</div>
+                            <!-- Bộ lọc thời gian nhanh & Nút hành động -->
+                            <div class="flex flex-wrap items-center gap-2.5">
+                                <!-- ButtonGroup Thời gian -->
+                                <div class="inline-flex rounded-xl p-1 bg-slate-100 border border-slate-200 text-xs font-semibold">
+                                    <button @click="applyAdminDashboardTimeFilter('today')" :class="adminDashboardTimeFilter === 'today' ? 'bg-sky-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-2.5 py-1.5 rounded-lg transition">Hôm nay</button>
+                                    <button @click="applyAdminDashboardTimeFilter('yesterday')" :class="adminDashboardTimeFilter === 'yesterday' ? 'bg-sky-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-2.5 py-1.5 rounded-lg transition">Hôm qua</button>
+                                    <button @click="applyAdminDashboardTimeFilter('7days')" :class="adminDashboardTimeFilter === '7days' ? 'bg-sky-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-2.5 py-1.5 rounded-lg transition">7 ngày qua</button>
+                                    <button @click="applyAdminDashboardTimeFilter('this_month')" :class="adminDashboardTimeFilter === 'this_month' ? 'bg-sky-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-2.5 py-1.5 rounded-lg transition">Tháng này</button>
+                                    <button @click="applyAdminDashboardTimeFilter('custom')" :class="adminDashboardTimeFilter === 'custom' ? 'bg-sky-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-2.5 py-1.5 rounded-lg transition">Tùy chỉnh ngày</button>
                                 </div>
-                                <button @click="switchAdminTab('orders'); setOrderTypeFilter('PRODUCT')" class="px-2.5 py-1 bg-amber-600 text-white font-bold rounded">Xem</button>
-                            </div>
-                            <div class="p-3 bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800/50 rounded-lg flex justify-between items-center">
-                                <div>
-                                    <div class="font-bold text-teal-900 dark:text-teal-300">Lịch hẹn chờ tiếp đón</div>
-                                    <div class="text-teal-700 dark:text-teal-400"><span x-text="pendingServiceAppointmentsCount"></span> ca hẹn phòng khám</div>
-                                </div>
-                                <button @click="switchAdminTab('appointments')" class="px-2.5 py-1 bg-teal-600 text-white font-bold rounded">Xem</button>
-                            </div>
-                            <div class="p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/50 rounded-lg flex justify-between items-center">
-                                <div>
-                                    <div class="font-bold text-red-900 dark:text-red-300">Thuốc/Vật tư sắp hết</div>
-                                    <div class="text-red-700 dark:text-red-400"><span x-text="lowStockCount"></span> mặt hàng cần nhập</div>
-                                </div>
-                                <button @click="switchAdminTab('products'); showLowStockOnly = true" class="px-2.5 py-1 bg-red-600 text-white font-bold rounded">Kho</button>
-                            </div>
-                        </div>
-                    </div>
-                </section>
 
-                <!-- MODULE 2: QUẢN LÝ ĐƠN HÀNG -->
-                <section x-show="activeAdminTab === 'orders'" class="space-y-4">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div>
-                            <h2 class="text-xl font-bold text-slate-900 dark:text-white">Quản lý Đơn hàng & Dịch vụ</h2>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Đơn hàng khách đặt từ webapp được đồng bộ tức thì vào bảng điều khiển này</p>
-                        </div>
-                        <div class="flex gap-2">
-                            <button @click="showToast('Đã xuất file Excel dữ liệu thành công!')" class="px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-semibold hover:bg-slate-50 flex items-center gap-1">
-                                <i data-lucide="download" class="w-4 h-4"></i> Xuất Excel
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Type Filter Tabs -->
-                    <div class="flex border-b border-slate-200 dark:border-slate-700 space-x-2">
-                        <button @click="setOrderTypeFilter('PRODUCT')" :class="currentOrderTypeTab === 'PRODUCT' ? 'border-teal-600 text-teal-600 dark:text-teal-400 font-bold' : 'border-transparent text-slate-500 hover:text-slate-700'" class="pb-3 px-4 text-sm border-b-2 flex items-center gap-2 transition">
-                            <i data-lucide="package" class="w-4 h-4"></i> Đơn hàng Sản phẩm E-Commerce (<span x-text="productOrdersCount"></span>)
-                        </button>
-                        <button @click="setOrderTypeFilter('SERVICE')" :class="currentOrderTypeTab === 'SERVICE' ? 'border-teal-600 text-teal-600 dark:text-teal-400 font-bold' : 'border-transparent text-slate-500 hover:text-slate-700'" class="pb-3 px-4 text-sm border-b-2 flex items-center gap-2 transition">
-                            <i data-lucide="scissors" class="w-4 h-4"></i> Dịch vụ Spa & Phòng khám (<span x-text="serviceOrdersCount"></span>)
-                        </button>
-                    </div>
-
-                    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm space-y-4">
-                        <div class="flex flex-wrap items-center justify-between gap-3">
-                            <div class="flex flex-wrap items-center gap-2 flex-1 min-w-[280px]">
-                                <div class="relative flex-1 min-w-[200px]">
-                                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
-                                    <input type="text" x-model="orderSearchQuery" placeholder="Tìm mã đơn, tên khách, SĐT..." class="w-full pl-9 pr-3 py-1.5 text-xs sm:text-sm bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
-                                </div>
-                                <select x-model="orderStatusFilter" class="bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 text-xs sm:text-sm rounded-lg px-3 py-1.5 text-slate-700 dark:text-slate-200">
-                                    <option value="ALL">Tất cả trạng thái</option>
-                                    <option value="PENDING">Chờ xác nhận</option>
-                                    <option value="PREPARING">Đang chuẩn bị / Đã đặt</option>
-                                    <option value="DELIVERING">Đang giao / Đang thực hiện</option>
-                                    <option value="COMPLETED">Hoàn tất</option>
-                                    <option value="CANCELLED">Đã hủy</option>
-                                </select>
-                            </div>
-                            <div class="text-xs text-slate-500">
-                                Hiển thị <span class="font-bold text-slate-800 dark:text-slate-200" x-text="filteredAdminOrders.length"></span> đơn
-                            </div>
-                        </div>
-
-                        <!-- Orders Data Table -->
-                        <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
-                            <table class="w-full text-left border-collapse text-xs sm:text-sm">
-                                <thead>
-                                    <tr class="bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-700">
-                                        <th class="p-3">Mã đơn</th>
-                                        <th class="p-3">Khách hàng</th>
-                                        <th class="p-3">Nội dung tóm tắt</th>
-                                        <th class="p-3">Tổng tiền</th>
-                                        <th class="p-3">Thanh toán</th>
-                                        <th class="p-3">Chi nhánh</th>
-                                        <th class="p-3">Trạng thái</th>
-                                        <th class="p-3 text-right">Thao tác</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-                                    <template x-for="ord in filteredAdminOrders" :key="ord.id">
-                                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                                            <td class="p-3">
-                                                <button @click="openOrderDetail(ord)" class="font-bold text-teal-600 dark:text-teal-400 hover:underline" x-text="'#' + ord.id"></button>
-                                            </td>
-                                            <td class="p-3">
-                                                <div class="font-medium text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                                                    <span x-text="ord.customer"></span>
-                                                    <span x-show="ord.customer === customerProfile.name" class="bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-200 text-[9px] font-bold px-1.5 py-0.2 rounded">Tài khoản hiện tại</span>
-                                                </div>
-                                                <div class="text-[11px] text-slate-400" x-text="ord.phone"></div>
-                                            </td>
-                                            <td class="p-3 max-w-[220px] truncate text-xs" :title="ord.summary" x-text="ord.summary || getOrderSummary(ord)"></td>
-                                            <td class="p-3">
-                                                <div class="font-bold text-slate-900 dark:text-slate-100" x-text="formatCurrency(ord.total || ord.totalAmount)"></div>
-                                                <template x-if="ord.paymentStatus === 'deposit_paid' || (ord.remainingBalance && ord.remainingBalance > 0)">
-                                                    <div class="text-[10px] text-rose-600 font-extrabold flex items-center gap-1 mt-0.5">
-                                                        <i class="fa-solid fa-hand-holding-dollar text-[9px]"></i>
-                                                        <span x-text="'Cần thu hộ: ' + formatCurrency(ord.remainingBalance || (ord.total || ord.totalAmount) / 2)"></span>
-                                                    </div>
-                                                </template>
-                                            </td>
-                                            <td class="p-3 text-xs" x-text="ord.paymentMethodLabel || ord.payment"></td>
-                                            <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-100 text-teal-800" x-text="ord.branch || 'Q1'"></span></td>
-                                            <td class="p-3">
-                                                <span class="px-2 py-0.5 rounded text-[10px] font-bold" 
-                                                      :class="{
-                                                          'bg-orange-100 text-orange-800 border border-orange-200': ord.paymentStatus === 'deposit_paid' || ord.status === 'Đã cọc' || ord.status === 'Đã cọc 50%',
-                                                          'bg-amber-100 text-amber-800': (ord.status === 'PENDING' || ord.status === 'Chờ xác nhận') && ord.paymentStatus !== 'deposit_paid',
-                                                          'bg-emerald-100 text-emerald-800': ord.status === 'COMPLETED' || ord.status === 'Đã hoàn thành',
-                                                          'bg-red-100 text-red-800': ord.status === 'CANCELLED' || ord.status === 'Đã hủy',
-                                                          'bg-blue-100 text-blue-800': ord.status === 'PREPARING' || ord.status === 'DELIVERING' || ord.status === 'Đang xử lý'
-                                                      }" 
-                                                      x-text="(ord.paymentStatus === 'deposit_paid' || ord.status === 'Đã cọc') ? 'Đã cọc 50%' : formatOrderStatusLabel(ord.status)"></span>
-                                            </td>
-                                            <td class="p-3 text-right">
-                                                <button @click="openOrderDetail(ord)" class="px-2 py-1 bg-teal-600 text-white text-xs rounded font-semibold hover:bg-teal-700">Chi tiết</button>
-                                            </td>
-                                        </tr>
-                                    </template>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- MODULE 3: LỊCH HẸN (ĐÃ ĐỔI TÊN & THÊM CỘT GHI CHÚ, DROPDOWN THAO TÁC - YÊU CẦU MỤC 1, 2) -->
-                <section x-show="activeAdminTab === 'appointments'" class="space-y-4">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div>
-                            <h2 class="text-xl font-bold text-slate-900 dark:text-white">Lịch hẹn Phòng khám & Spa</h2>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Điều phối ca hẹn, xem ghi chú của khách và chọn trực tiếp trạng thái tiếp nhận</p>
-                        </div>
-                        <div class="flex gap-2">
-                            <button @click="openNewAppointmentModal()" class="px-3 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm">
-                                <i data-lucide="plus" class="w-4 h-4"></i> Tạo lịch hẹn mới
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm space-y-4">
-                        <div class="flex flex-wrap items-center justify-between gap-3">
-                            <div class="flex flex-wrap items-center gap-2 flex-1 min-w-[280px]">
-                                <div class="relative flex-1 min-w-[200px]">
-                                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
-                                    <input type="text" x-model="appointmentSearchQuery" placeholder="Tìm tên chủ, thú cưng, dịch vụ..." class="w-full pl-9 pr-3 py-1.5 text-xs sm:text-sm bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
-                                </div>
-                                <select x-model="appointmentServiceFilter" class="bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 text-xs sm:text-sm rounded-lg px-3 py-1.5 text-slate-700 dark:text-slate-200">
-                                    <option value="ALL">Tất cả dịch vụ</option>
-                                    <option value="Khám bệnh">Khám bệnh & Cấp cứu</option>
-                                    <option value="Tiêm">Tiêm vắc xin</option>
-                                    <option value="Spa">Spa & Cắt tỉa</option>
-                                    <option value="Phẫu thuật">Phẫu thuật / Triệt sản</option>
-                                    <option value="Răng">Lấy cao răng siêu âm</option>
-                                </select>
-                            </div>
-                            <div class="text-xs text-slate-500">
-                                Hiển thị <span class="font-bold text-slate-800 dark:text-slate-200" x-text="filteredAppointments.length"></span> ca hẹn
-                            </div>
-                        </div>
-
-                        <!-- Appointments Table with Note Column & Selectable Status Action -->
-                        <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
-                            <table class="w-full text-left border-collapse text-xs sm:text-sm">
-                                <thead>
-                                    <tr class="bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-700">
-                                        <th class="p-3">Mã hẹn</th>
-                                        <th class="p-3">Khách hàng & Thú cưng</th>
-                                        <th class="p-3">Dịch vụ & Bác sĩ</th>
-                                        <th class="p-3">Thời gian</th>
-                                        <th class="p-3">Chi nhánh</th>
-                                        <!-- CỘT GHI CHÚ MỚI (YÊU CẦU MỤC 2) -->
-                                        <th class="p-3 min-w-[150px]">Ghi chú khách hàng</th>
-                                        <th class="p-3">Trạng thái</th>
-                                        <!-- CỘT THAO TÁC CÓ THỂ LỰA CHỌN TRẠNG THÁI (YÊU CẦU MỤC 2) -->
-                                        <th class="p-3 text-right min-w-[160px]">Thao tác (Đổi trạng thái)</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-                                    <template x-for="a in filteredAppointments" :key="a.id">
-                                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
-                                            <td class="p-3 font-bold text-teal-600" x-text="a.id"></td>
-                                            <td class="p-3">
-                                                <div class="font-bold text-slate-800 dark:text-slate-200" x-text="a.customer"></div>
-                                                <div class="text-xs text-teal-600 font-medium" x-text="'Pet: ' + a.pet"></div>
-                                            </td>
-                                            <td class="p-3">
-                                                <span class="font-semibold text-slate-700 dark:text-slate-200" x-text="a.service"></span>
-                                                <div class="text-[11px] text-slate-400" x-text="a.doc"></div>
-                                            </td>
-                                            <td class="p-3 text-xs font-medium" x-text="a.time"></td>
-                                            <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-100 text-teal-800" x-text="a.branch"></span></td>
-                                            
-                                            <!-- Hiển thị Ghi chú khách để lại (Yêu cầu mục 2) -->
-                                            <td class="p-3">
-                                                <span class="text-xs italic text-slate-600 dark:text-slate-300 bg-amber-50 dark:bg-amber-950/30 px-2 py-1 rounded-md border border-amber-200/50 block" 
-                                                      x-text="a.note || 'Không có ghi chú thêm'"></span>
-                                            </td>
-
-                                            <td class="p-3">
-                                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold"
-                                                      :class="{
-                                                          'bg-emerald-100 text-emerald-800': a.status === 'COMPLETED' || a.status === 'Hoàn thành',
-                                                          'bg-blue-100 text-blue-800': a.status === 'IN_PROGRESS' || a.status === 'Đang tiếp khách',
-                                                          'bg-amber-100 text-amber-800': a.status === 'CONFIRMED' || a.status === 'Đã đặt hẹn',
-                                                          'bg-rose-100 text-rose-800': a.status === 'CANCELLED' || a.status === 'Hủy hẹn'
-                                                      }"
-                                                      x-text="formatAppointmentStatus(a.status)"></span>
-                                            </td>
-
-                                            <!-- Dropdown Thao tác có thể chọn trạng thái (Yêu cầu mục 2) -->
-                                            <td class="p-3 text-right">
-                                                <select :value="a.status" 
-                                                        @change="updateAppointmentStatusDirect(a, $event.target.value)" 
-                                                        class="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-xs font-bold rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-teal-500 cursor-pointer shadow-xs">
-                                                    <option value="CONFIRMED">Đã đặt hẹn</option>
-                                                    <option value="IN_PROGRESS">Đang tiếp khách</option>
-                                                    <option value="COMPLETED">Hoàn thành</option>
-                                                    <option value="CANCELLED">Hủy hẹn</option>
-                                                </select>
-                                            </td>
-                                        </tr>
-                                    </template>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- MODULE 4: SẢN PHẨM & TỒN KHO (CÓ NÚT THÊM SẢN PHẨM & NHẬP THÊM - YÊU CẦU MỤC 4) -->
-                <section x-show="activeAdminTab === 'products'" class="space-y-4">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div>
-                            <h2 class="text-xl font-bold text-slate-900 dark:text-white">Sản phẩm & Quản lý Tồn kho</h2>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Quản lý danh mục sản phẩm, thêm mặt hàng mới và lập phiếu nhập kho đa cơ sở</p>
-                        </div>
-                        <div class="flex gap-2">
-                            <!-- Nút Thêm sản phẩm mới mở Modal (Yêu cầu mục 4) -->
-                            <button @click="openAddProductModal()" class="px-3.5 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
-                                <i data-lucide="plus-circle" class="w-4 h-4"></i> Thêm sản phẩm mới
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm space-y-4">
-                        <div class="flex flex-wrap items-center justify-between gap-3">
-                            <div class="flex flex-wrap items-center gap-2 flex-1 min-w-[280px]">
-                                <div class="relative flex-1 min-w-[200px]">
-                                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
-                                    <input type="text" x-model="productSearchQuery" placeholder="Tìm tên sản phẩm, mã SKU, danh mục..." class="w-full pl-9 pr-3 py-1.5 text-xs sm:text-sm bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
-                                </div>
-                                <select x-model="productCategoryFilter" class="bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 text-xs sm:text-sm rounded-lg px-3 py-1.5 text-slate-700 dark:text-slate-200">
-                                    <option value="ALL">Tất cả danh mục</option>
-                                    <option value="Thức ăn">Thức ăn & Dinh dưỡng</option>
-                                    <option value="Thuốc & Vaccine">Thuốc & Vaccine</option>
-                                    <option value="Phụ kiện">Phụ kiện & Đồ chơi</option>
-                                    <option value="Vệ sinh">Vệ sinh & Sữa tắm</option>
-                                </select>
-                                <button @click="showLowStockOnly = !showLowStockOnly" 
-                                        :class="showLowStockOnly ? 'bg-red-600 text-white' : 'bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300'"
-                                        class="px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition">
-                                    <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Chỉ xem sắp hết hàng
+                                <!-- Action buttons -->
+                                <button @click="exportAdminReport()" class="px-3 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs transition flex items-center gap-1.5 shadow-2xs">
+                                    <i class="fa-solid fa-file-arrow-down text-slate-500"></i>
+                                    <span>Xuất báo cáo Excel/PDF</span>
+                                </button>
+                                <button @click="refreshAdminData()" class="px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm shadow-sky-500/20">
+                                    <i class="fa-solid fa-arrows-rotate"></i>
+                                    <span>Làm mới dữ liệu</span>
                                 </button>
                             </div>
                         </div>
 
-                        <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
-                            <table class="w-full text-left border-collapse text-xs sm:text-sm">
-                                <thead>
-                                    <tr class="bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-700">
-                                        <th class="p-3">SKU / Sản phẩm</th>
-                                        <th class="p-3">Danh mục</th>
-                                        <th class="p-3 text-right">Giá bán</th>
-                                        <th class="p-3 text-center">Tồn CN Q1</th>
-                                        <th class="p-3 text-center">Tồn CN BT</th>
-                                        <th class="p-3 text-center">Tồn CN Q7</th>
-                                        <th class="p-3 text-center">Tổng tồn kho</th>
-                                        <th class="p-3 text-right">Thao tác</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-                                    <template x-for="p in filteredProductsInventory" :key="p.sku">
-                                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
-                                            <td class="p-3">
-                                                <div class="font-bold text-slate-800 dark:text-slate-200" x-text="p.name"></div>
-                                                <span class="text-[10px] text-slate-400 font-mono" x-text="p.sku"></span>
-                                            </td>
-                                            <td class="p-3"><span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-xs" x-text="p.categoryAdmin || p.category"></span></td>
-                                            <td class="p-3 text-right font-bold text-slate-900 dark:text-slate-100" x-text="formatCurrency(p.price)"></td>
-                                            <td class="p-3 text-center font-semibold text-slate-700 dark:text-slate-300" x-text="(p.stockQ1 ?? p.q1 ?? 0)"></td>
-                                            <td class="p-3 text-center font-semibold text-slate-700 dark:text-slate-300" x-text="(p.stockBT ?? p.bt ?? 0)"></td>
-                                            <td class="p-3 text-center font-semibold text-slate-700 dark:text-slate-300" x-text="(p.stockQ7 ?? p.q7 ?? 0)"></td>
-                                            <td class="p-3 text-center">
-                                                <div class="flex items-center justify-center gap-1.5">
-                                                    <span :class="getSafeTotalStock(p) === 0 ? 'text-red-600 font-extrabold' : (getSafeTotalStock(p) < 10 ? 'text-amber-600 font-bold' : 'text-teal-600 font-bold')" 
-                                                          x-text="getSafeTotalStock(p)"></span>
-                                                    <template x-if="getSafeTotalStock(p) === 0">
-                                                        <span class="text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold">Hết hàng</span>
-                                                    </template>
-                                                    <template x-if="getSafeTotalStock(p) > 0 && getSafeTotalStock(p) < 10">
-                                                        <span class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold">Sắp hết</span>
-                                                    </template>
-                                                </div>
-                                            </td>
-                                            
-                                            <!-- Nút Nhập thêm mở Modal Phiếu Nhập Hàng (Yêu cầu mục 4) -->
-                                            <td class="p-3 text-right">
-                                                <button @click="openRestockModal(p)" class="px-2.5 py-1 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 dark:bg-slate-700 rounded-lg text-xs font-bold transition flex items-center gap-1 ml-auto shadow-xs">
-                                                    <i class="fa-solid fa-plus-circle text-teal-600"></i> Nhập thêm
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </template>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
+                        <!-- 4 Thẻ Chỉ Số Nhanh (Metric Summary Cards - Mục 3) -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                            <!-- Card 1: Tổng doanh thu -->
+                            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Tổng doanh thu</span>
+                                    <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-base">
+                                        <i class="fa-solid fa-sack-dollar"></i>
+                                    </div>
+                                </div>
+                                <div class="text-2xl font-black text-slate-900 tracking-tight" x-text="adminRevenueMetrics.totalRevenueFormatted"></div>
+                                <div class="flex items-center gap-1.5 mt-2.5">
+                                    <span class="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
+                                        <i class="fa-solid fa-arrow-trend-up"></i>
+                                        <span x-text="adminRevenueMetrics.growthRevenue"></span>
+                                    </span>
+                                    <span class="text-[11px] text-slate-400">so với kỳ trước</span>
+                                </div>
+                            </div>
 
-                <!-- MODULE 5: QUẢN LÝ KHÁCH HÀNG -->
-                <section x-show="activeAdminTab === 'customers'" class="space-y-4">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div>
-                            <h2 class="text-xl font-bold text-slate-900 dark:text-white">Quản lý Khách hàng B2C</h2>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Danh sách chủ nuôi, điểm thưởng Loyalty và liên hệ CSKH trực tiếp</p>
-                        </div>
-                    </div>
+                            <!-- Card 2: Tổng số đơn hàng -->
+                            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Tổng số đơn hàng</span>
+                                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-base">
+                                        <i class="fa-solid fa-cart-shopping"></i>
+                                    </div>
+                                </div>
+                                <div class="text-2xl font-black text-slate-900 tracking-tight" x-text="adminRevenueMetrics.totalOrders + ' đơn'"></div>
+                                <div class="flex items-center justify-between text-[11px] text-slate-500 mt-2.5">
+                                    <span class="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
+                                        <i class="fa-solid fa-arrow-trend-up"></i>
+                                        <span x-text="adminRevenueMetrics.growthOrders"></span>
+                                    </span>
+                                    <span class="font-medium">Xong: <strong class="text-slate-800" x-text="adminRevenueMetrics.completedOrders"></strong> | Đang làm: <strong class="text-amber-600" x-text="adminRevenueMetrics.processingOrders"></strong></span>
+                                </div>
+                            </div>
 
-                    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm space-y-4">
-                        <div class="flex items-center gap-2 max-w-md">
-                            <div class="relative flex-1">
-                                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
-                                <input type="text" x-model="customerSearchQuery" placeholder="Tìm tên khách hàng, SĐT, Email..." class="w-full pl-9 pr-3 py-1.5 text-xs sm:text-sm bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                            <!-- Card 3: Giá trị trung bình mỗi đơn (AOV) -->
+                            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Giá trị TB mỗi đơn (AOV)</span>
+                                    <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-base">
+                                        <i class="fa-solid fa-receipt"></i>
+                                    </div>
+                                </div>
+                                <div class="text-2xl font-black text-slate-900 tracking-tight" x-text="adminRevenueMetrics.aovFormatted"></div>
+                                <div class="flex items-center gap-1.5 mt-2.5">
+                                    <span class="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
+                                        <i class="fa-solid fa-arrow-trend-up"></i>
+                                        <span x-text="adminRevenueMetrics.growthAov"></span>
+                                    </span>
+                                    <span class="text-[11px] text-slate-400">so với kỳ trước</span>
+                                </div>
+                            </div>
+
+                            <!-- Card 4: Lượng truy cập website -->
+                            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Lượng truy cập website</span>
+                                    <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-base">
+                                        <i class="fa-solid fa-globe"></i>
+                                    </div>
+                                </div>
+                                <div class="text-2xl font-black text-slate-900 tracking-tight" x-text="adminRevenueMetrics.websiteTraffic.pageviews"></div>
+                                <div class="flex items-center justify-between text-[11px] text-slate-500 mt-2.5">
+                                    <span class="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
+                                        <i class="fa-solid fa-arrow-trend-up"></i>
+                                        <span x-text="adminRevenueMetrics.growthTraffic"></span>
+                                    </span>
+                                    <span class="font-medium"><strong class="text-slate-800" x-text="adminRevenueMetrics.websiteTraffic.visitors"></strong> người truy cập</span>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
-                            <table class="w-full text-left border-collapse text-xs sm:text-sm">
-                                <thead>
-                                    <tr class="bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-700">
-                                        <th class="p-3">Mã KH</th>
-                                        <th class="p-3">Họ và tên</th>
-                                        <th class="p-3">Liên hệ</th>
-                                        <th class="p-3">Hạng thẻ & Điểm</th>
-                                        <th class="p-3">Thú cưng đang nuôi</th>
-                                        <th class="p-3 font-semibold text-right">Tổng chi tiêu</th>
-                                        <th class="p-3 text-right">Thao tác</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-                                    <template x-for="c in filteredAdminCustomers" :key="c.id">
-                                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
-                                            <td class="p-3 font-bold text-slate-500" x-text="c.id"></td>
-                                            <td class="p-3">
-                                                <div class="flex items-center gap-2">
-                                                    <img :src="c.avatar" class="w-7 h-7 rounded-full object-cover">
-                                                    <div class="font-bold text-slate-800 dark:text-slate-200" x-text="c.name"></div>
-                                                </div>
-                                            </td>
-                                            <td class="p-3 text-xs">
-                                                <div x-text="c.phone"></div>
-                                                <div class="text-[11px] text-slate-400" x-text="c.email"></div>
-                                            </td>
-                                            <td class="p-3">
-                                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800" x-text="c.tier"></span>
-                                                <div class="text-[10px] text-slate-400 mt-0.5" x-text="c.points + ' điểm'"></div>
-                                            </td>
-                                            <td class="p-3 text-xs">
-                                                <div class="flex flex-wrap gap-1.5 items-center">
-                                                    <template x-for="p in (c.petsList || [])" :key="p.name">
-                                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-teal-50 dark:bg-slate-700 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-800">
-                                                            <i :class="p.type === 'Mèo' ? 'fa-solid fa-cat text-amber-500' : 'fa-solid fa-dog text-teal-600'"></i>
-                                                            <span class="font-bold" x-text="p.name"></span>
-                                                            <span class="text-[9px] text-slate-500 dark:text-slate-400" x-text="'(' + p.breed + ')'"></span>
-                                                        </span>
-                                                    </template>
-                                                    <span x-show="!c.petsList || c.petsList.length === 0" class="text-slate-400 italic text-[11px]" x-text="c.pets || 'Chưa cập nhật'"></span>
-                                                </div>
-                                            </td>
-                                            <td class="p-3 text-right font-bold text-teal-600" x-text="formatCurrency(c.spent)"></td>
-                                            <td class="p-3 text-right">
-                                                <button @click="openChatWithCustomer(c.name)" class="px-2.5 py-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 rounded text-xs font-semibold mr-1">
-                                                    <i class="fa-solid fa-message mr-1 text-teal-600"></i>Chat
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </template>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
+                        <!-- Khu vực Biểu đồ Phân tích Doanh thu (Revenue Analytics Chart - Mục 4) -->
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                                <div>
+                                    <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                                        <i class="fa-solid fa-chart-column text-sky-600"></i>
+                                        <span>Xu Hướng Tăng Trưởng Doanh Thu & Đơn Hàng</span>
+                                    </h3>
+                                    <p class="text-xs text-slate-400">Biểu đồ đường biểu diễn dữ liệu thời gian thực theo từng mốc chu kỳ.</p>
+                                </div>
 
-                <!-- MODULE 6: HỒ SƠ THÚ CƯNG (CÓ NÚT SỔ SỨC KHỎE CHI TIẾT KÈM ẢNH - YÊU CẦU MỤC 3) -->
-                <section x-show="activeAdminTab === 'pets'" class="space-y-4">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div>
-                            <h2 class="text-xl font-bold text-slate-900 dark:text-white">Hồ sơ Thú cưng Toàn Hệ Thống (Pets)</h2>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Quản lý mã Microchip, giống loài, nhấn "Sổ sức khỏe" để xem chi tiết bệnh án và tiêm chủng</p>
-                        </div>
-                    </div>
+                                <!-- Bộ lọc nhỏ góc trên biểu đồ: Doanh thu / Lợi nhuận / Số lượng đơn hàng -->
+                                <div class="inline-flex rounded-xl p-1 bg-slate-100 border border-slate-200 text-xs font-bold">
+                                    <button @click="setDashboardChartMetric('revenue')" :class="dashboardChartMetric === 'revenue' ? 'bg-sky-600 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900'" class="px-3 py-1.5 rounded-lg transition">Doanh thu</button>
+                                    <button @click="setDashboardChartMetric('profit')" :class="dashboardChartMetric === 'profit' ? 'bg-sky-600 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900'" class="px-3 py-1.5 rounded-lg transition">Lợi nhuận</button>
+                                    <button @click="setDashboardChartMetric('orders')" :class="dashboardChartMetric === 'orders' ? 'bg-sky-600 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900'" class="px-3 py-1.5 rounded-lg transition">Số lượng đơn hàng</button>
+                                </div>
+                            </div>
 
-                    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm space-y-4">
-                        <div class="flex items-center gap-2 max-w-md">
-                            <div class="relative flex-1">
-                                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
-                                <input type="text" x-model="petSearchQuery" placeholder="Tìm tên thú cưng, giống, mã Microchip, tên chủ..." class="w-full pl-9 pr-3 py-1.5 text-xs sm:text-sm bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                            <!-- Canvas Chart.js -->
+                            <div class="relative w-full h-80 pt-2">
+                                <canvas id="adminRevenueMainChart" class="w-full h-full"></canvas>
                             </div>
                         </div>
 
-                        <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
-                            <table class="w-full text-left border-collapse text-xs sm:text-sm">
-                                <thead>
-                                    <tr class="bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-700">
-                                        <th class="p-3">Mã Pet / Microchip</th>
-                                        <th class="p-3">Tên Thú cưng</th>
-                                        <th class="p-3">Loài & Giống</th>
-                                        <th class="p-3">Chủ sở hữu</th>
-                                        <th class="p-3">Tuổi & Cân nặng</th>
-                                        <th class="p-3">Tình trạng hiện tại</th>
-                                        <th class="p-3 text-right">Thao tác</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-                                    <template x-for="p in filteredAdminPets" :key="p.id || p.chip">
-                                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
-                                            <td class="p-3 font-mono text-xs font-bold text-teal-600" x-text="p.chip"></td>
-                                            <td class="p-3">
-                                                <div class="flex items-center gap-2">
-                                                    <img :src="p.image" class="w-8 h-8 rounded-lg object-cover bg-slate-100">
-                                                    <div class="font-bold text-slate-800 dark:text-slate-200" x-text="p.name"></div>
-                                                </div>
-                                            </td>
-                                            <td class="p-3 text-xs" x-text="p.species + ' - ' + p.breed"></td>
-                                            <td class="p-3 text-xs">
-                                                <span class="font-semibold text-slate-800 dark:text-slate-200" x-text="p.owner"></span>
-                                            </td>
-                                            <td class="p-3 text-xs" x-text="p.age + ' • ' + p.weight + ' kg'"></td>
-                                            <td class="p-3 text-xs text-slate-500" x-text="p.health"></td>
-                                            <!-- Nút Sổ sức khỏe mở Modal chi tiết (Yêu cầu mục 3) -->
-                                            <td class="p-3 text-right">
-                                                <button @click="openPetHealthModal(p)" class="px-2.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-bold transition flex items-center gap-1 ml-auto shadow-xs">
-                                                    <i class="fa-solid fa-notes-medical text-xs"></i> Sổ sức khỏe
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </template>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
+                        <!-- Thống kê Hiệu suất Website (Traffic & Conversion - Mục 5) -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            
+                            <!-- Thẻ 1: Nguồn lưu lượng Traffic -->
+                            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+                                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                                    <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                        <i class="fa-solid fa-chart-pie text-teal-600"></i>
+                                        <span>Nguồn Lưu Lượng Truy Cập Website</span>
+                                    </h3>
+                                    <span class="text-xs text-slate-400">100% Tổng lượng</span>
+                                </div>
 
-                <!-- MODULE 7: PHÂN TÍCH DOANH THU & CHỈ SỐ WEBSITE (YÊU CẦU MỤC 6 & 7) -->
-                <section x-show="activeAdminTab === 'analytics'" class="space-y-6">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div>
-                            <h2 class="text-xl font-bold text-slate-900 dark:text-white">Phân tích Doanh thu & Chỉ số Vận hành Website</h2>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Báo cáo tài chính chi tiết kết hợp số liệu tương tác, chuyển đổi của Website</p>
+                                <div class="space-y-3.5 pt-1">
+                                    <template x-for="item in adminTrafficSources" :key="item.source">
+                                        <div>
+                                            <div class="flex justify-between items-center text-xs mb-1">
+                                                <span class="font-bold text-slate-700 flex items-center gap-2">
+                                                    <span class="w-2.5 h-2.5 rounded-full" :class="item.colorClass"></span>
+                                                    <span x-text="item.source"></span>
+                                                </span>
+                                                <span class="font-black text-slate-900" x-text="item.percent + '%'"></span>
+                                            </div>
+                                            <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                                                <div class="h-full rounded-full transition-all duration-500" :class="item.colorClass" :style="'width: ' + item.percent + '%'"></div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <!-- Thẻ 2: Phễu Tỷ Lệ Chuyển Đổi (Conversion Funnel) -->
+                            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+                                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                                    <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                        <i class="fa-solid fa-filter text-indigo-600"></i>
+                                        <span>Phễu Tỷ Lệ Chuyển Đổi (Conversion Rate)</span>
+                                    </h3>
+                                    <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">CR Trung bình 3.36%</span>
+                                </div>
+
+                                <div class="space-y-3 pt-1">
+                                    <template x-for="(stage, idx) in adminConversionFunnel" :key="stage.step">
+                                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-7 h-7 rounded-lg bg-sky-100 text-sky-800 font-black text-xs flex items-center justify-center" x-text="idx + 1"></div>
+                                                <div>
+                                                    <div class="text-xs font-bold text-slate-800" x-text="stage.step"></div>
+                                                    <div class="text-[11px] text-slate-400" x-text="stage.count + ' lượt'"></div>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <div class="text-xs font-black text-sky-700" x-text="stage.percent + '%'"></div>
+                                                <div class="w-24 h-1.5 bg-slate-200 rounded-full mt-1 overflow-hidden">
+                                                    <div class="h-full bg-sky-600 rounded-full" :style="'width: ' + stage.percent + '%'"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <!-- Bộ lọc thời gian phân tích -->
-                            <div class="flex items-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 shadow-xs text-xs">
-                                <span class="text-slate-400 mr-2"><i class="fa-solid fa-calendar-days"></i> Kỳ:</span>
-                                <select x-model="adminTimeFilter" @change="applyTimeFilter()" class="bg-transparent font-bold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer">
-                                    <option value="ALL">Toàn bộ thời gian</option>
-                                    <option value="TODAY">Hôm nay</option>
-                                    <option value="7DAYS">7 ngày qua</option>
-                                    <option value="THIS_MONTH">Tháng này</option>
-                                    <option value="THIS_QUARTER">Quý này</option>
+
+                        <!-- Bảng Dữ Liệu Chi Tiết Bổ Sung (Split View Data Tables - Mục 6) -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            
+                            <!-- Bảng 1: Top Sản Phẩm Bán Chạy -->
+                            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                                <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+                                    <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                        <i class="fa-solid fa-trophy text-amber-500"></i>
+                                        <span>Top Sản Phẩm Bán Chạy</span>
+                                    </h3>
+                                    <button @click="switchAdminTab('inventory')" class="text-xs font-bold text-sky-600 hover:text-sky-700">Xem tất cả</button>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left text-xs">
+                                        <thead class="bg-slate-50/70 text-slate-500 border-b border-slate-100 uppercase tracking-wider font-bold">
+                                            <tr>
+                                                <th class="py-2.5 px-3">Sản phẩm</th>
+                                                <th class="py-2.5 px-3 text-center">Đã bán</th>
+                                                <th class="py-2.5 px-3 text-right">Tổng doanh thu</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                                            <template x-for="p in adminTopProducts" :key="p.sku">
+                                                <tr class="hover:bg-slate-50/80 transition">
+                                                    <td class="py-3 px-3 flex items-center gap-2.5">
+                                                        <img :src="p.image" class="w-9 h-9 rounded-lg object-cover border border-slate-200 shrink-0">
+                                                        <div>
+                                                            <div class="font-bold text-slate-900 leading-tight" x-text="p.name"></div>
+                                                            <div class="text-[10px] text-slate-400 font-mono" x-text="p.sku"></div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="py-3 px-3 text-center font-bold text-slate-800" x-text="p.sold + ' cái'"></td>
+                                                    <td class="py-3 px-3 text-right font-black text-sky-700" x-text="formatCurrency(p.revenue)"></td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Bảng 2: Đơn Hàng Mới Nhất Cần Xử Lý -->
+                            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                                <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+                                    <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                        <i class="fa-solid fa-clock text-blue-600"></i>
+                                        <span>Đơn Hàng Mới Nhất Cần Xử Lý</span>
+                                    </h3>
+                                    <button @click="switchAdminTab('orders')" class="text-xs font-bold text-sky-600 hover:text-sky-700">Xem tất cả</button>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left text-xs">
+                                        <thead class="bg-slate-50/70 text-slate-500 border-b border-slate-100 uppercase tracking-wider font-bold">
+                                            <tr>
+                                                <th class="py-2.5 px-3">Mã đơn</th>
+                                                <th class="py-2.5 px-3">Khách hàng</th>
+                                                <th class="py-2.5 px-3 text-right">Tổng tiền</th>
+                                                <th class="py-2.5 px-3 text-center">Trạng thái</th>
+                                                <th class="py-2.5 px-3 text-center">Hành động</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                                            <template x-for="order in adminRecentOrders" :key="order.orderId">
+                                                <tr class="hover:bg-slate-50/80 transition">
+                                                    <td class="py-3 px-3 font-mono font-bold text-sky-700" x-text="order.orderId"></td>
+                                                    <td class="py-3 px-3">
+                                                        <div class="font-bold text-slate-900" x-text="order.customerName"></div>
+                                                        <div class="text-[10px] text-slate-400" x-text="order.customerPhone"></div>
+                                                    </td>
+                                                    <td class="py-3 px-3 text-right font-black text-slate-900" x-text="formatCurrency(order.total)"></td>
+                                                    <td class="py-3 px-3 text-center">
+                                                        <span :class="getOrderStatusBadgeClass(order.status)" class="px-2 py-0.5 rounded-full text-[10px] font-bold" x-text="getOrderStatusLabel(order.status)"></span>
+                                                    </td>
+                                                    <td class="py-3 px-3 text-center">
+                                                        <button @click="openAdminOrderDetail(order)" class="px-2.5 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 rounded-lg text-xs font-bold transition">
+                                                            Chi tiết
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                    </section>
+
+                    <!-- ======================================================== -->
+                    <!-- MODULE 2: QUẢN LÝ ĐƠN HÀNG (ORDER MANAGEMENT) -->
+                    <!-- ======================================================== -->
+                    <section x-show="activeAdminTab === 'orders'" class="space-y-4 animate-fadeIn">
+                        
+                        <!-- Header & Search Toolbar -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+                            <div>
+                                <h2 class="text-xl font-black text-slate-900 flex items-center gap-2">
+                                    <i class="fa-solid fa-bag-shopping text-sky-600"></i>
+                                    <span>Quản lý đơn hàng</span>
+                                </h2>
+                                <p class="text-xs text-slate-500">Tra cứu, cập nhật trạng thái và xuất hóa đơn bán hàng PetCare360.</p>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <div class="relative w-64">
+                                    <input type="text" placeholder="Tìm theo mã đơn, khách, SĐT..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:border-sky-500">
+                                    <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                </div>
+                                <button class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold border border-slate-200 transition flex items-center gap-1.5">
+                                    <i class="fa-solid fa-filter text-xs"></i>
+                                    <span>Bộ lọc</span>
+                                </button>
+                                <button @click="exportOrdersData()" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-bold shadow-xs transition flex items-center gap-1.5">
+                                    <i class="fa-solid fa-download text-xs"></i>
+                                    <span>Xuất dữ liệu</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Data Table 7 Cột Chuẩn Yêu Cầu -->
+                        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs">
+                                    <thead class="bg-slate-50 text-slate-500 border-b border-slate-200 uppercase tracking-wider font-bold">
+                                        <tr>
+                                            <th class="py-3 px-4">Mã đơn hàng</th>
+                                            <th class="py-3 px-4">Khách hàng</th>
+                                            <th class="py-3 px-4 text-right">Tổng tiền</th>
+                                            <th class="py-3 px-4 text-center">Phương thức thanh toán</th>
+                                            <th class="py-3 px-4">Ghi chú</th>
+                                            <th class="py-3 px-4 text-center">Trạng thái</th>
+                                            <th class="py-3 px-4 text-center">Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                                        <template x-for="order in adminRecentOrders" :key="order.orderId">
+                                            <tr class="hover:bg-slate-50 transition">
+                                                <!-- Cột 1: Mã đơn hàng -->
+                                                <td class="py-3.5 px-4">
+                                                    <button @click="openAdminOrderDetail(order)" class="font-mono font-bold text-sky-600 hover:text-sky-800 hover:underline" x-text="order.orderId"></button>
+                                                </td>
+
+                                                <!-- Cột 2: Khách hàng -->
+                                                <td class="py-3.5 px-4">
+                                                    <div class="font-bold text-slate-900" x-text="order.customerName"></div>
+                                                    <div class="text-[11px] text-slate-400" x-text="order.customerEmail || order.customerPhone"></div>
+                                                </td>
+
+                                                <!-- Cột 3: Tổng tiền -->
+                                                <td class="py-3.5 px-4 text-right font-black text-slate-900" x-text="formatCurrency(order.total)"></td>
+
+                                                <!-- Cột 4: Phương thức thanh toán -->
+                                                <td class="py-3.5 px-4 text-center">
+                                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 font-bold text-slate-700">
+                                                        <i :class="order.paymentMethod === 'momo' ? 'fa-solid fa-wallet text-pink-600' : (order.paymentMethod === 'vietqr' ? 'fa-solid fa-qrcode text-blue-600' : 'fa-solid fa-money-bill-1-wave text-emerald-600')"></i>
+                                                        <span x-text="order.paymentMethod.toUpperCase()"></span>
+                                                    </span>
+                                                </td>
+
+                                                <!-- Cột 5: Ghi chú (truncate & hover full) -->
+                                                <td class="py-3.5 px-4 max-w-xs">
+                                                    <div class="truncate text-slate-500 cursor-pointer" :title="order.notes" x-text="order.notes || 'Không có ghi chú'"></div>
+                                                </td>
+
+                                                <!-- Cột 6: Trạng thái (Badge màu chuẩn) -->
+                                                <td class="py-3.5 px-4 text-center">
+                                                    <span :class="getOrderStatusBadgeClass(order.status)" class="px-2.5 py-1 rounded-full text-[11px] font-bold" x-text="getOrderStatusLabel(order.status)"></span>
+                                                </td>
+
+                                                <!-- Cột 7: Thao tác -->
+                                                <td class="py-3.5 px-4 text-center">
+                                                    <button @click="openAdminOrderDetail(order)" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 rounded-xl font-bold transition flex items-center gap-1 mx-auto">
+                                                        <i class="fa-solid fa-eye text-xs"></i>
+                                                        <span>Chi tiết</span>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Pagination -->
+                            <div class="p-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                                <span>Hiển thị 1 - 4 của 1,284 đơn hàng</span>
+                                <div class="flex items-center gap-1">
+                                    <button class="px-2.5 py-1 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-50" disabled>Trang trước</button>
+                                    <button class="px-2.5 py-1 rounded-lg bg-sky-600 text-white font-bold">1</button>
+                                    <button class="px-2.5 py-1 rounded-lg border border-slate-200 hover:bg-slate-50">2</button>
+                                    <button class="px-2.5 py-1 rounded-lg border border-slate-200 hover:bg-slate-50">3</button>
+                                    <button class="px-2.5 py-1 rounded-lg border border-slate-200 hover:bg-slate-50">Trang sau</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </section>
+
+                    <!-- ======================================================== -->
+                    <!-- MODULE 3: QUẢN LÝ DỊCH VỤ (SERVICE MANAGEMENT) -->
+                    <!-- ======================================================== -->
+                    <section x-show="activeAdminTab === 'services'" class="space-y-4 animate-fadeIn">
+                        
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+                            <div>
+                                <h2 class="text-xl font-black text-slate-900 flex items-center gap-2">
+                                    <i class="fa-solid fa-scissors text-teal-600"></i>
+                                    <span>Quản lý Dịch vụ & Đặt chỗ</span>
+                                </h2>
+                                <p class="text-xs text-slate-500">Theo dõi lịch hẹn Spa, Hotel, Grooming và quản lý hồ sơ thú cưng đặt chỗ.</p>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <div class="relative w-64">
+                                    <input type="text" placeholder="Tìm theo mã DV, khách, thú cưng..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:border-teal-500">
+                                    <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                </div>
+                                <select class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-700">
+                                    <option value="ALL">Tất cả gói</option>
+                                    <option value="HOTEL">Hotel</option>
+                                    <option value="SPA">Spa</option>
+                                    <option value="GROOMING">Grooming</option>
                                 </select>
                             </div>
-                            <button @click="showToast('Đang tạo báo cáo tổng hợp PDF chuyên sâu...')" class="px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-semibold flex items-center gap-1.5">
-                                <i data-lucide="download" class="w-4 h-4"></i> Xuất PDF
-                            </button>
                         </div>
-                    </div>
 
-                    <!-- Financial KPI Summary Cards -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                            <span class="text-xs text-slate-500">Doanh thu E-Commerce Sản phẩm</span>
-                            <div class="text-2xl font-bold text-teal-600 dark:text-teal-400 mt-1" x-text="formatCurrency(totalEcommerceRevenue)"></div>
-                            <span class="text-xs text-emerald-600 font-semibold">↑ +21.5% so với cùng kỳ</span>
-                        </div>
-                        <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                            <span class="text-xs text-slate-500">Doanh thu Dịch vụ Phòng khám & Spa</span>
-                            <div class="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-1" x-text="formatCurrency(totalServiceRevenue)"></div>
-                            <span class="text-xs text-emerald-600 font-semibold">↑ +15.8% so với cùng kỳ</span>
-                        </div>
-                        <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                            <span class="text-xs text-slate-500">Giá trị trung bình / Đơn hàng (AOV)</span>
-                            <div class="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">890.000 ₫</div>
-                            <span class="text-xs text-slate-500">Mục tiêu: 850.000 ₫ (Đạt 104.7%)</span>
-                        </div>
-                    </div>
+                        <!-- Data Table 10 Cột Đúng Thứ Tự -->
+                        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs">
+                                    <thead class="bg-slate-50 text-slate-500 border-b border-slate-200 uppercase tracking-wider font-bold">
+                                        <tr>
+                                            <th class="py-3 px-3">Mã DV</th>
+                                            <th class="py-3 px-3">Khách hàng</th>
+                                            <th class="py-3 px-3">Thú cưng</th>
+                                            <th class="py-3 px-3 text-center">Gói DV</th>
+                                            <th class="py-3 px-3">Thời gian</th>
+                                            <th class="py-3 px-3 text-right">Tổng tiền</th>
+                                            <th class="py-3 px-3 text-center">Phương thức</th>
+                                            <th class="py-3 px-3 text-center">PetShip</th>
+                                            <th class="py-3 px-3 text-center">Trạng thái</th>
+                                            <th class="py-3 px-3 text-center">Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                                        <template x-for="srv in adminServicesList" :key="srv.serviceId">
+                                            <tr class="hover:bg-slate-50 transition">
+                                                <!-- 1. Mã DV -->
+                                                <td class="py-3.5 px-3">
+                                                    <button @click="openAdminServiceDetail(srv)" class="font-mono font-bold text-teal-600 hover:underline" x-text="srv.serviceId"></button>
+                                                </td>
 
-                    <!-- Category & Branch Breakdown -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                            <h3 class="font-bold text-slate-900 dark:text-white mb-3">Cơ cấu Doanh thu theo Danh mục</h3>
-                            <div class="space-y-3">
-                                <div>
-                                    <div class="flex justify-between text-xs font-semibold mb-1">
-                                        <span>Thức ăn & Dinh dưỡng</span>
-                                        <span class="text-teal-600">44% (1.910 tr ₫)</span>
-                                    </div>
-                                    <div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
-                                        <div class="bg-teal-500 h-full" style="width: 44%"></div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="flex justify-between text-xs font-semibold mb-1">
-                                        <span>Khám bệnh & Phẫu thuật</span>
-                                        <span class="text-indigo-600">26% (1.128 tr ₫)</span>
-                                    </div>
-                                    <div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
-                                        <div class="bg-indigo-500 h-full" style="width: 26%"></div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="flex justify-between text-xs font-semibold mb-1">
-                                        <span>Spa Grooming & Cắt tỉa</span>
-                                        <span class="text-purple-600">17% (738 tr ₫)</span>
-                                    </div>
-                                    <div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
-                                        <div class="bg-purple-500 h-full" style="width: 17%"></div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="flex justify-between text-xs font-semibold mb-1">
-                                        <span>Thuốc & Phụ kiện</span>
-                                        <span class="text-amber-600">13% (564 tr ₫)</span>
-                                    </div>
-                                    <div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
-                                        <div class="bg-amber-500 h-full" style="width: 13%"></div>
-                                    </div>
-                                </div>
+                                                <!-- 2. Khách hàng -->
+                                                <td class="py-3.5 px-3">
+                                                    <div class="font-bold text-slate-900" x-text="srv.customerName"></div>
+                                                    <div class="text-[10px] text-slate-400" x-text="srv.customerPhone"></div>
+                                                </td>
+
+                                                <!-- 3. Thú cưng -->
+                                                <td class="py-3.5 px-3">
+                                                    <div class="flex items-center gap-2">
+                                                        <img :src="srv.petAvatar" class="w-8 h-8 rounded-full object-cover border border-slate-200">
+                                                        <div>
+                                                            <div class="font-bold text-slate-900" x-text="srv.petName"></div>
+                                                            <div class="text-[10px] text-slate-400" x-text="srv.petBreed"></div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+
+                                                <!-- 4. Gói DV -->
+                                                <td class="py-3.5 px-3 text-center">
+                                                    <span :class="srv.servicePackage === 'Hotel' ? 'bg-indigo-100 text-indigo-800' : (srv.servicePackage === 'Spa' ? 'bg-pink-100 text-pink-800' : 'bg-teal-100 text-teal-800')" class="px-2 py-0.5 rounded-full text-[10px] font-bold" x-text="srv.servicePackage"></span>
+                                                </td>
+
+                                                <!-- 5. Thời gian -->
+                                                <td class="py-3.5 px-3">
+                                                    <div class="text-slate-800 font-semibold" x-text="srv.checkInTime"></div>
+                                                    <div class="text-[10px] text-slate-400" x-text="'Ra: ' + srv.checkOutTime"></div>
+                                                </td>
+
+                                                <!-- 6. Tổng tiền -->
+                                                <td class="py-3.5 px-3 text-right font-black text-slate-900" x-text="formatCurrency(srv.total)"></td>
+
+                                                <!-- 7. Phương thức TT -->
+                                                <td class="py-3.5 px-3 text-center font-bold text-slate-600" x-text="srv.paymentMethod"></td>
+
+                                                <!-- 8. PetShip -->
+                                                <td class="py-3.5 px-3 text-center">
+                                                    <span :class="srv.petShipShipper === 'Không có' ? 'text-slate-400' : 'text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md'" x-text="srv.petShipShipper"></span>
+                                                </td>
+
+                                                <!-- 9. Trạng thái -->
+                                                <td class="py-3.5 px-3 text-center">
+                                                    <span :class="srv.depositStatus === 'Đã cọc' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'" class="px-2 py-0.5 rounded-full text-[10px] font-bold" x-text="srv.depositStatus"></span>
+                                                </td>
+
+                                                <!-- 10. Thao tác -->
+                                                <td class="py-3.5 px-3 text-center">
+                                                    <button @click="openAdminServiceDetail(srv)" class="px-2.5 py-1 bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 rounded-lg font-bold transition">
+                                                        Chi tiết
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
 
-                        <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                            <h3 class="font-bold text-slate-900 dark:text-white mb-3">Tỷ trọng Đóng góp Doanh thu 3 Chi nhánh</h3>
-                            <div class="space-y-4">
-                                <div class="p-3 bg-slate-50 dark:bg-slate-700/40 rounded-lg flex items-center justify-between">
-                                    <div>
-                                        <div class="font-bold text-sm">Chi nhánh 1 - Quận 1</div>
-                                        <div class="text-xs text-slate-500">1.909.600.000 ₫ (44%)</div>
-                                    </div>
-                                    <span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full">Dẫn đầu</span>
-                                </div>
-                                <div class="p-3 bg-slate-50 dark:bg-slate-700/40 rounded-lg flex items-center justify-between">
-                                    <div>
-                                        <div class="font-bold text-sm">Chi nhánh 2 - Bình Thạnh</div>
-                                        <div class="text-xs text-slate-500">1.475.600.000 ₫ (34%)</div>
-                                    </div>
-                                    <span class="px-2.5 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full">Tăng trưởng nhanh</span>
-                                </div>
-                                <div class="p-3 bg-slate-50 dark:bg-slate-700/40 rounded-lg flex items-center justify-between">
-                                    <div>
-                                        <div class="font-bold text-sm">Chi nhánh 3 - Quận 7</div>
-                                        <div class="text-xs text-slate-500">954.800.000 ₫ (22%)</div>
-                                    </div>
-                                    <span class="px-2.5 py-1 bg-slate-200 text-slate-700 text-xs font-bold rounded-full">Ổn định</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    </section>
 
-                    <!-- MỤC PHÂN TÍCH CHI TIẾT ĐẦY ĐỦ CÁC CHỈ SỐ CỦA WEBSITE (YÊU CẦU MỤC 6 & 7) -->
-                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-teal-200 dark:border-teal-900 shadow-sm space-y-6">
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-4">
+                    <!-- ======================================================== -->
+                    <!-- MODULE 4: QUẢN LÝ TỒN KHO (INVENTORY MANAGEMENT) -->
+                    <!-- ======================================================== -->
+                    <section x-show="activeAdminTab === 'inventory'" class="space-y-4 animate-fadeIn">
+                        
+                        <!-- Toolbar -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
                             <div>
-                                <span class="bg-teal-100 dark:bg-teal-900/60 text-teal-800 dark:text-teal-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider inline-flex items-center gap-1.5">
-                                    <i class="fa-solid fa-chart-line text-teal-600"></i> Báo cáo chuyên sâu
-                                </span>
-                                <h3 class="text-xl font-black text-slate-900 dark:text-white mt-2">Chỉ Số Vận Hành & Tương Tác Website (Web Analytics)</h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400">Đo lường lưu lượng truy cập, tỷ lệ chuyển đổi đơn hàng và hành vi người dùng trên WebApp.</p>
+                                <h2 class="text-xl font-black text-slate-900 flex items-center gap-2">
+                                    <i class="fa-solid fa-boxes-stacked text-amber-600"></i>
+                                    <span>Quản lý Tồn Kho Hàng Hóa</span>
+                                </h2>
+                                <p class="text-xs text-slate-500">Kiểm soát định mức tồn, giá nhập trung bình và điều phối kho giữa các chi nhánh.</p>
                             </div>
-                            <span class="text-xs font-mono bg-slate-100 dark:bg-slate-700 px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-300">Google Analytics 4 • Connected</span>
-                        </div>
 
-                        <!-- 4 Web KPI Cards -->
-                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-700/30 border border-slate-100 dark:border-slate-700">
-                                <span class="text-xs text-slate-500 block">Lượt truy cập (Sessions)</span>
-                                <div class="text-xl font-black text-slate-900 dark:text-white mt-1">128.450</div>
-                                <span class="text-[11px] text-emerald-600 font-bold">↑ +24.8% so với kỳ trước</span>
-                            </div>
-                            <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-700/30 border border-slate-100 dark:border-slate-700">
-                                <span class="text-xs text-slate-500 block">Khách truy cập (Unique Users)</span>
-                                <div class="text-xl font-black text-slate-900 dark:text-white mt-1">45.200</div>
-                                <span class="text-[11px] text-emerald-600 font-bold">↑ +18.2% người dùng mới</span>
-                            </div>
-                            <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-700/30 border border-slate-100 dark:border-slate-700">
-                                <span class="text-xs text-slate-500 block">Tỷ lệ chuyển đổi mua hàng</span>
-                                <div class="text-xl font-black text-teal-600 dark:text-teal-400 mt-1">4.85%</div>
-                                <span class="text-[11px] text-teal-700 dark:text-teal-300 font-medium">Mục tiêu: 4.50% (Vượt 7.8%)</span>
-                            </div>
-                            <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-700/30 border border-slate-100 dark:border-slate-700">
-                                <span class="text-xs text-slate-500 block">Thời gian xem trang trung bình</span>
-                                <div class="text-xl font-black text-amber-600 dark:text-amber-400 mt-1">4m 35s</div>
-                                <span class="text-[11px] text-slate-400">Tỷ lệ thoát (Bounce): 28.5%</span>
-                            </div>
-                        </div>
-
-                        <!-- Funnel and Traffic Sources Breakdown -->
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            <!-- E-Commerce Funnel -->
-                            <div class="lg:col-span-2 p-5 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 space-y-3">
-                                <h4 class="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center justify-between">
-                                    <span>Phễu Hành Vi Khách Hàng (Conversion Funnel)</span>
-                                    <span class="text-xs text-teal-600 font-semibold">Tỷ lệ hoàn tất đơn: 4.85%</span>
-                                </h4>
-                                <div class="space-y-3 text-xs pt-1">
-                                    <div>
-                                        <div class="flex justify-between mb-1 font-medium">
-                                            <span>1. Truy cập xem Sản phẩm / Dịch vụ</span>
-                                            <span class="font-bold">85.200 lượt (100%)</span>
-                                        </div>
-                                        <div class="w-full bg-slate-200 dark:bg-slate-700 h-2.5 rounded-full overflow-hidden">
-                                            <div class="bg-teal-500 h-full rounded-full" style="width: 100%"></div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="flex justify-between mb-1 font-medium">
-                                            <span>2. Thêm vào Giỏ hàng (Add to Cart)</span>
-                                            <span class="font-bold">24.200 lượt (28.4%)</span>
-                                        </div>
-                                        <div class="w-full bg-slate-200 dark:bg-slate-700 h-2.5 rounded-full overflow-hidden">
-                                            <div class="bg-indigo-500 h-full rounded-full" style="width: 28.4%"></div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="flex justify-between mb-1 font-medium">
-                                            <span>3. Mở khung Thanh toán & Đặt lịch</span>
-                                            <span class="font-bold">12.010 lượt (14.1%)</span>
-                                        </div>
-                                        <div class="w-full bg-slate-200 dark:bg-slate-700 h-2.5 rounded-full overflow-hidden">
-                                            <div class="bg-amber-500 h-full rounded-full" style="width: 14.1%"></div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="flex justify-between mb-1 font-medium">
-                                            <span>4. Hoàn tất đặt hàng thành công (Purchased)</span>
-                                            <span class="font-bold text-emerald-600">4.132 đơn (4.85%)</span>
-                                        </div>
-                                        <div class="w-full bg-slate-200 dark:bg-slate-700 h-2.5 rounded-full overflow-hidden">
-                                            <div class="bg-emerald-500 h-full rounded-full" style="width: 4.85%"></div>
-                                        </div>
-                                    </div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <div class="relative w-56">
+                                    <input type="text" placeholder="Tìm theo SKU / tên SP..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:border-amber-500">
+                                    <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                                 </div>
-                            </div>
-
-                            <!-- Device & Traffic Distribution -->
-                            <div class="p-5 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 space-y-4">
-                                <h4 class="font-bold text-sm text-slate-800 dark:text-slate-200">Kênh Nguồn & Thiết Bị</h4>
-                                <div class="space-y-3 text-xs">
-                                    <div class="border-b border-slate-200 dark:border-slate-700 pb-2.5">
-                                        <span class="text-slate-400 block mb-1">Nguồn truy cập chính:</span>
-                                        <div class="flex justify-between py-0.5"><span>Tìm kiếm Google (Organic)</span><strong class="text-teal-600">42%</strong></div>
-                                        <div class="flex justify-between py-0.5"><span>Cộng đồng PetShare360 & MXH</span><strong class="text-indigo-600">28%</strong></div>
-                                        <div class="flex justify-between py-0.5"><span>Truy cập trực tiếp (Direct)</span><strong>18%</strong></div>
-                                        <div class="flex justify-between py-0.5"><span>Quảng cáo & Đối tác</span><strong>12%</strong></div>
-                                    </div>
-                                    <div>
-                                        <span class="text-slate-400 block mb-1">Thiết bị người dùng:</span>
-                                        <div class="flex justify-between py-0.5"><span>📱 Smartphone Mobile</span><strong class="text-teal-600">68%</strong></div>
-                                        <div class="flex justify-between py-0.5"><span>💻 Máy tính Desktop/Laptop</span><strong>26%</strong></div>
-                                        <div class="flex justify-between py-0.5"><span>📟 Máy tính bảng Tablet</span><strong>6%</strong></div>
-                                    </div>
-                                </div>
+                                <select class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-700">
+                                    <option value="ALL">Tất cả danh mục</option>
+                                    <option value="SELL">Dùng để bán</option>
+                                    <option value="FACILITY">Dùng cho cơ sở</option>
+                                </select>
+                                <button @click="openRestockModal()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition flex items-center gap-1.5">
+                                    <i class="fa-solid fa-plus text-xs"></i>
+                                    <span>Nhập Thêm Kho</span>
+                                </button>
                             </div>
                         </div>
 
-                        <!-- Retention & CSAT metrics -->
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 text-xs">
-                            <div class="p-3.5 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/50 rounded-xl">
-                                <span class="text-emerald-700 dark:text-emerald-400 block font-medium">Tỷ lệ giữ chân khách hàng (Retention)</span>
-                                <div class="text-xl font-bold text-emerald-900 dark:text-emerald-200 mt-0.5">72.4%</div>
-                                <span class="text-[10px] text-emerald-600">Khách hàng đặt lại trên 2 lần/quý</span>
+                        <!-- Data Table 9 Cột Đúng Thứ Tự -->
+                        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs">
+                                    <thead class="bg-slate-50 text-slate-500 border-b border-slate-200 uppercase tracking-wider font-bold">
+                                        <tr>
+                                            <th class="py-3 px-3 text-center">
+                                                <input type="checkbox" @change="toggleAllInventorySelection()" :checked="selectedInventorySKUs.length === inventoryItems.length && inventoryItems.length > 0" class="rounded text-sky-600 focus:ring-0">
+                                            </th>
+                                            <th class="py-3 px-3">SKU</th>
+                                            <th class="py-3 px-3">Sản phẩm</th>
+                                            <th class="py-3 px-3 text-center">Danh mục</th>
+                                            <th class="py-3 px-3 text-right">Giá mua vào TB</th>
+                                            <th class="py-3 px-3 text-right">Giá bán</th>
+                                            <th class="py-3 px-3 text-center">Tổng tồn kho</th>
+                                            <th class="py-3 px-3 text-center">Trạng thái</th>
+                                            <th class="py-3 px-3 text-center">Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                                        <template x-for="item in inventoryItems" :key="item.sku">
+                                            <tr class="hover:bg-slate-50 transition">
+                                                <!-- Checkbox -->
+                                                <td class="py-3.5 px-3 text-center">
+                                                    <input type="checkbox" :checked="selectedInventorySKUs.includes(item.sku)" @change="toggleInventoryItemSelection(item.sku)" class="rounded text-sky-600 focus:ring-0">
+                                                </td>
+
+                                                <!-- SKU -->
+                                                <td class="py-3.5 px-3 font-mono font-bold text-slate-800" x-text="item.sku"></td>
+
+                                                <!-- Sản phẩm (Ảnh + Tên) -->
+                                                <td class="py-3.5 px-3">
+                                                    <div class="flex items-center gap-2.5">
+                                                        <img :src="item.image" class="w-9 h-9 rounded-lg object-cover border border-slate-200 shrink-0">
+                                                        <span class="font-bold text-slate-900" x-text="item.name"></span>
+                                                    </div>
+                                                </td>
+
+                                                <!-- Danh mục -->
+                                                <td class="py-3.5 px-3 text-center">
+                                                    <span :class="item.category === 'Dùng để bán' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold" x-text="item.category"></span>
+                                                </td>
+
+                                                <!-- Giá mua vào TB -->
+                                                <td class="py-3.5 px-3 text-right font-medium text-slate-600" x-text="formatCurrency(item.buyPrice)"></td>
+
+                                                <!-- Giá bán -->
+                                                <td class="py-3.5 px-3 text-right font-bold text-slate-900" x-text="formatCurrency(item.sellPrice)"></td>
+
+                                                <!-- Tổng tồn kho (Kèm logic note tự động trừ) -->
+                                                <td class="py-3.5 px-3 text-center font-black text-slate-800">
+                                                    <div x-text="item.stock + ' ' + item.unit"></div>
+                                                    <div class="text-[9px] text-slate-400 font-normal">Tự động trừ khi bán</div>
+                                                </td>
+
+                                                <!-- Trạng thái -->
+                                                <td class="py-3.5 px-3 text-center">
+                                                    <span :class="item.status === 'Còn hàng' ? 'bg-emerald-100 text-emerald-800' : (item.status === 'Sắp hết' ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800')" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold" x-text="item.status"></span>
+                                                </td>
+
+                                                <!-- Thao tác -->
+                                                <td class="py-3.5 px-3 text-center">
+                                                    <div class="flex items-center justify-center gap-1.5">
+                                                        <button @click="openRestockModal(item)" class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition" title="Nhập kho">
+                                                            <i class="fa-solid fa-truck-ramp-box text-sm"></i>
+                                                        </button>
+                                                        <button @click="showToast('Sửa sản phẩm: ' + item.sku)" class="p-1.5 text-sky-600 hover:bg-sky-50 rounded-lg transition" title="Sửa">
+                                                            <i class="fa-solid fa-pen-to-square text-sm"></i>
+                                                        </button>
+                                                        <button @click="showToast('Xóa sản phẩm: ' + item.sku)" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition" title="Xóa">
+                                                            <i class="fa-solid fa-trash-can text-sm"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
                             </div>
-                            <div class="p-3.5 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800/50 rounded-xl">
-                                <span class="text-blue-700 dark:text-blue-400 block font-medium">Chỉ số hài lòng dịch vụ (CSAT)</span>
-                                <div class="text-xl font-bold text-blue-900 dark:text-blue-200 mt-0.5">4.92 / 5.0 ⭐</div>
-                                <span class="text-[10px] text-blue-600">Dựa trên 2.450 lượt đánh giá 5 sao</span>
-                            </div>
-                            <div class="p-3.5 bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800/50 rounded-xl">
-                                <span class="text-purple-700 dark:text-purple-400 block font-medium">Thời gian phản hồi Chat CSKH</span>
-                                <div class="text-xl font-bold text-purple-900 dark:text-purple-200 mt-0.5">&lt; 45 giây</div>
-                                <span class="text-[10px] text-purple-600">Đội ngũ trực 24/7 giải quyết 99.2%</span>
+
+                            <!-- Footer pagination -->
+                            <div class="p-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                                <span>Hiển thị 8 của 8 mặt hàng</span>
+                                <span class="text-slate-400">Trang 1 / 1</span>
                             </div>
                         </div>
-                    </div>
-                </section>
 
-                <!-- MODULE 8: CẤU HÌNH CHI NHÁNH -->
-                <section x-show="activeAdminTab === 'branches'" class="space-y-6">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div>
-                            <h2 class="text-xl font-bold text-slate-900 dark:text-white">Cấu hình & Quản lý 3 Cơ sở Chi nhánh</h2>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Cấu hình nhân sự, địa chỉ, hotline và giờ hoạt động từng cơ sở PetCare360</p>
-                        </div>
-                    </div>
+                    </section>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-                            <div class="p-4 bg-teal-700 text-white flex justify-between items-center">
+                    <!-- ======================================================== -->
+                    <!-- MODULE 5: QUẢN LÝ HOTEL (HOTEL MANAGEMENT) -->
+                    <!-- ======================================================== -->
+                    <section x-show="activeAdminTab === 'hotel'" class="space-y-6 animate-fadeIn">
+                        
+                        <!-- Top Header & 2 Sub-Tabs -->
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                 <div>
-                                    <h3 class="font-bold text-base">PetCare360 - Quận 1</h3>
-                                    <p class="text-xs text-teal-100">Mã: CN-Q1 | Trưởng CN: BS. Phạm Đức</p>
+                                    <h2 class="text-xl font-black text-slate-900 flex items-center gap-2">
+                                        <i class="fa-solid fa-hotel text-indigo-600"></i>
+                                        <span>Quản lý Khách sạn Thú cưng (Pet Hotel 5 Sao)</span>
+                                    </h2>
+                                    <p class="text-xs text-slate-500">Sơ đồ 40 phòng trực quan, đồng bộ trạng thái lưu trú và gán mã dịch vụ đã cọc.</p>
                                 </div>
-                                <span class="bg-teal-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">Đang mở cửa</span>
-                            </div>
-                            <div class="p-4 space-y-3 text-xs">
-                                <div><span class="text-slate-400">Địa chỉ:</span> <strong class="block text-slate-800 dark:text-slate-200">123 Nguyễn Thị Minh Khai, P.6, Quận 3, TP.HCM</strong></div>
-                                <div><span class="text-slate-400">Hotline cấp cứu:</span> <strong class="block text-slate-800 dark:text-slate-200">028 3911 2233</strong></div>
-                                <div><span class="text-slate-400">Nhân sự:</span> <span class="font-semibold text-slate-700 dark:text-slate-300">5 Bác sĩ, 8 Y tá, 4 KTV Spa</span></div>
-                            </div>
-                        </div>
 
-                        <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-                            <div class="p-4 bg-slate-800 dark:bg-slate-700 text-white flex justify-between items-center">
-                                <div>
-                                    <h3 class="font-bold text-base">PetCare360 - Bình Thạnh</h3>
-                                    <p class="text-xs text-slate-300">Mã: CN-BT | Trưởng CN: BS. Lê Thanh</p>
+                                <!-- Sub-tabs: 20 Phòng Chó / 20 Phòng Mèo -->
+                                <div class="inline-flex rounded-xl p-1 bg-slate-100 border border-slate-200 text-xs font-bold">
+                                    <button @click="activeHotelSubTab = 'dog'" :class="activeHotelSubTab === 'dog' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-4 py-2 rounded-lg transition flex items-center gap-2">
+                                        <i class="fa-solid fa-dog"></i>
+                                        <span>20 Phòng Hotel Chó</span>
+                                    </button>
+                                    <button @click="activeHotelSubTab = 'cat'" :class="activeHotelSubTab === 'cat' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-4 py-2 rounded-lg transition flex items-center gap-2">
+                                        <i class="fa-solid fa-cat"></i>
+                                        <span>20 Phòng Hotel Mèo</span>
+                                    </button>
                                 </div>
-                                <span class="bg-teal-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">Đang mở cửa</span>
                             </div>
-                            <div class="p-4 space-y-3 text-xs">
-                                <div><span class="text-slate-400">Địa chỉ:</span> <strong class="block text-slate-800 dark:text-slate-200">45/2 Bùi Đình Túy, Phường 24, Bình Thạnh, TP.HCM</strong></div>
-                                <div><span class="text-slate-400">Hotline cấp cứu:</span> <strong class="block text-slate-800 dark:text-slate-200">028 3512 8899</strong></div>
-                                <div><span class="text-slate-400">Nhân sự:</span> <span class="font-semibold text-slate-700 dark:text-slate-300">4 Bác sĩ, 6 Y tá, 3 KTV Spa</span></div>
-                            </div>
-                        </div>
 
-                        <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-                            <div class="p-4 bg-slate-800 dark:bg-slate-700 text-white flex justify-between items-center">
-                                <div>
-                                    <h3 class="font-bold text-base">PetCare360 - Quận 7</h3>
-                                    <p class="text-xs text-slate-300">Mã: CN-Q7 | Trưởng CN: BS. Hoàng Dung</p>
+                            <!-- Toolbar Filter nhanh trạng thái phòng -->
+                            <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100">
+                                <div class="flex flex-wrap items-center gap-2 text-xs font-semibold">
+                                    <span class="text-slate-400 mr-1">Lọc trạng thái:</span>
+                                    <button @click="hotelStatusFilter = 'ALL'" :class="hotelStatusFilter === 'ALL' ? 'bg-slate-800 text-white font-bold' : 'bg-slate-100 text-slate-700'" class="px-3 py-1 rounded-lg transition">Tất cả (20)</button>
+                                    <button @click="hotelStatusFilter = 'available'" :class="hotelStatusFilter === 'available' ? 'bg-emerald-600 text-white font-bold' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'" class="px-3 py-1 rounded-lg transition">Phòng trống</button>
+                                    <button @click="hotelStatusFilter = 'reserved'" :class="hotelStatusFilter === 'reserved' ? 'bg-amber-600 text-white font-bold' : 'bg-amber-50 text-amber-800 border border-amber-200'" class="px-3 py-1 rounded-lg transition">Đã cọc</button>
+                                    <button @click="hotelStatusFilter = 'occupied'" :class="hotelStatusFilter === 'occupied' ? 'bg-sky-600 text-white font-bold' : 'bg-sky-50 text-sky-800 border border-sky-200'" class="px-3 py-1 rounded-lg transition">Đang sử dụng</button>
+                                    <button @click="hotelStatusFilter = 'cleaning'" :class="hotelStatusFilter === 'cleaning' ? 'bg-purple-600 text-white font-bold' : 'bg-purple-50 text-purple-800 border border-purple-200'" class="px-3 py-1 rounded-lg transition">Đang dọn dẹp</button>
                                 </div>
-                                <span class="bg-teal-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">Đang mở cửa</span>
-                            </div>
-                            <div class="p-4 space-y-3 text-xs">
-                                <div><span class="text-slate-400">Địa chỉ:</span> <strong class="block text-slate-800 dark:text-slate-200">78 Nguyễn Đức Cảnh, Tân Phong, Quận 7, TP.HCM</strong></div>
-                                <div><span class="text-slate-400">Hotline cấp cứu:</span> <strong class="block text-slate-800 dark:text-slate-200">028 5410 7788</strong></div>
-                                <div><span class="text-slate-400">Nhân sự:</span> <span class="font-semibold text-slate-700 dark:text-slate-300">3 Bác sĩ, 5 Y tá, 3 KTV Spa</span></div>
+
+                                <div class="text-xs text-slate-500 font-medium">
+                                    <i class="fa-solid fa-circle-info text-sky-600 mr-1"></i> Click vào phòng để đổi trạng thái hoặc gán đơn cọc.
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </section>
 
-            </main>
-        </div>
+                        <!-- Grid 5 cột × 4 hàng (20 Phòng) cho Sub-tab Chó -->
+                        <div x-show="activeHotelSubTab === 'dog'" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                            <template x-for="room in dogRooms" :key="room.id">
+                                <div x-show="hotelStatusFilter === 'ALL' || hotelStatusFilter === room.status"
+                                     @click="handleRoomClick(room)"
+                                     class="p-4 rounded-2xl border-2 transition-all duration-200 cursor-pointer hover:shadow-md transform hover:-translate-y-0.5 select-none relative"
+                                     :class="getRoomCardClass(room.status)">
+                                    
+                                    <div class="flex justify-between items-start">
+                                        <div class="font-black text-lg" x-text="room.id"></div>
+                                        <span class="text-[10px] font-black px-2 py-0.5 rounded-full uppercase" :class="getRoomBadgeClass(room.status)" x-text="getRoomStatusText(room.status)"></span>
+                                    </div>
 
-        <!-- CHI TIẾT ĐƠN HÀNG (DRAWER SIDE PANEL ADMIN) -->
-        <div x-cloak x-show="orderDrawerOpen" @click="orderDrawerOpen = false" class="fixed inset-0 bg-slate-900/50 z-40 transition-opacity"></div>
-        <aside x-cloak x-show="orderDrawerOpen" class="fixed top-0 right-0 z-50 w-full sm:w-[500px] lg:w-[580px] h-full bg-white dark:bg-slate-800 shadow-2xl flex flex-col drawer-slide"
-               x-transition:enter="transition transform ease-out duration-300"
-               x-transition:enter-start="translate-x-full"
-               x-transition:enter-end="translate-x-0"
-               x-transition:leave="transition transform ease-in duration-200"
-               x-transition:leave-start="translate-x-0"
-               x-transition:leave-end="translate-x-full">
-            
-            <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-800/80">
-                <div class="flex items-center gap-3">
-                    <button @click="orderDrawerOpen = false" class="p-1 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                    </button>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <h3 class="text-base font-bold text-slate-900 dark:text-white" x-text="'#' + (selectedOrder ? selectedOrder.id : '')"></h3>
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded"
-                                  :class="selectedOrder?.type === 'SERVICE' ? 'bg-purple-100 text-purple-800' : 'bg-teal-100 text-teal-800'"
-                                  x-text="selectedOrder?.type === 'SERVICE' ? 'Dịch vụ' : 'Sản phẩm'"></span>
+                                    <!-- Conditional Rendering: Mã DV nếu đang sử dụng -->
+                                    <div class="mt-3">
+                                        <template x-if="room.status === 'occupied'">
+                                            <div class="bg-white/80 backdrop-blur rounded-xl p-2 border border-sky-200 space-y-0.5">
+                                                <div class="text-[10px] text-sky-700 font-bold uppercase tracking-wider">Mã Dịch Vụ:</div>
+                                                <div class="text-xs font-black text-sky-900 font-mono" x-text="room.serviceId"></div>
+                                                <div class="text-[10px] text-slate-600 truncate" x-text="room.petName + ' (' + room.customerName + ')'"></div>
+                                            </div>
+                                        </template>
+
+                                        <template x-if="room.status === 'reserved'">
+                                            <div class="text-[11px] font-bold text-amber-800">
+                                                Khách đã đặt trước
+                                            </div>
+                                        </template>
+
+                                        <template x-if="room.status === 'available'">
+                                            <div class="text-[11px] font-bold text-emerald-800">
+                                                Sẵn sàng đón bé
+                                            </div>
+                                        </template>
+
+                                        <template x-if="room.status === 'cleaning'">
+                                            <div class="text-[11px] font-bold text-purple-800">
+                                                Khử trùng ozone
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </template>
                         </div>
-                        <p class="text-xs text-slate-500">Khởi tạo: <span x-text="selectedOrder?.created || selectedOrder?.createdAt"></span></p>
-                    </div>
-                </div>
 
-                <div class="flex items-center gap-2">
-                    <button @click="showToast('Đã xuất file in hóa đơn PDF')" class="p-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 text-xs font-semibold flex items-center gap-1" title="In phiếu giao / hóa đơn">
-                        <i data-lucide="printer" class="w-4 h-4"></i> In
-                    </button>
-                </div>
-            </div>
+                        <!-- Grid 5 cột × 4 hàng (20 Phòng) cho Sub-tab Mèo -->
+                        <div x-show="activeHotelSubTab === 'cat'" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                            <template x-for="room in catRooms" :key="room.id">
+                                <div x-show="hotelStatusFilter === 'ALL' || hotelStatusFilter === room.status"
+                                     @click="handleRoomClick(room)"
+                                     class="p-4 rounded-2xl border-2 transition-all duration-200 cursor-pointer hover:shadow-md transform hover:-translate-y-0.5 select-none relative"
+                                     :class="getRoomCardClass(room.status)">
+                                    
+                                    <div class="flex justify-between items-start">
+                                        <div class="font-black text-lg" x-text="room.id"></div>
+                                        <span class="text-[10px] font-black px-2 py-0.5 rounded-full uppercase" :class="getRoomBadgeClass(room.status)" x-text="getRoomStatusText(room.status)"></span>
+                                    </div>
 
-            <div class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-5 text-xs sm:text-sm">
-                <!-- Customer Info in Drawer -->
-                <div class="bg-slate-50 dark:bg-slate-700/40 p-3.5 rounded-lg border border-slate-200 dark:border-slate-700 space-y-2">
-                    <div class="flex items-center justify-between font-bold text-slate-800 dark:text-slate-200 border-b border-slate-200 dark:border-slate-600 pb-2">
-                        <span class="flex items-center gap-1.5"><i data-lucide="user" class="w-4 h-4 text-teal-600"></i> Thông tin Khách hàng</span>
-                        <button @click="openChatWithCustomer(selectedOrder?.customer)" class="text-xs text-teal-600 dark:text-teal-400 font-semibold hover:underline flex items-center gap-1">
-                            <i data-lucide="message-square" class="w-3.5 h-3.5"></i> Chat với khách
-                        </button>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 text-xs">
-                        <div><span class="text-slate-400">Tên khách:</span> <strong class="block text-slate-700 dark:text-slate-200" x-text="selectedOrder?.customer"></strong></div>
-                        <div><span class="text-slate-400">Số điện thoại:</span> <strong class="block text-slate-700 dark:text-slate-200" x-text="selectedOrder?.phone"></strong></div>
-                    </div>
-                    <div class="text-xs"><span class="text-slate-400">Địa chỉ giao / Chi nhánh:</span> <p class="font-medium text-slate-700 dark:text-slate-200" x-text="selectedOrder?.address"></p></div>
-                </div>
+                                    <!-- Conditional Rendering: Mã DV nếu đang sử dụng -->
+                                    <div class="mt-3">
+                                        <template x-if="room.status === 'occupied'">
+                                            <div class="bg-white/80 backdrop-blur rounded-xl p-2 border border-sky-200 space-y-0.5">
+                                                <div class="text-[10px] text-sky-700 font-bold uppercase tracking-wider">Mã Dịch Vụ:</div>
+                                                <div class="text-xs font-black text-sky-900 font-mono" x-text="room.serviceId"></div>
+                                                <div class="text-[10px] text-slate-600 truncate" x-text="room.petName + ' (' + room.customerName + ')'"></div>
+                                            </div>
+                                        </template>
 
-                <!-- Update Status Buttons -->
-                <div class="bg-amber-50/60 dark:bg-amber-950/30 p-3 rounded-xl border border-amber-200 dark:border-amber-800/60 space-y-2">
-                    <div class="flex items-center justify-between">
-                        <span class="font-bold text-xs text-amber-900 dark:text-amber-300">Trạng thái đơn:</span>
-                        <span class="font-bold text-xs uppercase px-2.5 py-0.5 rounded-full" 
-                              :class="{
-                                  'bg-amber-200 text-amber-900': selectedOrder?.status === 'PENDING' || selectedOrder?.status === 'Chờ xác nhận',
-                                  'bg-blue-200 text-blue-900': selectedOrder?.status === 'PREPARING' || selectedOrder?.status === 'DELIVERING',
-                                  'bg-emerald-200 text-emerald-900': selectedOrder?.status === 'COMPLETED',
-                                  'bg-rose-200 text-rose-900': selectedOrder?.status === 'CANCELLED'
-                              }"
-                              x-text="formatOrderStatusLabel(selectedOrder?.status)"></span>
-                    </div>
-                    <div class="flex flex-wrap gap-1.5 pt-1">
-                        <button @click="updateOrderStatus(selectedOrder, 'PREPARING')" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-xs">Duyệt & Chuẩn bị</button>
-                        <button @click="updateOrderStatus(selectedOrder, 'DELIVERING')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-xs">Đang giao / Thực hiện</button>
-                        <button @click="updateOrderStatus(selectedOrder, 'COMPLETED')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs">Hoàn thành</button>
-                        <button @click="updateOrderStatus(selectedOrder, 'CANCELLED')" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg text-xs">Hủy đơn</button>
-                    </div>
-                </div>
+                                        <template x-if="room.status === 'reserved'">
+                                            <div class="text-[11px] font-bold text-amber-800">
+                                                Khách đã đặt trước
+                                            </div>
+                                        </template>
 
-                <!-- Items Table -->
-                <div>
-                    <h4 class="font-bold text-slate-800 dark:text-slate-200 mb-2 flex items-center gap-1.5">
-                        <i data-lucide="shopping-bag" class="w-4 h-4 text-teal-600"></i> Danh sách Chi tiết Đơn
-                    </h4>
-                    <div class="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-semibold">
-                                <tr>
-                                    <th class="p-2.5">Sản phẩm / Dịch vụ</th>
-                                    <th class="p-2.5 text-center">SL</th>
-                                    <th class="p-2.5 text-right">Đơn giá</th>
-                                    <th class="p-2.5 text-right">Thành tiền</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
-                                <template x-for="item in (selectedOrder ? selectedOrder.items : [])" :key="item.name">
-                                    <tr>
-                                        <td class="p-2.5">
-                                            <div class="font-semibold text-slate-800 dark:text-slate-200" x-text="item.name"></div>
-                                            <template x-if="item.bookingDate || item.selectedPet">
-                                                <div class="text-[10px] text-teal-600 font-medium" x-text="(item.bookingDate ? 'Lịch: ' + item.bookingDate : '') + (item.selectedPet ? ' • Pet: ' + item.selectedPet : '')"></div>
-                                            </template>
-                                        </td>
-                                        <td class="p-2.5 text-center" x-text="item.quantity || item.qty || 1"></td>
-                                        <td class="p-2.5 text-right" x-text="formatCurrency(item.price)"></td>
-                                        <td class="p-2.5 text-right font-bold" x-text="formatCurrency((item.quantity || item.qty || 1) * item.price)"></td>
-                                    </tr>
+                                        <template x-if="room.status === 'available'">
+                                            <div class="text-[11px] font-bold text-emerald-800">
+                                                Sẵn sàng đón bé
+                                            </div>
+                                        </template>
+
+                                        <template x-if="room.status === 'cleaning'">
+                                            <div class="text-[11px] font-bold text-purple-800">
+                                                Khử trùng ozone
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Queue List: Danh sách mã dịch vụ đã cọc (Mục 4) -->
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                    <i class="fa-solid fa-list-check text-amber-600"></i>
+                                    <span>Những mã dịch vụ (đã cọc) đang chờ xếp phòng:</span>
+                                </h3>
+                                <span class="text-xs text-slate-500 font-medium">Click vào một mã dịch vụ bên dưới, sau đó click vào một "Phòng trống" ở trên để gán.</span>
+                            </div>
+
+                            <div class="flex flex-wrap gap-2.5 pt-1">
+                                <template x-for="item in hotelDepositQueue" :key="item.serviceId">
+                                    <button @click="selectQueueForAssignment(item)"
+                                            :class="selectedQueueForAssignment && selectedQueueForAssignment.serviceId === item.serviceId ? 'bg-amber-600 text-white font-black ring-4 ring-amber-200' : 'bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 font-bold'"
+                                            class="px-3.5 py-2 rounded-xl text-xs transition flex items-center gap-2 shadow-2xs">
+                                        <i class="fa-solid fa-tag"></i>
+                                        <span class="font-mono" x-text="item.serviceId"></span>
+                                        <span>-</span>
+                                        <span x-text="item.petName + ' (' + item.customerName + ')'"></span>
+                                        <span class="text-[10px] bg-white/40 px-1.5 py-0.2 rounded" x-text="item.checkIn"></span>
+                                    </button>
                                 </template>
-                            </tbody>
-                        </table>
-                        <div class="p-3 bg-slate-50 dark:bg-slate-700/30 border-t border-slate-200 dark:border-slate-700 space-y-1 text-xs">
-                            <div class="flex justify-between font-bold text-slate-900 dark:text-white text-sm pt-1">
-                                <span>Tổng thanh toán:</span>
-                                <span class="text-teal-600 dark:text-teal-400" x-text="formatCurrency(selectedOrder?.total || selectedOrder?.totalAmount || 0)"></span>
+
+                                <div x-show="hotelDepositQueue.length === 0" class="text-xs text-slate-400 italic">
+                                    Không có mã dịch vụ chờ xếp phòng.
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
 
-            <div class="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/90 flex justify-end">
-                <button @click="orderDrawerOpen = false" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-lg text-xs font-bold">Đóng</button>
-            </div>
-        </aside>
+                    </section>
+
+                    <!-- ======================================================== -->
+                    <!-- MODULE 6: QUẢN LÝ NHÂN SỰ (STAFF MANAGEMENT) -->
+                    <!-- ======================================================== -->
+                    <section x-show="activeAdminTab === 'staff'" class="space-y-4 animate-fadeIn">
+                        
+                        <!-- Top Actions (Mục 1) -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+                            <div>
+                                <h2 class="text-xl font-black text-slate-900 flex items-center gap-2">
+                                    <i class="fa-solid fa-id-badge text-purple-600"></i>
+                                    <span>Quản lý Nhân sự</span>
+                                </h2>
+                                <p class="text-xs text-slate-500">Phân ca trực tuyến, toggle lịch làm tuần và quản lý bằng cấp bác sĩ.</p>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <button @click="showToast('Thêm nhân sự mới')" class="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold shadow-xs transition flex items-center gap-1.5">
+                                    <i class="fa-solid fa-user-plus text-xs"></i>
+                                    <span>Thêm nhân sự</span>
+                                </button>
+                                <button @click="showToast('Chế độ sửa thông tin')" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold border border-slate-200 transition">
+                                    Sửa thông tin
+                                </button>
+                                <button @click="showToast('Chọn nhân sự cần xóa')" class="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-xs font-bold border border-rose-300 transition">
+                                    Xóa bỏ nhân sự
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Bảng Dữ Liệu Nhân Sự (Inline Editable - Mục 2) -->
+                        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs">
+                                    <thead class="bg-slate-50 text-slate-500 border-b border-slate-200 uppercase tracking-wider font-bold">
+                                        <tr>
+                                            <th class="py-3 px-4">Mã nhân sự</th>
+                                            <th class="py-3 px-4">Tên</th>
+                                            <th class="py-3 px-4 text-center">Công việc</th>
+                                            <th class="py-3 px-4">Ca làm (Chọn trực tiếp)</th>
+                                            <th class="py-3 px-4">Lịch ca tuần (Bật/Tắt thứ)</th>
+                                            <th class="py-3 px-4 text-center">Hồ sơ nhân sự</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                                        <template x-for="st in staffList" :key="st.staffId">
+                                            <tr class="hover:bg-slate-50 transition">
+                                                <!-- Mã nhân sự -->
+                                                <td class="py-4 px-4 font-mono font-bold text-slate-900" x-text="st.staffId"></td>
+
+                                                <!-- Tên -->
+                                                <td class="py-4 px-4">
+                                                    <div class="font-bold text-slate-900" x-text="st.name"></div>
+                                                    <div class="text-[10px] text-slate-400" x-text="st.phone"></div>
+                                                </td>
+
+                                                <!-- Công việc (Badge màu khác nhau) -->
+                                                <td class="py-4 px-4 text-center">
+                                                    <span :class="st.role === 'Bác sĩ thú y' ? 'bg-rose-100 text-rose-800' : (st.role === 'PetShip' ? 'bg-emerald-100 text-emerald-800' : (st.role === 'Nhân viên chăm sóc' ? 'bg-teal-100 text-teal-800' : 'bg-slate-100 text-slate-700'))" class="px-2.5 py-1 rounded-full text-[11px] font-bold" x-text="st.role"></span>
+                                                </td>
+
+                                                <!-- Ca làm (Interactive Dropdown inline) -->
+                                                <td class="py-4 px-4">
+                                                    <select :value="st.shift" @change="updateStaffShift(st, $event.target.value)" class="bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-200 cursor-pointer">
+                                                        <option value="8h-12h">8h-12h (Sáng)</option>
+                                                        <option value="12h-17h">12h-17h (Chiều)</option>
+                                                        <option value="17h-21h">17h-21h (Tối)</option>
+                                                        <option value="21h-8h">21h-8h (Đêm trực)</option>
+                                                    </select>
+                                                </td>
+
+                                                <!-- Lịch ca tuần (Interactive Badges T2..CN click toggle) -->
+                                                <td class="py-4 px-4">
+                                                    <div class="flex items-center gap-1.5">
+                                                        <template x-for="day in ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN']" :key="day">
+                                                            <button @click="toggleStaffDay(st, day)"
+                                                                    :class="isStaffWorkingDay(st, day) ? 'bg-purple-600 text-white font-black shadow-2xs' : 'bg-slate-100 text-slate-400 font-semibold hover:bg-slate-200'"
+                                                                    class="w-7 h-7 rounded-lg text-[10px] flex items-center justify-center transition"
+                                                                    x-text="day"></button>
+                                                        </template>
+                                                    </div>
+                                                </td>
+
+                                                <!-- Hồ sơ nhân sự -->
+                                                <td class="py-4 px-4 text-center">
+                                                    <button @click="openStaffProfile(st)" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-300 rounded-xl font-bold transition flex items-center gap-1 mx-auto">
+                                                        <i class="fa-solid fa-address-card text-xs"></i>
+                                                        <span>Hồ sơ</span>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </section>
+
+                    <!-- ======================================================== -->
+                    <!-- MODULE 7: QUẢN LÝ KHÁCH HÀNG (CUSTOMER MANAGEMENT) -->
+                    <!-- ======================================================== -->
+                    <section x-show="activeAdminTab === 'customers'" class="space-y-4 animate-fadeIn">
+                        
+                        <!-- Header & Filters (Mục 1) -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+                            <div>
+                                <h2 class="text-xl font-black text-slate-900 flex items-center gap-2">
+                                    <i class="fa-solid fa-users text-sky-600"></i>
+                                    <span>Quản lý Khách hàng</span>
+                                </h2>
+                                <p class="text-xs text-slate-500">Danh sách khách hàng, hạng thẻ thành viên, mức chi tiêu và lịch sử giao dịch.</p>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <div class="relative w-64">
+                                    <input type="text" placeholder="Tìm theo tên, SĐT..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:border-sky-500">
+                                    <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                </div>
+                                <select class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-700">
+                                    <option value="ALL">Tất cả hạng</option>
+                                    <option value="PLATINUM">Bạch Kim</option>
+                                    <option value="GOLD">Vàng</option>
+                                    <option value="SILVER">Bạc</option>
+                                    <option value="BRONZE">Đồng</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Main Table (Mục 2) -->
+                        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs">
+                                    <thead class="bg-slate-50 text-slate-500 border-b border-slate-200 uppercase tracking-wider font-bold">
+                                        <tr>
+                                            <th class="py-3 px-4">Mã KH</th>
+                                            <th class="py-3 px-4">Họ và tên</th>
+                                            <th class="py-3 px-4">Liên hệ</th>
+                                            <th class="py-3 px-4 text-center">Membership</th>
+                                            <th class="py-3 px-4 text-center">Thú cưng</th>
+                                            <th class="py-3 px-4 text-right">Tổng chi</th>
+                                            <th class="py-3 px-4 text-center">Thao tác 1 (Lịch sử)</th>
+                                            <th class="py-3 px-4 text-center">Thao tác 2 (Chat CSKH)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                                        <template x-for="cust in adminCustomersList" :key="cust.customerId">
+                                            <tr class="hover:bg-slate-50 transition">
+                                                <!-- Mã KH -->
+                                                <td class="py-3.5 px-4">
+                                                    <button @click="openCustomerHistory(cust)" class="font-mono font-bold text-sky-600 hover:underline" x-text="cust.customerId"></button>
+                                                </td>
+
+                                                <!-- Họ và tên + Avatar -->
+                                                <td class="py-3.5 px-4">
+                                                    <div class="flex items-center gap-2.5">
+                                                        <img :src="cust.avatar" class="w-8 h-8 rounded-full object-cover border border-slate-200">
+                                                        <span class="font-bold text-slate-900" x-text="cust.name"></span>
+                                                    </div>
+                                                </td>
+
+                                                <!-- Liên hệ -->
+                                                <td class="py-3.5 px-4 text-slate-600" x-text="cust.phone"></td>
+
+                                                <!-- Membership (Huy hiệu phân cấp rõ ràng) -->
+                                                <td class="py-3.5 px-4 text-center">
+                                                    <span :class="cust.tier === 'Platinum' ? 'bg-slate-800 text-white' : (cust.tier === 'Gold' ? 'bg-amber-100 text-amber-900 border border-amber-300' : (cust.tier === 'Silver' ? 'bg-slate-200 text-slate-800' : 'bg-orange-100 text-orange-900'))" class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider" x-text="cust.tier"></span>
+                                                </td>
+
+                                                <!-- Thú cưng -->
+                                                <td class="py-3.5 px-4 text-center font-bold text-slate-800" x-text="cust.petsCount + ' (' + cust.petsDesc + ')'"></td>
+
+                                                <!-- Tổng chi (In đậm) -->
+                                                <td class="py-3.5 px-4 text-right font-black text-slate-900 text-sm" x-text="formatCurrency(cust.totalSpend)"></td>
+
+                                                <!-- Thao tác 1: Lịch sử -->
+                                                <td class="py-3.5 px-4 text-center">
+                                                    <button @click="openCustomerHistory(cust)" class="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl font-bold transition">
+                                                        Lịch sử
+                                                    </button>
+                                                </td>
+
+                                                <!-- Thao tác 2: Chat CSKH -->
+                                                <td class="py-3.5 px-4 text-center">
+                                                    <button @click="openCustomerChat(cust)" class="w-8 h-8 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-600 border border-sky-200 flex items-center justify-center transition mx-auto" title="Nhắn tin trực tiếp">
+                                                        <i class="fa-solid fa-message text-xs"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </section>
+
+                    <!-- ======================================================== -->
+                    <!-- MODULE 8: QUẢN LÝ HỒ SƠ THÚ CƯNG (PET PROFILES) -->
+                    <!-- ======================================================== -->
+                    <section x-show="activeAdminTab === 'pets'" class="space-y-4 animate-fadeIn">
+                        
+                        <!-- Top Actions (Mục 1) -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+                            <div>
+                                <h2 class="text-xl font-black text-slate-900 flex items-center gap-2">
+                                    <i class="fa-solid fa-paw text-rose-600"></i>
+                                    <span>Hồ sơ Thú cưng</span>
+                                </h2>
+                                <p class="text-xs text-slate-500">Sổ theo dõi sức khỏe chuyên sâu, tiền sử tiêm chủng, dị ứng và khẩu phần ăn.</p>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <button @click="showToast('Thêm hồ sơ thú cưng mới')" class="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-xs transition flex items-center gap-1.5">
+                                    <i class="fa-solid fa-plus text-xs"></i>
+                                    <span>Thêm hồ sơ</span>
+                                </button>
+                                <button @click="showToast('Chọn hồ sơ cần xóa')" class="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-xs font-bold border border-rose-300 transition flex items-center gap-1.5">
+                                    <i class="fa-solid fa-trash-can text-xs"></i>
+                                    <span>Xóa hồ sơ</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Main Table (Mục 2) -->
+                        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs">
+                                    <thead class="bg-slate-50 text-slate-500 border-b border-slate-200 uppercase tracking-wider font-bold">
+                                        <tr>
+                                            <th class="py-3 px-4">Mã Pet</th>
+                                            <th class="py-3 px-4">Tên Thú Cưng</th>
+                                            <th class="py-3 px-4">Loài & Giống</th>
+                                            <th class="py-3 px-4">Tên Chủ</th>
+                                            <th class="py-3 px-4 text-center">Cân nặng</th>
+                                            <th class="py-3 px-4 text-center">Tình trạng hiện tại</th>
+                                            <th class="py-3 px-4 text-center">Hành động</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                                        <template x-for="pet in adminPetProfilesList" :key="pet.petId">
+                                            <tr class="hover:bg-slate-50 transition">
+                                                <!-- Mã Pet -->
+                                                <td class="py-3.5 px-4 font-mono font-bold text-slate-900" x-text="pet.petId"></td>
+
+                                                <!-- Tên Thú cưng -->
+                                                <td class="py-3.5 px-4">
+                                                    <div class="flex items-center gap-2.5">
+                                                        <img :src="pet.avatar" class="w-8 h-8 rounded-full object-cover border border-slate-200">
+                                                        <span class="font-black text-slate-900 text-sm" x-text="pet.name"></span>
+                                                    </div>
+                                                </td>
+
+                                                <!-- Loài & Giống -->
+                                                <td class="py-3.5 px-4 font-semibold text-slate-700" x-text="pet.species + ' - ' + pet.breed"></td>
+
+                                                <!-- Tên Chủ (link click) -->
+                                                <td class="py-3.5 px-4">
+                                                    <button @click="showToast('Liên hệ chủ: ' + pet.ownerPhone)" class="font-bold text-sky-600 hover:underline" x-text="pet.ownerName"></button>
+                                                </td>
+
+                                                <!-- Cân nặng -->
+                                                <td class="py-3.5 px-4 text-center font-black text-slate-800" x-text="pet.weight"></td>
+
+                                                <!-- Tình trạng hiện tại -->
+                                                <td class="py-3.5 px-4 text-center">
+                                                    <span :class="pet.status === 'Khỏe mạnh' ? 'bg-emerald-100 text-emerald-800' : (pet.status === 'Đang ốm' ? 'bg-rose-100 text-rose-800' : 'bg-sky-100 text-sky-800')" class="px-2.5 py-0.5 rounded-full text-[10px] font-black" x-text="'[' + pet.status + ']'"></span>
+                                                </td>
+
+                                                <!-- Hành động: Sổ Sức Khỏe -->
+                                                <td class="py-3.5 px-4 text-center">
+                                                    <button @click="openPetHealthBook(pet)" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-300 rounded-xl font-bold transition flex items-center gap-1.5 mx-auto">
+                                                        <i class="fa-solid fa-heart-pulse text-xs"></i>
+                                                        <span>Sổ Sức Khỏe</span>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </section>
+
+                    <!-- ======================================================== -->
+                    <!-- MODULE 9: FLOW PETSHIP (ĐIỀU PHỐI VẬN CHUYỂN) -->
+                    <!-- ======================================================== -->
+                    <section x-show="activeAdminTab === 'petship'" class="space-y-6 animate-fadeIn">
+                        
+                        <!-- Top Header & Sub-Tabs -->
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div>
+                                    <h2 class="text-xl font-black text-slate-900 flex items-center gap-2">
+                                        <i class="fa-solid fa-truck-fast text-emerald-600"></i>
+                                        <span>Điều phối Vận chuyển PetShip An Toàn</span>
+                                    </h2>
+                                    <p class="text-xs text-slate-500">Giám sát quy trình đưa đón thú cưng 3 Phase có OTP & ảnh POD xác thực.</p>
+                                </div>
+
+                                <!-- Sub-Tabs: Bảng 1 Đơn Hàng / Bảng 2 Đơn Dịch Vụ -->
+                                <div class="inline-flex rounded-xl p-1 bg-slate-100 border border-slate-200 text-xs font-bold">
+                                    <button @click="activePetShipSubTab = 'service'" :class="activePetShipSubTab === 'service' ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-4 py-2 rounded-lg transition flex items-center gap-2">
+                                        <i class="fa-solid fa-paw"></i>
+                                        <span>Bảng 2: Đơn Dịch Vụ (Đưa rước Pet)</span>
+                                    </button>
+                                    <button @click="activePetShipSubTab = 'physical'" :class="activePetShipSubTab === 'physical' ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-4 py-2 rounded-lg transition flex items-center gap-2">
+                                        <i class="fa-solid fa-box"></i>
+                                        <span>Bảng 1: Đơn Hàng (Sản phẩm vật lý)</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BẢNG 2: ĐƠN DỊCH VỤ (ĐƯA RƯỚC THÚ CƯNG) -->
+                        <div x-show="activePetShipSubTab === 'service'" class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden space-y-4">
+                            <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+                                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                    <i class="fa-solid fa-route text-emerald-600"></i>
+                                    <span>Danh Sách Đơn Đưa Rước Thú Cưng Đến Cơ Sở & Về Nhà</span>
+                                </h3>
+                                <span class="text-xs text-slate-400">Tự động gán OTP hai chiều</span>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs">
+                                    <thead class="bg-slate-50 text-slate-500 border-b border-slate-200 uppercase tracking-wider font-bold">
+                                        <tr>
+                                            <th class="py-3 px-3">Mã DV</th>
+                                            <th class="py-3 px-3">Khách & Liên hệ</th>
+                                            <th class="py-3 px-3">Thú cưng</th>
+                                            <th class="py-3 px-3 text-center">Gói DV</th>
+                                            <th class="py-3 px-3">Thời gian</th>
+                                            <th class="py-3 px-3 text-right">Tổng tiền & TT</th>
+                                            <th class="py-3 px-3 text-center">Trạng thái</th>
+                                            <th class="py-3 px-3">PetShip (Điều phối)</th>
+                                            <th class="py-3 px-3 text-center">Chi tiết</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                                        <template x-for="srv in petShipServiceList" :key="srv.serviceId">
+                                            <tr class="hover:bg-slate-50 transition">
+                                                <!-- Mã DV -->
+                                                <td class="py-3.5 px-3 font-mono font-bold text-teal-600" x-text="srv.serviceId"></td>
+
+                                                <!-- Khách & Liên hệ -->
+                                                <td class="py-3.5 px-3">
+                                                    <div class="font-bold text-slate-900" x-text="srv.customerName"></div>
+                                                    <div class="text-[10px] text-slate-400" x-text="srv.phone"></div>
+                                                    <div class="text-[10px] text-slate-500 truncate max-w-xs" x-text="srv.address"></div>
+                                                </td>
+
+                                                <!-- Thú cưng -->
+                                                <td class="py-3.5 px-3">
+                                                    <div class="font-bold text-slate-800" x-text="srv.petName"></div>
+                                                    <div class="text-[10px] text-slate-400" x-text="srv.petBreed"></div>
+                                                </td>
+
+                                                <!-- Gói DV -->
+                                                <td class="py-3.5 px-3 text-center">
+                                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-pink-100 text-pink-800" x-text="srv.package"></span>
+                                                </td>
+
+                                                <!-- Thời gian -->
+                                                <td class="py-3.5 px-3 font-semibold text-slate-800" x-text="srv.time"></td>
+
+                                                <!-- Tổng tiền & TT -->
+                                                <td class="py-3.5 px-3 text-right">
+                                                    <div class="font-black text-slate-900" x-text="formatCurrency(srv.total)"></div>
+                                                    <div class="text-[10px] text-slate-400" x-text="srv.payment"></div>
+                                                </td>
+
+                                                <!-- Trạng thái -->
+                                                <td class="py-3.5 px-3 text-center">
+                                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800" x-text="srv.status"></span>
+                                                </td>
+
+                                                <!-- PetShip Dropdown điều phối -->
+                                                <td class="py-3.5 px-3">
+                                                    <select :value="srv.shipper" @change="assignServiceShipper(srv, $event.target.value)"
+                                                            :class="srv.shipper !== 'Không có' ? 'bg-emerald-50 text-emerald-800 border-emerald-300 font-bold' : 'bg-slate-50 text-slate-500 border-slate-200'"
+                                                            class="border rounded-xl px-2.5 py-1.5 text-xs focus:outline-none cursor-pointer">
+                                                        <template x-for="sp in availableShippers" :key="sp">
+                                                            <option :value="sp" x-text="sp"></option>
+                                                        </template>
+                                                    </select>
+                                                </td>
+
+                                                <!-- Chi tiết: Nút Kiểm soát lộ trình -->
+                                                <td class="py-3.5 px-3 text-center">
+                                                    <button @click="openPetShipControl(srv)" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition flex items-center gap-1.5 shadow-2xs mx-auto">
+                                                        <i class="fa-solid fa-shield-halved text-xs"></i>
+                                                        <span>Kiểm soát lộ trình</span>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- BẢNG 1: ĐƠN HÀNG (GIAO SẢN PHẨM VẬT LÝ) -->
+                        <div x-show="activePetShipSubTab === 'physical'" class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden space-y-4">
+                            <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+                                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                    <i class="fa-solid fa-box text-blue-600"></i>
+                                    <span>Danh Sách Đơn Hàng Giao Sản Phẩm Vật Lý</span>
+                                </h3>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs">
+                                    <thead class="bg-slate-50 text-slate-500 border-b border-slate-200 uppercase tracking-wider font-bold">
+                                        <tr>
+                                            <th class="py-3 px-3">Mã đơn hàng</th>
+                                            <th class="py-3 px-3">Thông tin sản phẩm</th>
+                                            <th class="py-3 px-3">Khách hàng</th>
+                                            <th class="py-3 px-3">SĐT & Địa chỉ</th>
+                                            <th class="py-3 px-3 text-right">Tổng tiền & TT</th>
+                                            <th class="py-3 px-3">Ghi chú</th>
+                                            <th class="py-3 px-3 text-center">Chi tiết</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                                        <template x-for="ord in petShipPhysicalList" :key="ord.orderId">
+                                            <tr class="hover:bg-slate-50 transition">
+                                                <td class="py-3.5 px-3 font-mono font-bold text-sky-700" x-text="ord.orderId"></td>
+                                                <td class="py-3.5 px-3 font-semibold text-slate-800" x-text="ord.products"></td>
+                                                <td class="py-3.5 px-3 font-bold text-slate-900" x-text="ord.customerName"></td>
+                                                <td class="py-3.5 px-3">
+                                                    <div class="text-slate-800 font-semibold" x-text="ord.phone"></div>
+                                                    <div class="text-[10px] text-slate-500 truncate max-w-xs" x-text="ord.address"></div>
+                                                </td>
+                                                <td class="py-3.5 px-3 text-right">
+                                                    <div class="font-black text-slate-900" x-text="formatCurrency(ord.total)"></div>
+                                                    <div class="text-[10px] text-slate-400" x-text="ord.payment"></div>
+                                                </td>
+                                                <td class="py-3.5 px-3 text-slate-500 max-w-xs truncate" x-text="ord.notes"></td>
+                                                <td class="py-3.5 px-3 text-center">
+                                                    <button @click="openAdminOrderDetail({ orderId: ord.orderId, customerName: ord.customerName, customerPhone: ord.phone, total: ord.total, paymentMethod: 'cod', notes: ord.notes, status: 'PROCESSING', address: ord.address })" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition">
+                                                        Xem đơn
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </section>
+
+                </div>
+            </main>
+
+        </div>
 
     </div>
 """

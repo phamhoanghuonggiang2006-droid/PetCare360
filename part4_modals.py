@@ -2521,5 +2521,872 @@ MODALS_HTML = '''<!-- ==================== CÁC MODAL HỆ THỐNG TOÀN DIỆN 
         </button>
     </div>
 
-<!-- ==================== HẾT CÁC MODAL HỆ THỐNG ==================== -->
+
+    <!-- ======================================================== -->
+    <!-- CÁC MODAL DÀNH RIÊNG CHO ADMIN DASHBOARD PETCARE360 -->
+    <!-- ======================================================== -->
+
+    <!-- 1. MODAL CHI TIẾT ĐƠN HÀNG ADMIN (KHỚP 100% HÓA ĐƠN CHECKOUT) -->
+    <div x-show="adminOrderDetailModalOpen" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white rounded-3xl max-w-4xl w-full p-6 sm:p-8 shadow-2xl border border-slate-100 relative max-h-[90vh] overflow-y-auto animate-fadeIn" @click.outside="adminOrderDetailModalOpen = false">
+            
+            <!-- Header Modal -->
+            <div class="flex items-start justify-between border-b border-slate-100 pb-4 mb-6">
+                <div>
+                    <div class="flex items-center gap-2.5">
+                        <span class="text-xs font-bold uppercase tracking-wider text-sky-600 bg-sky-50 px-2.5 py-1 rounded-md">Hóa Đơn Bán Hàng</span>
+                        <span class="font-mono font-black text-lg text-slate-900" x-text="selectedAdminOrderDetail ? selectedAdminOrderDetail.orderId : ''"></span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1">Thông tin chi tiết đơn hàng đồng bộ thời gian thực từ bước thanh toán của khách.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button @click="printAdminInvoice()" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-print"></i>
+                        <span class="hidden sm:inline">In hóa đơn</span>
+                    </button>
+                    <button @click="adminOrderDetailModalOpen = false" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Bố cục 2 Cột (Split Layout) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <!-- CỘT TRÁI: THÔNG TIN GIAO HÀNG & KHÁCH HÀNG -->
+                <div class="space-y-4">
+                    <h4 class="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-truck-ramp-box text-sky-600"></i>
+                        <span>Thông Tin Giao Nhận</span>
+                    </h4>
+
+                    <!-- Quốc gia & Người nhận -->
+                    <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200/80 space-y-3">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-500">Quốc gia:</span>
+                            <span class="font-bold text-slate-800 flex items-center gap-1.5">
+                                <span>🇻🇳</span> Việt Nam
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-500">Họ và tên:</span>
+                            <span class="font-bold text-slate-900" x-text="selectedAdminOrderDetail ? selectedAdminOrderDetail.customerName : ''"></span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-500">Số điện thoại:</span>
+                            <span class="font-bold text-slate-900 font-mono" x-text="selectedAdminOrderDetail ? selectedAdminOrderDetail.customerPhone : ''"></span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-500">Email:</span>
+                            <span class="font-medium text-slate-700" x-text="selectedAdminOrderDetail ? (selectedAdminOrderDetail.customerEmail || 'khachhang@petcare360.vn') : ''"></span>
+                        </div>
+                    </div>
+
+                    <!-- Box Lựa Chọn Phương Thức Giao Nhận -->
+                    <div class="bg-sky-50/60 rounded-2xl p-4 border border-sky-100 space-y-2">
+                        <div class="flex items-center gap-2 text-xs font-bold text-sky-900">
+                            <i class="fa-solid fa-location-dot text-sky-600"></i>
+                            <span>Phương thức: Giao tận nơi</span>
+                        </div>
+                        <div class="text-xs text-slate-700 font-medium">
+                            <strong>Địa chỉ nhận hàng:</strong> 
+                            <span x-text="selectedAdminOrderDetail ? (selectedAdminOrderDetail.address || '123 Nguyễn Thị Minh Khai, Phường Bến Thành, Quận 1, TP. Hồ Chí Minh') : ''"></span>
+                        </div>
+                    </div>
+
+                    <!-- Phương thức thanh toán & Ghi chú -->
+                    <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200/80 space-y-2 text-xs">
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-500">Phương thức thanh toán:</span>
+                            <span class="font-black text-slate-900 uppercase" x-text="selectedAdminOrderDetail ? selectedAdminOrderDetail.paymentMethod : ''"></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-500">Trạng thái thanh toán:</span>
+                            <span class="font-bold text-emerald-600">Đã thanh toán đủ</span>
+                        </div>
+                        <div class="pt-2 border-t border-slate-200 text-slate-600">
+                            <strong class="text-slate-700">Ghi chú từ khách:</strong>
+                            <p class="mt-0.5 italic" x-text="selectedAdminOrderDetail ? (selectedAdminOrderDetail.notes || 'Không có ghi chú thêm.') : ''"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CỘT PHẢI: TÓM TẮT ĐƠN HÀNG (SẢN PHẨM & TÍNH TIỀN) -->
+                <div class="space-y-4">
+                    <h4 class="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-receipt text-sky-600"></i>
+                        <span>Chi Tiết Giỏ Hàng & Thanh Toán</span>
+                    </h4>
+
+                    <!-- Danh sách sản phẩm -->
+                    <div class="space-y-2.5 max-h-56 overflow-y-auto pr-1">
+                        <div class="p-3 bg-white rounded-2xl border border-slate-200 flex items-center justify-between gap-3 shadow-2xs">
+                            <div class="flex items-center gap-2.5">
+                                <img src="https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=150" class="w-12 h-12 rounded-xl object-cover border border-slate-200">
+                                <div>
+                                    <div class="text-xs font-bold text-slate-900 leading-tight">Thức Ăn Hạt Royal Canin Medium Adult</div>
+                                    <div class="text-[10px] text-slate-400">Túi 4kg - Dành cho chó trưởng thành</div>
+                                    <div class="text-[11px] font-bold text-slate-600 mt-0.5">SL: 1 x 490.000₫</div>
+                                </div>
+                            </div>
+                            <div class="text-xs font-black text-slate-900">490.000₫</div>
+                        </div>
+                    </div>
+
+                    <!-- Ô Mã giảm giá (Disabled theo đúng form Checkout) -->
+                    <div class="flex items-center gap-2">
+                        <input type="text" value="PETCARE360_VIP (-50.000₫)" disabled class="flex-1 bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-500 cursor-not-allowed">
+                        <span class="px-3 py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-bold">Đã áp dụng</span>
+                    </div>
+
+                    <!-- Bảng tính tiền chuẩn Checkout -->
+                    <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200/80 space-y-2 text-xs">
+                        <div class="flex justify-between items-center text-slate-600">
+                            <span>Tạm tính tiền hàng:</span>
+                            <span class="font-bold text-slate-900">490.000₫</span>
+                        </div>
+                        <div class="flex justify-between items-center text-slate-600">
+                            <span>Phí vận chuyển:</span>
+                            <span class="font-bold text-slate-900">30.000₫</span>
+                        </div>
+                        <div class="flex justify-between items-center text-emerald-600">
+                            <span>Khuyến mãi giảm giá:</span>
+                            <span class="font-bold">-50.000₫</span>
+                        </div>
+                        <div class="pt-2 border-t border-slate-200 flex justify-between items-center">
+                            <span class="text-sm font-black text-slate-900">TỔNG CỘNG THANH TOÁN:</span>
+                            <span class="text-lg font-black text-sky-700" x-text="selectedAdminOrderDetail ? formatCurrency(selectedAdminOrderDetail.total) : '470.000₫'"></span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ADMIN ACTIONS FOOTER -->
+            <div class="mt-6 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-slate-500">Cập nhật trạng thái:</span>
+                    <button @click="updateAdminOrderStatus('PROCESSING')" class="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold border border-amber-200 transition">Đang xử lý</button>
+                    <button @click="updateAdminOrderStatus('SHIPPED')" class="px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-800 text-xs font-bold border border-blue-200 transition">Đang giao</button>
+                    <button @click="updateAdminOrderStatus('DELIVERED')" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold border border-emerald-200 transition">Hoàn thành</button>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button @click="showToast('Chỉnh sửa địa chỉ đơn hàng')" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition">
+                        Chỉnh sửa địa chỉ
+                    </button>
+                    <button @click="adminOrderDetailModalOpen = false; showToast('Đã xác nhận đơn hàng thành công!')" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shadow-xs transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-check"></i>
+                        <span>Xác nhận đơn</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 2. MODAL SỔ SỨC KHỎE & ĐẶT CHỖ DỊCH VỤ ADMIN -->
+    <div x-show="adminServiceDetailModalOpen" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white rounded-3xl max-w-4xl w-full p-6 sm:p-8 shadow-2xl border border-slate-100 relative max-h-[90vh] overflow-y-auto animate-fadeIn" @click.outside="adminServiceDetailModalOpen = false">
+            
+            <!-- Header Modal -->
+            <div class="flex items-start justify-between border-b border-slate-100 pb-4 mb-6">
+                <div>
+                    <div class="flex items-center gap-2.5">
+                        <span class="text-xs font-bold uppercase tracking-wider text-teal-600 bg-teal-50 px-2.5 py-1 rounded-md">Hồ Sơ Dịch Vụ & Đặt Chỗ</span>
+                        <span class="font-mono font-black text-lg text-slate-900" x-text="selectedAdminServiceDetail ? selectedAdminServiceDetail.serviceId : ''"></span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1">Đầy đủ thông tin sổ y tế, khẩu phần và lịch trình dịch vụ của khách hàng.</p>
+                </div>
+                <button @click="adminServiceDetailModalOpen = false" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- PHẦN A: THÔNG TIN CƠ BẢN (HỒ SƠ THÚ CƯNG) -->
+            <div class="space-y-4 mb-6">
+                <h4 class="text-xs font-black text-teal-700 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-shield-cat text-teal-600"></i>
+                    <span>Phần A - Hồ Sơ Thú Cưng & Sổ Y Tế</span>
+                </h4>
+
+                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-200/80">
+                    <div class="flex flex-col sm:flex-row items-center gap-5">
+                        <img :src="selectedAdminServiceDetail ? selectedAdminServiceDetail.petAvatar : 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=200'" class="w-20 h-20 rounded-full object-cover border-4 border-white shadow-md shrink-0">
+                        
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 flex-1 text-xs">
+                            <div>
+                                <span class="text-slate-400 block text-[10px] uppercase font-bold">Tên thú cưng:</span>
+                                <span class="font-black text-slate-900 text-sm" x-text="selectedAdminServiceDetail ? selectedAdminServiceDetail.petName : ''"></span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[10px] uppercase font-bold">Giống & Loài:</span>
+                                <span class="font-bold text-slate-800" x-text="selectedAdminServiceDetail ? selectedAdminServiceDetail.petBreed : ''"></span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[10px] uppercase font-bold">Độ tuổi & Giới tính:</span>
+                                <span class="font-bold text-slate-800">2 tuổi • Đực</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[10px] uppercase font-bold">Triệt sản:</span>
+                                <span class="font-bold text-emerald-600">Đã triệt sản</span>
+                            </div>
+                            <!-- HIGHLIGHT BẮT BUỘC CÂN NẶNG & KÍCH THƯỚC -->
+                            <div class="col-span-2 sm:col-span-2 bg-amber-50 p-2 rounded-xl border border-amber-200">
+                                <span class="text-amber-800 font-extrabold block text-[10px] uppercase">Cân nặng & Kích thước (Bắt buộc):</span>
+                                <span class="text-xs font-black text-amber-900" x-text="(selectedAdminServiceDetail && selectedAdminServiceDetail.health ? selectedAdminServiceDetail.health.weight : '12.5 kg') + ' • Size Medium (Chuồng M)'"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cards Hồ Sơ Sức Khỏe -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                    <!-- Tiêm phòng -->
+                    <div class="p-3.5 bg-white rounded-2xl border border-slate-200 shadow-2xs space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-slate-800 flex items-center gap-1.5">
+                                <i class="fa-solid fa-syringe text-teal-600"></i>
+                                <span>Tiêm phòng & Tẩy giun</span>
+                            </span>
+                            <span class="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded text-[10px] font-bold">Đầy đủ</span>
+                        </div>
+                        <div class="flex items-center justify-between text-[11px] text-slate-500">
+                            <span>Sổ tiêm điện tử đã xác thực</span>
+                            <button @click="showToast('Xem ảnh sổ tiêm chủng')" class="text-teal-600 font-bold hover:underline">Xem ảnh sổ tiêm</button>
+                        </div>
+                    </div>
+
+                    <!-- Bệnh nền / Dị ứng (Cảnh báo đỏ nếu có dị ứng) -->
+                    <div class="p-3.5 bg-rose-50 rounded-2xl border border-rose-200 shadow-2xs space-y-1">
+                        <span class="font-bold text-rose-800 flex items-center gap-1.5">
+                            <i class="fa-solid fa-triangle-exclamation text-rose-600"></i>
+                            <span>Bệnh lý nền & Dị ứng (Lưu ý đỏ)</span>
+                        </span>
+                        <p class="text-[11px] text-rose-700 font-bold" x-text="selectedAdminServiceDetail && selectedAdminServiceDetail.health ? selectedAdminServiceDetail.health.allergy : 'Dị ứng thức ăn hạt chứa ngũ cốc và hải sản.'"></p>
+                    </div>
+
+                    <!-- Khẩu phần & Chế độ ăn -->
+                    <div class="p-3.5 bg-white rounded-2xl border border-slate-200 shadow-2xs space-y-1">
+                        <span class="font-bold text-slate-800 flex items-center gap-1.5">
+                            <i class="fa-solid fa-bowl-food text-amber-600"></i>
+                            <span>Khẩu phần & Chế độ ăn</span>
+                        </span>
+                        <p class="text-[11px] text-slate-600" x-text="selectedAdminServiceDetail && selectedAdminServiceDetail.health ? selectedAdminServiceDetail.health.diet : 'Hạt Royal Canin ngâm nước ấm 2 bữa/ngày.'"></p>
+                    </div>
+
+                    <!-- Thói quen & Tính cách -->
+                    <div class="p-3.5 bg-white rounded-2xl border border-slate-200 shadow-2xs space-y-1">
+                        <span class="font-bold text-slate-800 flex items-center gap-1.5">
+                            <i class="fa-solid fa-heart text-pink-600"></i>
+                            <span>Đặc điểm tính cách</span>
+                        </span>
+                        <p class="text-[11px] text-slate-600">Thân thiện với người lạ, hơi nhút nhát trước chó lớn, sợ tiếng sấm chớp.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PHẦN B: CHI TIẾT ĐẶT CHỖ -->
+            <div class="space-y-4 mb-6 pt-4 border-t border-slate-100">
+                <h4 class="text-xs font-black text-indigo-700 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-check text-indigo-600"></i>
+                    <span>Phần B - Chi Tiết Đặt Chỗ & Khách Hàng</span>
+                </h4>
+
+                <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200/80 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div>
+                        <span class="text-slate-400 block text-[10px] uppercase font-bold">Khách hàng:</span>
+                        <span class="font-bold text-slate-900" x-text="selectedAdminServiceDetail ? selectedAdminServiceDetail.customerName : ''"></span>
+                        <span class="text-slate-400 block text-[11px]" x-text="selectedAdminServiceDetail ? selectedAdminServiceDetail.customerPhone : ''"></span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block text-[10px] uppercase font-bold">Thời gian Check-in / Out:</span>
+                        <span class="font-bold text-slate-900" x-text="selectedAdminServiceDetail ? (selectedAdminServiceDetail.checkInTime + ' -> ' + selectedAdminServiceDetail.checkOutTime) : ''"></span>
+                    </div>
+                    <div class="col-span-2 pt-2 border-t border-slate-200">
+                        <span class="text-slate-400 block text-[10px] uppercase font-bold">Ghi chú của khách hàng:</span>
+                        <p class="text-slate-700 italic mt-0.5" x-text="selectedAdminServiceDetail ? (selectedAdminServiceDetail.notes || 'Khách yêu cầu gửi video bé ăn trưa lúc 12h.') : ''"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- THANH CÔNG CỤ ADMIN (FOOTER MODAL) -->
+            <div class="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <!-- Gán nhân viên PetShip -->
+                    <span class="text-xs font-bold text-slate-500">Gán Shipper:</span>
+                    <select @change="assignServiceShipper(selectedAdminServiceDetail, $event.target.value)" class="bg-slate-100 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-bold text-slate-800">
+                        <template x-for="sp in availableShippers" :key="sp">
+                            <option :value="sp" x-text="sp"></option>
+                        </template>
+                    </select>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button @click="confirmAdminServiceDeposit()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>Xác nhận đã cọc</span>
+                    </button>
+                    <button @click="showToast('In hóa đơn dịch vụ')" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition">
+                        In hóa đơn
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 3. MODAL NHẬP THÊM KHO HÀNG HÓA ADMIN -->
+    <div x-show="adminRestockModalOpen" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100 relative animate-fadeIn" @click.outside="adminRestockModalOpen = false">
+            
+            <!-- Header Modal (Tiêu đề in đậm to, Phụ đề xám nhỏ) -->
+            <div class="flex items-start justify-between border-b border-slate-100 pb-4 mb-5">
+                <div>
+                    <h3 class="text-xl font-black text-slate-900">Nhập Thêm Kho Hàng Hóa</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Tạo phiếu nhập kho và phân bổ số lượng vào chi nhánh</p>
+                </div>
+                <button @click="adminRestockModalOpen = false" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Form Nhập Liệu -->
+            <form @submit.prevent="submitRestockForm()" class="space-y-4 text-xs">
+                
+                <!-- Chọn Sản Phẩm * -->
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Chọn Sản Phẩm Cần Nhập Thêm <span class="text-rose-500">*</span></label>
+                    <select x-model="restockForm.sku" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 font-medium text-slate-800 focus:outline-none focus:border-emerald-500">
+                        <template x-for="item in inventoryItems" :key="item.sku">
+                            <option :value="item.sku" x-text="item.name + ' (Hiện có: ' + item.stock + ' ' + item.unit + ')'"></option>
+                        </template>
+                    </select>
+                </div>
+
+                <!-- Chi nhánh nhập kho * -->
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Chi nhánh nhập kho <span class="text-rose-500">*</span></label>
+                    <select x-model="restockForm.branch" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 font-medium text-slate-800 focus:outline-none focus:border-emerald-500">
+                        <option value="Chi nhánh Cầu Giấy (Hà Nội)">Chi nhánh Cầu Giấy (Hà Nội)</option>
+                        <option value="Chi nhánh Quận 1 (TP.HCM)">Chi nhánh Quận 1 (TP.HCM)</option>
+                        <option value="Chi nhánh Bình Thạnh (TP.HCM)">Chi nhánh Bình Thạnh (TP.HCM)</option>
+                        <option value="Chi nhánh Quận 7 (TP.HCM)">Chi nhánh Quận 7 (TP.HCM)</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <!-- Số lượng nhập thêm * -->
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Số lượng nhập thêm <span class="text-rose-500">*</span></label>
+                        <input type="number" x-model.number="restockForm.quantity" min="1" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-bold text-slate-900 focus:outline-none focus:border-emerald-500">
+                    </div>
+
+                    <!-- Đơn giá nhập (VNĐ) -->
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Đơn giá nhập (VNĐ)</label>
+                        <input type="number" x-model.number="restockForm.unitPrice" min="0" step="1000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-bold text-slate-900 focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+
+                <!-- Nhà cung cấp -->
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Nhà cung cấp</label>
+                    <input type="text" x-model="restockForm.supplier" placeholder="Tên công ty phân phối hoặc nhà cung cấp" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium text-slate-800 focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <!-- Ghi chú phiếu nhập kho -->
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Ghi chú phiếu nhập kho</label>
+                    <textarea x-model="restockForm.notes" rows="2" placeholder="Số hóa đơn VAT, lô sản xuất, hạn sử dụng..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-medium text-slate-800 focus:outline-none focus:border-emerald-500"></textarea>
+                </div>
+
+                <!-- Footer Modal (Nút hành động) -->
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-2.5">
+                    <button type="button" @click="adminRestockModalOpen = false" class="px-4 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-600 font-bold transition">
+                        Hủy
+                    </button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black shadow-sm transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-check"></i>
+                        <span>Xác Nhận Nhập Hàng</span>
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <!-- 4. MODAL HỒ SƠ CHI TIẾT NHÂN SỰ ADMIN -->
+    <div x-show="adminStaffProfileModalOpen" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-slate-100 relative animate-fadeIn" @click.outside="adminStaffProfileModalOpen = false">
+            
+            <div class="flex items-start justify-between border-b border-slate-100 pb-4 mb-5">
+                <div class="flex items-center gap-3">
+                    <img :src="selectedStaffProfile ? selectedStaffProfile.avatar : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'" class="w-14 h-14 rounded-2xl object-cover border-2 border-purple-200">
+                    <div>
+                        <h3 class="text-lg font-black text-slate-900" x-text="selectedStaffProfile ? selectedStaffProfile.name : ''"></h3>
+                        <div class="flex items-center gap-2 mt-0.5">
+                            <span class="text-xs font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md" x-text="selectedStaffProfile ? selectedStaffProfile.role : ''"></span>
+                            <span class="text-xs font-mono text-slate-400" x-text="selectedStaffProfile ? selectedStaffProfile.staffId : ''"></span>
+                        </div>
+                    </div>
+                </div>
+                <button @click="adminStaffProfileModalOpen = false" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4 text-xs">
+                <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200/80 grid grid-cols-2 gap-3">
+                    <div>
+                        <span class="text-slate-400 block text-[10px] uppercase font-bold">Số điện thoại:</span>
+                        <span class="font-bold text-slate-900" x-text="selectedStaffProfile ? selectedStaffProfile.phone : ''"></span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block text-[10px] uppercase font-bold">Ca làm việc:</span>
+                        <span class="font-bold text-slate-900" x-text="selectedStaffProfile ? selectedStaffProfile.shift : ''"></span>
+                    </div>
+                </div>
+
+                <!-- Bằng cấp chuyên môn (Bác sĩ thú y) -->
+                <div class="bg-rose-50/70 rounded-2xl p-4 border border-rose-100 space-y-1.5">
+                    <span class="font-black text-rose-800 uppercase tracking-wider block text-[10px]">
+                        <i class="fa-solid fa-graduation-cap mr-1"></i> Bằng Cấp & Chứng Chỉ Hành Nghề:
+                    </span>
+                    <p class="font-bold text-rose-900" x-text="selectedStaffProfile ? selectedStaffProfile.degree : ''"></p>
+                </div>
+
+                <!-- Lý lịch & Chuyên môn -->
+                <div class="bg-white rounded-2xl p-4 border border-slate-200 space-y-2">
+                    <span class="font-black text-slate-800 uppercase tracking-wider block text-[10px]">Tóm Tắt Lý Lịch & Chuyên Môn:</span>
+                    <p class="text-slate-600 leading-relaxed" x-text="selectedStaffProfile ? selectedStaffProfile.bio : ''"></p>
+                </div>
+            </div>
+
+            <div class="mt-5 pt-4 border-t border-slate-100 flex justify-end">
+                <button @click="adminStaffProfileModalOpen = false" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs transition">
+                    Đóng hồ sơ
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 5. MODAL LỊCH SỬ GIAO DỊCH KHÁCH HÀNG ADMIN -->
+    <div x-show="customerTransactionModalOpen" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl border border-slate-100 relative max-h-[90vh] overflow-y-auto animate-fadeIn" @click.outside="customerTransactionModalOpen = false">
+            
+            <div class="flex items-start justify-between border-b border-slate-100 pb-4 mb-5">
+                <div>
+                    <h3 class="text-xl font-black text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-sky-600"></i>
+                        <span>Lịch Sử Giao Dịch Khách Hàng</span>
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Khách: <strong class="text-slate-800" x-text="selectedCustomerTransactions ? selectedCustomerTransactions.name : ''"></strong> 
+                        (<span class="font-mono text-sky-600" x-text="selectedCustomerTransactions ? selectedCustomerTransactions.customerId : ''"></span>) 
+                        - Tổng chi tiêu: <strong class="text-emerald-600" x-text="selectedCustomerTransactions ? formatCurrency(selectedCustomerTransactions.totalSpend) : ''"></strong>
+                    </p>
+                </div>
+                <button @click="customerTransactionModalOpen = false" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Bảng Liệt Kê Giao Dịch Chi Tiết -->
+            <div class="overflow-x-auto rounded-2xl border border-slate-200">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider font-bold">
+                        <tr>
+                            <th class="py-2.5 px-3">Ngày tháng</th>
+                            <th class="py-2.5 px-3">Mã đơn / Mã DV</th>
+                            <th class="py-2.5 px-3 text-center">Loại giao dịch</th>
+                            <th class="py-2.5 px-3 text-right">Tổng tiền</th>
+                            <th class="py-2.5 px-3 text-center">Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                        <template x-for="item in (selectedCustomerTransactions ? selectedCustomerTransactions.transactions : [])" :key="item.code">
+                            <tr class="hover:bg-slate-50">
+                                <td class="py-3 px-3 text-slate-500" x-text="item.date"></td>
+                                <td class="py-3 px-3 font-mono font-bold text-sky-700" x-text="item.code"></td>
+                                <td class="py-3 px-3 text-center">
+                                    <span :class="item.type === 'Sản phẩm' ? 'bg-blue-100 text-blue-800' : 'bg-teal-100 text-teal-800'" class="px-2 py-0.5 rounded-full text-[10px] font-bold" x-text="item.type"></span>
+                                </td>
+                                <td class="py-3 px-3 text-right font-black text-slate-900" x-text="formatCurrency(item.amount)"></td>
+                                <td class="py-3 px-3 text-center">
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800" x-text="item.status"></span>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 6. DRAWER / MODAL CHAT CSKH ADMIN -->
+    <div x-show="customerChatDrawerOpen" x-cloak class="fixed bottom-4 right-4 z-50 w-96 bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-slideUp">
+        
+        <!-- Header Chat -->
+        <div class="bg-sky-600 p-4 text-white flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center font-bold text-sm">
+                    <i class="fa-solid fa-headset"></i>
+                </div>
+                <div>
+                    <div class="font-bold text-sm leading-tight" x-text="selectedCustomerChat ? selectedCustomerChat.name : 'Khách hàng'"></div>
+                    <div class="text-[10px] text-sky-200 flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Đang trực tuyến
+                    </div>
+                </div>
+            </div>
+            <button @click="customerChatDrawerOpen = false" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition text-sm">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Nội dung tin nhắn -->
+        <div class="p-4 h-64 overflow-y-auto space-y-3 bg-slate-50 text-xs">
+            <div class="flex justify-start">
+                <div class="bg-white p-3 rounded-2xl rounded-tl-none border border-slate-200 text-slate-700 shadow-2xs max-w-[80%]">
+                    Xin chào PetCare360, đơn hàng sản phẩm của mình đã được giao đi chưa ạ?
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <div class="bg-sky-600 p-3 rounded-2xl rounded-tr-none text-white shadow-2xs max-w-[80%]">
+                    Dạ chào bạn! Đơn hàng của bạn đã được Shipper nhận và đang trên đường giao đến bạn trong chiều nay ạ.
+                </div>
+            </div>
+        </div>
+
+        <!-- Ô nhập tin nhắn -->
+        <div class="p-3 bg-white border-t border-slate-100 flex items-center gap-2">
+            <input type="text" x-model="adminCustomerChatInput" @keydown.enter="sendAdminCustomerChat()" placeholder="Nhập tin nhắn tư vấn..." class="flex-1 bg-slate-100 rounded-xl px-3 py-2 text-xs focus:outline-none focus:bg-white focus:ring-2 focus:ring-sky-200">
+            <button @click="sendAdminCustomerChat()" class="w-9 h-9 rounded-xl bg-sky-600 hover:bg-sky-700 text-white flex items-center justify-center transition">
+                <i class="fa-solid fa-paper-plane text-xs"></i>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- 7. MODAL SỔ SỨC KHỎE CHUYÊN SÂU ADMIN (4 SECTIONS 2 CỘT) -->
+    <div x-show="adminPetHealthBookModalOpen" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white rounded-3xl max-w-4xl w-full p-6 sm:p-8 shadow-2xl border border-slate-100 relative max-h-[90vh] overflow-y-auto animate-fadeIn" @click.outside="adminPetHealthBookModalOpen = false">
+            
+            <div class="flex items-start justify-between border-b border-slate-100 pb-4 mb-6">
+                <div>
+                    <h3 class="text-xl font-black text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-heart-pulse text-rose-600"></i>
+                        <span>Sổ Sức Khỏe Chuyên Sâu</span>
+                        <span class="font-mono text-sm text-slate-400" x-text="selectedPetHealthBook ? selectedPetHealthBook.petId : ''"></span>
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Hồ sơ y tế, lịch sử tiêm phòng và sinh hoạt chi tiết của thú cưng.</p>
+                </div>
+                <button @click="adminPetHealthBookModalOpen = false" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- LAYOUT 4 PHẦN CHUYÊN NGHIỆP DẠNG 2 CỘT -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+                
+                <!-- PHẦN A: THÔNG TIN CƠ BẢN -->
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-3">
+                    <h4 class="font-black text-slate-900 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                        <span class="w-5 h-5 rounded-md bg-slate-800 text-white flex items-center justify-center text-[10px]">A</span>
+                        <span>Thông Tin Cơ Bản (Auto-fill)</span>
+                    </h4>
+
+                    <div class="grid grid-cols-2 gap-2 text-slate-600">
+                        <div>Tên: <strong class="text-slate-900" x-text="selectedPetHealthBook ? selectedPetHealthBook.name : ''"></strong></div>
+                        <div>Loài & Giống: <strong class="text-slate-900" x-text="selectedPetHealthBook ? (selectedPetHealthBook.species + ' - ' + selectedPetHealthBook.breed) : ''"></strong></div>
+                        <div>Tuổi: <strong class="text-slate-900">2 tuổi</strong></div>
+                        <div>Triệt sản: <strong class="text-emerald-600">Đã triệt sản</strong></div>
+                    </div>
+
+                    <!-- ALERT BẮT BUỘC NỔI BẬT CÂN NẶNG & KÍCH THƯỚC -->
+                    <div class="p-3 bg-amber-50 rounded-xl border border-amber-300 text-amber-900 space-y-1">
+                        <div class="font-extrabold flex items-center gap-1">
+                            <i class="fa-solid fa-triangle-exclamation text-amber-600"></i>
+                            <span>Cân nặng & Kích thước hiện tại: <span x-text="selectedPetHealthBook ? selectedPetHealthBook.weight : '12 kg'"></span></span>
+                        </div>
+                        <p class="text-[10px] text-amber-800 font-medium">
+                            ⚠️ Thông tin bắt buộc để tính giá và phân bổ size chuồng chính xác cho dịch vụ Hotel và Spa.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- PHẦN B: HỒ SƠ Y TẾ & SỨC KHỎE -->
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-3">
+                    <h4 class="font-black text-rose-800 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                        <span class="w-5 h-5 rounded-md bg-rose-600 text-white flex items-center justify-center text-[10px]">B</span>
+                        <span>Hồ Sơ Y Tế & Sức Khỏe</span>
+                    </h4>
+
+                    <div class="flex items-center justify-between p-2.5 bg-white rounded-xl border border-slate-200">
+                        <label class="flex items-center gap-2 font-bold text-slate-800 cursor-pointer">
+                            <input type="checkbox" checked class="rounded text-rose-600 focus:ring-0">
+                            <span>Đã tiêm phòng & tẩy giun đủ</span>
+                        </label>
+                        <button @click="showToast('Tải lên ảnh sổ tiêm mới')" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg text-[10px] font-bold border border-rose-200">
+                            <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Tải lên
+                        </button>
+                    </div>
+
+                    <!-- Tiền sử bệnh lý (Cảnh báo đỏ) -->
+                    <div class="p-2.5 bg-rose-50 rounded-xl border border-rose-200">
+                        <label class="block font-black text-rose-800 text-[10px] uppercase mb-0.5">Tiền sử bệnh lý / Dị ứng:</label>
+                        <div class="font-bold text-rose-700" x-text="selectedPetHealthBook ? selectedPetHealthBook.health.allergy : 'Dị ứng hạt ngũ cốc và một số kháng sinh nhóm Penicillin.'"></div>
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-slate-700 text-[10px] uppercase mb-0.5">Đơn thuốc hiện tại:</label>
+                        <input type="text" value="Men vi sinh tiêu hóa (1 gói/ngày sau ăn)" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 font-medium text-slate-800">
+                    </div>
+                </div>
+
+                <!-- PHẦN C: SINH HOẠT & TÍNH CÁCH -->
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-3">
+                    <h4 class="font-black text-indigo-800 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                        <span class="w-5 h-5 rounded-md bg-indigo-600 text-white flex items-center justify-center text-[10px]">C</span>
+                        <span>Sinh Hoạt & Tính Cách</span>
+                    </h4>
+
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Khẩu phần & Chế độ ăn:</label>
+                        <div class="flex items-center gap-3">
+                            <label class="flex items-center gap-1.5 text-slate-700">
+                                <input type="radio" name="dietType" checked class="text-indigo-600">
+                                <span>Khách tự mang thức ăn</span>
+                            </label>
+                            <label class="flex items-center gap-1.5 text-slate-700">
+                                <input type="radio" name="dietType" class="text-indigo-600">
+                                <span>Dùng thức ăn của Hotel</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Thói quen vệ sinh:</label>
+                        <select class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 font-semibold text-slate-800">
+                            <option>Dắt đi dạo ngoài trời</option>
+                            <option>Khay cát vệ sinh</option>
+                            <option>Đệm lót thấm hút</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Đặc điểm tính cách:</label>
+                        <div class="flex flex-wrap gap-1.5">
+                            <span class="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700 font-bold">Hòa đồng với người</span>
+                            <span class="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700 font-bold">Sợ sấm sét</span>
+                            <span class="px-2 py-0.5 rounded-md bg-rose-50 border border-rose-200 text-rose-700 font-bold">Không cắn người</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PHẦN D: CHI TIẾT ĐẶT CHỖ & DỊCH VỤ CỘNG THÊM -->
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-3">
+                    <h4 class="font-black text-teal-800 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                        <span class="w-5 h-5 rounded-md bg-teal-600 text-white flex items-center justify-center text-[10px]">D</span>
+                        <span>Chi Tiết Đặt Chỗ (Booking Info)</span>
+                    </h4>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block font-bold text-slate-700 text-[10px] mb-0.5">Check-in dự kiến:</label>
+                            <input type="text" value="08:30 - 28/10/2026" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 font-semibold text-slate-800">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 text-[10px] mb-0.5">Check-out dự kiến:</label>
+                            <input type="text" value="17:00 - 30/10/2026" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 font-semibold text-slate-800">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Dịch vụ cộng thêm:</label>
+                        <div class="space-y-1.5">
+                            <label class="flex items-center gap-2 text-slate-700 cursor-pointer">
+                                <input type="checkbox" checked class="rounded text-teal-600">
+                                <span>Tắm sấy khử mùi thảo mộc (+150.000₫)</span>
+                            </label>
+                            <label class="flex items-center gap-2 text-slate-700 cursor-pointer">
+                                <input type="checkbox" checked class="rounded text-teal-600">
+                                <span>Cắt tỉa lông tạo hình (+200.000₫)</span>
+                            </label>
+                            <label class="flex items-center gap-2 text-slate-700 cursor-pointer">
+                                <input type="checkbox" class="rounded text-teal-600">
+                                <span>Massage thư giãn cơ xương khớp (+120.000₫)</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer Modal -->
+            <div class="mt-6 pt-4 border-t border-slate-100 flex justify-end gap-2.5">
+                <button @click="adminPetHealthBookModalOpen = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs transition">
+                    Đóng
+                </button>
+                <button @click="adminPetHealthBookModalOpen = false; showToast('Đã lưu cập nhật sổ sức khỏe thành công!')" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold text-xs transition">
+                    Lưu sổ sức khỏe
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 8. MODAL KIỂM SOÁT AN TOÀN PETSHIP ADMIN (3 PHASES STEPPER) -->
+    <div x-show="adminPetShipControlModalOpen" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl border border-slate-100 relative max-h-[90vh] overflow-y-auto animate-fadeIn" @click.outside="adminPetShipControlModalOpen = false">
+            
+            <!-- Header Modal -->
+            <div class="flex items-start justify-between border-b border-slate-100 pb-4 mb-6">
+                <div>
+                    <h3 class="text-xl font-black text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-shield-halved text-emerald-600"></i>
+                        <span>Kiểm Soát An Toàn Lộ Trình PetShip</span>
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Mã DV: <strong class="font-mono text-emerald-700" x-text="selectedPetShipControl ? selectedPetShipControl.serviceId : ''"></strong> 
+                        • Bé: <strong class="text-slate-800" x-text="selectedPetShipControl ? selectedPetShipControl.petName : ''"></strong> 
+                        • Tài xế: <strong class="text-sky-700" x-text="selectedPetShipControl ? selectedPetShipControl.shipper : ''"></strong>
+                    </p>
+                </div>
+                <button @click="adminPetShipControlModalOpen = false" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- 3 PHASES STEPPER UI -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                
+                <!-- KHU VỰC 1: CHECK-IN (TIẾP NHẬN TẠI NHÀ) -->
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-3 flex flex-col justify-between">
+                    <div>
+                        <div class="w-7 h-7 rounded-xl bg-emerald-600 text-white font-black flex items-center justify-center text-xs mb-2">1</div>
+                        <h4 class="font-black text-slate-900 text-sm">Check-in Tiếp Nhận</h4>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Chụp ảnh sức khỏe ban đầu & nhập OTP khách.</p>
+                    </div>
+
+                    <div class="space-y-2 pt-2">
+                        <button @click="showToast('Chụp/Tải ảnh kiểm tra sức khỏe ban đầu')" class="w-full py-2 bg-white hover:bg-slate-100 text-slate-700 rounded-xl font-bold border border-slate-200 flex items-center justify-center gap-1.5 transition">
+                            <i class="fa-solid fa-camera text-emerald-600"></i>
+                            <span>Tải ảnh lên</span>
+                        </button>
+                        <div>
+                            <label class="block font-bold text-slate-600 text-[10px] uppercase mb-0.5">Mã OTP Bàn giao:</label>
+                            <input type="text" value="8492" class="w-full bg-white border border-slate-300 rounded-xl px-2.5 py-1.5 font-mono font-black text-center text-emerald-700 tracking-widest text-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KHU VỰC 2: BÀN GIAO CỬA HÀNG -->
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-3 flex flex-col justify-between">
+                    <div>
+                        <div class="w-7 h-7 rounded-xl bg-sky-600 text-white font-black flex items-center justify-center text-xs mb-2">2</div>
+                        <h4 class="font-black text-slate-900 text-sm">Bàn Giao Cửa Hàng</h4>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Quét QR Code nhận pet vào phòng kỹ thuật.</p>
+                    </div>
+
+                    <!-- MÃ QR CODE KÍCH THƯỚC LỚN -->
+                    <div class="text-center py-2">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=PETCARE360-SRV2002-CHECKIN" class="w-28 h-28 mx-auto rounded-xl border border-slate-200 shadow-2xs">
+                        <span class="text-[10px] text-slate-400 block mt-1 font-mono">Quét để nhận phòng</span>
+                    </div>
+                </div>
+
+                <!-- KHU VỰC 3: TRẢ PET VỀ NHÀ -->
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-3 flex flex-col justify-between">
+                    <div>
+                        <div class="w-7 h-7 rounded-xl bg-indigo-600 text-white font-black flex items-center justify-center text-xs mb-2">3</div>
+                        <h4 class="font-black text-slate-900 text-sm">Trả Pet Về Nhà</h4>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Nhập OTP nhận lại & Tải ảnh POD.</p>
+                    </div>
+
+                    <div class="space-y-2 pt-2">
+                        <div>
+                            <label class="block font-bold text-slate-600 text-[10px] uppercase mb-0.5">Mã OTP Nhận lại Pet:</label>
+                            <input type="text" placeholder="Nhập 4 số OTP" class="w-full bg-white border border-slate-300 rounded-xl px-2.5 py-1.5 font-mono font-black text-center text-indigo-700 tracking-widest text-sm">
+                        </div>
+                        <button @click="showToast('Tải ảnh bằng chứng giao pet thành công (POD)')" class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition flex items-center justify-center gap-1.5 shadow-2xs">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <span>Tải ảnh POD</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- FOOTER VỚI NÚT SOS NỔI BẬT -->
+            <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                <!-- NÚT BÁO CÁO SỰ CỐ (SOS) ĐỎ CAM NỔI BẬT TÁCH BIỆT -->
+                <button @click="openPetShipSos(selectedPetShipControl)" class="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-black text-xs shadow-md shadow-rose-600/30 transition flex items-center gap-2 animate-pulse">
+                    <i class="fa-solid fa-triangle-exclamation text-sm"></i>
+                    <span>Báo Cáo Sự Cố (SOS)</span>
+                </button>
+
+                <button @click="adminPetShipControlModalOpen = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs transition">
+                    Đóng
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 9. MODAL BÁO CÁO SỰ CỐ PETSHIP ADMIN (SOS) -->
+    <div x-show="adminPetShipSosModalOpen" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border-2 border-rose-300 relative animate-fadeIn" @click.outside="adminPetShipSosModalOpen = false">
+            
+            <div class="flex items-start justify-between border-b border-rose-100 pb-4 mb-5">
+                <div>
+                    <h3 class="text-xl font-black text-rose-700 flex items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span>Báo Cáo Sự Cố Vận Chuyển PetShip</span>
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Ghi nhận phụ phí hoặc xử lý tình huống phát sinh minh bạch.</p>
+                </div>
+                <button @click="adminPetShipSosModalOpen = false" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form @submit.prevent="submitPetShipSos()" class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-800 mb-1">Loại sự cố phát sinh <span class="text-rose-500">*</span></label>
+                    <select x-model="petShipSosForm.reason" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 font-bold text-slate-900 focus:outline-none focus:border-rose-500">
+                        <option value="Khách vắng mặt không liên lạc được">Khách vắng mặt không liên lạc được</option>
+                        <option value="Pet hung dữ / cắn người">Pet hung dữ / cắn người cần hỗ trợ</option>
+                        <option value="Sự cố thời tiết mưa bão / kẹt xe kéo dài">Sự cố thời tiết mưa bão / kẹt xe kéo dài</option>
+                        <option value="Pet có dấu hiệu ốm sốt phát sinh">Pet có dấu hiệu ốm sốt phát sinh</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-800 mb-1">Phụ phí phát sinh (nếu có, VNĐ)</label>
+                    <input type="number" x-model.number="petShipSosForm.surcharge" min="0" step="10000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-black text-rose-700 focus:outline-none focus:border-rose-500">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-800 mb-1">Mô tả chi tiết sự cố</label>
+                    <textarea x-model="petShipSosForm.notes" rows="3" placeholder="Ghi nhận cụ thể thời gian, nhân chứng, tình trạng bé..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-medium text-slate-800 focus:outline-none focus:border-rose-500"></textarea>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-2.5">
+                    <button type="button" @click="adminPetShipSosModalOpen = false" class="px-4 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-600 font-bold transition">
+                        Hủy
+                    </button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-black shadow-md shadow-rose-600/30 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span>Gửi Báo Cáo Sự Cố</span>
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+\n<!-- ==================== HẾT CÁC MODAL HỆ THỐNG ==================== -->
 '''

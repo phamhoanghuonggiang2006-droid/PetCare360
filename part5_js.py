@@ -65,6 +65,669 @@ function superPetCareApp() {
 
         // Bộ lọc & Tìm kiếm Khách hàng & Admin
         searchQuery: '',
+        
+        // ========================================================
+        // ADMIN DASHBOARD & ADVANCED MANAGEMENT SYSTEM STATE
+        // ========================================================
+        adminDashboardTimeFilter: 'month', // 'today' | 'yesterday' | '7days' | 'month' | 'custom'
+        dashboardChartMetric: 'revenue', // 'revenue' | 'profit' | 'orders'
+        adminRevenueMetrics: {
+            revenue: { current: 485620000, growth: '+18.4%', isUp: true },
+            orders: { total: 1284, success: 1150, pending: 134, growth: '+12.6%', isUp: true },
+            aov: { current: 378000, growth: '+5.2%', isUp: true },
+            traffic: { pageviews: 48290, visitors: 18640, growth: '+24.8%', isUp: true }
+        },
+        adminTrafficSources: [
+            { source: 'Google Search (Organic & Ads)', percent: 42, visits: '20.280', color: 'bg-blue-600', textCol: 'text-blue-600' },
+            { source: 'Mạng xã hội (Facebook, TikTok, PetShare)', percent: 28, visits: '13.520', color: 'bg-pink-500', textCol: 'text-pink-600' },
+            { source: 'Truy cập trực tiếp (Direct URL)', percent: 18, visits: '8.690', color: 'bg-emerald-500', textCol: 'text-emerald-600' },
+            { source: 'Khách hàng cũ quay lại (Referral)', percent: 12, visits: '5.800', color: 'bg-amber-500', textCol: 'text-amber-600' }
+        ],
+        adminConversionFunnel: [
+            { step: '1. Lượt truy cập Website', count: '48.290', rate: '100%', drop: null },
+            { step: '2. Thêm vào giỏ hàng', count: '12.480', rate: '25.8%', drop: '-74.2%' },
+            { step: '3. Tiến hành đặt hàng / hẹn', count: '3.820', rate: '7.9%', drop: '-69.4%' },
+            { step: '4. Hoàn tất thanh toán', count: '1.284', rate: '2.66%', drop: '-66.4%' }
+        ],
+        adminTopProducts: [
+            { rank: 1, name: 'Thức Ăn Hạt Royal Canin Mini Adult (Chó Nhỏ)', img: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&w=200&q=80', soldQty: 540, revenue: 280800000 },
+            { rank: 2, name: 'Cát Đậu Nành Tofu Cature Kháng Khuẩn 6L', img: 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=200&q=80', soldQty: 380, revenue: 55100000 },
+            { rank: 3, name: 'Sữa Tắm Trị Nấm & Viêm Da Davis 4%', img: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=200&q=80', soldQty: 210, revenue: 49350000 },
+            { rank: 4, name: 'Pate Monge Cá Hồi & Lê Tươi Siêu Mịn', img: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=200&q=80', soldQty: 490, revenue: 19600000 },
+            { rank: 5, name: 'Xịt Khử Khuẩn Chuồng Trại Bioline', img: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=200&q=80', soldQty: 185, revenue: 24050000 }
+        ],
+        adminRecentOrders: [
+            {
+                orderId: '#PC-2026-1089',
+                id: '#PC-2026-1089',
+                customerName: 'Nguyễn Phương Thảo',
+                customerEmail: 'thao.nguyen@gmail.com',
+                customerPhone: '0988 123 456',
+                phone: '0988 123 456',
+                address: '123 Nguyễn Thị Minh Khai, Phường Bến Thành, Quận 1, TP. Hồ Chí Minh',
+                total: 1720000,
+                paymentMethod: 'vietqr',
+                notes: 'Giao giờ hành chính, gọi trước 15 phút',
+                status: 'DELIVERED',
+                statusLabel: 'Hoàn thành'
+            },
+            {
+                orderId: '#PC-2026-1088',
+                id: '#PC-2026-1088',
+                customerName: 'Lê Văn Cường',
+                customerEmail: 'cuong.le@gmail.com',
+                customerPhone: '0912 345 678',
+                phone: '0912 345 678',
+                address: '450 Nguyễn Thị Thập, P. Tân Quy, Quận 7, TP.HCM',
+                total: 685000,
+                paymentMethod: 'cod',
+                notes: 'Kiểm tra hàng trước khi thanh toán',
+                status: 'SHIPPED',
+                statusLabel: 'Đang giao'
+            },
+            {
+                orderId: '#PC-2026-1087',
+                id: '#PC-2026-1087',
+                customerName: 'Trần Thị Mai',
+                customerEmail: 'mai.tran@gmail.com',
+                customerPhone: '0901 234 567',
+                phone: '0901 234 567',
+                address: '88 Nguyễn Đình Chiểu, Phường Đa Kao, Quận 1, TP.HCM',
+                total: 2450000,
+                paymentMethod: 'momo',
+                notes: 'Để trước cửa bảo vệ nếu vắng nhà',
+                status: 'PENDING',
+                statusLabel: 'Chờ xác nhận'
+            },
+            {
+                orderId: '#PC-2026-1086',
+                id: '#PC-2026-1086',
+                customerName: 'Phạm Minh Đức',
+                customerEmail: 'duc.pham@gmail.com',
+                customerPhone: '0977 889 900',
+                phone: '0977 889 900',
+                address: '12 Bạch Đằng, Phường 24, Quận Bình Thạnh, TP.HCM',
+                total: 350000,
+                paymentMethod: 'vietqr',
+                notes: 'Giao buổi sáng trước 11h',
+                status: 'DELIVERED',
+                statusLabel: 'Hoàn thành'
+            },
+            {
+                orderId: '#PC-2026-1085',
+                id: '#PC-2026-1085',
+                customerName: 'Vũ Hoàng Long',
+                customerEmail: 'long.vu@gmail.com',
+                customerPhone: '0933 221 100',
+                phone: '0933 221 100',
+                address: '25 Lê Duẩn, Phường Bến Nghé, Quận 1, TP.HCM',
+                total: 890000,
+                paymentMethod: 'cod',
+                notes: 'Khách đổi ý không nhận hàng',
+                status: 'CANCELLED',
+                statusLabel: 'Đã hủy'
+            }
+        ],
+
+        // MODULE 3: QUẢN LÝ DỊCH VỤ LIST
+        adminServicesList: [
+            {
+                serviceId: 'SRV2002',
+                id: 'SRV2002',
+                customerName: 'Lê Văn C',
+                customerPhone: '0911 223 344',
+                petName: 'Mèo Bông',
+                petAvatar: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=200&q=80',
+                petBreed: 'Mèo Anh Lông Dài',
+                servicePackage: 'Spa',
+                checkInTime: '14:00 - 16/10',
+                checkOutTime: '16:30 - 16/10',
+                total: 350000,
+                paymentMethod: 'Chuyển khoản',
+                petShipShipper: 'Nguyễn Văn Bình',
+                depositStatus: 'Đã cọc',
+                notes: 'Bé hơi nhát nước, nhờ kỹ thuật viên nhẹ tay tắm gội thảo mộc.',
+                health: {
+                    weight: '4.5 kg',
+                    allergy: 'Dị ứng sữa bò và xà phòng mùi nồng',
+                    diet: 'Hạt ngâm pate cá hồi'
+                }
+            },
+            {
+                serviceId: 'SRV2001',
+                id: 'SRV2001',
+                customerName: 'Trần Thị Mai',
+                customerPhone: '0901 234 567',
+                petName: 'Bé Bơ',
+                petAvatar: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=200&q=80',
+                petBreed: 'Chó Corgi',
+                servicePackage: 'Hotel',
+                checkInTime: '08:30 - 28/10',
+                checkOutTime: '17:00 - 30/10',
+                total: 1250000,
+                paymentMethod: 'VietQR',
+                petShipShipper: 'Trần Thanh Phong',
+                depositStatus: 'Đã cọc',
+                notes: 'Gửi chuồng size M, khách tự mang hạt Royal Canin.',
+                health: {
+                    weight: '12 kg',
+                    allergy: 'Dị ứng ngũ cốc, không ăn đồ ngọt',
+                    diet: 'Hạt ngâm nước ấm 2 bữa/ngày'
+                }
+            },
+            {
+                serviceId: 'SRV2003',
+                id: 'SRV2003',
+                customerName: 'Nguyễn Phương Thảo',
+                customerPhone: '0988 123 456',
+                petName: 'Miu Miu',
+                petAvatar: 'https://images.unsplash.com/photo-1533738363-b7f9aef128ce?auto=format&fit=crop&w=200&q=80',
+                petBreed: 'Mèo Ba Tư',
+                servicePackage: 'Grooming',
+                checkInTime: '09:00 - 29/10',
+                checkOutTime: '11:00 - 29/10',
+                total: 450000,
+                paymentMethod: 'MoMo',
+                petShipShipper: 'Không có',
+                depositStatus: 'Đã cọc',
+                notes: 'Cắt tỉa tạo hình kiểu sư tử, sấy mát.',
+                health: {
+                    weight: '3.8 kg',
+                    allergy: 'Không ghi nhận',
+                    diet: 'Pate whiskas vị cá ngừ'
+                }
+            },
+            {
+                serviceId: 'SRV2004',
+                id: 'SRV2004',
+                customerName: 'Phạm Minh Đức',
+                customerPhone: '0977 889 900',
+                petName: 'Lucky',
+                petAvatar: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=200&q=80',
+                petBreed: 'Chó Golden Retriever',
+                servicePackage: 'Hotel',
+                checkInTime: '10:00 - 01/11',
+                checkOutTime: '18:00 - 05/11',
+                total: 2100000,
+                paymentMethod: 'Chuyển khoản',
+                petShipShipper: 'Không có',
+                depositStatus: 'Chưa cọc',
+                notes: 'Đặt trước 4 đêm phòng VIP có máy lạnh và camera giám sát.',
+                health: {
+                    weight: '28 kg',
+                    allergy: 'Dị ứng thịt gà công nghiệp',
+                    diet: 'Thức ăn cao cấp của khách sạn'
+                }
+            }
+        ],
+
+        // MODULE 2: QUẢN LÝ ĐƠN HÀNG
+        ordersSearchQuery: '',
+        ordersStatusFilter: 'all',
+        adminOrdersPage: 1,
+        selectedAdminOrderDetail: null,
+        adminOrderDetailModalOpen: false,
+
+        // MODULE 3: QUẢN LÝ DỊCH VỤ
+        servicesSearchQuery: '',
+        servicesStatusFilter: 'all',
+        servicesPackageFilter: 'all',
+        adminServicesPage: 1,
+        selectedAdminServiceDetail: null,
+        adminServiceDetailModalOpen: false,
+
+        // MODULE 4: QUẢN LÝ TỒN KHO & NHẬP KHO
+        inventorySearchQuery: '',
+        inventoryCategoryFilter: 'all',
+        inventoryStockFilter: 'all',
+        inventoryPage: 1,
+        selectedInventorySKUs: [],
+        adminRestockModalOpen: false,
+        restockForm: {
+            sku: 'FD-RC-001',
+            productId: 'FD-RC-001',
+            quantity: 20,
+            branch: 'Cơ sở Chính: 88 Nguyễn Thị Minh Khai, Q1',
+            qty: 20,
+            unitPrice: 185000,
+            supplier: 'Công ty Cổ phần Thú Cưng Việt Nam',
+            notes: 'Phiếu nhập lô số L-2026-Q4, HSD 12/2027'
+        },
+        inventoryItems: [
+            { id: 1, sku: 'SKU-RC-01', name: 'Thức Ăn Hạt Royal Canin Mini Adult (Chó Nhỏ)', img: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&w=150&q=80', category: 'Dùng để bán', catType: 'sale', buyPrice: 185000, sellPrice: 245000, stock: 48, status: 'in_stock', statusLabel: 'Còn hàng' },
+            { id: 2, sku: 'SKU-TC-02', name: 'Cát Đậu Nành Tofu Cature Kháng Khuẩn 6L', img: 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=150&q=80', category: 'Dùng để bán', catType: 'sale', buyPrice: 95000, sellPrice: 145000, stock: 85, status: 'in_stock', statusLabel: 'Còn hàng' },
+            { id: 3, sku: 'SKU-DV-03', name: 'Sữa Tắm Trị Nấm & Viêm Da Davis 4% 355ml', img: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=150&q=80', category: 'Dùng cho cơ sở', catType: 'facility', buyPrice: 160000, sellPrice: 235000, stock: 6, status: 'low_stock', statusLabel: 'Sắp hết' },
+            { id: 4, sku: 'SKU-MG-04', name: 'Pate Monge Cá Hồi & Lê Tươi Siêu Mịn', img: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=150&q=80', category: 'Dùng để bán', catType: 'sale', buyPrice: 28000, sellPrice: 42000, stock: 120, status: 'in_stock', statusLabel: 'Còn hàng' },
+            { id: 5, sku: 'SKU-BL-05', name: 'Xịt Khử Khuẩn Chuồng Trại Bioline 500ml', img: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=150&q=80', category: 'Dùng cho cơ sở', catType: 'facility', buyPrice: 85000, sellPrice: 130000, stock: 18, status: 'in_stock', statusLabel: 'Còn hàng' },
+            { id: 6, sku: 'SKU-FL-06', name: 'Thuốc Nhỏ Gáy Trị Ve Rận Frontline Plus', img: 'https://images.unsplash.com/photo-1512069772995-ec65ed45afd6?auto=format&fit=crop&w=150&q=80', category: 'Dùng để bán', catType: 'sale', buyPrice: 195000, sellPrice: 275000, stock: 0, status: 'out_of_stock', statusLabel: 'Hết hàng' },
+            { id: 7, sku: 'SKU-NP-07', name: 'Gel Dinh Dưỡng Virbac Nutri-plus 120g', img: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=150&q=80', category: 'Dùng cho cơ sở', catType: 'facility', buyPrice: 110000, sellPrice: 165000, stock: 5, status: 'low_stock', statusLabel: 'Sắp hết' },
+            { id: 8, sku: 'SKU-CC-08', name: 'Bánh Thưởng Súp Ciao Churu Gà & Sò Điệp', img: 'https://images.unsplash.com/photo-1574158622682-e40e69881006?auto=format&fit=crop&w=150&q=80', category: 'Dùng để bán', catType: 'sale', buyPrice: 32000, sellPrice: 50000, stock: 65, status: 'in_stock', statusLabel: 'Còn hàng' }
+        ],
+
+        // MODULE 5: QUẢN LÝ HOTEL (20 PHÒNG CHÓ & 20 PHÒNG MÈO - GRID 5x4)
+        hotelActiveArea: 'dog', // 'dog' | 'cat'
+        hotelStatusFilter: 'all', // 'all' | 'empty' | 'deposit' | 'occupied' | 'cleaning'
+        selectedQueueServiceCode: null,
+        dogRooms: [
+            { id: 'CH-01', code: 'CH-01', status: 'occupied', serviceCode: 'SRV2002', petName: 'Bơ (Corgi 12kg)', guestName: 'Trần Thị Mai', checkInOut: '28/10 -> 30/10' },
+            { id: 'CH-02', code: 'CH-02', status: 'deposit', serviceCode: 'SRV2004', petName: 'Lucky (Golden 24kg)', guestName: 'Lê Văn Cường', checkInOut: '29/10 -> 02/11' },
+            { id: 'CH-03', code: 'CH-03', status: 'empty', serviceCode: null, petName: null, guestName: null, checkInOut: null },
+            { id: 'CH-04', code: 'CH-04', status: 'cleaning', serviceCode: null, petName: null, guestName: null, checkInOut: null },
+            { id: 'CH-05', code: 'CH-05', status: 'occupied', serviceCode: 'SRV2008', petName: 'Kiki (Husky 18kg)', guestName: 'Vũ Hoàng Long', checkInOut: '27/10 -> 29/10' },
+            { id: 'CH-06', code: 'CH-06', status: 'empty', serviceCode: null, petName: null, guestName: null, checkInOut: null },
+            { id: 'CH-07', code: 'CH-07', status: 'empty', serviceCode: null, petName: null, guestName: null, checkInOut: null },
+            { id: 'CH-08', code: 'CH-08', status: 'deposit', serviceCode: 'SRV2011', petName: 'Bông (Poodle 3.5kg)', guestName: 'Nguyễn Phương Thảo', checkInOut: '30/10 -> 01/11' },
+            { id: 'CH-09', code: 'CH-09', status: 'empty', serviceCode: null, petName: null, guestName: null, checkInOut: null },
+            { id: 'CH-10', code: 'CH-10', status: 'occupied', serviceCode: 'SRV2015', petName: 'Milo (Chihuahua 2.8kg)', guestName: 'Phạm Minh Đức', checkInOut: '28/10 -> 31/10' },
+            { id: 'CH-11', code: 'CH-11', status: 'empty', serviceCode: null, petName: null, guestName: null, checkInOut: null },
+            { id: 'CH-12', code: 'CH-12', status: 'cleaning', serviceCode: null, petName: null, guestName: null, checkInOut: null },
+            { id: 'CH-13', code: 'CH-13', status: 'empty', serviceCode: null, petName: null, guestName: null, checkInOut: null },
+            { id: 'CH-14', code: 'CH-14', status: 'empty', serviceCode: null, petName: null, guestName: null, checkInOut: null },
+            { id: 'CH-15', code: 'CH-15', status: 'deposit', serviceCode: 'SRV2022', petName: 'Susu (Shiba 9kg)', guestName: 'Đặng Thu Trang', checkInOut: '01/11 -> 04/11' },
+            { id: 'CH-16', code: 'CH-16', status: 'empty', serviceCode: null, petName: null, guestName: null, checkInOut: null },
+            { id: 'CH-17', code: 'CH-17', status: 'empty', serviceCode: null, petName: null, guestName: null, checkInOut: null },
+            { id: 'CH-18', code: 'CH-18', status: 'occupied', serviceCode: 'SRV2030', petName: 'Ken (Samoyed 22kg)', guestName: 'Nguyễn Hoàng Giang', checkInOut: '27/10 -> 03/11' },
+            { id: 'CH-19', code: 'CH-19', status: 'empty', serviceCode: null, petName: null, guestName: null, checkInOut: null },
+            { id: 'CH-20', code: 'CH-20', status: 'empty', serviceCode: null, petName: null, guestName: null, checkInOut: null }
+        ],
+        catRooms: [
+            { id: 'ME-01', code: 'ME-01', status: 'occupied', serviceCode: 'SRV2005', petName: 'Miu (Anh lông ngắn 4kg)', guestName: 'Phạm Minh Thảo', checkInOut: '28/10 -> 31/10' },
+            { id: 'ME-02', code: 'ME-02', status: 'deposit', serviceCode: 'SRV2009', petName: 'Bánh Mì (Mèo Ta 3kg)', guestName: 'Lê Văn Cường', checkInOut: '29/10 -> 01/11' },
+            { id: 'ME-03', code: 'ME-03', status: 'empty', serviceCode: null, petName: null, guestName: null, checkInOut: null },
+            { id: 'ME-04', code: 'ME-04', status: 'empty', serviceCode: null, petName: null, guestName: null, checkInOut: null },
+            { id: 'ME-05', code: 'ME-05', status: 'occupied', serviceCode: 'SRV2018', petName: 'Sữa (Ba Tư 4.5kg)', guestName: 'Trần Thị Mai', checkInOut: '28/10 -> 30/10' },
+            { id: 'ME-06', code: 'ME-06', status: 'cleaning', serviceCode: null, petName: null, guestName: null, checkInOut: null },
+            { id: 'ME-07', code: 'ME-07', status: 'empty', serviceCode: null, petName: null, guestName: null, checkInOut: null },
+            { id: 'ME-08', code: 'ME-08', status: 'empty', serviceCode: null, petName: null, guestName: null, checkInOut: null },
+            { id: 'ME-09', code: 'ME-09', status: 'deposit', serviceCode: 'SRV2026', petName: 'Mun (Xiêm 3.2kg)', guestName: 'Nguyễn Văn Bình', checkInOut: '31/10 -> 03/11' },
+            { id: 'ME-10', code: 'ME-10', status: 'empty', serviceCode: null, petName: null, guestName: null, checkInOut: null },
+            { id: 'ME-11', code: 'ME-11', status: 'empty', serviceCode: null, petName: null, guestName: null, checkInOut: null },
+            { id: 'ME-12', code: 'ME-12', status: 'occupied', serviceCode: 'SRV2035', petName: 'Cà Phê (Bengal 5kg)', guestName: 'Vũ Hoàng Long', checkInOut: '27/10 -> 29/10' },
+            { id: 'ME-13', code: 'ME-13', status: 'empty', serviceCode: null, petName: null, guestName: null, checkInOut: null },
+            { id: 'ME-14', code: 'ME-14', status: 'cleaning', serviceCode: null, petName: null, guestName: null, checkInOut: null },
+            { id: 'ME-15', code: 'ME-15', status: 'empty', serviceCode: null, petName: null, guestName: null, checkInOut: null },
+            { id: 'ME-16', code: 'ME-16', status: 'empty', serviceCode: null, petName: null, guestName: null, checkInOut: null },
+            { id: 'ME-17', code: 'ME-17', status: 'deposit', serviceCode: 'SRV2042', petName: 'Mây (Scottish Fold 3.8kg)', guestName: 'Nguyễn Phương Thảo', checkInOut: '01/11 -> 05/11' },
+            { id: 'ME-18', code: 'ME-18', status: 'empty', serviceCode: null, petName: null, guestName: null, checkInOut: null },
+            { id: 'ME-19', code: 'ME-19', status: 'empty', serviceCode: null, petName: null, guestName: null, checkInOut: null },
+            { id: 'ME-20', code: 'ME-20', status: 'empty', serviceCode: null, petName: null, guestName: null, checkInOut: null }
+        ],
+        hotelDepositQueue: [
+            { serviceId: 'SRV2002', serviceCode: 'SRV2002', petName: 'Bé Bơ', breed: 'Chó Corgi (12kg)', customerName: 'Trần Thị Mai', owner: 'Trần Thị Mai', phone: '0901 234 567', checkIn: '28/10 -> 30/10', dateRange: '28/10 -> 30/10' },
+            { serviceId: 'SRV2005', serviceCode: 'SRV2005', petName: 'Bé Miu', breed: 'Mèo Anh lông ngắn (4.2kg)', customerName: 'Phạm Minh Thảo', owner: 'Phạm Minh Thảo', phone: '0988 776 655', checkIn: '29/10 -> 01/11', dateRange: '29/10 -> 01/11' },
+            { serviceId: 'SRV2008', serviceCode: 'SRV2008', petName: 'Bé Đậu', breed: 'Chó Poodle (3.8kg)', customerName: 'Lê Hoàng Nam', owner: 'Lê Hoàng Nam', phone: '0912 334 455', checkIn: '30/10 -> 02/11', dateRange: '30/10 -> 02/11' },
+            { serviceId: 'SRV2012', serviceCode: 'SRV2012', petName: 'Bé Sim', breed: 'Mèo Ba Tư (3.5kg)', customerName: 'Vũ Hoàng Long', owner: 'Vũ Hoàng Long', phone: '0933 221 100', checkIn: '31/10 -> 03/11', dateRange: '31/10 -> 03/11' }
+        ],
+
+        // MODULE 6: QUẢN LÝ NHÂN SỰ (INLINE EDITABLE CA LÀM & LỊCH CA TUẦN)
+        staffSearchQuery: '',
+        selectedStaffProfile: null,
+        adminStaffProfileModalOpen: false,
+        staffList: [
+            {
+                id: 'PetStaff0001',
+                staffId: 'PetStaff0001',
+                weeklySchedule: ['T2', 'T3', 'T4', 'T5', 'T6'],
+                name: 'Nguyễn Văn Bình',
+                role: 'Bác sĩ thú y',
+                roleColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                shift: '8h-12h',
+                schedule: { T2: true, T3: true, T4: true, T5: true, T6: true, T7: false, CN: false },
+                avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=150&q=80',
+                phone: '0918 223 344',
+                email: 'binh.nguyen@petcare360.vn',
+                degree: 'Bác Sĩ Thú Y - ĐH Nông Lâm TP.HCM (Tốt nghiệp Giỏi)',
+                specialties: 'Ngoại khoa, Phẫu thuật chỉnh hình, Cấp cứu 24/7',
+                bio: 'Hơn 7 năm kinh nghiệm công tác tại các bệnh viện thú y quốc tế. Trực ban phẫu thuật và chăm sóc đặc biệt.'
+            },
+            {
+                id: 'PetStaff0002',
+                staffId: 'PetStaff0002',
+                weeklySchedule: ['T2', 'T3', 'T4', 'T5', 'T7'],
+                name: 'Trần Thị Thanh',
+                role: 'Nhân viên chăm sóc',
+                roleColor: 'bg-indigo-100 text-indigo-800 border-indigo-200',
+                shift: '12h-17h',
+                schedule: { T2: true, T3: true, T4: true, T5: true, T6: false, T7: true, CN: false },
+                avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80',
+                phone: '0903 889 911',
+                email: 'thanh.tran@petcare360.vn',
+                degree: 'Chứng chỉ Pet Grooming Master Level B - Hàn Quốc',
+                specialties: 'Spa sục khí bọt Nano, Cắt tỉa Show, Nhuộm lông nghệ thuật',
+                bio: '5 năm kinh nghiệm Stylist thú cưng chuyên nghiệp, mát tay với các bé nhút nhát.'
+            },
+            {
+                id: 'PetStaff0003',
+                staffId: 'PetStaff0003',
+                weeklySchedule: ['T2', 'T3', 'T4', 'CN'],
+                name: 'Lê Hoàng Nam',
+                role: 'PetShip',
+                roleColor: 'bg-orange-100 text-orange-800 border-orange-200',
+                shift: '8h-12h',
+                schedule: { T2: true, T3: true, T4: true, T5: false, T6: true, T7: false, CN: true },
+                avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
+                phone: '0912 345 678',
+                email: 'nam.le@petcare360.vn',
+                degree: 'Bằng lái B2 • Chứng chỉ cứu hộ thú cưng căn bản',
+                specialties: 'Điều phối xe chuyên dụng, Kỹ thuật bế và cố định pet an toàn',
+                bio: 'Hơn 3.000 chuyến đưa đón thú cưng an toàn tuyệt đối khu vực TP.HCM.'
+            },
+            {
+                id: 'PetStaff0004',
+                staffId: 'PetStaff0004',
+                weeklySchedule: ['T3', 'T4', 'T5', 'T6', 'T7'],
+                name: 'Phạm Minh Đức',
+                role: 'Nhân viên bán hàng',
+                roleColor: 'bg-teal-100 text-teal-800 border-teal-200',
+                shift: '17h-21h',
+                schedule: { T2: false, T3: true, T4: true, T5: true, T6: true, T7: true, CN: false },
+                avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80',
+                phone: '0977 889 900',
+                email: 'duc.pham@petcare360.vn',
+                degree: 'Cử nhân Quản trị Kinh doanh - ĐH Kinh Tế',
+                specialties: 'Tư vấn dinh dưỡng chuyên sâu, Chăm sóc khách hàng VIP',
+                bio: 'Am hiểu tường tận các dòng hạt y khoa, thuốc đặc trị và chế độ dinh dưỡng thú cưng.'
+            },
+            {
+                id: 'PetStaff0005',
+                staffId: 'PetStaff0005',
+                weeklySchedule: ['T2', 'T4', 'T5', 'T6', 'CN'],
+                name: 'Đặng Thu Trang',
+                role: 'Dọn dẹp',
+                roleColor: 'bg-slate-100 text-slate-800 border-slate-200',
+                shift: '12h-17h',
+                schedule: { T2: true, T3: false, T4: true, T5: true, T6: true, T7: false, CN: true },
+                avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
+                phone: '0988 554 433',
+                email: 'trang.dang@petcare360.vn',
+                degree: 'Chứng chỉ Khử trùng & An toàn sinh học Chuồng trại Thú y',
+                specialties: 'Vệ sinh khử khuẩn buồng Pet Hotel, Khử mùi sinh học',
+                bio: 'Đảm bảo môi trường lưu trú của các bé luôn thơm mát và sạch khuẩn chuẩn 5 sao.'
+            }
+        ],
+
+        // MODULE 7: QUẢN LÝ KHÁCH HÀNG
+        adminCustomerSearch: '',
+        customerTierFilter: 'all',
+        selectedCustomerTransactions: null,
+        customerTransactionModalOpen: false,
+        selectedCustomerChat: null,
+        customerChatDrawerOpen: false,
+        adminCustomerChatInput: '',
+        adminCustomersList: [
+            {
+                id: 'CUST0001',
+                name: 'Trần Thị Mai',
+                avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80',
+                contact: '0901 234 567 • mai.tran@gmail.com',
+                phone: '0901 234 567',
+                email: 'mai.tran@gmail.com',
+                membership: 'gold',
+                tierLabel: 'Vàng (Gold)',
+                badgeClass: 'bg-amber-100 text-amber-800 border-amber-300 font-extrabold',
+                petsCount: 2,
+                petsDesc: '2 (Chó Corgi Bơ, Mèo Ba Tư)',
+                totalSpent: 15500000,
+                history: [
+                    { date: '28/10/2026', code: 'SRV2002', type: 'Dịch vụ Spa & Hotel', total: 1720000, status: 'Đã cọc' },
+                    { date: '15/10/2026', code: '#PC-2026-0980', type: 'Đơn hàng Sản phẩm', total: 685000, status: 'Hoàn thành' },
+                    { date: '25/09/2026', code: 'SRV1890', type: 'Tiêm phòng dại & Khám', total: 450000, status: 'Hoàn thành' },
+                    { date: '10/09/2026', code: '#PC-2026-0850', type: 'Đơn hàng Sản phẩm', total: 1250000, status: 'Hoàn thành' }
+                ]
+            },
+            {
+                id: 'CUST0002',
+                name: 'Lê Văn Cường',
+                avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
+                contact: '0912 345 678 • cuong.le@gmail.com',
+                phone: '0912 345 678',
+                email: 'cuong.le@gmail.com',
+                membership: 'platinum',
+                tierLabel: 'Bạch Kim (Platinum)',
+                badgeClass: 'bg-slate-900 text-cyan-300 border-slate-700 font-black',
+                petsCount: 3,
+                petsDesc: '3 (Golden Lucky, Poodle, Mèo Anh)',
+                totalSpent: 34200000,
+                history: [
+                    { date: '27/10/2026', code: '#PC-2026-1088', type: 'Đơn hàng Sản phẩm', total: 685000, status: 'Đang giao' },
+                    { date: '20/10/2026', code: 'SRV1995', type: 'Pet Hotel 5 Sao (7 ngày)', total: 3500000, status: 'Hoàn thành' },
+                    { date: '05/10/2026', code: '#PC-2026-0910', type: 'Đơn hàng Sản phẩm', total: 2150000, status: 'Hoàn thành' }
+                ]
+            },
+            {
+                id: 'CUST0003',
+                name: 'Nguyễn Hoàng Giang',
+                avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80',
+                contact: '0909 123 456 • giang.nguyen@tdtu.edu.vn',
+                phone: '0909 123 456',
+                email: 'giang.nguyen@tdtu.edu.vn',
+                membership: 'gold',
+                tierLabel: 'Vàng (Gold)',
+                badgeClass: 'bg-amber-100 text-amber-800 border-amber-300 font-extrabold',
+                petsCount: 1,
+                petsDesc: '1 (Chó Corgi Bơ 12kg)',
+                totalSpent: 18900000,
+                history: [
+                    { date: '28/10/2026', code: 'SRV2018', type: 'Spa Tắm Sấy & Cắt Tỉa', total: 800000, status: 'Đang tiếp khách' },
+                    { date: '18/10/2026', code: '#PC-2026-1020', type: 'Đơn hàng Hạt Orijen', total: 1450000, status: 'Hoàn thành' }
+                ]
+            },
+            {
+                id: 'CUST0004',
+                name: 'Phạm Minh Thảo',
+                avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
+                contact: '0988 776 655 • thao.pham@gmail.com',
+                phone: '0988 776 655',
+                email: 'thao.pham@gmail.com',
+                membership: 'silver',
+                tierLabel: 'Bạc (Silver)',
+                badgeClass: 'bg-slate-200 text-slate-700 border-slate-300 font-bold',
+                petsCount: 1,
+                petsDesc: '1 (Mèo Miu 4.2kg)',
+                totalSpent: 6800000,
+                history: [
+                    { date: '28/10/2026', code: 'SRV2005', type: 'Pet Hotel Mèo (3 ngày)', total: 750000, status: 'Đã cọc' },
+                    { date: '12/10/2026', code: '#PC-2026-0955', type: 'Cát Đậu Nành Tofu', total: 290000, status: 'Hoàn thành' }
+                ]
+            },
+            {
+                id: 'CUST0005',
+                name: 'Vũ Hoàng Long',
+                avatar: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=150&q=80',
+                contact: '0933 221 100 • long.vu@gmail.com',
+                phone: '0933 221 100',
+                email: 'long.vu@gmail.com',
+                membership: 'bronze',
+                tierLabel: 'Đồng (Bronze)',
+                badgeClass: 'bg-amber-800/10 text-amber-900 border-amber-800/20 font-bold',
+                petsCount: 1,
+                petsDesc: '1 (Chó Husky Kiki)',
+                totalSpent: 2450000,
+                history: [
+                    { date: '27/10/2026', code: '#PC-2026-1085', type: 'Đơn hàng Bát ăn & Balo', total: 890000, status: 'Đã hủy' },
+                    { date: '01/10/2026', code: 'SRV1810', type: 'Khám tổng quát & Tẩy giun', total: 350000, status: 'Hoàn thành' }
+                ]
+            }
+        ],
+
+        // MODULE 8: HỒ SƠ THÚ CƯNG
+        petProfilesSearch: '',
+        petProfilesStatusFilter: 'all',
+        selectedPetHealthBook: null,
+        adminPetHealthBookModalOpen: false,
+        adminPetProfilesList: [
+            {
+                code: 'PET0001',
+                name: 'Bơ (Butter)',
+                species: 'Chó',
+                breed: 'Corgi Pembroke',
+                owner: 'Trần Thị Mai',
+                ownerPhone: '0901 234 567',
+                weight: '12 kg',
+                age: '2.5 tuổi',
+                gender: 'Đực',
+                neutered: 'Đã triệt sản',
+                status: 'Khỏe mạnh',
+                statusClass: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                avatar: 'https://images.unsplash.com/photo-1612536057832-2ff7ead58194?auto=format&fit=crop&w=300&q=80',
+                vaccines: [
+                    { name: 'Vắc xin 7 bệnh DHPPi + L', date: '15/06/2026', done: true },
+                    { name: 'Vắc xin phòng Dại (Rabies)', date: '15/06/2026', done: true },
+                    { name: 'Tẩy giun & Nhỏ gáy định kỳ', date: '01/10/2026', done: true }
+                ],
+                allergies: 'Dị ứng đạm thịt gà công nghiệp (Gây đỏ tai & ngứa kẽ chân)',
+                medications: 'Không có đơn thuốc hiện tại. Bổ sung dầu cá Omega-3 hàng ngày',
+                diet: 'Khách tự mang hạt Royal Canin Corgi + Pate cá hồi tươi (2 bữa/ngày)',
+                habits: 'Đi vệ sinh ngoài sân cỏ tự nhiên, đi dạo 2 lần sáng và chiều',
+                personality: 'Thân thiện, hoạt bát, rất thích được gãi bụng. Hơi sợ tiếng sấm sét'
+            },
+            {
+                code: 'PET0002',
+                name: 'Lucky',
+                species: 'Chó',
+                breed: 'Golden Retriever',
+                owner: 'Lê Văn Cường',
+                ownerPhone: '0912 345 678',
+                weight: '24 kg',
+                age: '3 tuổi',
+                gender: 'Đực',
+                neutered: 'Đã triệt sản',
+                status: 'Lưu chuồng',
+                statusClass: 'bg-blue-100 text-blue-800 border-blue-200',
+                avatar: 'https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=300&q=80',
+                vaccines: [
+                    { name: 'Vắc xin 7 bệnh', date: '05/04/2026', done: true },
+                    { name: 'Vắc xin Dại', date: '05/04/2026', done: true }
+                ],
+                allergies: 'Không có dị ứng',
+                medications: 'Glucosamine hỗ trợ khớp háng 1 viên/sáng',
+                diet: 'Dùng thực đơn thịt bò & rau củ của Pet Hotel',
+                habits: 'Đi vệ sinh khay lót lớn hoặc sân cỏ',
+                personality: 'Ngoan ngoãn, thích bơi lội, hòa đồng với mọi bé cưng'
+            },
+            {
+                code: 'PET0003',
+                name: 'Miu',
+                species: 'Mèo',
+                breed: 'Anh lông ngắn (BSH)',
+                owner: 'Phạm Minh Thảo',
+                ownerPhone: '0988 776 655',
+                weight: '4.2 kg',
+                age: '1.5 tuổi',
+                gender: 'Cái',
+                neutered: 'Đã triệt sản',
+                status: 'Khỏe mạnh',
+                statusClass: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                avatar: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=300&q=80',
+                vaccines: [
+                    { name: 'Vắc xin 4 bệnh Mèo PureVax', date: '10/05/2026', done: true },
+                    { name: 'Phòng Dại', date: '10/05/2026', done: true }
+                ],
+                allergies: 'Dị ứng thức ăn có ngũ cốc (Gluten)',
+                medications: 'Không',
+                diet: 'Pate Monge Cá hồi + Hạt không ngũ cốc Orijen Cat',
+                habits: 'Dùng cát đậu nành Tofu tự nhiên trong khay kín',
+                personality: 'Điềm tĩnh, thích nằm đệm sưởi ấm, không thích bị bế lâu'
+            },
+            {
+                code: 'PET0004',
+                name: 'Kiki',
+                species: 'Chó',
+                breed: 'Husky Siberian',
+                owner: 'Vũ Hoàng Long',
+                ownerPhone: '0933 221 100',
+                weight: '18 kg',
+                age: '2 tuổi',
+                gender: 'Đực',
+                neutered: 'Chưa triệt sản',
+                status: 'Đang ốm',
+                statusClass: 'bg-rose-100 text-rose-800 border-rose-200',
+                avatar: 'https://images.unsplash.com/photo-1605568427561-40dd23c2acea?auto=format&fit=crop&w=300&q=80',
+                vaccines: [
+                    { name: 'Vắc xin 7 bệnh', date: '12/01/2026', done: true }
+                ],
+                allergies: 'Nhạy cảm thời tiết nóng ẩm (Dễ viêm da kẽ ngón)',
+                medications: 'Thuốc kháng viêm da & bôi xịt Derma Spray lúc 10:00 & 19:00',
+                diet: 'Hạt dinh dưỡng hạt mềm + Ức gà luộc',
+                habits: 'Đi vệ sinh ngoài trời có người dắt',
+                personality: 'Tăng động, thích hú nói chuyện, cần phòng máy lạnh mát mẻ 22 độ'
+            }
+        ],
+
+        // MODULE 9: FLOW PETSHIP
+        petShipFlowTab: 'services', // 'services' | 'orders'
+        selectedPetShipControl: null,
+        adminPetShipControlModalOpen: false,
+        adminPetShipSosModalOpen: false,
+        petShipSosForm: {
+            reason: 'Khách vắng mặt tại điểm đón',
+            surcharge: 50000,
+            notes: 'Gọi 3 cuộc chuông nhưng khách không bắt máy. Đã chờ 15 phút tại cổng.'
+        },
+        availableShippers: ['Nguyễn Văn Bình', 'Trần Thanh Phong', 'Lê Hoàng Nam', 'Phạm Minh Đức'],
+        petShipPhysicalList: [
+            { id: 'ORD1001', code: '#PC-2026-1088', productSummary: '2x Thức Ăn Hạt Royal Canin Mini Adult (3kg)', customerName: 'Lê Văn Cường', phone: '0912 345 678', address: '450 Nguyễn Thị Thập, P. Tân Quy, Quận 7, TP.HCM', total: 1040000, paymentMethod: 'Chuyển khoản VietQR', notes: 'Giao giờ hành chính, gọi trước 15 phút', status: 'delivering', shipper: 'Trần Thanh Phong' },
+            { id: 'ORD1002', code: '#PC-2026-1087', productSummary: '1x Cát Tofu 6L + 1x Sữa Tắm Davis 355ml', customerName: 'Trần Thị Mai', phone: '0901 234 567', address: '88 Nguyễn Thị Minh Khai, P. Đa Kao, Quận 1, TP.HCM', total: 380000, paymentMethod: 'COD', notes: 'Để trước cửa bảo vệ nếu vắng nhà', status: 'pending', shipper: 'Chưa gán' }
+        ],
+        petShipServiceList: [
+            {
+                id: 'SRV2002',
+                customerName: 'Lê Văn C',
+                phone: '0911 223 344',
+                address: '128 Huỳnh Tấn Phát, Phường Tân Phú, Quận 7, TP.HCM',
+                petName: 'Mèo Bông',
+                petBreed: 'Mèo Anh Lông Dài (4.5kg)',
+                servicePackage: 'Spa & Grooming Cắt Tỉa Toàn Diện',
+                packageType: 'Spa',
+                bookingTime: '14:00 - 16/10/2026',
+                totalAmount: 350000,
+                total: 350000,
+                package: 'Spa',
+                time: '14:00 - 16/10',
+                payment: 'Chuyển khoản',
+                paymentMethod: 'Chuyển khoản VietQR',
+                status: 'deposited',
+                statusLabel: 'Đã cọc',
+                shipper: 'Nguyễn Văn Bình',
+                otpPickup: '8921',
+                otpReturn: '4452',
+                checkpoints: {
+                    phase1Done: true,
+                    pickupPhoto: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=400&q=80',
+                    phase2Done: true,
+                    storeQrScanned: true,
+                    phase3Done: false,
+                    returnPhoto: null
+                }
+            },
+            {
+                id: 'SRV2005',
+                customerName: 'Trần Thị Mai',
+                phone: '0901 234 567',
+                address: '125 Hoàng Quốc Việt, Phường Đa Kao, Quận 1, TP.HCM',
+                petName: 'Bé Bơ',
+                petBreed: 'Chó Corgi (12kg)',
+                servicePackage: 'Pet Hotel 5 Sao (Phòng VIP Chó)',
+                packageType: 'Hotel',
+                bookingTime: '09:00 - 28/10/2026',
+                totalAmount: 920000,
+                paymentMethod: 'Ví điện tử MoMo',
+                status: 'deposited',
+                statusLabel: 'Đã cọc',
+                shipper: 'Lê Hoàng Nam',
+                otpPickup: '1209',
+                otpReturn: '7823',
+                checkpoints: {
+                    phase1Done: true,
+                    pickupPhoto: 'https://images.unsplash.com/photo-1612536057832-2ff7ead58194?auto=format&fit=crop&w=400&q=80',
+                    phase2Done: false,
+                    storeQrScanned: false,
+                    phase3Done: false,
+                    returnPhoto: null
+                }
+            }
+        ],
+
         // ==================== 1. SẢN PHẨM & E-COMMERCE CATALOG & DETAIL ====================
         shopViewMode: 'catalog', // 'catalog' | 'detail'
         shopSpecies: '', // '' | 'Chó' | 'Mèo' | 'Thỏ'
@@ -2783,9 +3446,13 @@ function superPetCareApp() {
         switchAdminTab(tab) {
             this.activeAdminTab = tab;
             if (tab === 'dashboard' || tab === 'analytics') {
-                this.$nextTick(() => {
-                    this.renderRevenueChart();
-                });
+                if (typeof this.$nextTick === 'function') {
+                    this.$nextTick(() => {
+                        this.renderAdminRevenueChart();
+                    });
+                } else {
+                    this.renderAdminRevenueChart();
+                }
             }
         },
 
@@ -5255,6 +5922,434 @@ Trạng thái đơn: ' + finalStatus + ' | Đã trừ kho vĩnh viễn.`);
         setDefaultAddress(id) {
             this.addresses.forEach(a => a.isDefault = (a.id === id));
             alert('Đã đặt làm địa chỉ giao hàng mặc định!');
+        },
+
+        
+        // ========================================================
+        // ADMIN METHODS & INTERACTION CONTROLLERS
+        // ========================================================
+        switchToAdmin() {
+            this.currentRole = 'admin';
+            this.activeAdminTab = 'dashboard';
+            this.showToast('Đã chuyển sang Giao diện Quản trị viên (Admin Dashboard)');
+            if (typeof this.$nextTick === 'function') {
+                this.$nextTick(() => { this.renderAdminRevenueChart(); });
+            } else {
+                this.renderAdminRevenueChart();
+            }
+        },
+
+        switchToCustomer() {
+            this.currentRole = 'customer';
+            this.showToast('Đã chuyển về Giao diện Khách hàng (Storefront)');
+        },
+
+        applyAdminDashboardTimeFilter(period) {
+            this.adminDashboardTimeFilter = period;
+            const labels = { today: 'Hôm nay', yesterday: 'Hôm qua', '7days': '7 ngày qua', month: 'Tháng này', custom: 'Tùy chỉnh ngày' };
+            this.showToast('Đã cập nhật kỳ báo cáo: ' + (labels[period] || period));
+            if (typeof this.$nextTick === 'function') {
+                this.$nextTick(() => { this.renderAdminRevenueChart(); });
+            } else {
+                this.renderAdminRevenueChart();
+            }
+        },
+
+        setDashboardChartMetric(metric) {
+            this.dashboardChartMetric = metric;
+            const labels = { revenue: 'Doanh thu', profit: 'Lợi nhuận', orders: 'Số lượng đơn hàng' };
+            this.showToast('Xem biểu đồ theo: ' + (labels[metric] || metric));
+            if (typeof this.$nextTick === 'function') {
+                this.$nextTick(() => { this.renderAdminRevenueChart(); });
+            } else {
+                this.renderAdminRevenueChart();
+            }
+        },
+
+        refreshAdminData() {
+            this.showToast('Đang đồng bộ số liệu hệ thống thời gian thực...');
+            setTimeout(() => {
+                this.showToast('✅ Dữ liệu hệ thống đã được làm mới thành công!');
+                this.renderAdminRevenueChart();
+            }, 600);
+        },
+
+        exportAdminReport(type) {
+            this.showToast('📄 Đang kết xuất báo cáo ' + type.toUpperCase() + '...');
+            setTimeout(() => {
+                alert('Tải xuống thành công báo cáo PetCare360_' + this.adminDashboardTimeFilter + '.' + (type === 'excel' ? 'xlsx' : 'pdf'));
+            }, 800);
+        },
+
+        renderAdminRevenueChart() {
+            const canvas = document.getElementById('adminRevenueMainChart');
+            if (!canvas) return;
+
+            if (window.adminRevenueChartInstance) {
+                window.adminRevenueChartInstance.destroy();
+                window.adminRevenueChartInstance = null;
+            }
+
+            const ctx = canvas.getContext('2d');
+            const labels = ['T5/2026', 'T6/2026', 'T7/2026', 'T8/2026', 'T9/2026', 'T10/2026 (Nay)'];
+            let datasets = [];
+
+            if (this.dashboardChartMetric === 'revenue') {
+                datasets = [
+                    {
+                        label: 'Doanh thu Sản phẩm E-Commerce (Triệu đ)',
+                        data: [210, 245, 290, 340, 395, 485],
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                        fill: true,
+                        tension: 0.38,
+                        pointRadius: 5,
+                        pointHoverRadius: 8
+                    },
+                    {
+                        label: 'Doanh thu Dịch vụ Y tế - Spa - Hotel (Triệu đ)',
+                        data: [160, 190, 230, 280, 330, 420],
+                        borderColor: '#0d9488',
+                        backgroundColor: 'rgba(13, 148, 136, 0.12)',
+                        fill: true,
+                        tension: 0.38,
+                        pointRadius: 5,
+                        pointHoverRadius: 8
+                    }
+                ];
+            } else if (this.dashboardChartMetric === 'profit') {
+                datasets = [
+                    {
+                        label: 'Lợi nhuận gộp (Triệu đ)',
+                        data: [125, 150, 185, 220, 260, 325],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                        fill: true,
+                        tension: 0.38,
+                        pointRadius: 6,
+                        pointHoverRadius: 9
+                    }
+                ];
+            } else {
+                datasets = [
+                    {
+                        label: 'Số lượng đơn hàng thành công',
+                        data: [520, 640, 780, 920, 1080, 1284],
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.15)',
+                        fill: true,
+                        tension: 0.38,
+                        pointRadius: 6,
+                        pointHoverRadius: 9
+                    }
+                ];
+            }
+
+            try {
+                window.adminRevenueChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: { labels: labels, datasets: datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: {
+                            legend: { position: 'top', labels: { boxWidth: 12, font: { family: 'Inter', size: 11, weight: 'bold' } } },
+                            tooltip: {
+                                padding: 10,
+                                cornerRadius: 8,
+                                callbacks: {
+                                    label: function(context) {
+                                        let val = context.parsed.y;
+                                        return ' ' + context.dataset.label + ': ' + (context.chart.data.datasets.length === 1 && context.dataset.label.includes('đơn') ? (val + ' đơn') : (val + ' Triệu VNĐ'));
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: { grid: { color: '#f1f5f9' }, ticks: { font: { family: 'Inter', size: 11 } } },
+                            x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 11 } } }
+                        }
+                    }
+                });
+            } catch (err) {
+                console.warn('Chart render note:', err);
+            }
+        },
+
+        // MODULE 2 METHODS: ORDERS
+        openAdminOrderDetail(order) {
+            this.selectedAdminOrderDetail = order;
+            this.adminOrderDetailModalOpen = true;
+        },
+
+        updateAdminOrderStatus(param1, param2) {
+            let order = this.selectedAdminOrderDetail;
+            let newStatus = param1;
+            if (typeof param1 === 'object' && param1 !== null) {
+                order = param1;
+                newStatus = param2;
+            }
+            if (!order) return;
+            const labels = {
+                'PENDING': 'Chờ xác nhận',
+                'PROCESSING': 'Đang xử lý',
+                'SHIPPED': 'Đang giao',
+                'DELIVERED': 'Hoàn thành',
+                'CANCELLED': 'Đã hủy'
+            };
+            order.status = newStatus;
+            order.statusLabel = labels[newStatus] || newStatus;
+            this.showToast('✅ Đã cập nhật trạng thái đơn ' + (order.orderId || order.id) + ' sang: ' + order.statusLabel);
+        },
+
+        getOrderStatusBadgeClass(status) {
+            const s = (status || '').toUpperCase();
+            if (s === 'DELIVERED' || s === 'COMPLETED') return 'bg-emerald-100 text-emerald-800 border border-emerald-200';
+            if (s === 'SHIPPED' || s === 'DELIVERING') return 'bg-blue-100 text-blue-800 border border-blue-200';
+            if (s === 'PROCESSING') return 'bg-amber-100 text-amber-800 border border-amber-200';
+            if (s === 'CANCELLED') return 'bg-rose-100 text-rose-800 border border-rose-200';
+            return 'bg-slate-100 text-slate-700 border border-slate-200';
+        },
+
+        getOrderStatusLabel(status) {
+            const s = (status || '').toUpperCase();
+            if (s === 'DELIVERED' || s === 'COMPLETED') return 'Hoàn thành';
+            if (s === 'SHIPPED' || s === 'DELIVERING') return 'Đang giao';
+            if (s === 'PROCESSING') return 'Đang xử lý';
+            if (s === 'CANCELLED') return 'Đã hủy';
+            return 'Chờ xác nhận';
+        },
+
+        exportOrdersData() {
+            this.showToast('Đang xuất danh sách đơn hàng ra file Excel...');
+            setTimeout(() => {
+                alert('Tải xuống thành công file: Danh_Sach_Don_Hang_PetCare360.xlsx');
+            }, 600);
+        },
+
+        // MODULE 3 METHODS: SERVICES
+        openAdminServiceDetail(service) {
+            this.selectedAdminServiceDetail = service;
+            this.adminServiceDetailModalOpen = true;
+        },
+
+        confirmAdminServiceDeposit(srv) {
+            let target = srv || this.selectedAdminServiceDetail;
+            if (!target) return;
+            target.status = 'deposited';
+            target.statusLabel = 'Đã cọc';
+            target.depositStatus = 'Đã cọc';
+            this.showToast('✅ Đã xác nhận khách cọc thành công cho dịch vụ: ' + (target.serviceId || target.id));
+        },
+
+        assignServiceShipper(srv, shipperName) {
+            if (!srv) return;
+            srv.shipper = shipperName;
+            this.showToast('🚗 Đã gán tài xế PetShip: ' + shipperName + ' cho mã ' + srv.id);
+        },
+
+        // MODULE 4 METHODS: INVENTORY
+        toggleInventoryItemSelection(sku) {
+            const idx = this.selectedInventorySKUs.indexOf(sku);
+            if (idx > -1) {
+                this.selectedInventorySKUs.splice(idx, 1);
+            } else {
+                this.selectedInventorySKUs.push(sku);
+            }
+        },
+
+        toggleAllInventorySelection() {
+            if (this.selectedInventorySKUs.length === this.inventoryItems.length) {
+                this.selectedInventorySKUs = [];
+            } else {
+                this.selectedInventorySKUs = this.inventoryItems.map(i => i.sku);
+            }
+        },
+
+        openRestockModal(item) {
+            if (item) {
+                this.restockForm.sku = item.sku;
+                this.restockForm.productId = item.sku;
+                this.restockForm.unitPrice = item.buyPrice;
+            } else if (this.inventoryItems && this.inventoryItems.length > 0) {
+                this.restockForm.sku = this.inventoryItems[0].sku;
+                this.restockForm.productId = this.inventoryItems[0].sku;
+                this.restockForm.unitPrice = this.inventoryItems[0].buyPrice;
+            }
+            this.adminRestockModalOpen = true;
+        },
+
+        submitRestockForm() {
+            const sku = this.restockForm.sku || this.restockForm.productId;
+            const qty = Number(this.restockForm.quantity || this.restockForm.qty || 0);
+            if (!sku || qty <= 0) {
+                this.showToast('⚠️ Vui lòng chọn sản phẩm và nhập số lượng hợp lệ!');
+                return;
+            }
+            const found = this.inventoryItems.find(i => i.sku === sku);
+            if (found) {
+                found.stock += qty;
+                if (found.stock > 10) {
+                    found.status = 'Còn hàng';
+                    found.statusLabel = 'Còn hàng';
+                }
+            }
+            this.adminRestockModalOpen = false;
+            this.showToast('🎉 Đã tạo phiếu nhập kho và bổ sung ' + qty + ' sản phẩm vào hệ thống!');
+        },
+
+        // MODULE 5 METHODS: HOTEL
+                getRoomCardClass(status) {
+            const s = (status || '').toLowerCase();
+            if (s === 'occupied') return 'bg-sky-50 border-sky-400 text-sky-950 shadow-sm';
+            if (s === 'reserved' || s === 'deposit') return 'bg-amber-50 border-amber-300 text-amber-950';
+            if (s === 'cleaning') return 'bg-purple-50 border-purple-300 text-purple-950';
+            return 'bg-emerald-50/60 border-emerald-300 text-emerald-950 hover:border-emerald-400';
+        },
+
+        getRoomBadgeClass(status) {
+            const s = (status || '').toLowerCase();
+            if (s === 'occupied') return 'bg-sky-600 text-white';
+            if (s === 'reserved' || s === 'deposit') return 'bg-amber-600 text-white';
+            if (s === 'cleaning') return 'bg-purple-600 text-white';
+            return 'bg-emerald-600 text-white';
+        },
+
+        getRoomStatusText(status) {
+            const s = (status || '').toLowerCase();
+            if (s === 'occupied') return 'Đang sử dụng';
+            if (s === 'reserved' || s === 'deposit') return 'Đã cọc';
+            if (s === 'cleaning') return 'Đang dọn';
+            return 'Phòng trống';
+        },
+
+        selectQueueForAssignment(item) {
+            if (!item) return;
+            const code = item.serviceId || item.serviceCode;
+            if (this.selectedQueueForAssignment && (this.selectedQueueForAssignment.serviceId === code || this.selectedQueueForAssignment.serviceCode === code)) {
+                this.selectedQueueForAssignment = null;
+                this.selectedQueueServiceCode = null;
+            } else {
+                this.selectedQueueForAssignment = item;
+                this.selectedQueueServiceCode = code;
+                this.showToast('Đã chọn mã ' + code + '. Vui lòng click vào một PHÒNG TRỐNG trên sơ đồ để gán!');
+            }
+        },
+
+        handleRoomClick(room) {
+            if (!room) return;
+            if (this.selectedQueueForAssignment || this.selectedQueueServiceCode) {
+                const isAvailable = (room.status === 'available' || room.status === 'empty');
+                if (!isAvailable) {
+                    this.showToast('⚠️ Phòng ' + room.id + ' không trống. Vui lòng chọn một phòng trống (màu xanh)!');
+                    return;
+                }
+                const qItem = this.selectedQueueForAssignment || this.hotelDepositQueue.find(q => (q.serviceId === this.selectedQueueServiceCode || q.serviceCode === this.selectedQueueServiceCode));
+                const code = qItem ? (qItem.serviceId || qItem.serviceCode) : this.selectedQueueServiceCode;
+                room.status = 'occupied';
+                room.serviceId = code;
+                room.serviceCode = code;
+                room.petName = qItem ? qItem.petName : 'Bé cưng';
+                room.customerName = qItem ? (qItem.customerName || qItem.owner) : 'Khách hàng';
+                room.guestName = room.customerName;
+                
+                // Remove from queue
+                this.hotelDepositQueue = this.hotelDepositQueue.filter(q => (q.serviceId !== code && q.serviceCode !== code));
+                this.selectedQueueForAssignment = null;
+                this.selectedQueueServiceCode = null;
+                this.showToast('🎉 Đã gán thành công đơn ' + code + ' vào phòng ' + room.id + '!');
+                return;
+            }
+
+            // Normal room click: toggle status
+            const statusCycle = { available: 'reserved', reserved: 'occupied', occupied: 'cleaning', cleaning: 'available', empty: 'reserved', deposit: 'occupied' };
+            const next = statusCycle[room.status] || 'available';
+            room.status = next;
+            if (next === 'available' || next === 'empty') {
+                room.serviceId = null;
+                room.serviceCode = null;
+            }
+            this.showToast('Phòng ' + room.id + ' chuyển sang: ' + this.getRoomStatusText(room.status));
+        },
+
+        // MODULE 6 METHODS: STAFF
+                isStaffWorkingDay(st, day) {
+            if (!st) return false;
+            if (st.weeklySchedule && Array.isArray(st.weeklySchedule)) {
+                return st.weeklySchedule.includes(day);
+            }
+            if (st.schedule && typeof st.schedule === 'object') {
+                return Boolean(st.schedule[day]);
+            }
+            return false;
+        },
+
+        toggleStaffDay(staff, day) {
+            if (!staff) return;
+            if (!staff.weeklySchedule || !Array.isArray(staff.weeklySchedule)) {
+                staff.weeklySchedule = staff.schedule ? Object.keys(staff.schedule).filter(k => staff.schedule[k]) : [];
+            }
+            const idx = staff.weeklySchedule.indexOf(day);
+            if (idx !== -1) {
+                staff.weeklySchedule.splice(idx, 1);
+            } else {
+                staff.weeklySchedule.push(day);
+            }
+            if (staff.schedule) {
+                staff.schedule[day] = !staff.schedule[day];
+            }
+            this.showToast('Đã cập nhật lịch làm việc thành công');
+        },
+
+        updateStaffShift(staff, newShift) {
+            if (!staff) return;
+            staff.shift = newShift;
+            this.showToast('Đã cập nhật lịch làm việc thành công');
+        },
+
+        openStaffProfile(staff) {
+            this.selectedStaffProfile = staff;
+            this.adminStaffProfileModalOpen = true;
+        },
+
+        // MODULE 7 METHODS: CUSTOMERS
+        openCustomerHistory(cust) {
+            this.selectedCustomerTransactions = cust;
+            this.customerTransactionModalOpen = true;
+        },
+
+        openCustomerChat(cust) {
+            this.selectedCustomerChat = cust;
+            this.customerChatDrawerOpen = true;
+        },
+
+        sendAdminCustomerChat() {
+            if (!this.adminCustomerChatInput.trim()) return;
+            this.showToast('Đã gửi tin nhắn đến khách hàng ' + (this.selectedCustomerChat ? this.selectedCustomerChat.name : ''));
+            this.adminCustomerChatInput = '';
+        },
+
+        // MODULE 8 METHODS: PET PROFILES
+        openPetHealthBook(pet) {
+            this.selectedPetHealthBook = pet;
+            this.adminPetHealthBookModalOpen = true;
+        },
+
+        // MODULE 9 METHODS: PETSHIP
+        openPetShipControl(srv) {
+            this.selectedPetShipControl = srv;
+            this.adminPetShipControlModalOpen = true;
+        },
+
+        openPetShipSos(srv) {
+            this.selectedPetShipControl = srv;
+            this.adminPetShipSosModalOpen = true;
+        },
+
+        submitPetShipSos() {
+            this.adminPetShipSosModalOpen = false;
+            this.showToast('⚠️ Đã ghi nhận báo cáo sự cố PetShip và cập nhật phụ phí ' + this.formatCurrency(this.petShipSosForm.surcharge));
         },
 
         scrollToUrgentTasks() {

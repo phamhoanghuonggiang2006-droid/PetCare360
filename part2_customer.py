@@ -66,6 +66,13 @@ CUSTOMER_HTML = """
                     <!-- Actions: Chat CSKH, PetShare Notifications, Cart & Account -->
                     <div class="flex items-center gap-2 sm:gap-3">
                         <!-- Nút Chat CSKH trực tiếp -->
+                        <!-- Nút Chuyển sang Giao diện Admin Dashboard -->
+                        <button @click="switchToAdmin()" class="px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm border border-slate-700 group" title="Chuyển sang Giao diện Quản trị viên PetCare360">
+                            <i class="fa-solid fa-chart-pie text-sky-400 group-hover:rotate-12 transition"></i>
+                            <span class="hidden md:inline">Admin Dashboard</span>
+                            <span class="text-[9px] bg-sky-500 text-white font-black px-1.5 py-0.2 rounded-full uppercase">SaaS</span>
+                        </button>
+
                         <button @click="openCustomerSupportChat()" class="relative p-2.5 rounded-xl text-slate-700 hover:text-brand-600 hover:bg-brand-50 transition border border-slate-200 flex items-center gap-1.5 group" title="Chat hỗ trợ CSKH 24/7">
                             <i class="fa-solid fa-headset text-base text-brand-600 group-hover:scale-110 transition"></i>
                             <span class="hidden xl:inline text-xs font-bold text-slate-700">Chat CSKH</span>
@@ -4518,6 +4525,18 @@ CUSTOMER_HTML = """
                 </div>
             </div>
         </footer>
+
+        
+        <!-- Quick Switcher to Admin View -->
+        <div class="fixed bottom-20 md:bottom-6 right-6 z-40">
+            <button @click="switchToAdmin()" class="px-4 py-2.5 rounded-2xl bg-slate-900/90 hover:bg-slate-900 text-white text-xs font-black shadow-xl backdrop-blur border border-slate-700 flex items-center gap-2 group transform hover:scale-105 transition-all">
+                <div class="w-6 h-6 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center">
+                    <i class="fa-solid fa-chart-pie text-xs"></i>
+                </div>
+                <span>Giao diện Admin</span>
+                <span class="text-[9px] bg-sky-500 text-white px-1.5 py-0.5 rounded-full uppercase font-bold">9 Tabs</span>
+            </button>
+        </div>
 
         <!-- Mobile Bottom Navigation Bar Customer -->
         <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-30 px-2 py-1.5 flex justify-around items-center text-[10px]">
