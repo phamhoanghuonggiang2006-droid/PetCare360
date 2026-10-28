@@ -1033,7 +1033,7 @@ ADMIN_HTML = """
 
                                                 <!-- Công việc (Badge màu khác nhau) -->
                                                 <td class="py-4 px-4 text-center">
-                                                    <span :class="st.role === 'Bác sĩ thú y' ? 'bg-rose-100 text-rose-800' : (st.role === 'PetShip' ? 'bg-emerald-100 text-emerald-800' : (st.role === 'Nhân viên chăm sóc' ? 'bg-teal-100 text-teal-800' : 'bg-slate-100 text-slate-700'))" class="px-2.5 py-1 rounded-full text-[11px] font-bold" x-text="st.role"></span>
+                                                    <span :class="st.role === 'Chuyên gia chăm sóc' ? 'bg-rose-100 text-rose-800' : (st.role === 'PetShip' ? 'bg-emerald-100 text-emerald-800' : (st.role === 'Nhân viên chăm sóc' ? 'bg-teal-100 text-teal-800' : 'bg-slate-100 text-slate-700'))" class="px-2.5 py-1 rounded-full text-[11px] font-bold" x-text="st.role"></span>
                                                 </td>
 
                                                 <!-- Ca làm (Interactive Dropdown inline) -->

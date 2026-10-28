@@ -5,158 +5,91 @@ CUSTOMER_HTML = """
     <!-- ======================================================== -->
     <div x-show="currentRole === 'customer'" class="min-h-screen flex flex-col pb-16 md:pb-0" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-98" x-transition:enter-end="opacity-100 scale-100">
         
-        <!-- Header Navigation Customer -->
-        <header class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
+        <!-- Header Navigation Customer - Sticky On Scroll -->
+        <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs transition-all">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex items-center justify-between h-16 lg:h-20 gap-4">
+                <div class="flex items-center justify-between h-16 sm:h-20 gap-4">
                     
-                    <!-- Brand Logo -->
-                    <div class="flex items-center gap-3 cursor-pointer select-none" @click="activeCustomerTab = 'home'">
-                        <div class="w-10 h-10 lg:w-11 lg:h-11 rounded-2xl bg-gradient-to-tr from-brand-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-brand-500/20 transform hover:scale-105 transition">
+                    <!-- Cột Trái: Logo Icon Dấu Chân Thú Cưng + Text PetCare360 -->
+                    <div class="flex items-center gap-3 cursor-pointer group flex-shrink-0" @click="activeCustomerTab = 'home'">
+                        <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-tr from-[#F97316] to-amber-500 flex items-center justify-center text-white shadow-md shadow-orange-500/25 group-hover:scale-105 group-hover:rotate-6 transition-all duration-300">
                             <i class="fa-solid fa-paw text-xl"></i>
                         </div>
                         <div>
-                            <span class="text-xl lg:text-2xl font-black tracking-tight text-slate-800 leading-none block">PetCare<span class="text-brand-600">360</span></span>
-                            <span class="text-[10px] text-slate-400 font-semibold tracking-wider uppercase block mt-0.5">Hệ sinh thái thú cưng 5 sao</span>
+                            <span class="text-xl sm:text-2xl font-black tracking-tight text-slate-900">PetCare<span class="text-[#F97316]">360</span></span>
+                            <span class="hidden sm:block text-[9px] font-extrabold text-slate-400 uppercase tracking-widest -mt-1">Pet Care Ecosystem</span>
                         </div>
                     </div>
 
-                    <!-- Thanh tìm kiếm sản phẩm lớn (Yêu cầu Header Shop PetCare360) -->
-                    <div class="hidden lg:flex flex-1 max-w-xs xl:max-w-md mx-3 relative">
-                        <div class="relative w-full">
-                            <input type="text" x-model="searchQuery" @focus="if(activeCustomerTab !== 'shop') { activeCustomerTab = 'shop'; shopViewMode = 'catalog'; }" @keydown.enter="activeCustomerTab = 'shop'; shopViewMode = 'catalog'; scrollToCatalogGrid();" placeholder="Tìm kiếm hạt, pate, cát vệ sinh, phụ kiện..." class="w-full bg-slate-100 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-orange-500 rounded-2xl pl-10 pr-9 py-2 text-xs text-slate-800 transition focus:outline-none focus:ring-2 focus:ring-orange-200 shadow-inner">
-                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                            <button x-show="searchQuery" @click="searchQuery = ''" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs">
-                                <i class="fa-solid fa-circle-xmark"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Navigation Links Customer -->
+                    <!-- Cột Giữa (Menu Navigation): "Sản phẩm", "Dịch vụ", "PetShare360", "PetCam360" -->
                     <nav class="hidden md:flex items-center gap-1 lg:gap-2">
-                        <button @click="activeCustomerTab = 'home'" :class="activeCustomerTab === 'home' ? 'text-brand-700 bg-brand-50 font-bold' : 'text-slate-600 hover:text-brand-600 hover:bg-slate-50'" class="px-3 py-2 rounded-xl text-xs lg:text-sm transition flex items-center gap-1.5">
-                            <i class="fa-solid fa-house"></i>Trang Chủ
+                        <button @click="activeCustomerTab = 'shop'" :class="activeCustomerTab === 'shop' ? 'text-[#F97316] bg-orange-50 font-bold' : 'text-slate-600 hover:text-[#F97316] hover:bg-slate-50'" class="px-3.5 py-2 rounded-xl text-xs lg:text-sm transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-box-open text-xs"></i>Sản phẩm
                         </button>
-                        <button @click="activeCustomerTab = 'shop'; shopViewMode = 'catalog';" :class="activeCustomerTab === 'shop' ? 'text-brand-700 bg-brand-50 font-bold' : 'text-slate-600 hover:text-brand-600 hover:bg-slate-50'" class="px-3 py-2 rounded-xl text-xs lg:text-sm transition flex items-center gap-1.5">
-                            <i class="fa-solid fa-box-open"></i>Sản Phẩm
+                        <button @click="activeCustomerTab = 'booking'" :class="activeCustomerTab === 'booking' ? 'text-[#F97316] bg-orange-50 font-bold' : 'text-slate-600 hover:text-[#F97316] hover:bg-slate-50'" class="px-3.5 py-2 rounded-xl text-xs lg:text-sm transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-scissors text-xs"></i>Dịch vụ
                         </button>
-                        <button @click="activeCustomerTab = 'booking'; syncPetBookingDetails(serviceBookingForm.petId)" :class="activeCustomerTab === 'booking' ? 'text-brand-700 bg-brand-50 font-bold' : 'text-slate-600 hover:text-brand-600 hover:bg-slate-50'" class="px-3 py-2 rounded-xl text-xs lg:text-sm transition flex items-center gap-1.5">
-                            <i class="fa-solid fa-scissors"></i>Dịch Vụ
-                        </button>
-                        <button @click="activeCustomerTab = 'petshare'" :class="activeCustomerTab === 'petshare' ? 'text-brand-700 bg-brand-50 font-bold' : 'text-slate-600 hover:text-brand-600 hover:bg-slate-50'" class="px-3 py-2 rounded-xl text-xs lg:text-sm transition flex items-center gap-1.5 relative">
-                            <i class="fa-solid fa-newspaper"></i>PetShare360
+                        <button @click="activeCustomerTab = 'petshare'" :class="activeCustomerTab === 'petshare' ? 'text-[#F97316] bg-orange-50 font-bold' : 'text-slate-600 hover:text-[#F97316] hover:bg-slate-50'" class="px-3.5 py-2 rounded-xl text-xs lg:text-sm transition flex items-center gap-1.5 relative">
+                            <i class="fa-solid fa-newspaper text-xs"></i>PetShare360
                             <span class="text-[9px] bg-rose-500 text-white font-bold px-1.5 py-0.2 rounded-full">Hot</span>
                         </button>
-                        <button @click="activeCustomerTab = 'petshow'" :class="activeCustomerTab === 'petshow' ? 'text-brand-700 bg-brand-50 font-bold' : 'text-slate-600 hover:text-brand-600 hover:bg-slate-50'" class="px-3 py-2 rounded-xl text-xs lg:text-sm transition flex items-center gap-1.5 relative">
-                            <i class="fa-solid fa-video text-rose-500 animate-pulse"></i>PetShow360
-                            <span class="text-[9px] bg-rose-600 text-white font-extrabold px-1.5 py-0.2 rounded-full uppercase tracking-tighter">Live</span>
+                        <!-- PetCam360: Mở modal nhập mã phòng Hotel để xem camera -->
+                        <button @click="openPetCamModal()" class="px-3.5 py-2 rounded-xl text-xs lg:text-sm font-bold text-sky-700 bg-sky-50 hover:bg-sky-100 hover:text-sky-800 transition flex items-center gap-1.5 border border-sky-200 shadow-2xs">
+                            <i class="fa-solid fa-video text-rose-500 animate-pulse"></i>PetCam360
+                            <span class="text-[9px] bg-rose-600 text-white font-extrabold px-1.5 py-0.2 rounded-full uppercase tracking-tighter">Live 24/7</span>
                         </button>
-                        <button @click="activeCustomerTab = 'orders'" :class="activeCustomerTab === 'orders' ? 'text-brand-700 bg-brand-50 font-bold' : 'text-slate-600 hover:text-brand-600 hover:bg-slate-50'" class="px-3 py-2 rounded-xl text-xs lg:text-sm transition flex items-center gap-1.5 relative">
-                            <i class="fa-solid fa-receipt"></i>Đơn Hàng
-                            <span class="ml-1 px-1.5 py-0.2 text-[10px] bg-amber-500 text-white font-bold rounded-full" x-text="customerOrdersEnhanced.length"></span>
-                        </button>
-                        <!-- Khối Menu Tài Khoản: Chỉ hiển thị khi đã đăng nhập (Auth state), Khách (guest) sẽ ẩn -->
-                        <template x-if="isAuth">
-                            <button @click="activeCustomerTab = 'account'" :class="(activeCustomerTab === 'account' || activeCustomerTab === 'profile') ? 'text-brand-700 bg-brand-50 font-bold' : 'text-slate-600 hover:text-brand-600 hover:bg-slate-50'" class="px-3 py-2 rounded-xl text-xs lg:text-sm transition flex items-center gap-1.5">
-                                <i class="fa-solid fa-user-gear"></i>Tài Khoản
-                            </button>
-                        </template>
                     </nav>
 
-                    <!-- Actions: Chat CSKH, PetShare Notifications, Cart & Account -->
+                    <!-- Cột Phải (User Actions): Icon "Đơn hàng", Icon "Tài khoản", Icon "Giỏ hàng" (Kèm badge chấm đỏ) -->
                     <div class="flex items-center gap-2 sm:gap-3">
-                        <!-- Nút Chat CSKH trực tiếp -->
                         <!-- Nút Chuyển sang Giao diện Admin Dashboard -->
-                        <button @click="switchToAdmin()" class="px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm border border-slate-700 group" title="Chuyển sang Giao diện Quản trị viên PetCare360">
+                        <button @click="switchToAdmin()" class="hidden xl:flex px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition items-center gap-1.5 shadow-sm border border-slate-700 group" title="Chuyển sang Admin Dashboard">
                             <i class="fa-solid fa-chart-pie text-sky-400 group-hover:rotate-12 transition"></i>
-                            <span class="hidden md:inline">Admin Dashboard</span>
+                            <span>Admin</span>
                             <span class="text-[9px] bg-sky-500 text-white font-black px-1.5 py-0.2 rounded-full uppercase">SaaS</span>
                         </button>
 
-                        <button @click="openCustomerSupportChat()" class="relative p-2.5 rounded-xl text-slate-700 hover:text-brand-600 hover:bg-brand-50 transition border border-slate-200 flex items-center gap-1.5 group" title="Chat hỗ trợ CSKH 24/7">
-                            <i class="fa-solid fa-headset text-base text-brand-600 group-hover:scale-110 transition"></i>
-                            <span class="hidden xl:inline text-xs font-bold text-slate-700">Chat CSKH</span>
+                        <!-- Nút Chat CSKH trực tiếp -->
+                        <button @click="openCustomerSupportChat()" class="relative p-2.5 rounded-xl text-slate-700 hover:text-[#F97316] hover:bg-orange-50 transition border border-slate-200 flex items-center gap-1.5 group" title="Chat hỗ trợ CSKH 24/7">
+                            <i class="fa-solid fa-headset text-base text-[#F97316] group-hover:scale-110 transition"></i>
+                            <span class="hidden 2xl:inline text-xs font-bold text-slate-700">CSKH</span>
                             <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                         </button>
 
-                        <!-- Icon Chuông Thông Báo: Chỉ hiển thị khi đã đăng nhập (Guest sẽ ẩn hoàn toàn thông báo) -->
-                        <template x-if="isAuth">
-                            <div class="relative" x-data="{ openNotice: false }" @click.outside="openNotice = false">
-                            <button @click="openNotice = !openNotice" class="relative p-2.5 rounded-xl text-slate-700 hover:text-brand-600 hover:bg-brand-50 transition border border-slate-200" title="Thông báo mạng xã hội PetShare360">
-                                <i class="fa-solid fa-bell text-base"></i>
-                                <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-white font-extrabold text-[9px] flex items-center justify-center border-2 border-white animate-bounce">3</span>
-                            </button>
-                            <!-- Popover Danh Sách Tương Tác Mới -->
-                            <div x-show="openNotice" x-cloak class="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-100 p-3 z-50 animate-fadeIn">
-                                <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-100">
-                                    <div class="flex items-center gap-2">
-                                        <i class="fa-solid fa-bell text-brand-600 text-sm"></i>
-                                        <span class="font-bold text-xs text-slate-800">Thông báo PetShare360</span>
-                                    </div>
-                                    <span class="text-[10px] text-brand-600 hover:underline cursor-pointer font-semibold">Đánh dấu đã đọc</span>
-                                </div>
-                                <div class="space-y-2 max-h-72 overflow-y-auto">
-                                    <div class="p-2 rounded-xl hover:bg-slate-50 transition flex items-start gap-2.5 cursor-pointer">
-                                        <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=100&q=80" class="w-8 h-8 rounded-full object-cover mt-0.5">
-                                        <div class="flex-1 text-xs">
-                                            <p class="text-slate-800 font-semibold"><span class="font-bold">Lan Hương</span> đã thích bài viết về bé Corgi của bạn.</p>
-                                            <span class="text-[10px] text-slate-400">5 phút trước</span>
-                                        </div>
-                                    </div>
-                                    <div class="p-2 rounded-xl hover:bg-slate-50 transition flex items-start gap-2.5 cursor-pointer">
-                                        <img src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=100&q=80" class="w-8 h-8 rounded-full object-cover mt-0.5">
-                                        <div class="flex-1 text-xs">
-                                            <p class="text-slate-800 font-semibold"><span class="font-bold">BS. Minh Hoàng</span> đã bình luận: "Bé tăng cân rất chuẩn, tiếp tục duy trì nhé!".</p>
-                                            <span class="text-[10px] text-slate-400">20 phút trước</span>
-                                        </div>
-                                    </div>
-                                    <div class="p-2 rounded-xl hover:bg-slate-50 transition flex items-start gap-2.5 cursor-pointer">
-                                        <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-xs mt-0.5">
-                                            <i class="fa-solid fa-fire"></i>
-                                        </div>
-                                        <div class="flex-1 text-xs">
-                                            <p class="text-slate-800 font-semibold">Chúc mừng! Bạn đã đạt chuỗi <span class="text-amber-600 font-bold">12 ngày streak</span> chăm sóc bé cưng.</p>
-                                            <span class="text-[10px] text-slate-400">1 giờ trước</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="pt-2 text-center border-t border-slate-100">
-                                    <button @click="activeCustomerTab = 'petshare'; openNotice = false;" class="text-xs text-brand-600 font-bold hover:underline">Vào cộng đồng PetShare360</button>
-                                </div>
-                            </div>
-                        </div>
-                        </template>
-
-                        <!-- Nút Giỏ hàng 5 Bước -->
-                        <button @click="activeCustomerTab = 'cart'; cartStep = 1;" class="relative p-2.5 rounded-xl text-slate-700 hover:text-brand-600 hover:bg-brand-50 transition border border-slate-200" title="Giỏ hàng của bạn">
-                            <i class="fa-solid fa-cart-shopping text-base"></i>
-                            <span x-show="cartItemsCount > 0" x-text="cartItemsCount" class="absolute -top-1.5 -right-1.5 bg-orange-500 text-white font-bold text-[10px] w-5 h-5 rounded-full flex items-center justify-center shadow-sm animate-pulse"></span>
+                        <!-- Icon "Đơn hàng" (Link thẳng tới Lịch sử giao dịch trong trang Tài khoản) -->
+                        <button @click="activeCustomerTab = 'account'; accountSubTab = 'orders'; showToast('Đang mở Lịch sử đơn hàng & giao dịch');" class="relative p-2.5 rounded-xl text-slate-700 hover:text-[#F97316] hover:bg-orange-50 transition border border-slate-200" title="Đơn hàng của bạn (Lịch sử giao dịch)">
+                            <i class="fa-solid fa-receipt text-base"></i>
+                            <span class="absolute -top-1 -right-1 px-1.5 py-0.2 text-[9px] bg-amber-500 text-white font-extrabold rounded-full" x-text="customerOrders ? customerOrders.length : 2"></span>
                         </button>
 
-                        <!-- Khối Tài Khoản: Nếu chưa đăng nhập hiện Đăng nhập, nếu đã đăng nhập hiện thông tin và nút Đăng xuất -->
-                        <div class="pl-2 border-l border-slate-200">
+                        <!-- Icon "Tài khoản" -->
+                        <button @click="activeCustomerTab = 'account'; accountSubTab = 'info';" class="relative p-2.5 rounded-xl text-slate-700 hover:text-[#F97316] hover:bg-orange-50 transition border border-slate-200" title="Tài khoản cá nhân">
+                            <i class="fa-solid fa-circle-user text-base"></i>
+                        </button>
+
+                        <!-- Icon "Giỏ hàng" (Kèm badge chấm đỏ đếm số lượng item, liên kết Global State) -->
+                        <button @click="activeCustomerTab = 'cart'; cartStep = 1;" class="relative p-2.5 rounded-xl text-slate-700 hover:text-[#F97316] hover:bg-orange-50 transition border border-slate-200" title="Giỏ hàng của bạn">
+                            <i class="fa-solid fa-cart-shopping text-base"></i>
+                            <span x-show="cartItemsCount > 0" x-text="cartItemsCount" class="absolute -top-1.5 -right-1.5 bg-rose-500 text-white font-bold text-[10px] w-5 h-5 rounded-full flex items-center justify-center shadow-sm ring-2 ring-white animate-pulse"></span>
+                        </button>
+
+                        <!-- Khối Đăng Nhập / Thông Tin Avatar -->
+                        <div class="pl-1 sm:pl-2 border-l border-slate-200">
                             <template x-if="!isAuth">
-                                <button @click="openLoginModal()" class="flex items-center gap-2 bg-gradient-to-r from-brand-600 to-teal-500 hover:from-brand-700 hover:to-teal-600 text-white font-bold text-xs sm:text-sm px-3.5 py-2 rounded-xl shadow-md transition transform active:scale-95">
+                                <button @click="openLoginModal()" class="flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-xs px-3 py-2 rounded-xl shadow-sm transition transform active:scale-95">
                                     <i class="fa-solid fa-right-to-bracket text-xs"></i>
-                                    <span>Đăng nhập</span>
+                                    <span class="hidden sm:inline">Đăng nhập</span>
                                 </button>
                             </template>
-
                             <template x-if="isAuth">
                                 <div class="flex items-center gap-2">
-                                    <div @click="activeCustomerTab = 'account'" class="flex items-center gap-2 cursor-pointer hover:opacity-85 transition" title="Quản lý thông tin tài khoản">
-                                        <img :src="customerProfile.avatar" :alt="customerProfile.name" class="w-9 h-9 rounded-full object-cover border-2 border-brand-500 shadow-sm">
-                                        <div class="hidden lg:block text-left">
-                                            <p class="text-xs font-bold text-slate-800 leading-none truncate max-w-[110px]" x-text="customerProfile.name"></p>
-                                            <p class="text-[10px] text-brand-600 font-medium" x-text="customerProfile.rank"></p>
-                                        </div>
+                                    <div @click="activeCustomerTab = 'account'; accountSubTab = 'info';" class="flex items-center gap-2 cursor-pointer hover:opacity-85 transition" title="Hồ sơ tài khoản">
+                                        <img :src="customerProfile.avatar" :alt="customerProfile.name" class="w-8 h-8 rounded-full object-cover border-2 border-orange-500 shadow-sm">
                                     </div>
-                                    <button @click="logout()" class="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition border border-slate-200 ml-1" title="Đăng xuất tài khoản">
-                                        <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
-                                    </button>
                                 </div>
                             </template>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -168,137 +101,105 @@ CUSTOMER_HTML = """
             <!-- ======================================================== -->
             <!-- TAB 1: TRANG CHỦ (HOME) -->
             <!-- ======================================================== -->
-            <div x-show="activeCustomerTab === 'home'" class="space-y-8" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0">
+            <div x-show="activeCustomerTab === 'home'" class="space-y-12" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0">
                 
-                <!-- Banner Announcement -->
-                <div class="bg-gradient-to-r from-brand-600 via-teal-600 to-emerald-600 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
-                    <div class="absolute -right-10 -bottom-10 opacity-20 text-9xl pointer-events-none">
-                        <i class="fa-solid fa-bone"></i>
-                    </div>
-                    <div class="relative z-10 max-w-2xl">
-                        <div class="flex items-center gap-2 mb-3">
-                            <span class="bg-amber-400 text-slate-900 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider inline-block">Ưu đãi tuần lễ Pet Care</span>
-                            <span class="bg-white/20 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">Tiêu chuẩn 5 Sao</span>
+                <!-- 1. HERO BANNER: Full-width chứa tiêu đề khuyến mãi lớn, mô tả ngắn, và nút call-to-action "Xem Ngay" -->
+                <div class="relative bg-gradient-to-r from-slate-900 via-orange-950 to-slate-900 rounded-3xl p-6 sm:p-10 lg:p-12 text-white shadow-2xl overflow-hidden border border-orange-500/20">
+                    <div class="absolute -right-12 -bottom-12 w-96 h-96 bg-orange-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="absolute -left-12 -top-12 w-80 h-80 bg-amber-500/15 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="relative z-10 max-w-2xl space-y-4">
+                        <div class="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs font-black px-3.5 py-1.5 rounded-full uppercase tracking-wider shadow-md">
+                            <i class="fa-solid fa-fire text-amber-200 animate-pulse"></i>
+                            <span>Đại Tiệc Siêu Sale PetCare360 • Giảm Đến 40%</span>
                         </div>
-                        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold mb-3 leading-tight">Chăm sóc toàn diện cho bé cưng của bạn</h1>
-                        <p class="text-brand-100 text-sm sm:text-base mb-6 leading-relaxed">Hệ sinh thái thông minh tích hợp Sản phẩm dinh dưỡng chính hãng, Spa & Khách sạn thú cưng 5 sao, cùng giám sát Camera Live trực tuyến 24/7.</p>
-                        <div class="flex flex-wrap gap-3">
-                            <button @click="activeCustomerTab = 'shop'" class="bg-white text-brand-700 hover:bg-brand-50 text-xs sm:text-sm font-bold px-5 py-3 rounded-xl transition shadow-md flex items-center gap-2">
-                                <i class="fa-solid fa-bag-shopping"></i>Khám Phá Sản Phẩm
+                        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black leading-tight tracking-tight">
+                            Hệ Sinh Thái Chăm Sóc Thú Cưng Đẳng Cấp 5 Sao
+                        </h1>
+                        <p class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-xl">
+                            Điểm tựa yêu thương toàn diện: Sản phẩm dinh dưỡng nhập khẩu chính hãng, dịch vụ Spa & Grooming tạo kiểu Show, cùng hệ thống phòng lưu trú Pet Hotel có Camera Live Stream 24/7 xem tận mắt.
+                        </p>
+                        <div class="pt-2 flex flex-wrap items-center gap-3">
+                            <button @click="activeCustomerTab = 'shop'" class="px-7 py-3.5 bg-gradient-to-r from-[#F97316] to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-extrabold text-sm rounded-2xl shadow-lg shadow-orange-500/30 transition transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2">
+                                <span>Xem Ngay</span>
+                                <i class="fa-solid fa-arrow-right text-xs"></i>
                             </button>
-                            <button @click="activeCustomerTab = 'booking'" class="bg-orange-500 hover:bg-orange-600 text-white text-xs sm:text-sm font-bold px-5 py-3 rounded-xl transition shadow-md flex items-center gap-2">
-                                <i class="fa-solid fa-calendar-check"></i>Đặt Lịch Dịch Vụ 5 Sao
+                            <button @click="activeCustomerTab = 'booking'" class="px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold text-sm rounded-2xl backdrop-blur-md border border-white/20 transition flex items-center gap-2">
+                                <i class="fa-solid fa-calendar-check text-[#F97316]"></i>
+                                <span>Đặt Dịch Vụ</span>
                             </button>
-                            <button @click="activeCustomerTab = 'petshow'" class="bg-slate-900/60 hover:bg-slate-900 text-white text-xs sm:text-sm font-bold px-5 py-3 rounded-xl transition shadow-md flex items-center gap-2 border border-white/20">
-                                <i class="fa-solid fa-video text-rose-400"></i>Xem Camera PetShow360
-                            </button>
+                        </div>
+                        <div class="pt-4 flex flex-wrap gap-6 text-xs text-slate-400 border-t border-white/10">
+                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-truck-fast text-[#F97316]"></i> Giao hỏa tốc 2H</span>
+                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-shield-check text-emerald-400"></i> 100% Chính hãng</span>
+                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-video text-sky-400"></i> Camera Live 24/7</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Quick Services Categories Grid -->
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <div @click="activeCustomerTab = 'shop'" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:border-brand-300 hover:shadow-md transition cursor-pointer text-center group">
-                        <div class="w-12 h-12 mx-auto rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition">
-                            <i class="fa-solid fa-bowl-food"></i>
-                        </div>
-                        <h3 class="font-bold text-sm text-slate-800">Thức Ăn & Hạt</h3>
-                        <p class="text-[11px] text-slate-400 mt-1">Dinh dưỡng nhập khẩu 100%</p>
-                    </div>
-                    <div @click="activeCustomerTab = 'booking'; servicePricingTab = 'grooming'; syncPetBookingDetails(serviceBookingForm.petId)" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:border-brand-300 hover:shadow-md transition cursor-pointer text-center group">
-                        <div class="w-12 h-12 mx-auto rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition">
-                            <i class="fa-solid fa-scissors"></i>
-                        </div>
-                        <h3 class="font-bold text-sm text-slate-800">Grooming & Spa</h3>
-                        <p class="text-[11px] text-slate-400 mt-1">Quy trình 7 bước thư giãn</p>
-                    </div>
-                    <div @click="activeCustomerTab = 'booking'; servicePricingTab = 'hotel'; syncPetBookingDetails(serviceBookingForm.petId)" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:border-brand-300 hover:shadow-md transition cursor-pointer text-center group">
-                        <div class="w-12 h-12 mx-auto rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition">
-                            <i class="fa-solid fa-hotel"></i>
-                        </div>
-                        <h3 class="font-bold text-sm text-slate-800">Pet Hotel 5 Sao</h3>
-                        <p class="text-[11px] text-slate-400 mt-1">Phòng điều hòa + Camera 24/7</p>
-                    </div>
-                    <div @click="activeCustomerTab = 'petshare'" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:border-brand-300 hover:shadow-md transition cursor-pointer text-center group">
-                        <div class="w-12 h-12 mx-auto rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition">
-                            <i class="fa-solid fa-users"></i>
-                        </div>
-                        <h3 class="font-bold text-sm text-slate-800">PetShare Cộng Đồng</h3>
-                        <p class="text-[11px] text-slate-400 mt-1">Kinh nghiệm & Bác sĩ tư vấn</p>
-                    </div>
-                </div>
-
-                <!-- ======================================================== -->
-                <!-- SECTION: SẢN PHẨM BÁN CHẠY (HORIZONTAL CAROUSEL / SLIDER - 4 CARDS TRÊN 1 VIEWPORT) -->
-                <!-- ======================================================== -->
+                <!-- 2. SẢN PHẨM BÁN CHẠY: Layout 1 hàng ngang. Gọi API lấy đúng 4 sản phẩm (limit=4, sort theo order_count). Mép phải hàng có icon mũi tên để vuốt/click xem tiếp -->
                 <div class="space-y-4">
                     <div class="flex items-center justify-between">
                         <div>
                             <div class="flex items-center gap-2">
-                                <span class="bg-orange-100 text-orange-700 text-xs font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
-                                    <i class="fa-solid fa-fire text-orange-500"></i> Bán Chạy Nhất
-                                </span>
-                                <span class="text-xs text-slate-400 font-medium">Top sản phẩm được Boss & Sen tin dùng</span>
+                                <span class="w-2.5 h-6 bg-[#F97316] rounded-full inline-block"></span>
+                                <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Sản Phẩm Bán Chạy</h2>
+                                <span class="bg-rose-100 text-rose-700 text-[10px] font-black px-2 py-0.5 rounded-full uppercase">Top Bestseller</span>
                             </div>
-                            <h2 class="text-xl sm:text-2xl font-black text-slate-800 tracking-tight mt-1">Sản Phẩm Bán Chạy</h2>
+                            <p class="text-xs text-slate-500 mt-1 ml-4.5">Được cộng đồng chủ nuôi yêu thích nhất tuần qua (Đúng 4 sản phẩm theo chuẩn E-commerce)</p>
                         </div>
-                        <!-- Điều hướng: Nút Xem tất cả + Nút mũi tên nhỏ gọn (Arrow Button) ở mép phải của section -->
+                        
+                        <!-- Mép phải hàng có icon mũi tên để vuốt/click xem tiếp (Carousel/Slider Controls) -->
                         <div class="flex items-center gap-2">
-                            <button @click="activeCustomerTab = 'shop'; shopFilterCategory = 'all'; backToShopCatalog();" class="text-xs font-bold text-[#F97316] hover:underline mr-1 hidden sm:inline-flex items-center gap-1">
-                                Xem tất cả 12 sản phẩm <i class="fa-solid fa-angle-right text-[11px]"></i>
+                            <button @click="scrollBestSellerLeft()" class="w-9 h-9 rounded-full border border-slate-200 bg-white hover:bg-orange-50 text-slate-600 hover:text-[#F97316] shadow-xs flex items-center justify-center transition active:scale-90" title="Lướt sang trái">
+                                <i class="fa-solid fa-chevron-left text-xs"></i>
                             </button>
-                            <div class="flex items-center gap-1.5">
-                                <button @click="scrollBestSellerLeft()" class="w-8 h-8 rounded-full border border-slate-200 bg-white hover:bg-orange-50 text-slate-600 hover:text-orange-600 shadow-sm flex items-center justify-center transition active:scale-90" title="Lướt sang trái">
-                                    <i class="fa-solid fa-chevron-left text-xs"></i>
-                                </button>
-                                <button @click="scrollBestSellerRight()" class="w-8 h-8 rounded-full border border-slate-200 bg-white hover:bg-orange-50 text-slate-600 hover:text-orange-600 shadow-sm flex items-center justify-center transition active:scale-90" title="Lướt xem các sản phẩm tiếp theo">
-                                    <i class="fa-solid fa-chevron-right text-xs"></i>
-                                </button>
-                            </div>
+                            <button @click="scrollBestSellerRight()" class="w-9 h-9 rounded-full border border-slate-200 bg-white hover:bg-orange-50 text-slate-600 hover:text-[#F97316] shadow-xs flex items-center justify-center transition active:scale-90" title="Xem tiếp các sản phẩm (Carousel Next)">
+                                <i class="fa-solid fa-chevron-right text-xs"></i>
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Product Carousel / Slider: Đúng 4 thẻ sản phẩm trên cùng 1 viewport ngang (desktop), vuốt trượt ngang mượt mà -->
-                    <div id="homepage-bestseller-carousel" class="flex gap-4 overflow-x-auto scroll-smooth snap-x pb-3 pt-1 no-scrollbar hide-scrollbar">
-                        <template x-for="prod in bestSellingProducts" :key="'best-' + prod.id">
-                            <div @click="activeCustomerTab = 'shop'; openProductDetailPage(prod);" class="snap-start flex-shrink-0 w-[260px] sm:w-[calc(50%-8px)] md:w-[calc(33.333%-11px)] lg:w-[calc(25%-12px)] bg-white rounded-2xl p-3 border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-200 flex flex-col justify-between group cursor-pointer relative overflow-hidden">
+                    <!-- Layout 1 hàng ngang với 4 sản phẩm (limit=4, sort theo order_count) -->
+                    <div id="homepage-bestseller-carousel" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <template x-for="prod in homeBestSellers" :key="'bestseller-' + prod.id">
+                            <div @click="activeCustomerTab = 'shop'; openProductDetailPage(prod);" class="bg-white rounded-3xl p-3.5 border border-slate-200 shadow-xs hover:shadow-lg hover:border-orange-200 transition-all duration-200 flex flex-col justify-between group cursor-pointer relative overflow-hidden">
                                 
-                                <!-- Ảnh sản phẩm thumbnail tỷ lệ chuẩn 1:1 + Badge giảm giá & Giao nhanh 2h -->
-                                <div class="relative w-full aspect-square rounded-xl overflow-hidden bg-slate-50 flex items-center justify-center p-2">
+                                <!-- Ảnh sản phẩm tỷ lệ chuẩn 1:1 + Badge giảm giá & Giao nhanh 2h -->
+                                <div class="relative w-full aspect-square rounded-2xl overflow-hidden bg-slate-50 flex items-center justify-center p-3">
                                     <img :src="prod.image || prod.img" :alt="prod.name" class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300">
-                                    <span class="absolute top-2 left-2 bg-rose-600 text-white font-extrabold text-[10px] px-2 py-0.5 rounded-md shadow-sm" x-text="prod.discountPercent || '-20%'"></span>
+                                    <span class="absolute top-2.5 left-2.5 bg-rose-600 text-white font-extrabold text-[10px] px-2 py-0.5 rounded-md shadow-xs" x-text="prod.discountPercent || '-20%'"></span>
                                     <template x-if="prod.expressShip">
-                                        <span class="absolute top-2 right-2 bg-amber-400 text-slate-900 font-black text-[9px] px-1.5 py-0.5 rounded-md shadow-sm flex items-center gap-0.5">
+                                        <span class="absolute top-2.5 right-2.5 bg-amber-400 text-slate-900 font-black text-[9px] px-1.5 py-0.5 rounded-md shadow-xs flex items-center gap-0.5">
                                             <i class="fa-solid fa-bolt text-[8px]"></i> 2H
                                         </span>
                                     </template>
                                 </div>
 
-                                <!-- Chi tiết thẻ chuẩn: Tên sản phẩm (tối đa 2 dòng), Số sao & Đã bán, Giá bán nổi bật kèm giá gốc gạch ngang, Nút Thêm vào giỏ -->
-                                <div class="pt-3 pb-1 space-y-1.5 flex-1 flex flex-col justify-between">
+                                <!-- Component Thẻ Sản Phẩm: Tên, Giá, Nút Thêm vào giỏ -->
+                                <div class="pt-3 pb-1 space-y-2 flex-1 flex flex-col justify-between">
                                     <div>
-                                        <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider truncate" x-text="prod.brand || prod.category"></p>
-                                        <h4 class="text-xs sm:text-sm font-bold text-[#1E293B] line-clamp-2 leading-snug group-hover:text-[#F97316] transition" x-text="prod.name" :title="prod.name"></h4>
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate" x-text="prod.brand || prod.category"></p>
+                                        <h4 class="text-xs sm:text-sm font-bold text-slate-900 line-clamp-2 leading-snug group-hover:text-[#F97316] transition" x-text="prod.name" :title="prod.name"></h4>
                                     </div>
 
                                     <div>
-                                        <!-- Số sao đánh giá và lượt mua -->
+                                        <!-- Đánh giá và số lượt mua -->
                                         <div class="flex items-center gap-1.5 text-xs text-slate-500 pt-1">
                                             <div class="flex items-center text-amber-400 text-xs">
                                                 <i class="fa-solid fa-star"></i>
                                                 <span class="font-bold text-slate-800 ml-1" x-text="prod.rating || 5.0"></span>
                                             </div>
                                             <span class="text-slate-300">•</span>
-                                            <span class="text-[11px] text-slate-400" x-text="(prod.sold || 128) + ' đã bán'"></span>
+                                            <span class="text-[11px] text-slate-400" x-text="(prod.sold || prod.order_count || 128) + ' đã bán'"></span>
                                         </div>
 
-                                        <!-- Giá bán nổi bật kèm giá gốc bị gạch ngang + Nút Thêm vào giỏ -->
+                                        <!-- Giá nổi bật + Giá gốc + Nút Thêm vào giỏ -->
                                         <div class="pt-2 flex items-center justify-between border-t border-slate-100 mt-2">
                                             <div>
-                                                <div class="text-sm sm:text-base font-extrabold text-[#F97316]" x-text="formatCurrency(prod.price)"></div>
+                                                <div class="text-sm sm:text-base font-black text-[#F97316]" x-text="formatCurrency(prod.price)"></div>
                                                 <div class="text-[10px] text-slate-400 line-through font-medium" x-text="formatCurrency(prod.originalPrice || Math.round(prod.price * 1.25))"></div>
                                             </div>
-                                            <button @click.stop="addToCart({ id: prod.id, name: prod.name, price: prod.price, image: prod.image || prod.img, weight: '3kg', flavor: 'Vị chuẩn' })" class="w-9 h-9 rounded-full bg-orange-50 text-[#F97316] hover:bg-[#F97316] hover:text-white transition flex items-center justify-center shadow-sm transform active:scale-90" title="Thêm vào giỏ hàng">
+                                            <button @click.stop="addToCart({ id: prod.id, name: prod.name, price: prod.price, image: prod.image || prod.img, weight: '3kg', flavor: 'Vị chuẩn' })" class="w-9 h-9 rounded-2xl bg-orange-50 text-[#F97316] hover:bg-[#F97316] hover:text-white transition flex items-center justify-center shadow-xs transform active:scale-90" title="Thêm vào giỏ hàng">
                                                 <i class="fa-solid fa-cart-plus text-xs"></i>
                                             </button>
                                         </div>
@@ -308,6 +209,191 @@ CUSTOMER_HTML = """
                         </template>
                     </div>
                 </div>
+
+                <!-- 3. DỊCH VỤ NỔI BẬT: Layout Grid 3 cột tương ứng 3 thẻ: "Spa", "Grooming", "Hotel". Mỗi thẻ có Icon/Hình minh họa, Tên dịch vụ, Mô tả ngắn (Lưu ý: Không có dịch vụ thú y) -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-6 bg-teal-600 rounded-full inline-block"></span>
+                                <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Dịch Vụ Nổi Bật</h2>
+                                <span class="bg-teal-100 text-teal-800 text-[10px] font-black px-2 py-0.5 rounded-full uppercase">Chuẩn 5 Sao</span>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-1 ml-4.5">Trải nghiệm chăm sóc cao cấp, tận tâm như thành viên trong gia đình</p>
+                        </div>
+                        <button @click="activeCustomerTab = 'booking'" class="text-xs font-bold text-teal-700 hover:underline flex items-center gap-1">
+                            <span>Bảng giá chi tiết</span>
+                            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        
+                        <!-- Thẻ 1: "Spa" -->
+                        <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs hover:shadow-xl hover:border-teal-300 transition-all group flex flex-col justify-between">
+                            <div class="space-y-4">
+                                <div class="w-full h-44 rounded-2xl overflow-hidden bg-slate-100 relative">
+                                    <img src="https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&w=600&q=80" alt="Spa Thư Giãn Thú Cưng" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                    <div class="absolute top-3 left-3 w-10 h-10 rounded-xl bg-white/90 backdrop-blur text-teal-600 flex items-center justify-center text-lg shadow-sm">
+                                        <i class="fa-solid fa-bath"></i>
+                                    </div>
+                                    <span class="absolute top-3 right-3 bg-teal-600 text-white font-extrabold text-[10px] px-2.5 py-1 rounded-full uppercase">Thảo mộc Davis Mỹ</span>
+                                </div>
+                                <div class="space-y-1.5">
+                                    <h3 class="text-lg font-black text-slate-900 group-hover:text-teal-700 transition">Spa Thư Giãn Bọt Khí Nano</h3>
+                                    <p class="text-xs text-slate-500 leading-relaxed">
+                                        Quy trình sục bọt khí siêu mịn Nano làm sạch sâu nang lông, tẩy sạch tế bào chết, xông tinh dầu thảo mộc hữu cơ phục hồi da lông bóng mượt và giảm căng thẳng cho bé cưng.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="pt-4 mt-2 border-t border-slate-100 flex items-center justify-between">
+                                <span class="text-xs font-bold text-teal-700">Chỉ từ 150.000đ</span>
+                                <button @click="activeCustomerTab = 'booking'; servicePricingTab = 'grooming';" class="px-4 py-2 bg-teal-50 hover:bg-teal-600 hover:text-white text-teal-700 font-bold text-xs rounded-xl transition flex items-center gap-1.5 shadow-2xs">
+                                    <span>Đặt Lịch Spa</span>
+                                    <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Thẻ 2: "Grooming" -->
+                        <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs hover:shadow-xl hover:border-orange-300 transition-all group flex flex-col justify-between">
+                            <div class="space-y-4">
+                                <div class="w-full h-44 rounded-2xl overflow-hidden bg-slate-100 relative">
+                                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=600&q=80" alt="Grooming Cắt Tỉa Thú Cưng" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                    <div class="absolute top-3 left-3 w-10 h-10 rounded-xl bg-white/90 backdrop-blur text-[#F97316] flex items-center justify-center text-lg shadow-sm">
+                                        <i class="fa-solid fa-scissors"></i>
+                                    </div>
+                                    <span class="absolute top-3 right-3 bg-[#F97316] text-white font-extrabold text-[10px] px-2.5 py-1 rounded-full uppercase">Master Stylist</span>
+                                </div>
+                                <div class="space-y-1.5">
+                                    <h3 class="text-lg font-black text-slate-900 group-hover:text-[#F97316] transition">Grooming Cắt Tỉa Stylist 5 Sao</h3>
+                                    <p class="text-xs text-slate-500 leading-relaxed">
+                                        Đội ngũ chuyên gia trên 8 năm kinh nghiệm tạo kiểu form chuẩn show (gấu bông, cừu non, sư tử), cạo vệ sinh móng tai, vắt tuyến hôi và khử khuẩn toàn diện tỉ mỉ từng chi tiết.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="pt-4 mt-2 border-t border-slate-100 flex items-center justify-between">
+                                <span class="text-xs font-bold text-[#F97316]">Chỉ từ 220.000đ</span>
+                                <button @click="activeCustomerTab = 'booking'; servicePricingTab = 'grooming';" class="px-4 py-2 bg-orange-50 hover:bg-[#F97316] hover:text-white text-[#F97316] font-bold text-xs rounded-xl transition flex items-center gap-1.5 shadow-2xs">
+                                    <span>Đặt Lịch Grooming</span>
+                                    <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Thẻ 3: "Hotel" -->
+                        <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs hover:shadow-xl hover:border-indigo-300 transition-all group flex flex-col justify-between">
+                            <div class="space-y-4">
+                                <div class="w-full h-44 rounded-2xl overflow-hidden bg-slate-100 relative">
+                                    <img src="https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=600&q=80" alt="Khách Sạn Thú Cưng Pet Hotel 5 Sao" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                    <div class="absolute top-3 left-3 w-10 h-10 rounded-xl bg-white/90 backdrop-blur text-indigo-600 flex items-center justify-center text-lg shadow-sm">
+                                        <i class="fa-solid fa-hotel"></i>
+                                    </div>
+                                    <span class="absolute top-3 right-3 bg-indigo-600 text-white font-extrabold text-[10px] px-2.5 py-1 rounded-full uppercase">Camera Live 24/7</span>
+                                </div>
+                                <div class="space-y-1.5">
+                                    <h3 class="text-lg font-black text-slate-900 group-hover:text-indigo-700 transition">Khách Sạn Thú Cưng Pet Hotel 5 Sao</h3>
+                                    <p class="text-xs text-slate-500 leading-relaxed">
+                                        Phòng lưu trú riêng biệt cách âm điều hòa 2 chiều 24/7, tiêu âm chống ồn, lọc không khí ion âm diệt khuẩn. Khách hàng được cấp mã xem Camera trực tuyến live stream mọi lúc.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="pt-4 mt-2 border-t border-slate-100 flex items-center justify-between">
+                                <span class="text-xs font-bold text-indigo-700">Chỉ từ 180.000đ/ngày</span>
+                                <button @click="activeCustomerTab = 'booking'; servicePricingTab = 'hotel';" class="px-4 py-2 bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-700 font-bold text-xs rounded-xl transition flex items-center gap-1.5 shadow-2xs">
+                                    <span>Đặt Phòng Hotel</span>
+                                    <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- 4. TOP BÀI VIẾT PETSHARE360: Layout Grid 4 cột. Gọi API lấy 4 bài viết (limit=4, sort theo view). Cấu trúc thẻ: Ảnh bìa (tỷ lệ 16:9), Ngày tháng, Tên bài (text-truncate 2 dòng max), Tóm tắt ngắn, Text link "Đọc tiếp ->" -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-6 bg-rose-500 rounded-full inline-block"></span>
+                                <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Top Bài Viết PetShare360</h2>
+                                <span class="bg-rose-100 text-rose-700 text-[10px] font-black px-2 py-0.5 rounded-full uppercase">Cẩm Nang Tri Thức</span>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-1 ml-4.5">Được đọc và chia sẻ nhiều nhất từ các chuyên gia chăm sóc thú cưng</p>
+                        </div>
+                        <button @click="activeCustomerTab = 'petshare'" class="text-xs font-bold text-rose-600 hover:underline flex items-center gap-1">
+                            <span>Vào PetShare360</span>
+                            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        </button>
+                    </div>
+
+                    <!-- Layout Grid 4 cột: Đúng 4 bài viết (limit=4, sort theo view) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <template x-for="art in topPetShareArticles" :key="'home-article-' + art.id">
+                            <div @click="openArticleDetail(art)" class="bg-white rounded-3xl p-4 border border-slate-200 shadow-xs hover:shadow-lg hover:border-rose-200 transition-all flex flex-col justify-between group cursor-pointer">
+                                <div class="space-y-3">
+                                    <!-- Ảnh bìa tỷ lệ 16:9 -->
+                                    <div class="w-full aspect-video rounded-2xl overflow-hidden bg-slate-100 relative">
+                                        <img :src="art.image" :alt="art.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                        <span class="absolute bottom-2 right-2 bg-black/60 backdrop-blur-xs text-white text-[10px] font-semibold px-2 py-0.5 rounded-md flex items-center gap-1">
+                                            <i class="fa-solid fa-eye text-[9px]"></i>
+                                            <span x-text="art.views || 1200"></span>
+                                        </span>
+                                    </div>
+
+                                    <!-- Ngày tháng & Tên bài (text-truncate 2 dòng max) & Tóm tắt ngắn -->
+                                    <div class="space-y-1.5">
+                                        <div class="flex items-center gap-2 text-[11px] text-slate-400">
+                                            <span class="text-rose-600 font-bold" x-text="art.category || 'Mẹo chăm sóc'"></span>
+                                            <span>•</span>
+                                            <span x-text="art.date"></span>
+                                        </div>
+                                        <h3 class="font-extrabold text-xs sm:text-sm text-slate-900 group-hover:text-rose-600 transition line-clamp-2 leading-snug" x-text="art.title" :title="art.title"></h3>
+                                        <p class="text-[11px] text-slate-500 line-clamp-2 leading-relaxed" x-text="art.summary"></p>
+                                    </div>
+                                </div>
+
+                                <!-- Text link "Đọc tiếp ->" -->
+                                <div class="pt-3 border-t border-slate-100 mt-2">
+                                    <span class="text-xs font-black text-rose-600 group-hover:text-rose-700 flex items-center gap-1">
+                                        <span>Đọc tiếp</span>
+                                        <i class="fa-solid fa-arrow-right text-[10px] transform group-hover:translate-x-1 transition-transform"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- 5. FAQ (CÂU HỎI THƯỜNG GẶP): Dạng Accordion gồm 5 chủ đề quan trọng về mua sắm, giao hàng, đổi trả (Loại bỏ các câu hỏi về y tế/khám bệnh) -->
+                <div class="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-sm space-y-6">
+                    <div class="text-center max-w-2xl mx-auto space-y-2">
+                        <span class="bg-orange-100 text-[#F97316] text-[11px] font-black px-3 py-1 rounded-full uppercase tracking-wider">Hỗ Trợ Khách Hàng</span>
+                        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Câu Hỏi Thường Gặp (FAQ)</h2>
+                        <p class="text-xs sm:text-sm text-slate-500">Giải đáp các thắc mắc phổ biến nhất về quy trình mua sắm, giao nhận hỏa tốc, tích lũy điểm và chính sách hoàn tiền tại PetCare360</p>
+                    </div>
+
+                    <!-- Accordion 5 chủ đề quan trọng -->
+                    <div class="max-w-3xl mx-auto divide-y divide-slate-200 border-y border-slate-200">
+                        <template x-for="(item, idx) in faqs" :key="'faq-' + idx">
+                            <div class="py-4">
+                                <button @click="toggleHomeFaq(idx)" class="w-full flex items-center justify-between text-left gap-4 group focus:outline-none">
+                                    <span class="font-extrabold text-xs sm:text-sm text-slate-800 group-hover:text-[#F97316] transition flex items-center gap-2.5">
+                                        <span class="w-6 h-6 rounded-full bg-orange-100 text-[#F97316] text-xs font-black flex items-center justify-center flex-shrink-0" x-text="idx + 1"></span>
+                                        <span x-text="item.q || item.question"></span>
+                                    </span>
+                                    <div class="w-7 h-7 rounded-full bg-slate-100 group-hover:bg-orange-100 text-slate-500 group-hover:text-[#F97316] flex items-center justify-center transition flex-shrink-0">
+                                        <i class="fa-solid fa-chevron-down text-xs transition-transform duration-200" :class="homeFaqActiveIndex === idx ? 'rotate-180 text-[#F97316]' : ''"></i>
+                                    </div>
+                                </button>
+                                <div x-show="homeFaqActiveIndex === idx" x-cloak x-collapse class="pt-3 pl-8.5 pr-4 text-xs text-slate-600 leading-relaxed">
+                                    <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100" x-text="item.a || item.answer"></div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
             </div>
 
             <!-- ======================================================== -->
@@ -1042,36 +1128,32 @@ CUSTOMER_HTML = """
             <!-- ======================================================== -->
             <div x-show="activeCustomerTab === 'booking'" class="space-y-8" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0">
                 
-                <!-- Header Dịch vụ: Banner giới thiệu "Dịch Vụ Chăm Sóc & Y Tế Thú Cưng Chuyên Nghiệp - Tiêu chuẩn 5 Sao" -->
-                <div class="bg-gradient-to-r from-teal-700 via-brand-700 to-indigo-800 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+                <!-- Header Dịch vụ: Banner giới thiệu chuyên nghiệp không có từ khóa y tế -->
+                <div class="bg-gradient-to-r from-teal-800 via-[#F97316]/90 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
                     <div class="relative z-10 max-w-3xl space-y-3">
                         <div class="flex items-center gap-2">
                             <span class="bg-amber-400 text-slate-900 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">Tiêu chuẩn quốc tế 5 sao</span>
-                            <span class="bg-white/20 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">Phòng vô trùng & Bác sĩ thú y trực</span>
+                            <span class="bg-white/20 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">Chăm sóc chu đáo & tận tâm</span>
                         </div>
-                        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">Dịch Vụ Chăm Sóc & Y Tế Thú Cưng Chuyên Nghiệp</h2>
-                        <p class="text-brand-100 text-xs sm:text-sm leading-relaxed">Hệ thống phòng Grooming thủy lực, Khách sạn thú cưng cách âm điều hòa 2 chiều và Dịch vụ Y tế tại nhà PetCare Home Visit chu đáo, chuyên nghiệp.</p>
-                        <div class="pt-2 flex flex-wrap gap-4 text-xs text-brand-200">
-                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-check text-amber-400"></i> Bác sĩ thú y hơn 8 năm kinh nghiệm</span>
+                        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">Dịch Vụ Chăm Sóc Thú Cưng Chuyên Nghiệp</h2>
+                        <p class="text-orange-100 text-xs sm:text-sm leading-relaxed">Hệ thống phòng Grooming thủy lực và Khách sạn thú cưng cách âm điều hòa 2 chiều chu đáo, chuyên nghiệp.</p>
+                        <div class="pt-2 flex flex-wrap gap-4 text-xs text-orange-200">
+                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-check text-amber-400"></i> Chuyên gia chăm sóc hơn 8 năm kinh nghiệm</span>
                             <span class="flex items-center gap-1.5"><i class="fa-solid fa-check text-amber-400"></i> Mỹ phẩm thảo mộc nhập khẩu an toàn</span>
                             <span class="flex items-center gap-1.5"><i class="fa-solid fa-check text-amber-400"></i> Camera Live Stream 24/7 xem tận mắt</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Khối Chọn Nhanh Dịch Vụ (Tab Selector: 3 Tab chính) -->
-                <div class="bg-white rounded-2xl p-2 border border-slate-200 shadow-sm flex flex-wrap gap-2">
-                    <button @click="servicePricingTab = 'grooming'; syncPetBookingDetails(serviceBookingForm.petId)" :class="(servicePricingTab === 'grooming' || servicePricingTab === 'spa') ? 'bg-[#F97316] text-white font-bold shadow-md shadow-orange-500/20' : 'text-slate-600 hover:bg-slate-100'" class="flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2">
+                <!-- Khối Chọn Nhanh Dịch Vụ: Phân chia lại thanh menu dịch vụ thành 2 phần bằng nhau 50/50: "Grooming & Spa" và "Pet Hotel 5 Sao" -->
+                <div class="bg-white rounded-2xl p-2 border border-slate-200 shadow-sm grid grid-cols-2 gap-2">
+                    <button @click="servicePricingTab = 'grooming'; syncPetBookingDetails(serviceBookingForm.petId)" :class="(servicePricingTab === 'grooming' || servicePricingTab === 'spa') ? 'bg-[#F97316] text-white font-bold shadow-md shadow-orange-500/20' : 'text-slate-600 hover:bg-slate-100'" class="w-full py-3.5 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2">
                         <i class="fa-solid fa-scissors"></i>
                         <span>Grooming & Spa</span>
                     </button>
-                    <button @click="servicePricingTab = 'hotel'; syncPetBookingDetails(serviceBookingForm.petId)" :class="servicePricingTab === 'hotel' ? 'bg-[#F97316] text-white font-bold shadow-md shadow-orange-500/20' : 'text-slate-600 hover:bg-slate-100'" class="flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2">
+                    <button @click="servicePricingTab = 'hotel'; syncPetBookingDetails(serviceBookingForm.petId)" :class="servicePricingTab === 'hotel' ? 'bg-[#F97316] text-white font-bold shadow-md shadow-orange-500/20' : 'text-slate-600 hover:bg-slate-100'" class="w-full py-3.5 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2">
                         <i class="fa-solid fa-hotel"></i>
                         <span>Pet Hotel 5 Sao</span>
-                    </button>
-                    <button @click="servicePricingTab = 'vaccine'; syncPetBookingDetails(serviceBookingForm.petId)" :class="servicePricingTab === 'vaccine' ? 'bg-[#F97316] text-white font-bold shadow-md shadow-orange-500/20' : 'text-slate-600 hover:bg-slate-100'" class="flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-syringe"></i>
-                        <span>Tiêm Phòng & Home Visit</span>
                     </button>
                 </div>
 
@@ -1474,65 +1556,7 @@ CUSTOMER_HTML = """
                         </div>
                     </div>
 
-                    <!-- ========================================== -->
-                    <!-- TAB 3: TIÊM PHÒNG & HOME VISIT (HÀNG CLICKABLE & CỘT THAO TÁC) -->
-                    <!-- ========================================== -->
-                    <div x-show="servicePricingTab === 'vaccine'" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 animate-fadeIn">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
-                            <div>
-                                <div class="inline-flex items-center gap-2 bg-blue-50 text-blue-600 font-extrabold text-[11px] px-3 py-1 rounded-full uppercase tracking-wider mb-1">
-                                    <i class="fa-solid fa-syringe"></i> Dịch Vụ Thú Y Tận Tâm Chuẩn Quốc Tế
-                                </div>
-                                <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Bảng Giá Tiêm Phòng & Bác Sĩ Khám Tận Nhà (Home Visit)</h3>
-                                <p class="text-xs text-slate-500">Bấm trực tiếp vào từng hàng hoặc bấm 'Chọn Đặt Lịch' để đặt lịch hẹn bác sĩ thú y</p>
-                            </div>
-                            <span class="text-xs bg-blue-50 text-blue-700 font-bold px-3 py-1.5 rounded-xl border border-blue-200 self-start sm:self-auto">Cấp Sổ Tiêm Quốc Tế</span>
-                        </div>
-
-                        <div class="overflow-x-auto border border-slate-200 rounded-2xl shadow-sm bg-white">
-                            <table class="w-full text-left text-xs sm:text-sm border-collapse">
-                                <thead>
-                                    <tr class="bg-blue-50/70 text-slate-900 border-b border-slate-200 font-black">
-                                        <th class="py-3.5 px-4">Gói Tiêm Chủng / Dịch Vụ Y Tế</th>
-                                        <th class="py-3.5 px-4">Thời Gian</th>
-                                        <th class="py-3.5 px-4">Quy Trình Chuẩn Bác Sĩ Thú Y</th>
-                                        <th class="py-3.5 px-4 text-center">Chi Phí Niêm Yết</th>
-                                        <th class="py-3.5 px-4 text-center">Thao Tác</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-100 font-medium text-slate-800">
-                                    <template x-for="(vac, vidx) in vaccinePriceList" :key="vidx">
-                                        <tr @click="selectVaccineRow(vac)"
-                                            class="cursor-pointer transition"
-                                            :class="(selectedBaseService && selectedBaseService.category === 'vaccine' && selectedBaseService.name === vac.name) ? 'bg-blue-50/90 font-bold ring-2 ring-inset ring-blue-500 border-l-4 border-l-blue-500' : 'hover:bg-blue-50/30'">
-                                            
-                                            <td class="py-3.5 px-4 font-bold text-slate-900">
-                                                <div class="flex items-center gap-2 flex-wrap">
-                                                    <span x-text="vac.name"></span>
-                                                    <span x-show="selectedBaseService && selectedBaseService.category === 'vaccine' && selectedBaseService.name === vac.name" class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-blue-600 text-white shadow-xs">
-                                                        Đang chọn gói này
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td class="py-3.5 px-4 text-slate-500" x-text="vac.duration"></td>
-                                            <td class="py-3.5 px-4 text-xs text-slate-600 max-w-md" x-text="vac.desc"></td>
-                                            <td class="py-3.5 px-4 text-center font-extrabold text-[#F97316] text-sm sm:text-base" x-text="formatCurrency(vac.price)"></td>
-                                            <td class="py-3.5 px-4 text-center">
-                                                <button type="button" @click.stop="selectVaccineRow(vac)" class="px-3.5 py-1.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center gap-1.5 mx-auto"
-                                                        :class="(selectedBaseService && selectedBaseService.category === 'vaccine' && selectedBaseService.name === vac.name) ? 'bg-blue-600 text-white shadow-blue-500/30 ring-2 ring-blue-300' : 'bg-blue-100 text-blue-700 hover:bg-blue-600 hover:text-white'">
-                                                    <i :class="(selectedBaseService && selectedBaseService.category === 'vaccine' && selectedBaseService.name === vac.name) ? 'fa-solid fa-circle-check' : 'fa-solid fa-calendar-plus'" class="text-[11px]"></i>
-                                                    <span x-text="(selectedBaseService && selectedBaseService.category === 'vaccine' && selectedBaseService.name === vac.name) ? 'Đã Chọn' : 'Chọn Đặt Lịch'"></span>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </template>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- KHỐI FORM ĐẶT LỊCH GIỮ CHỖ (BOOKING FORM BOX - 6 BƯỚC) -->
+                    <!-- KHỐI FORM ĐẶT LỊCH GIỮ CHỖ (BOOKING FORM BOX - 6 BƯỚC) -->
                 <div id="pet-service-booking-box" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
                         <div>
@@ -2874,29 +2898,47 @@ CUSTOMER_HTML = """
             <!-- ======================================================== -->
             <div x-show="activeCustomerTab === 'account' || activeCustomerTab === 'profile'" class="space-y-6" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0">
                 
-                <!-- Header Trang Tài Khoản -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-200 gap-2">
+                <!-- Header Trang Tài Khoản & Navigation Subtabs -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-200 gap-3">
                     <div>
                         <h2 class="text-2xl font-black text-slate-900">Quản Lý Tài Khoản Cá Nhân</h2>
-                        <p class="text-xs sm:text-sm text-slate-500">Cập nhật hồ sơ chủ nuôi, hạng thành viên tích điểm, hồ sơ thú cưng và sổ địa chỉ giao hàng</p>
+                        <p class="text-xs sm:text-sm text-slate-500">Cập nhật hồ sơ chủ nuôi, danh sách thú cưng và sổ địa chỉ giao hàng</p>
+                    </div>
+                    <!-- Subtabs Bar -->
+                    <div class="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl self-start sm:self-auto overflow-x-auto text-xs font-bold">
+                        <button @click="accountSubTab = 'info'" :class="accountSubTab === 'info' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-3 py-1.5 rounded-xl transition">
+                            Hồ Sơ Của Tôi
+                        </button>
+                        <button @click="accountSubTab = 'pets'" :class="accountSubTab === 'pets' ? 'bg-[#F97316] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-3 py-1.5 rounded-xl transition flex items-center gap-1">
+                            <i class="fa-solid fa-paw text-[11px]"></i>
+                            <span>Hồ Sơ Thú Cưng</span>
+                        </button>
+                        <button @click="accountSubTab = 'addresses'" :class="accountSubTab === 'addresses' ? 'bg-[#F97316] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-3 py-1.5 rounded-xl transition flex items-center gap-1">
+                            <i class="fa-solid fa-map-location-dot text-[11px]"></i>
+                            <span>Sổ Địa Chỉ</span>
+                        </button>
+                        <button @click="accountSubTab = 'orders'" :class="accountSubTab === 'orders' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-3 py-1.5 rounded-xl transition flex items-center gap-1">
+                            <i class="fa-solid fa-receipt text-[11px]"></i>
+                            <span>Đơn Hàng</span>
+                        </button>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     
-                    <!-- CỘT TRÁI: 1. THÔNG TIN TÀI KHOẢN & 2. CẤP BẬC THÀNH VIÊN -->
+                    <!-- CỘT TRÁI: 1. THÔNG TIN TÀI KHOẢN & CẤP BẬC THÀNH VIÊN -->
                     <div class="space-y-6">
                         
                         <!-- 1. THÔNG TIN TÀI KHOẢN CƠ BẢN -->
                         <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
                             <h3 class="font-extrabold text-base text-slate-900 flex items-center gap-2">
-                                <i class="fa-solid fa-user-circle text-brand-600"></i>Thông Tin Tài Khoản
+                                <i class="fa-solid fa-user-circle text-[#F97316]"></i>Thông Tin Tài Khoản
                             </h3>
                             
                             <div class="flex items-center gap-4">
                                 <div class="relative">
-                                    <img :src="customerProfile.avatar" class="w-16 h-16 rounded-full object-cover border-2 border-brand-500 shadow">
-                                    <button class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-slate-900 text-white text-[10px] flex items-center justify-center hover:bg-brand-600 transition" title="Thay đổi avatar">
+                                    <img :src="customerProfile.avatar" class="w-16 h-16 rounded-full object-cover border-2 border-orange-500 shadow">
+                                    <button class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-slate-900 text-white text-[10px] flex items-center justify-center hover:bg-orange-600 transition" title="Thay đổi avatar">
                                         <i class="fa-solid fa-camera"></i>
                                     </button>
                                 </div>
@@ -2906,40 +2948,27 @@ CUSTOMER_HTML = """
                                         <i class="fa-solid fa-circle-check text-[10px]"></i>
                                         <span>Email đã xác thực</span>
                                     </div>
+                                    <span class="inline-block mt-1 text-[10px] bg-amber-100 text-amber-800 font-extrabold px-2 py-0.5 rounded-full" x-text="customerProfile.rank || 'Khách Hàng VIP'"></span>
                                 </div>
                             </div>
 
                             <div class="space-y-3 pt-2 text-xs">
                                 <div>
-                                    <label class="block text-slate-500 mb-1">Họ và tên:</label>
-                                    <input type="text" x-model="customerProfile.name" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-semibold focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                    <label class="block text-slate-500 mb-1 font-bold">Họ và tên:</label>
+                                    <input type="text" x-model="customerProfile.name" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-semibold focus:outline-none focus:ring-1 focus:ring-orange-500">
                                 </div>
                                 <div>
-                                    <label class="block text-slate-500 mb-1">Địa chỉ Email:</label>
-                                    <input type="email" x-model="customerProfile.email" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-semibold focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                    <label class="block text-slate-500 mb-1 font-bold">Địa chỉ Email:</label>
+                                    <input type="email" x-model="customerProfile.email" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-semibold focus:outline-none focus:ring-1 focus:ring-orange-500">
                                 </div>
                                 <div>
-                                    <label class="block text-slate-500 mb-1">Số điện thoại liên hệ:</label>
-                                    <input type="tel" x-model="customerProfile.phone" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-semibold focus:outline-none focus:ring-1 focus:ring-brand-500">
-                                </div>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div>
-                                        <label class="block text-slate-500 mb-1">Ngày sinh:</label>
-                                        <input type="date" value="1998-05-15" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none">
-                                    </div>
-                                    <div>
-                                        <label class="block text-slate-500 mb-1">Giới tính:</label>
-                                        <select class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none">
-                                            <option>Nữ</option>
-                                            <option>Nam</option>
-                                            <option>Khác</option>
-                                        </select>
-                                    </div>
+                                    <label class="block text-slate-500 mb-1 font-bold">Số điện thoại liên hệ:</label>
+                                    <input type="tel" x-model="customerProfile.phone" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-semibold focus:outline-none focus:ring-1 focus:ring-orange-500">
                                 </div>
                             </div>
 
-                            <div class="pt-3 flex gap-2">
-                                <button @click="saveAccountProfile()" class="flex-1 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow transition">
+                            <div class="pt-2 flex gap-2">
+                                <button @click="saveAccountProfile()" class="flex-1 py-2.5 bg-[#F97316] hover:bg-orange-600 text-white font-bold text-xs rounded-xl shadow-xs transition">
                                     Lưu thay đổi
                                 </button>
                                 <button @click="showChangePasswordModal = true" class="py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition">
@@ -2952,106 +2981,188 @@ CUSTOMER_HTML = """
                         <div class="bg-gradient-to-br from-amber-500 to-orange-600 rounded-3xl p-6 text-white shadow-xl space-y-4 relative overflow-hidden">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <span class="text-xs uppercase tracking-wider text-amber-200 font-bold">Hạng Hội Viên</span>
-                                    <h4 class="text-2xl font-black">Thẻ Vàng (Gold VIP)</h4>
+                                    <span class="text-xs uppercase font-extrabold tracking-wider text-amber-100">Hạng Thành Viên</span>
+                                    <h4 class="text-xl font-black mt-0.5" x-text="customerProfile.rank || 'Gold Member'"></h4>
                                 </div>
-                                <i class="fa-solid fa-crown text-3xl text-amber-200"></i>
+                                <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-2xl">
+                                    <i class="fa-solid fa-crown text-amber-200"></i>
+                                </div>
                             </div>
-
                             <div class="space-y-1">
                                 <div class="flex justify-between text-xs font-semibold">
-                                    <span>Điểm tích lũy hiện có:</span>
-                                    <span class="font-extrabold text-white text-sm">1.250 điểm</span>
+                                    <span>Tích điểm: <strong>1.450 pts</strong></span>
+                                    <span>Mục tiêu: 2.000 pts</span>
                                 </div>
-                                <div class="w-full bg-black/20 h-2.5 rounded-full overflow-hidden p-0.5">
-                                    <div class="bg-white h-full rounded-full w-[65%]"></div>
+                                <div class="w-full bg-black/20 h-2.5 rounded-full overflow-hidden">
+                                    <div class="bg-white h-full rounded-full" style="width: 72.5%"></div>
                                 </div>
-                                <p class="text-[10px] text-amber-100 pt-0.5">Cần thêm 750 điểm nữa để thăng hạng Kim Cương (Diamond)</p>
                             </div>
-
-                            <div class="pt-3 border-t border-white/20 space-y-1.5 text-xs">
-                                <span class="font-bold text-amber-100 block">Đặc quyền hội viên Vàng:</span>
-                                <p class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-200 text-[10px]"></i> Giảm 5% mọi hóa đơn mua sắm & Spa</p>
-                                <p class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-200 text-[10px]"></i> Miễn phí vận chuyển PetShip 2H trong bán kính 5km</p>
-                                <p class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-200 text-[10px]"></i> Ưu tiên giữ phòng Pet Hotel mùa cao điểm lễ tết</p>
-                            </div>
+                            <p class="text-[11px] text-amber-100">Được giảm 5% toàn bộ sản phẩm và miễn phí 02 lần đưa đón PetShip/tháng.</p>
                         </div>
                     </div>
 
-                    <!-- CỘT PHẢI: 3. THÔNG TIN THÚ CƯNG & 4. SỔ ĐỊA CHỈ GIAO HÀNG -->
+                    <!-- CỘT PHẢI: HỒ SƠ THÚ CƯNG & SỔ ĐỊA CHỈ & ĐƠN HÀNG -->
                     <div class="lg:col-span-2 space-y-6">
                         
-                        <!-- 3. THÔNG TIN THÚ CƯNG (PET PROFILES) -->
+                        <!-- 1. TƯƠNG TÁC "HỒ SƠ THÚ CƯNG ĐÃ LƯU": Grid các thẻ thú cưng + Thẻ chức năng "Thêm thú cưng mới" nét đứt -->
                         <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-                            <div class="flex items-center justify-between">
-                                <h3 class="font-extrabold text-base text-slate-900 flex items-center gap-2">
-                                    <i class="fa-solid fa-paw text-brand-600"></i>Hồ Sơ Thú Cưng Đã Lưu
-                                </h3>
-                                <button @click="openAddPetModal()" class="px-4 py-2 bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold text-xs rounded-xl border border-brand-200 transition flex items-center gap-1.5 shadow-sm">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
+                                <div>
+                                    <h3 class="font-extrabold text-base text-slate-900 flex items-center gap-2">
+                                        <i class="fa-solid fa-paw text-[#F97316]"></i>Hồ Sơ Thú Cưng Đã Lưu
+                                    </h3>
+                                    <p class="text-xs text-slate-500 mt-0.5">Biến khu vực hiển thị thành Grid các thẻ thú cưng kèm Modal Form đầy đủ trường thông tin</p>
+                                </div>
+                                <button @click="openAddPetModal()" class="px-4 py-2 bg-orange-50 hover:bg-orange-100 text-[#F97316] font-bold text-xs rounded-xl border border-orange-200 transition flex items-center gap-1.5 shadow-2xs self-start sm:self-auto">
                                     <i class="fa-solid fa-plus"></i>
-                                    <span>Thêm thú cưng mới</span>
+                                    <span>Thêm Thú Cưng Mới</span>
                                 </button>
                             </div>
 
-                            <!-- Lưới thẻ thú cưng -->
+                            <!-- Lưới thẻ thú cưng (Grid Layout) -->
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <template x-for="p in customerProfile.pets" :key="p.id">
-                                    <div class="p-4 rounded-2xl border border-slate-200 hover:border-brand-300 transition bg-slate-50/50 space-y-3 flex flex-col justify-between">
-                                        <div class="flex items-center gap-3">
-                                            <img :src="p.avatar || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=150&q=80'" class="w-14 h-14 rounded-2xl object-cover border border-slate-200">
-                                            <div>
-                                                <h4 class="font-bold text-sm text-slate-900" x-text="p.name"></h4>
-                                                <p class="text-xs text-brand-600 font-medium" x-text="p.species + ' • ' + p.breed"></p>
-                                                <div class="flex items-center gap-2 text-[11px] text-slate-400 mt-1">
-                                                    <span x-text="p.age"></span>
-                                                    <span>•</span>
-                                                    <span class="font-bold text-slate-700" x-text="p.weight + ' kg'"></span>
+                                
+                                <!-- Thẻ Chức Năng: "Thêm thú cưng mới" (UI nét đứt) -->
+                                <div @click="openAddPetModal()" class="border-2 border-dashed border-slate-300 hover:border-[#F97316] bg-slate-50/50 hover:bg-orange-50/30 rounded-3xl p-6 flex flex-col items-center justify-center text-center cursor-pointer transition group min-h-[200px]">
+                                    <div class="w-12 h-12 rounded-2xl bg-orange-100 text-[#F97316] flex items-center justify-center text-xl group-hover:scale-110 transition shadow-sm mb-2">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </div>
+                                    <span class="font-black text-sm text-slate-800 group-hover:text-[#F97316]">Thêm Thú Cưng Mới</span>
+                                    <span class="text-xs text-slate-400 mt-1 max-w-[200px]">Tải avatar, nhập cân nặng, giống loài, giới tính & thói quen</span>
+                                </div>
+
+                                <!-- Danh Sách Thẻ Thú Cưng Đã Lưu -->
+                                <template x-for="p in (customerProfile.pets || pets)" :key="'pet-card-' + p.id">
+                                    <div class="p-4 rounded-3xl border border-slate-200 bg-white hover:border-orange-200 hover:shadow-md transition space-y-3 flex flex-col justify-between group">
+                                        <div>
+                                            <div class="flex items-start gap-3">
+                                                <img :src="p.avatar || p.image || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=150&q=80'" class="w-16 h-16 rounded-2xl object-cover border-2 border-slate-100 shadow-sm flex-shrink-0">
+                                                <div class="min-w-0 flex-1">
+                                                    <div class="flex items-center justify-between">
+                                                        <h4 class="font-extrabold text-sm text-slate-900 truncate" x-text="p.name"></h4>
+                                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full" :class="p.species === 'Mèo' ? 'bg-indigo-100 text-indigo-700' : 'bg-amber-100 text-amber-800'" x-text="p.species || 'Chó'"></span>
+                                                    </div>
+                                                    <p class="text-xs text-[#F97316] font-semibold truncate mt-0.5" x-text="p.breed || 'Chưa rõ giống'"></p>
+                                                    <div class="flex items-center gap-2 text-[11px] text-slate-500 mt-1.5 flex-wrap">
+                                                        <span class="bg-orange-50 text-orange-800 px-2 py-0.5 rounded-md font-extrabold" x-text="(p.weight || '0') + ' kg'"></span>
+                                                        <span>•</span>
+                                                        <span x-text="p.gender || 'Đực'"></span>
+                                                        <template x-if="p.neutered">
+                                                            <span class="text-emerald-600 font-semibold">• Đã triệt sản</span>
+                                                        </template>
+                                                    </div>
                                                 </div>
                                             </div>
+                                            
+                                            <!-- Dị ứng & thói quen -->
+                                            <div class="mt-3 p-2.5 rounded-xl bg-slate-50 text-[11px] text-slate-600 space-y-1">
+                                                <p class="truncate"><strong class="text-slate-700">Lưu ý:</strong> <span x-text="p.notes || p.allergies || p.habits || 'Bé khỏe mạnh, không có dị ứng đặc biệt'"></span></p>
+                                            </div>
                                         </div>
-                                        <div class="flex items-center justify-between pt-2 border-t border-slate-200 text-xs">
-                                            <button @click="openPetBookingDetailModal()" class="text-brand-600 hover:underline font-bold">Chỉnh sửa hồ sơ y tế</button>
-                                            <button class="text-rose-500 hover:underline text-[11px]">Xóa</button>
+
+                                        <!-- Nút Sửa / Xóa -->
+                                        <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+                                            <button @click="openEditPetModal(p)" class="text-[#F97316] hover:underline font-bold flex items-center gap-1">
+                                                <i class="fa-solid fa-pen-to-square text-[11px]"></i>Sửa hồ sơ
+                                            </button>
+                                            <button @click="deletePet(p.id)" class="text-rose-500 hover:text-rose-700 hover:underline text-[11px] flex items-center gap-1">
+                                                <i class="fa-solid fa-trash-can text-[10px]"></i>Xóa
+                                            </button>
                                         </div>
                                     </div>
                                 </template>
+
                             </div>
                         </div>
 
-                        <!-- 4. ĐỊA CHỈ GIAO HÀNG (SHIPPING ADDRESSES) -->
+                        <!-- 2. TƯƠNG TÁC "SỔ ĐỊA CHỈ GIAO HÀNG": Thay thế hoàn toàn input nhập tỉnh tự do bằng <AddressSelector> khóa cứng TP. Hồ Chí Minh -->
                         <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-                            <div class="flex items-center justify-between">
-                                <h3 class="font-extrabold text-base text-slate-900 flex items-center gap-2">
-                                    <i class="fa-solid fa-map-location-dot text-brand-600"></i>Sổ Địa Chỉ Giao Hàng
-                                </h3>
-                                <button @click="showAddressModal = true" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl transition flex items-center gap-1.5">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
+                                <div>
+                                    <h3 class="font-extrabold text-base text-slate-900 flex items-center gap-2">
+                                        <i class="fa-solid fa-map-location-dot text-[#F97316]"></i>Sổ Địa Chỉ Giao Hàng
+                                    </h3>
+                                    <p class="text-xs text-slate-500 mt-0.5">Địa chỉ dùng để giao hàng nhanh và dịch vụ đưa đón PetShip tận nhà</p>
+                                </div>
+                                <button @click="openAddAddressModal()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition flex items-center gap-1.5 shadow-2xs self-start sm:self-auto">
                                     <i class="fa-solid fa-plus"></i>
-                                    <span>Thêm địa chỉ mới</span>
+                                    <span>Thêm Địa Chỉ Mới</span>
                                 </button>
                             </div>
 
                             <div class="space-y-3">
-                                <template x-for="addr in shippingAddresses" :key="addr.id">
-                                    <div class="p-4 rounded-2xl border border-slate-200 bg-white space-y-2">
-                                        <div class="flex items-center justify-between">
-                                            <div class="flex items-center gap-2">
-                                                <span class="font-bold text-xs sm:text-sm text-slate-900" x-text="addr.name"></span>
-                                                <span class="text-xs text-slate-400" x-text="'(' + addr.phone + ')'"></span>
+                                <template x-for="addr in (addresses || shippingAddresses)" :key="'addr-card-' + addr.id">
+                                    <div class="p-4 rounded-2xl border transition bg-white space-y-2" :class="addr.isDefault ? 'border-[#F97316] ring-1 ring-[#F97316]/20 bg-orange-50/10' : 'border-slate-200 hover:border-slate-300'">
+                                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                            <div class="flex items-center gap-2 flex-wrap">
+                                                <span class="font-extrabold text-xs sm:text-sm text-slate-900" x-text="addr.name || addr.receiver"></span>
+                                                <span class="text-xs text-slate-500 font-semibold" x-text="'(' + addr.phone + ')'"></span>
                                                 <template x-if="addr.isDefault">
-                                                    <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">Địa chỉ mặc định</span>
+                                                    <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                                                        <i class="fa-solid fa-circle-check text-[9px]"></i>Mặc định
+                                                    </span>
                                                 </template>
                                             </div>
                                             <div class="flex items-center gap-2 text-xs">
-                                                <button @click="setDefaultAddress(addr.id)" x-show="!addr.isDefault" class="text-brand-600 hover:underline font-medium">Đặt làm mặc định</button>
-                                                <button class="text-slate-500 hover:text-slate-800">Sửa</button>
+                                                <button @click="setDefaultAddress(addr.id)" x-show="!addr.isDefault" class="text-[#F97316] hover:underline font-semibold">Đặt làm mặc định</button>
+                                                <span x-show="!addr.isDefault" class="text-slate-300">•</span>
+                                                <button @click="openEditAddressModal(addr)" class="text-slate-600 hover:text-slate-900 font-semibold flex items-center gap-1">
+                                                    <i class="fa-solid fa-pen-to-square text-[10px]"></i>Sửa
+                                                </button>
+                                                <span x-show="!addr.isDefault" class="text-slate-300">•</span>
                                                 <button @click="deleteAddress(addr.id)" x-show="!addr.isDefault" class="text-rose-500 hover:underline">Xóa</button>
                                             </div>
                                         </div>
-                                        <p class="text-xs text-slate-600" x-text="addr.fullAddress"></p>
+                                        <p class="text-xs text-slate-600 leading-relaxed flex items-start gap-1.5">
+                                            <i class="fa-solid fa-location-dot text-slate-400 mt-0.5"></i>
+                                            <span x-text="addr.fullAddress"></span>
+                                        </p>
                                     </div>
                                 </template>
                             </div>
                         </div>
+
+                        <!-- 3. LỊCH SỬ ĐƠN HÀNG (Hiển thị khi subtab là 'orders') -->
+                        <div x-show="accountSubTab === 'orders'" class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4 animate-fadeIn">
+                            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                                <div>
+                                    <h3 class="font-extrabold text-base text-slate-900 flex items-center gap-2">
+                                        <i class="fa-solid fa-receipt text-[#F97316]"></i>Lịch Sử Giao Dịch & Đơn Hàng
+                                    </h3>
+                                    <p class="text-xs text-slate-500 mt-0.5">Theo dõi hành trình xử lý, xuất hóa đơn điện tử và kiểm tra mã cọc</p>
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto border border-slate-200 rounded-2xl">
+                                <table class="w-full text-left text-xs border-collapse">
+                                    <thead class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
+                                        <tr>
+                                            <th class="py-3 px-4">Mã đơn</th>
+                                            <th class="py-3 px-4">Ngày đặt</th>
+                                            <th class="py-3 px-4">Sản phẩm / Dịch vụ</th>
+                                            <th class="py-3 px-4 text-center">Tổng tiền</th>
+                                            <th class="py-3 px-4 text-center">Phương thức</th>
+                                            <th class="py-3 px-4 text-center">Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 font-medium">
+                                        <template x-for="ord in customerOrders" :key="'acc-ord-' + ord.id">
+                                            <tr class="hover:bg-slate-50 transition">
+                                                <td class="py-3 px-4 font-mono font-bold text-[#F97316]" x-text="ord.id"></td>
+                                                <td class="py-3 px-4 text-slate-500" x-text="ord.date"></td>
+                                                <td class="py-3 px-4 font-semibold text-slate-800" x-text="ord.items"></td>
+                                                <td class="py-3 px-4 text-center font-bold text-slate-900" x-text="formatCurrency(ord.total)"></td>
+                                                <td class="py-3 px-4 text-center text-slate-500" x-text="ord.paymentMethod"></td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800" x-text="ord.status"></span>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -4476,52 +4587,97 @@ CUSTOMER_HTML = """
         </main>
 
         <!-- Footer Chung -->
-        <footer class="bg-slate-900 text-white pt-12 pb-8 border-t border-slate-800 mt-12">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-5 gap-8">
-                <div class="space-y-3 md:col-span-2">
-                    <div class="flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-xl bg-brand-500 flex items-center justify-center text-white">
-                            <i class="fa-solid fa-paw"></i>
+        <footer class="bg-slate-900 text-white pt-14 pb-10 border-t border-slate-800 mt-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Chân trang 4 cột bằng nhau -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8 lg:gap-12">
+                    
+                    <!-- Cột 1 (Thông tin chung) -->
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#F97316] to-amber-500 flex items-center justify-center text-white shadow-md">
+                                <i class="fa-solid fa-paw text-lg"></i>
+                            </div>
+                            <span class="text-xl font-black text-white">PetCare<span class="text-[#F97316]">360</span></span>
                         </div>
-                        <span class="text-lg font-bold">PetCare360</span>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            PetCare360 - Điểm tựa yêu thương & hệ sinh thái dinh dưỡng trọn đời cho thú cưng. Cam kết chuẩn mực, tận tâm như người thân trong gia đình.
+                        </p>
+                        <div class="pt-2 text-xs text-slate-400 space-y-2">
+                            <p class="flex items-start gap-2">
+                                <i class="fa-solid fa-phone text-[#F97316] mt-0.5"></i>
+                                <span><strong>Hotline:</strong> 1900 6888 Phím 1</span>
+                            </p>
+                            <p class="flex items-start gap-2">
+                                <i class="fa-solid fa-envelope text-[#F97316] mt-0.5"></i>
+                                <span><strong>Email:</strong> cskh@petcare360.vn</span>
+                            </p>
+                            <p class="flex items-start gap-2">
+                                <i class="fa-solid fa-location-dot text-[#F97316] mt-0.5"></i>
+                                <span><strong>Trụ sở:</strong> 123 Nguyễn Thị Minh Khai, P.6, Q.3, TP.HCM</span>
+                            </p>
+                        </div>
                     </div>
-                    <p class="text-xs text-slate-300 max-w-sm leading-relaxed">PetCare360 - Điểm tựa yêu thương & hệ sinh thái chăm sóc y tế, dinh dưỡng trọn đời cho thú cưng. Cam kết y đức thú y chuẩn mực, tận tâm như người thân trong gia đình.</p>
-                    <div class="pt-2 text-xs text-slate-400 space-y-1">
-                        <p><i class="fa-solid fa-phone mr-1.5 text-brand-400"></i> Hotline Cấp Cứu 24/7: 1900 6888 (Phím 1)</p>
-                        <p><i class="fa-solid fa-envelope mr-1.5 text-brand-400"></i> Email CSKH: cskh@petcare360.vn</p>
-                        <p><i class="fa-solid fa-location-dot mr-1.5 text-brand-400"></i> Trụ sở chính: 125 Hoàng Quốc Việt, Cầu Giấy, Hà Nội</p>
+
+                    <!-- Cột 2 (Dịch Vụ Nổi Bật) -->
+                    <div class="space-y-4">
+                        <h4 class="font-extrabold text-sm text-white uppercase tracking-wider border-b border-slate-800 pb-2">Dịch Vụ Nổi Bật</h4>
+                        <ul class="space-y-2.5 text-xs text-slate-300">
+                            <li>
+                                <a href="#" @click.prevent="activeCustomerTab = 'booking'; servicePricingTab = 'grooming';" class="hover:text-[#F97316] transition flex items-center gap-2">
+                                    <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>Grooming & Spa Thú Cưng
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" @click.prevent="activeCustomerTab = 'booking'; servicePricingTab = 'hotel';" class="hover:text-[#F97316] transition flex items-center gap-2">
+                                    <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>Khách Sạn Thú Cưng 5 Sao
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" @click.prevent="activeCustomerTab = 'shop';" class="hover:text-[#F97316] transition flex items-center gap-2">
+                                    <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>Sản Phẩm & Dinh Dưỡng
+                                </a>
+                            </li>
+                        </ul>
                     </div>
-                </div>
 
-                <div>
-                    <h4 class="font-bold text-sm text-slate-200 mb-3">Dịch Vụ Nổi Bật</h4>
-                    <ul class="space-y-2 text-xs text-slate-400">
-                        <li><a href="#" @click.prevent="activeCustomerTab = 'booking'" class="hover:text-brand-400 transition">Grooming & Spa Thú Cưng</a></li>
-                        <li><a href="#" @click.prevent="activeCustomerTab = 'booking'" class="hover:text-brand-400 transition">Khám Thú Y & Tiêm Ngừa</a></li>
-                        <li><a href="#" @click.prevent="activeCustomerTab = 'booking'" class="hover:text-brand-400 transition">Khách Sạn Thú Cưng 5 Sao</a></li>
-                        <li><a href="#" @click.prevent="activeCustomerTab = 'shop'" class="hover:text-brand-400 transition">Sản Phẩm & Dinh Dưỡng</a></li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h4 class="font-bold text-sm text-slate-200 mb-3">Chính Sách & Pháp Lý</h4>
-                    <ul class="space-y-2 text-xs text-slate-400">
-                        <li><button @click="openPolicyModal('privacy')" class="hover:text-brand-400 transition text-left">Chính sách Bảo mật</button></li>
-                        <li><button @click="openPolicyModal('terms')" class="hover:text-brand-400 transition text-left">Điều khoản Dịch vụ</button></li>
-                        <li><button @click="openPolicyModal('cookie')" class="hover:text-brand-400 transition text-left">Chính sách Cookie</button></li>
-                        <li><button @click="openPolicyModal('community')" class="hover:text-brand-400 transition text-left">Nguyên tắc cộng đồng</button></li>
-                        <li><button @click="openPolicyModal('refund')" class="hover:text-brand-400 transition text-left">Chính sách hoàn tiền</button></li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h4 class="font-bold text-sm text-slate-200 mb-3">Thanh Toán An Toàn</h4>
-                    <div class="flex gap-3 text-xl text-slate-400">
-                        <i class="fa-solid fa-money-bill-wave hover:text-emerald-400 transition" title="Tiền mặt COD"></i>
-                        <i class="fa-solid fa-building-columns hover:text-blue-400 transition" title="VietQR Banking"></i>
-                        <i class="fa-solid fa-wallet hover:text-pink-400 transition" title="Ví MoMo"></i>
+                    <!-- Cột 3 (Chính Sách & Pháp Lý) -->
+                    <div class="space-y-4">
+                        <h4 class="font-extrabold text-sm text-white uppercase tracking-wider border-b border-slate-800 pb-2">Chính Sách & Pháp Lý</h4>
+                        <ul class="space-y-2.5 text-xs text-slate-300">
+                            <li><button @click="openPolicyModal('privacy')" class="hover:text-[#F97316] transition flex items-center gap-2 text-left"><i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>Chính sách Bảo mật</button></li>
+                            <li><button @click="openPolicyModal('terms')" class="hover:text-[#F97316] transition flex items-center gap-2 text-left"><i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>Điều khoản Dịch vụ</button></li>
+                            <li><button @click="openPolicyModal('cookie')" class="hover:text-[#F97316] transition flex items-center gap-2 text-left"><i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>Chính sách Cookie</button></li>
+                            <li><button @click="openPolicyModal('community')" class="hover:text-[#F97316] transition flex items-center gap-2 text-left"><i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>Nguyên tắc cộng đồng</button></li>
+                            <li><button @click="openPolicyModal('refund')" class="hover:text-[#F97316] transition flex items-center gap-2 text-left"><i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>Chính sách hoàn tiền</button></li>
+                        </ul>
                     </div>
-                    <p class="text-[11px] text-slate-500 mt-4">© 2026 PetCare360 Corporation. All rights reserved.</p>
+
+                    <!-- Cột 4 (Thanh Toán & Bản Quyền) -->
+                    <div class="space-y-4">
+                        <h4 class="font-extrabold text-sm text-white uppercase tracking-wider border-b border-slate-800 pb-2">Thanh Toán An Toàn</h4>
+                        <p class="text-xs text-slate-400">Đa dạng hình thức thanh toán an toàn chuẩn SSL:</p>
+                        <div class="grid grid-cols-3 gap-2.5">
+                            <div class="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/80 flex flex-col items-center justify-center gap-1.5 hover:border-emerald-500 transition group" title="Tiền mặt khi nhận hàng (COD)">
+                                <i class="fa-solid fa-money-bill-wave text-emerald-400 text-lg group-hover:scale-110 transition"></i>
+                                <span class="text-[10px] text-slate-300 font-semibold">Tiền mặt</span>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/80 flex flex-col items-center justify-center gap-1.5 hover:border-sky-500 transition group" title="Thẻ ngân hàng VietQR / ATM">
+                                <i class="fa-solid fa-building-columns text-sky-400 text-lg group-hover:scale-110 transition"></i>
+                                <span class="text-[10px] text-slate-300 font-semibold">Thẻ NH</span>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/80 flex flex-col items-center justify-center gap-1.5 hover:border-pink-500 transition group" title="Ví điện tử MoMo">
+                                <i class="fa-solid fa-wallet text-pink-400 text-lg group-hover:scale-110 transition"></i>
+                                <span class="text-[10px] text-slate-300 font-semibold">Ví điện tử</span>
+                            </div>
+                        </div>
+                        <div class="pt-4 border-t border-slate-800/80">
+                            <p class="text-[11px] text-slate-400 leading-relaxed">
+                                © 2026 PetCare360 Corporation.<br>All rights reserved.
+                            </p>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </footer>

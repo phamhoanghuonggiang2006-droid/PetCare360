@@ -2126,35 +2126,331 @@ MODALS_HTML = '''<!-- ==================== CÁC MODAL HỆ THỐNG TOÀN DIỆN 
     <!-- ======================================================== -->
     <!-- 26. MODAL THÊM ĐỊA CHỈ GIAO HÀNG MỚI -->
     <!-- ======================================================== -->
-    <div x-show="showAddressModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative animate-fadeIn space-y-4">
-            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
-                <h4 class="font-extrabold text-sm text-slate-900">Thêm Địa Chỉ Giao Hàng</h4>
-                <button @click="showAddressModal = false" class="text-slate-400 hover:text-slate-600">
-                    <i class="fa-solid fa-xmark text-base"></i>
+    <!-- ========================================================================= -->
+    <!-- MODAL 1: THÊM / CHỈNH SỬA HỒ SƠ THÚ CƯNG (PET PROFILE MODAL - YÊU CẦU 2.1) -->
+    <!-- ========================================================================= -->
+    <div x-show="showPetModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100 relative animate-fadeIn space-y-5 max-h-[92vh] overflow-y-auto">
+            
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-orange-100 text-[#F97316] flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-paw"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-base text-slate-900" x-text="editingPet ? 'Chỉnh Sửa Hồ Sơ Thú Cưng' : 'Thêm Thú Cưng Mới'"></h4>
+                        <p class="text-[11px] text-slate-400">Điền thông tin thể trạng và đặc tính để tối ưu dịch vụ</p>
+                    </div>
+                </div>
+                <button @click="showPetModal = false" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark text-sm"></i>
                 </button>
             </div>
-            <div class="space-y-3 text-xs">
+
+            <!-- Form Content -->
+            <form @submit.prevent="savePetForm()" class="space-y-4 text-xs">
+                
+                <!-- Avatar Upload with Preview -->
                 <div>
-                    <label class="block text-slate-600 mb-1 font-semibold">Họ và tên người nhận:</label>
-                    <input type="text" x-model="addressForm.name" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none">
+                    <label class="block text-slate-700 font-bold mb-1.5">Ảnh đại diện thú cưng (Avatar):</label>
+                    <div class="flex items-center gap-4">
+                        <div class="relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-orange-200 bg-slate-50 flex items-center justify-center flex-shrink-0 shadow-sm">
+                            <img :src="petForm.avatar || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=150&q=80'" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex-1 space-y-1">
+                            <label class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl cursor-pointer transition inline-flex items-center gap-1.5 border border-slate-200">
+                                <i class="fa-solid fa-cloud-arrow-up text-orange-500"></i>
+                                <span>Tải ảnh lên...</span>
+                                <input type="file" accept="image/*" @change="handlePetAvatarUpload($event)" class="hidden">
+                            </label>
+                            <p class="text-[10px] text-slate-400">Định dạng JPG, PNG dưới 5MB. Hiển thị trên thẻ và sổ khám.</p>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- Tên thú cưng (Bắt buộc) -->
                 <div>
-                    <label class="block text-slate-600 mb-1 font-semibold">Số điện thoại:</label>
-                    <input type="tel" x-model="addressForm.phone" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none">
+                    <label class="block text-slate-700 font-bold mb-1">
+                        Tên thú cưng: <span class="text-rose-500">*</span>
+                    </label>
+                    <input type="text" x-model="petForm.name" placeholder="VD: Bé Bơ, Mochi, Milo..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:bg-white focus:border-[#F97316]">
+                    <template x-if="petFormErrors.name">
+                        <p class="text-[11px] text-rose-500 font-bold mt-1" x-text="petFormErrors.name"></p>
+                    </template>
                 </div>
+
+                <!-- Loài (Select: Chó / Mèo / Khác) & Giống (Input) -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-700 font-bold mb-1">Loài: <span class="text-rose-500">*</span></label>
+                        <select x-model="petForm.species" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:bg-white focus:border-[#F97316]">
+                            <option value="Chó">Chó</option>
+                            <option value="Mèo">Mèo</option>
+                            <option value="Khác">Khác (Thỏ, Hamster...)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-slate-700 font-bold mb-1">Giống loài (Breed):</label>
+                        <input type="text" x-model="petForm.breed" placeholder="VD: Corgi, ALN, Poodle..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:bg-white focus:border-[#F97316]">
+                    </div>
+                </div>
+
+                <!-- Giới tính (Radio) & Đã triệt sản (Checkbox) -->
+                <div class="grid grid-cols-2 gap-3 items-center bg-slate-50/70 p-3 rounded-2xl border border-slate-200">
+                    <div>
+                        <label class="block text-slate-700 font-bold mb-1.5">Giới tính:</label>
+                        <div class="flex items-center gap-4">
+                            <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                                <input type="radio" value="Đực" x-model="petForm.gender" class="text-[#F97316] focus:ring-orange-500">
+                                <span class="font-semibold text-slate-800">Đực</span>
+                            </label>
+                            <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                                <input type="radio" value="Cái" x-model="petForm.gender" class="text-[#F97316] focus:ring-orange-500">
+                                <span class="font-semibold text-slate-800">Cái</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="inline-flex items-center gap-2 cursor-pointer pt-2">
+                            <input type="checkbox" x-model="petForm.neutered" class="rounded text-[#F97316] focus:ring-orange-500 w-4 h-4">
+                            <span class="font-bold text-slate-800">Đã triệt sản</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Cân nặng hiện tại (Input Number - Bắt buộc) -->
                 <div>
-                    <label class="block text-slate-600 mb-1 font-semibold">Địa chỉ chi tiết (Số nhà, đường, phường, quận):</label>
-                    <input type="text" x-model="addressForm.fullAddress" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none">
+                    <label class="block text-slate-700 font-bold mb-1">
+                        Cân nặng hiện tại (kg): <span class="text-rose-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <input type="number" step="0.1" min="0.1" max="100" x-model.number="petForm.weight" placeholder="VD: 5.5" class="w-full bg-slate-50 border border-slate-300 rounded-xl pl-3.5 pr-12 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:bg-white focus:border-[#F97316]">
+                        <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">kg</span>
+                    </div>
+                    <template x-if="petFormErrors.weight">
+                        <p class="text-[11px] text-rose-500 font-bold mt-1" x-text="petFormErrors.weight"></p>
+                    </template>
                 </div>
-                <label class="flex items-center gap-2 cursor-pointer pt-1">
-                    <input type="checkbox" x-model="addressForm.isDefault" class="rounded text-brand-600 focus:ring-brand-500 w-4 h-4">
-                    <span class="text-slate-700 font-semibold">Đặt làm địa chỉ nhận hàng mặc định</span>
-                </label>
+
+                <!-- Dị ứng / Thói quen (Textarea) -->
+                <div>
+                    <label class="block text-slate-700 font-bold mb-1">Dị ứng / Thói quen chăm sóc:</label>
+                    <textarea rows="3" x-model="petForm.notes" placeholder="VD: Dị ứng thịt bò, nhát tiếng máy sấy to, thích ăn pate cá hồi..." class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs font-medium text-slate-800 focus:outline-none focus:bg-white focus:border-[#F97316]"></textarea>
+                </div>
+
+                <!-- Actions -->
+                <div class="pt-2 flex justify-end gap-2.5">
+                    <button type="button" @click="showPetModal = false" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition">Hủy bỏ</button>
+                    <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-[#F97316] to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-extrabold text-xs rounded-xl shadow-md transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span>Lưu Hồ Sơ Thú Cưng</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL 2: THÊM / CHỈNH SỬA SỔ ĐỊA CHỈ (ADDRESS SELECTOR TP.HCM - YÊU CẦU 2.2) -->
+    <!-- ========================================================================= -->
+    <div x-show="showAddressModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100 relative animate-fadeIn space-y-5">
+            
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-orange-100 text-[#F97316] flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-map-location-dot"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-base text-slate-900" x-text="editingAddress ? 'Chỉnh Sửa Địa Chỉ Giao Hàng' : 'Thêm Địa Chỉ Giao Hàng Mới'"></h4>
+                        <p class="text-[11px] text-slate-400">Áp dụng cho giao hàng 2H và dịch vụ đưa đón PetShip</p>
+                    </div>
+                </div>
+                <button @click="showAddressModal = false" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
             </div>
-            <div class="pt-2 flex justify-end gap-2">
-                <button @click="showAddressModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl">Hủy</button>
-                <button @click="saveAddressForm()" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs rounded-xl shadow">Lưu Địa Chỉ</button>
+
+            <!-- Form Content -->
+            <form @submit.prevent="saveAddressForm()" class="space-y-4 text-xs">
+                
+                <!-- Họ và tên người nhận -->
+                <div>
+                    <label class="block text-slate-700 font-bold mb-1">
+                        Họ và tên người nhận: <span class="text-rose-500">*</span>
+                    </label>
+                    <input type="text" x-model="addressForm.name" placeholder="VD: Nguyễn Phương Thảo" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:bg-white focus:border-[#F97316]">
+                    <template x-if="addressFormErrors.name">
+                        <p class="text-[11px] text-rose-500 font-bold mt-1" x-text="addressFormErrors.name"></p>
+                    </template>
+                </div>
+
+                <!-- Số điện thoại -->
+                <div>
+                    <label class="block text-slate-700 font-bold mb-1">
+                        Số điện thoại: <span class="text-rose-500">*</span>
+                    </label>
+                    <input type="tel" x-model="addressForm.phone" placeholder="VD: 0988 123 456" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:bg-white focus:border-[#F97316]">
+                    <template x-if="addressFormErrors.phone">
+                        <p class="text-[11px] text-rose-500 font-bold mt-1" x-text="addressFormErrors.phone"></p>
+                    </template>
+                </div>
+
+                <!-- Địa chỉ chi tiết (Số nhà, tên đường) -->
+                <div>
+                    <label class="block text-slate-700 font-bold mb-1">
+                        Địa chỉ chi tiết (Số nhà, tên đường): <span class="text-rose-500">*</span>
+                    </label>
+                    <input type="text" x-model="addressForm.street" placeholder="VD: Căn hộ 12.04 Tòa Park 6, Vinhomes Central Park" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:bg-white focus:border-[#F97316]">
+                    <template x-if="addressFormErrors.street">
+                        <p class="text-[11px] text-rose-500 font-bold mt-1" x-text="addressFormErrors.street"></p>
+                    </template>
+                </div>
+
+                <!-- <AddressSelector> Khóa cứng dropdown Tỉnh/Thành phố mặc định là "TP. Hồ Chí Minh" -->
+                <div class="space-y-3 p-3.5 bg-slate-50/80 rounded-2xl border border-slate-200">
+                    <div class="text-[11px] font-black uppercase text-slate-500 tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-location-crosshairs text-[#F97316]"></i>Khu Vực Giao Nhận (TP. Hồ Chí Minh)
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-600 font-bold mb-1">Tỉnh / Thành phố: <span class="text-rose-500">*</span></label>
+                        <input type="text" value="TP. Hồ Chí Minh (Khóa cứng)" readonly disabled class="w-full bg-slate-200/80 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-700 cursor-not-allowed">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-slate-600 font-bold mb-1">Quận / Huyện: <span class="text-rose-500">*</span></label>
+                            <select x-model="addressForm.district" @change="onAddressModalDistrictChange()" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#F97316]">
+                                <template x-for="d in (vnProvinces[0] ? vnProvinces[0].districts : [])" :key="d.name">
+                                    <option :value="d.name" x-text="d.name"></option>
+                                </template>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-slate-600 font-bold mb-1">Phường / Xã: <span class="text-rose-500">*</span></label>
+                            <select x-model="addressForm.ward" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#F97316]">
+                                <template x-for="w in addressModalWards" :key="w">
+                                    <option :value="w" x-text="w"></option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Checkbox "Đặt làm địa chỉ mặc định" -->
+                <label class="flex items-center gap-2.5 cursor-pointer pt-1">
+                    <input type="checkbox" x-model="addressForm.isDefault" class="rounded text-[#F97316] focus:ring-orange-500 w-4 h-4">
+                    <span class="text-slate-800 font-bold text-xs">Đặt làm địa chỉ nhận hàng mặc định</span>
+                </label>
+
+                <!-- Actions -->
+                <div class="pt-2 flex justify-end gap-2.5">
+                    <button type="button" @click="showAddressModal = false" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition">Hủy bỏ</button>
+                    <button type="submit" class="px-6 py-2.5 bg-[#F97316] hover:bg-orange-600 text-white font-extrabold text-xs rounded-xl shadow-md transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-check"></i>
+                        <span>Lưu Địa Chỉ</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL 3: PETCAM360 - XEM TRỰC TIẾP PHÒNG HOTEL 24/7 (YÊU CẦU 1.1 & 3.3) -->
+    <!-- ========================================================================= -->
+    <div x-show="showPetCamModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-100 relative animate-fadeIn space-y-5">
+            
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-sky-100 text-sky-600 flex items-center justify-center text-xl shadow-2xs">
+                        <i class="fa-solid fa-video text-rose-500 animate-pulse"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h4 class="font-black text-base text-slate-900">PetCam360 • Live Stream Khách Sạn 5 Sao</h4>
+                            <span class="text-[9px] bg-rose-600 text-white font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse">LIVE 24/7</span>
+                        </div>
+                        <p class="text-xs text-slate-400">Xem trực tiếp camera phòng lưu trú riêng biệt của thú cưng</p>
+                    </div>
+                </div>
+                <button @click="showPetCamModal = false" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Ô nhập mã phòng Hotel để xem camera -->
+            <div class="p-4 bg-sky-50/80 rounded-2xl border border-sky-200/80 space-y-3">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                    <div class="relative flex-1">
+                        <i class="fa-solid fa-key absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" x-model="petCamRoomInput" placeholder="Nhập mã phòng Hotel (VD: HT-VIP-01, HT-CAT-02...)" class="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-3.5 py-2.5 text-xs font-black uppercase tracking-wider text-slate-800 focus:outline-none focus:border-sky-500">
+                    </div>
+                    <button @click="connectPetCam()" class="px-5 py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 flex-shrink-0">
+                        <i class="fa-solid fa-plug text-xs"></i>
+                        <span>Kết Nối Camera</span>
+                    </button>
+                </div>
+                <!-- Gợi ý mã phòng nhanh của bé đang lưu trú -->
+                <div class="flex items-center gap-2 text-xs flex-wrap">
+                    <span class="text-slate-500 font-semibold text-[11px]">Phòng của bé:</span>
+                    <button @click="petCamRoomInput = 'HT-VIP-01'; connectPetCam();" class="px-2.5 py-1 rounded-lg bg-white border border-sky-300 text-sky-700 hover:bg-sky-100 font-bold text-[11px]">
+                        Bé Bơ: HT-VIP-01
+                    </button>
+                    <button @click="petCamRoomInput = 'HT-CAT-02'; connectPetCam();" class="px-2.5 py-1 rounded-lg bg-white border border-sky-300 text-sky-700 hover:bg-sky-100 font-bold text-[11px]">
+                        Bé Mochi: HT-CAT-02
+                    </button>
+                </div>
+                <template x-if="petCamError">
+                    <p class="text-[11px] text-rose-600 font-bold" x-text="petCamError"></p>
+                </template>
+            </div>
+
+            <!-- Khung Màn Hình Live Camera Stream -->
+            <div class="relative aspect-video rounded-3xl overflow-hidden bg-slate-950 border border-slate-800 shadow-xl group">
+                <!-- Video Stream Feed -->
+                <img :src="petCamRoomInput === 'HT-CAT-02' ? 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=800&q=80' : 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=800&q=80'" class="w-full h-full object-cover opacity-90 transition-transform duration-500" :style="'transform: rotate(' + (petCamAngle * 0.1) + 'deg) scale(1.05)'">
+                
+                <!-- Overlay Header -->
+                <div class="absolute top-3 left-3 right-3 flex items-center justify-between text-white text-xs pointer-events-none">
+                    <div class="flex items-center gap-2">
+                        <span class="bg-rose-600 text-white font-black text-[10px] px-2.5 py-0.5 rounded-full uppercase flex items-center gap-1 shadow-sm">
+                            <span class="w-2 h-2 rounded-full bg-white animate-ping"></span> REC
+                        </span>
+                        <span class="bg-black/60 backdrop-blur-md px-2.5 py-0.5 rounded-full font-mono text-[11px] font-bold" x-text="'PHÒNG: ' + (petCamRoomInput || 'HT-VIP-01')"></span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[11px]">
+                        <span class="text-emerald-400 font-bold"><i class="fa-solid fa-temperature-half mr-1"></i>24.5°C</span>
+                        <span class="text-slate-400">•</span>
+                        <span class="text-sky-400 font-bold"><i class="fa-solid fa-droplet mr-1"></i>55%</span>
+                    </div>
+                </div>
+
+                <!-- Overlay Controls Bottom -->
+                <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-xs bg-slate-950/70 backdrop-blur-md p-2 rounded-2xl border border-white/10">
+                    <div class="flex items-center gap-2">
+                        <button @click="togglePetCamAngle()" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 font-bold text-[11px] flex items-center gap-1.5 transition" title="Xoay góc camera">
+                            <i class="fa-solid fa-arrows-rotate text-sky-400"></i>
+                            <span x-text="'Góc ' + petCamAngle + '°'"></span>
+                        </button>
+                        <button @click="togglePetCamMic()" :class="petCamMicActive ? 'bg-emerald-600 text-white' : 'bg-white/10 text-slate-300'" class="px-3 py-1.5 rounded-xl font-bold text-[11px] flex items-center gap-1.5 transition" title="Đàm thoại 2 chiều">
+                            <i class="fa-solid" :class="petCamMicActive ? 'fa-microphone text-white' : 'fa-microphone-slash'"></i>
+                            <span x-text="petCamMicActive ? 'Mic: Bật' : 'Mic: Tắt'"></span>
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button @click="snapPetCamPhoto()" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-extrabold text-[11px] flex items-center gap-1 shadow-sm transition">
+                            <i class="fa-solid fa-camera"></i>
+                            <span>Chụp Ảnh</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-1 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100">
+                <span class="flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-emerald-600"></i> Hệ thống mã hóa bảo mật chuẩn P2P</span>
+                <button @click="showPetCamModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition">Đóng lại</button>
             </div>
         </div>
     </div>

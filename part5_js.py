@@ -369,14 +369,14 @@ function superPetCareApp() {
                 staffId: 'PetStaff0001',
                 weeklySchedule: ['T2', 'T3', 'T4', 'T5', 'T6'],
                 name: 'Nguyễn Văn Bình',
-                role: 'Bác sĩ thú y',
+                role: 'Chuyên gia chăm sóc',
                 roleColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
                 shift: '8h-12h',
                 schedule: { T2: true, T3: true, T4: true, T5: true, T6: true, T7: false, CN: false },
                 avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=150&q=80',
                 phone: '0918 223 344',
                 email: 'binh.nguyen@petcare360.vn',
-                degree: 'Bác Sĩ Thú Y - ĐH Nông Lâm TP.HCM (Tốt nghiệp Giỏi)',
+                degree: 'Chuyên Gia Chăm Sóc - ĐH Nông Lâm TP.HCM (Tốt nghiệp Giỏi)',
                 specialties: 'Ngoại khoa, Phẫu thuật chỉnh hình, Cấp cứu 24/7',
                 bio: 'Hơn 7 năm kinh nghiệm công tác tại các bệnh viện thú y quốc tế. Trực ban phẫu thuật và chăm sóc đặc biệt.'
             },
@@ -1500,7 +1500,48 @@ function superPetCareApp() {
         webhookSuccessReceived: false,
         
         // ==================== 8. TÀI KHOẢN SAAS DASHBOARD ====================
-        accountActiveTab: 'info', // 'info' | 'tier' | 'pets' | 'addresses'
+        accountActiveTab: 'info',
+        accountSubTab: 'info', // 'info' | 'pets' | 'addresses' | 'orders'
+        homeFaqActiveIndex: 0,
+
+        // Modal Hồ Sơ Thú Cưng State
+        showPetModal: false,
+        editingPet: null,
+        petForm: {
+            id: null,
+            name: '',
+            species: 'Chó',
+            breed: '',
+            gender: 'Đực',
+            neutered: false,
+            weight: '',
+            notes: '',
+            avatar: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=150&q=80'
+        },
+        petFormErrors: { name: '', weight: '' },
+
+        // Modal Sổ Địa Chỉ State (AddressSelector TP.HCM)
+        editingAddress: null,
+        addressForm: {
+            id: null,
+            name: 'Nguyễn Phương Thảo',
+            phone: '0988 123 456',
+            street: 'Căn hộ 12.04 Tòa Park 6, Vinhomes Central Park',
+            city: 'TP. Hồ Chí Minh',
+            district: 'Bình Thạnh',
+            ward: 'Phường 22',
+            isDefault: true
+        },
+        addressFormErrors: { name: '', phone: '', street: '' },
+
+        // Modal PetCam360 State (Hotel Camera Live Stream)
+        showPetCamModal: false,
+        petCamRoomInput: 'HT-VIP-01',
+        petCamConnected: true,
+        petCamError: '',
+        petCamAngle: 0,
+        petCamMicActive: false,
+ // 'info' | 'tier' | 'pets' | 'addresses'
         showChangePasswordModal: false,
         changePasswordForm: { current: '', newPass: '', confirm: '' },
         showAddressModal: false,
@@ -2679,34 +2720,34 @@ function superPetCareApp() {
         // 5 Câu hỏi FAQ chi tiết
         faqs: [
             {
-                q: 'Quy trình đặt lịch dịch vụ tại PetCare360 diễn ra như thế nào và tôi có thể hủy hoặc đổi giờ hẹn không?',
-                question: 'Quy trình đặt lịch dịch vụ tại PetCare360 diễn ra như thế nào và tôi có thể hủy hoặc đổi giờ hẹn không?',
-                a: 'Quý khách có thể dễ dàng đặt lịch trực tuyến ngay trên WebApp PetCare360: chọn dịch vụ mong muốn, chọn bé cưng, ngày và khung giờ thuận tiện. Hệ thống sẽ lập tức gửi xác nhận qua SMS và phân bổ phòng dịch vụ vô khuẩn cùng bác sĩ chuyên trách. Trong trường hợp có việc bận đột xuất, quý khách hoàn toàn có thể đổi giờ hoặc hủy lịch hẹn trước ít nhất 02 giờ mà không mất bất kỳ chi phí nào.',
-                answer: 'Quý khách có thể dễ dàng đặt lịch trực tuyến ngay trên WebApp PetCare360: chọn dịch vụ mong muốn, chọn bé cưng, ngày và khung giờ thuận tiện. Hệ thống sẽ lập tức gửi xác nhận qua SMS và phân bổ phòng dịch vụ vô khuẩn cùng bác sĩ chuyên trách. Trong trường hợp có việc bận đột xuất, quý khách hoàn toàn có thể đổi giờ hoặc hủy lịch hẹn trước ít nhất 02 giờ mà không mất bất kỳ chi phí nào.'
+                q: 'PetCare360 cam kết nguồn gốc xuất xứ và hạn sử dụng sản phẩm như thế nào?',
+                question: 'PetCare360 cam kết nguồn gốc xuất xứ và hạn sử dụng sản phẩm như thế nào?',
+                a: '100% sản phẩm dinh dưỡng, phụ kiện và mỹ phẩm trên PetCare360 đều được nhập khẩu chính ngạch từ các tập đoàn thú cưng hàng đầu thế giới (Royal Canin, Orijen, Davis, Ciao...). Mỗi lô hàng đều có tem phụ tiếng Việt, mã vạch chống hàng giả và hóa đơn VAT minh bạch. Hạn sử dụng luôn cam kết trên 12 tháng, bảo quản phòng lạnh tiêu chuẩn.',
+                answer: '100% sản phẩm dinh dưỡng, phụ kiện và mỹ phẩm trên PetCare360 đều được nhập khẩu chính ngạch từ các tập đoàn thú cưng hàng đầu thế giới (Royal Canin, Orijen, Davis, Ciao...). Mỗi lô hàng đều có tem phụ tiếng Việt, mã vạch chống hàng giả và hóa đơn VAT minh bạch. Hạn sử dụng luôn cam kết trên 12 tháng, bảo quản phòng lạnh tiêu chuẩn.'
             },
             {
-                q: 'Các bé cưng có biểu hiện hung dữ hoặc quá sợ hãi thì PetCare360 có nhận dịch vụ Spa và khám chữa bệnh không?',
-                question: 'Các bé cưng có biểu hiện hung dữ hoặc quá sợ hãi thì PetCare360 có nhận dịch vụ Spa và khám chữa bệnh không?',
-                a: 'PetCare360 hoàn toàn có năng lực tiếp nhận các bé có tâm lý nhạy cảm, sợ hãi hoặc phòng thủ cao. Đội ngũ bác sĩ và chuyên viên Spa tại PetCare360 đều được đào tạo bài bản chứng chỉ Fear Free quốc tế (chăm sóc không sang chấn tâm lý). Chúng tôi áp dụng kỹ thuật xoa bóp trấn an, sử dụng pheromone làm dịu và bánh thưởng chuyên dụng. Trong trường hợp bắt buộc phải can thiệp y tế khẩn cấp, bác sĩ sẽ tư vấn tiền mê nhẹ an toàn để bé không phải trải qua hoảng loạn.',
-                answer: 'PetCare360 hoàn toàn có năng lực tiếp nhận các bé có tâm lý nhạy cảm, sợ hãi hoặc phòng thủ cao. Đội ngũ bác sĩ và chuyên viên Spa tại PetCare360 đều được đào tạo bài bản chứng chỉ Fear Free quốc tế (chăm sóc không sang chấn tâm lý). Chúng tôi áp dụng kỹ thuật xoa bóp trấn an, sử dụng pheromone làm dịu và bánh thưởng chuyên dụng. Trong trường hợp bắt buộc phải can thiệp y tế khẩn cấp, bác sĩ sẽ tư vấn tiền mê nhẹ an toàn để bé không phải trải qua hoảng loạn.'
+                q: 'Đơn hàng được giao trong bao lâu và có hỗ trợ giao hỏa tốc 2 giờ không?',
+                question: 'Đơn hàng được giao trong bao lâu và có hỗ trợ giao hỏa tốc 2 giờ không?',
+                a: 'Với khu vực nội thành TP. Hồ Chí Minh, PetCare360 hỗ trợ dịch vụ PetShip giao siêu tốc trong vòng 2 giờ (áp dụng từ 08:00 - 20:00 hàng ngày). Các đơn hàng tiêu chuẩn giao trong ngày hoặc 24 giờ. Đơn hàng liên tỉnh được đóng gói cẩn thận 3 lớp và chuyển phát nhanh trong 2-3 ngày làm việc.',
+                answer: 'Với khu vực nội thành TP. Hồ Chí Minh, PetCare360 hỗ trợ dịch vụ PetShip giao siêu tốc trong vòng 2 giờ (áp dụng từ 08:00 - 20:00 hàng ngày). Các đơn hàng tiêu chuẩn giao trong ngày hoặc 24 giờ. Đơn hàng liên tỉnh được đóng gói cẩn thận 3 lớp và chuyển phát nhanh trong 2-3 ngày làm việc.'
             },
             {
-                q: 'Chính sách bảo hành y tế và cam kết an toàn khi gửi thú cưng tại khách sạn Pet Hotel như thế nào?',
-                question: 'Chính sách bảo hành y tế và cam kết an toàn khi gửi thú cưng tại khách sạn Pet Hotel như thế nào?',
-                a: 'Mọi thú cưng khi lưu trú tại Pet Hotel đều được kiểm tra sức khỏe ban đầu miễn phí, ở phòng riêng biệt có điều hòa 24/7 và camera giám sát trực tiếp. PetCare360 cam kết bảo hiểm sức khỏe 100% trong suốt thời gian lưu trú: nếu bé có bất kỳ dấu hiệu bỏ ăn hay mệt mỏi, bác sĩ thú y sẽ thăm khám và chăm sóc ngay lập tức với sự đồng ý của phụ huynh mà không phát sinh phụ phí khám.',
-                answer: 'Mọi thú cưng khi lưu trú tại Pet Hotel đều được kiểm tra sức khỏe ban đầu miễn phí, ở phòng riêng biệt có điều hòa 24/7 và camera giám sát trực tiếp. PetCare360 cam kết bảo hiểm sức khỏe 100% trong suốt thời gian lưu trú: nếu bé có bất kỳ dấu hiệu bỏ ăn hay mệt mỏi, bác sĩ thú y sẽ thăm khám và chăm sóc ngay lập tức với sự đồng ý của phụ huynh mà không phát sinh phụ phí khám.'
+                q: 'Chính sách đổi trả hàng hóa khi sản phẩm lỗi hoặc thú cưng không hợp khẩu vị?',
+                question: 'Chính sách đổi trả hàng hóa khi sản phẩm lỗi hoặc thú cưng không hợp khẩu vị?',
+                a: 'PetCare360 áp dụng chính sách 1 đổi 1 hoặc hoàn tiền 100% trong vòng 7 ngày hoàn toàn miễn phí nếu sản phẩm gặp lỗi từ nhà sản xuất, bao bì hư hỏng trong quá trình vận chuyển, hoặc bé cưng không hợp khẩu vị đối với các dòng hạt dinh dưỡng có cam kết đổi vị.',
+                answer: 'PetCare360 áp dụng chính sách 1 đổi 1 hoặc hoàn tiền 100% trong vòng 7 ngày hoàn toàn miễn phí nếu sản phẩm gặp lỗi từ nhà sản xuất, bao bì hư hỏng trong quá trình vận chuyển, hoặc bé cưng không hợp khẩu vị đối với các dòng hạt dinh dưỡng có cam kết đổi vị.'
             },
             {
-                q: 'Sản phẩm thức ăn và thuốc thú y trên hệ thống PetCare360 có đảm bảo chính hãng và nguồn gốc rõ ràng không?',
-                question: 'Sản phẩm thức ăn và thuốc thú y trên hệ thống PetCare360 có đảm bảo chính hãng và nguồn gốc rõ ràng không?',
-                a: '100% sản phẩm trên PetCare360 (từ hạt khô, pate dinh dưỡng đến thuốc thú y đặc trị) đều được nhập khẩu chính ngạch từ các tập đoàn thú y hàng đầu thế giới như Royal Canin (Pháp), Orijen (Canada), Zoetis (Mỹ), Boehringer Ingelheim (Đức). Mỗi sản phẩm đều có đầy đủ hóa đơn VAT, tem phụ tiếng Việt, mã vạch truy xuất nguồn gốc và hạn sử dụng dài hạn. Chúng tôi cam kết đền bù gấp 10 lần nếu phát hiện hàng giả, hàng nhái.',
-                answer: '100% sản phẩm trên PetCare360 (từ hạt khô, pate dinh dưỡng đến thuốc thú y đặc trị) đều được nhập khẩu chính ngạch từ các tập đoàn thú y hàng đầu thế giới như Royal Canin (Pháp), Orijen (Canada), Zoetis (Mỹ), Boehringer Ingelheim (Đức). Mỗi sản phẩm đều có đầy đủ hóa đơn VAT, tem phụ tiếng Việt, mã vạch truy xuất nguồn gốc và hạn sử dụng dài hạn. Chúng tôi cam kết đền bù gấp 10 lần nếu phát hiện hàng giả, hàng nhái.'
+                q: 'Tôi có thể tích điểm thành viên và áp dụng đồng thời voucher freeship cùng voucher giảm giá không?',
+                question: 'Tôi có thể tích điểm thành viên và áp dụng đồng thời voucher freeship cùng voucher giảm giá không?',
+                a: 'Có! Hệ thống PetCare360 hỗ trợ cộng dồn ưu đãi thông minh: Quý khách được áp dụng đồng thời 01 Voucher Vận chuyển (Freeship lên đến 50K) VÀ 01 Voucher Giảm giá đơn hàng trên cùng một lượt thanh toán. Ngoài ra, mỗi đơn hàng thành công đều được tích lũy 2% - 5% điểm thưởng thăng hạng thành viên VIP.',
+                answer: 'Có! Hệ thống PetCare360 hỗ trợ cộng dồn ưu đãi thông minh: Quý khách được áp dụng đồng thời 01 Voucher Vận chuyển (Freeship lên đến 50K) VÀ 01 Voucher Giảm giá đơn hàng trên cùng một lượt thanh toán. Ngoài ra, mỗi đơn hàng thành công đều được tích lũy 2% - 5% điểm thưởng thăng hạng thành viên VIP.'
             },
             {
-                q: 'Tôi ở xa hoặc vào ban đêm khi phòng khám đóng cửa, nếu thú cưng gặp tình trạng khẩn cấp thì phải làm sao?',
-                question: 'Tôi ở xa hoặc vào ban đêm khi phòng khám đóng cửa, nếu thú cưng gặp tình trạng khẩn cấp thì phải làm sao?',
-                a: 'PetCare360 duy trì hệ thống Cấp cứu Thú y 24/7/365 và tổng đài Bác sĩ trực tuyến miễn phí (1900 6868). Quý khách chỉ cần nhấn nút "Chat" trên góc phải màn hình WebApp hoặc gọi hotline cấp cứu, bác sĩ chuyên khoa hồi sức sẽ hướng dẫn sơ cứu tức thì qua video call và điều động xe cứu thương Pet Ambulance chuyên dụng đến tận nơi đón bé trong vòng 15-30 phút.',
-                answer: 'PetCare360 duy trì hệ thống Cấp cứu Thú y 24/7/365 và tổng đài Bác sĩ trực tuyến miễn phí (1900 6868). Quý khách chỉ cần nhấn nút "Chat" trên góc phải màn hình WebApp hoặc gọi hotline cấp cứu, bác sĩ chuyên khoa hồi sức sẽ hướng dẫn sơ cứu tức thì qua video call và điều động xe cứu thương Pet Ambulance chuyên dụng đến tận nơi đón bé trong vòng 15-30 phút.'
+                q: 'Dịch vụ đưa đón thú cưng PetShip cho Spa và Khách sạn Hotel hoạt động như thế nào?',
+                question: 'Dịch vụ đưa đón thú cưng PetShip cho Spa và Khách sạn Hotel hoạt động như thế nào?',
+                a: 'Đội xe PetShip chuyên dụng được trang bị lồng vận chuyển êm ái, hệ thống điều hòa nhiệt độ độc lập, camera hành trình và đai an toàn. Nhân viên đưa đón có chứng chỉ xử lý tâm lý thú cưng, chụp ảnh check-in và gửi định vị GPS cho chủ nuôi theo dõi xuyên suốt lộ trình di chuyển.',
+                answer: 'Đội xe PetShip chuyên dụng được trang bị lồng vận chuyển êm ái, hệ thống điều hòa nhiệt độ độc lập, camera hành trình và đai an toàn. Nhân viên đưa đón có chứng chỉ xử lý tâm lý thú cưng, chụp ảnh check-in và gửi định vị GPS cho chủ nuôi theo dõi xuyên suốt lộ trình di chuyển.'
             }
         ],
         faqActive: 0,
@@ -6350,6 +6391,281 @@ Trạng thái đơn: ' + finalStatus + ' | Đã trừ kho vĩnh viễn.`);
         submitPetShipSos() {
             this.adminPetShipSosModalOpen = false;
             this.showToast('⚠️ Đã ghi nhận báo cáo sự cố PetShip và cập nhật phụ phí ' + this.formatCurrency(this.petShipSosForm.surcharge));
+        },
+
+        // Top 4 Sản phẩm bán chạy cho Trang chủ (limit=4, sort theo order_count / sold)
+        get homeBestSellers() {
+            if (!this.products || this.products.length === 0) return (this.fallbackRelatedProducts || []).slice(0, 4);
+            return [...this.products].sort((a, b) => (b.order_count || b.sold || 0) - (a.order_count || a.sold || 0)).slice(0, 4);
+        },
+
+        // Top 4 Bài viết PetShare360 cho Trang chủ (limit=4, sort theo view)
+        get topPetShareArticles() {
+            if (!this.articles || this.articles.length === 0) return [];
+            return [...this.articles].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 4);
+        },
+
+        // Wards dropdown cho AddressModal TP.HCM
+        get addressModalWards() {
+            if (!this.vnProvinces || this.vnProvinces.length === 0) return [];
+            const prov = this.vnProvinces[0];
+            const dist = prov.districts.find(d => d.name === this.addressForm.district);
+            return dist ? dist.wards : [];
+        },
+
+        toggleHomeFaq(idx) {
+            this.homeFaqActiveIndex = this.homeFaqActiveIndex === idx ? -1 : idx;
+        },
+
+        // --- PET PROFILE METHODS ---
+        openAddPetModal() {
+            this.editingPet = null;
+            this.petForm = {
+                id: null,
+                name: '',
+                species: 'Chó',
+                breed: '',
+                gender: 'Đực',
+                neutered: false,
+                weight: '',
+                notes: '',
+                avatar: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=150&q=80'
+            };
+            this.petFormErrors = { name: '', weight: '' };
+            this.showPetModal = true;
+        },
+
+        openEditPetModal(pet) {
+            this.editingPet = pet;
+            this.petForm = {
+                id: pet.id,
+                name: pet.name || '',
+                species: pet.species || pet.type || 'Chó',
+                breed: pet.breed || '',
+                gender: pet.gender || 'Đực',
+                neutered: !!pet.neutered,
+                weight: pet.weight || '',
+                notes: pet.notes || pet.allergies || pet.habits || '',
+                avatar: pet.avatar || pet.image || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=150&q=80'
+            };
+            this.petFormErrors = { name: '', weight: '' };
+            this.showPetModal = true;
+        },
+
+        handlePetAvatarUpload(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.petForm.avatar = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        },
+
+        savePetForm() {
+            this.petFormErrors = { name: '', weight: '' };
+            let hasErr = false;
+
+            if (!this.petForm.name || !this.petForm.name.trim()) {
+                this.petFormErrors.name = 'Vui lòng nhập tên thú cưng (bắt buộc)';
+                hasErr = true;
+            }
+
+            const w = parseFloat(this.petForm.weight);
+            if (isNaN(w) || w <= 0) {
+                this.petFormErrors.weight = 'Cân nặng hiện tại là bắt buộc (phải lớn hơn 0 kg)';
+                hasErr = true;
+            }
+
+            if (hasErr) return;
+
+            const petData = {
+                id: this.editingPet ? this.editingPet.id : Date.now(),
+                name: this.petForm.name.trim(),
+                species: this.petForm.species,
+                type: this.petForm.species,
+                breed: this.petForm.breed.trim() || 'Chưa rõ giống',
+                gender: this.petForm.gender,
+                neutered: this.petForm.neutered,
+                weight: String(this.petForm.weight),
+                notes: this.petForm.notes.trim(),
+                allergies: this.petForm.notes.trim(),
+                avatar: this.petForm.avatar,
+                image: this.petForm.avatar
+            };
+
+            if (!this.customerProfile.pets) {
+                this.customerProfile.pets = [...(this.pets || [])];
+            }
+
+            if (this.editingPet) {
+                const idx = this.customerProfile.pets.findIndex(p => p.id === this.editingPet.id);
+                if (idx > -1) this.customerProfile.pets[idx] = { ...this.customerProfile.pets[idx], ...petData };
+                const pIdx = this.pets.findIndex(p => p.id === this.editingPet.id);
+                if (pIdx > -1) this.pets[pIdx] = { ...this.pets[pIdx], ...petData };
+            } else {
+                this.customerProfile.pets.push(petData);
+                this.pets.push(petData);
+            }
+
+            this.showPetModal = false;
+            this.showToast('Đã lưu hồ sơ thú cưng thành công!');
+        },
+
+        deletePet(id) {
+            if (confirm('Bạn có chắc chắn muốn xóa hồ sơ thú cưng này?')) {
+                if (this.customerProfile.pets) {
+                    this.customerProfile.pets = this.customerProfile.pets.filter(p => p.id !== id);
+                }
+                this.pets = this.pets.filter(p => p.id !== id);
+                this.showToast('Đã xóa hồ sơ thú cưng thành công!');
+            }
+        },
+
+        // --- ADDRESS BOOK METHODS ---
+        openAddAddressModal() {
+            this.editingAddress = null;
+            this.addressForm = {
+                id: null,
+                name: this.customerProfile.name || 'Nguyễn Phương Thảo',
+                phone: this.customerProfile.phone || '0988 123 456',
+                street: '',
+                city: 'TP. Hồ Chí Minh',
+                district: 'Quận 1',
+                ward: 'Phường Bến Nghé',
+                isDefault: false
+            };
+            this.addressFormErrors = { name: '', phone: '', street: '' };
+            this.showAddressModal = true;
+        },
+
+        openEditAddressModal(addr) {
+            this.editingAddress = addr;
+            let street = addr.street || addr.fullAddress || '';
+            let district = addr.district || 'Quận 1';
+            let ward = addr.ward || 'Phường Bến Nghé';
+
+            this.addressForm = {
+                id: addr.id,
+                name: addr.name || addr.receiver || '',
+                phone: addr.phone || '',
+                street: street,
+                city: 'TP. Hồ Chí Minh',
+                district: district,
+                ward: ward,
+                isDefault: !!addr.isDefault
+            };
+            this.addressFormErrors = { name: '', phone: '', street: '' };
+            this.showAddressModal = true;
+        },
+
+        onAddressModalDistrictChange() {
+            if (this.vnProvinces && this.vnProvinces[0]) {
+                const dist = this.vnProvinces[0].districts.find(d => d.name === this.addressForm.district);
+                if (dist && dist.wards && dist.wards.length > 0) {
+                    this.addressForm.ward = dist.wards[0];
+                }
+            }
+        },
+
+        saveAddressForm() {
+            this.addressFormErrors = { name: '', phone: '', street: '' };
+            let hasErr = false;
+
+            if (!this.addressForm.name || !this.addressForm.name.trim()) {
+                this.addressFormErrors.name = 'Vui lòng nhập họ và tên người nhận';
+                hasErr = true;
+            }
+
+            const cleanPhone = (this.addressForm.phone || '').trim().replace(/\s/g, '');
+            if (!cleanPhone || cleanPhone.length < 9) {
+                this.addressFormErrors.phone = 'Vui lòng nhập số điện thoại hợp lệ';
+                hasErr = true;
+            }
+
+            if (!this.addressForm.street || !this.addressForm.street.trim()) {
+                this.addressFormErrors.street = 'Vui lòng nhập địa chỉ chi tiết (Số nhà, tên đường)';
+                hasErr = true;
+            }
+
+            if (hasErr) return;
+
+            const fullAddr = `${this.addressForm.street.trim()}, ${this.addressForm.ward}, ${this.addressForm.district}, TP. Hồ Chí Minh`;
+            const addrObj = {
+                id: this.editingAddress ? this.editingAddress.id : Date.now(),
+                name: this.addressForm.name.trim(),
+                receiver: this.addressForm.name.trim(),
+                phone: this.addressForm.phone.trim(),
+                street: this.addressForm.street.trim(),
+                city: 'TP. Hồ Chí Minh',
+                district: this.addressForm.district,
+                ward: this.addressForm.ward,
+                fullAddress: fullAddr,
+                isDefault: this.addressForm.isDefault
+            };
+
+            if (!this.addresses) this.addresses = [];
+
+            if (this.addressForm.isDefault) {
+                this.addresses.forEach(a => a.isDefault = false);
+            }
+
+            if (this.editingAddress) {
+                const idx = this.addresses.findIndex(a => a.id === this.editingAddress.id);
+                if (idx > -1) this.addresses[idx] = { ...this.addresses[idx], ...addrObj };
+            } else {
+                if (this.addresses.length === 0) addrObj.isDefault = true;
+                this.addresses.push(addrObj);
+            }
+
+            this.shippingAddresses = [...this.addresses];
+            this.showAddressModal = false;
+            this.showToast('Đã lưu địa chỉ giao hàng thành công!');
+        },
+
+        deleteAddress(id) {
+            if (confirm('Bạn có chắc chắn muốn xóa địa chỉ này?')) {
+                this.addresses = this.addresses.filter(a => a.id !== id);
+                this.shippingAddresses = [...this.addresses];
+                this.showToast('Đã xóa địa chỉ thành công!');
+            }
+        },
+
+        setDefaultAddress(id) {
+            this.addresses.forEach(a => a.isDefault = (a.id === id));
+            this.shippingAddresses = [...this.addresses];
+            this.showToast('Đã đặt làm địa chỉ mặc định!');
+        },
+
+        // --- PETCAM360 METHODS ---
+        openPetCamModal() {
+            this.showPetCamModal = true;
+            this.petCamError = '';
+        },
+
+        connectPetCam() {
+            const code = (this.petCamRoomInput || '').trim().toUpperCase();
+            if (!code) {
+                this.petCamError = 'Vui lòng nhập mã phòng Hotel của bé cưng!';
+                return;
+            }
+            this.petCamError = '';
+            this.petCamConnected = true;
+            this.showToast('Kết nối Camera phòng ' + code + ' thành công!');
+        },
+
+        togglePetCamAngle() {
+            this.petCamAngle = (this.petCamAngle + 90) % 360;
+            this.showToast('Đã xoay góc camera 360° sang hướng ' + this.petCamAngle + '°');
+        },
+
+        togglePetCamMic() {
+            this.petCamMicActive = !this.petCamMicActive;
+            this.showToast(this.petCamMicActive ? 'Đã bật Mic đàm thoại 2 chiều!' : 'Đã tắt Mic đàm thoại');
+        },
+
+        snapPetCamPhoto() {
+            this.showToast('📸 Đã chụp và lưu ảnh bé cưng về máy!');
         },
 
         scrollToUrgentTasks() {
