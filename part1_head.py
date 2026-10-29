@@ -74,8 +74,33 @@ HEAD_HTML = """<!DOCTYPE html>
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
         .dark ::-webkit-scrollbar-thumb { background: #334155; }
         .drawer-slide { transition: transform 0.3s ease-in-out; }
+    
+        @media print {
+            body * {
+                visibility: hidden !important;
+            }
+            .print-invoice-area, .print-invoice-area * {
+                visibility: visible !important;
+            }
+            .print-invoice-area {
+                position: fixed !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+                background: white !important;
+                color: #000 !important;
+                padding: 24px !important;
+                margin: 0 !important;
+                box-shadow: none !important;
+                border: none !important;
+                z-index: 9999999 !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body class="h-full font-sans antialiased bg-slate-50 text-slate-800" x-data="superPetCareApp()" x-init="initApp()">
 """
-print('part1_head.py written!')

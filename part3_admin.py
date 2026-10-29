@@ -475,18 +475,51 @@ ADMIN_HTML = """
                                 <p class="text-xs text-slate-500">Tra cứu, cập nhật trạng thái và xuất hóa đơn bán hàng PetCare360.</p>
                             </div>
 
-                            <div class="flex items-center gap-2">
-                                <div class="relative w-64">
-                                    <input type="text" placeholder="Tìm theo mã đơn, khách, SĐT..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:border-sky-500">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <div class="relative w-56">
+                                    <input type="text" x-model="adminOrderSearchQuery" placeholder="Tìm mã đơn, khách, SĐT..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:border-sky-500 font-medium">
                                     <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                                 </div>
-                                <button class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold border border-slate-200 transition flex items-center gap-1.5">
-                                    <i class="fa-solid fa-filter text-xs"></i>
-                                    <span>Bộ lọc</span>
-                                </button>
-                                <button @click="exportOrdersData()" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-bold shadow-xs transition flex items-center gap-1.5">
-                                    <i class="fa-solid fa-download text-xs"></i>
-                                    <span>Xuất dữ liệu</span>
+
+                                <!-- DROPDOWN BỘ LỌC ĐƠN HÀNG (TRẠNG THÁI & KHOẢNG THỜI GIAN) -->
+                                <div class="relative" @click.outside="showOrderFilterDropdown = false">
+                                    <button type="button" @click="showOrderFilterDropdown = !showOrderFilterDropdown" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold border border-slate-200 transition flex items-center gap-1.5 cursor-pointer">
+                                        <i class="fa-solid fa-filter text-xs text-sky-600"></i>
+                                        <span>Bộ lọc</span>
+                                        <i class="fa-solid fa-chevron-down text-[10px] ml-0.5"></i>
+                                    </button>
+                                    <div x-show="showOrderFilterDropdown" x-cloak class="absolute right-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200 p-4 z-30 space-y-3 animate-fadeIn text-xs">
+                                        <div>
+                                            <label class="font-black text-slate-800 block mb-1.5 uppercase text-[10px] tracking-wider">Trạng thái đơn hàng:</label>
+                                            <div class="space-y-1.5 max-h-36 overflow-y-auto pr-1 font-medium">
+                                                <template x-for="st in ['ALL', 'Chờ xác nhận', 'Đang xử lý', 'Đang giao', 'Hoàn thành', 'Đã hủy']" :key="st">
+                                                    <label class="flex items-center gap-2 cursor-pointer text-slate-700 hover:text-sky-600">
+                                                        <input type="radio" name="orderStatusFilter" :value="st" x-model="adminOrderStatusFilter" class="text-sky-600 focus:ring-0">
+                                                        <span x-text="st === 'ALL' ? 'Tất cả trạng thái' : st"></span>
+                                                    </label>
+                                                </template>
+                                            </div>
+                                        </div>
+                                        <div class="pt-2 border-t border-slate-100">
+                                            <label class="font-black text-slate-800 block mb-1.5 uppercase text-[10px] tracking-wider">Khoảng thời gian:</label>
+                                            <select x-model="adminOrderTimeRangeFilter" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-700">
+                                                <option value="ALL">Tất cả thời gian</option>
+                                                <option value="TODAY">Hôm nay</option>
+                                                <option value="7DAYS">7 ngày qua</option>
+                                                <option value="MONTH">Tháng này</option>
+                                            </select>
+                                        </div>
+                                        <div class="pt-2 border-t border-slate-100 flex justify-between items-center">
+                                            <button type="button" @click="adminOrderStatusFilter = 'ALL'; adminOrderTimeRangeFilter = 'ALL'; adminOrderSearchQuery = '';" class="text-[11px] text-slate-500 hover:underline">Đặt lại</button>
+                                            <button type="button" @click="showOrderFilterDropdown = false" class="px-2.5 py-1 bg-sky-600 text-white rounded-lg font-bold text-[11px]">Áp dụng</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- NÚT XUẤT CSV -->
+                                <button type="button" @click="exportOrdersToCSV()" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-bold shadow-xs transition flex items-center gap-1.5 cursor-pointer">
+                                    <i class="fa-solid fa-file-csv text-xs"></i>
+                                    <span>Xuất dữ liệu (.CSV)</span>
                                 </button>
                             </div>
                         </div>
@@ -498,6 +531,7 @@ ADMIN_HTML = """
                                     <thead class="bg-slate-50 text-slate-500 border-b border-slate-200 uppercase tracking-wider font-bold">
                                         <tr>
                                             <th class="py-3 px-4">Mã đơn hàng</th>
+                                            <th class="py-3 px-4">Thời gian đặt</th>
                                             <th class="py-3 px-4">Khách hàng</th>
                                             <th class="py-3 px-4 text-right">Tổng tiền</th>
                                             <th class="py-3 px-4 text-center">Phương thức thanh toán</th>
@@ -507,12 +541,15 @@ ADMIN_HTML = """
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
-                                        <template x-for="order in adminRecentOrders" :key="order.orderId">
+                                        <template x-for="order in (filteredAdminOrders || adminRecentOrders)" :key="order.orderId">
                                             <tr class="hover:bg-slate-50 transition">
                                                 <!-- Cột 1: Mã đơn hàng -->
                                                 <td class="py-3.5 px-4">
                                                     <button @click="openAdminOrderDetail(order)" class="font-mono font-bold text-sky-600 hover:text-sky-800 hover:underline" x-text="order.orderId"></button>
                                                 </td>
+
+                                                <!-- Cột THỜI GIAN ĐẶT -->
+                                                <td class="py-3.5 px-4 font-mono text-slate-600 text-xs" x-text="order.orderTime || order.orderDate || order.date || '29/10/2026 - 14:30'"></td>
 
                                                 <!-- Cột 2: Khách hàng -->
                                                 <td class="py-3.5 px-4">
@@ -585,10 +622,10 @@ ADMIN_HTML = """
 
                             <div class="flex items-center gap-2">
                                 <div class="relative w-64">
-                                    <input type="text" placeholder="Tìm theo mã DV, khách, thú cưng..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:border-teal-500">
+                                    <input type="text" x-model="adminServiceSearchQuery" placeholder="Tìm theo Tên khách, SĐT, Tên pet..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:border-teal-500 font-medium">
                                     <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                                 </div>
-                                <select class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-700">
+                                <select x-model="adminServiceCategoryFilter" class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-bold text-slate-700 focus:outline-none focus:border-teal-500">
                                     <option value="ALL">Tất cả gói</option>
                                     <option value="HOTEL">Hotel</option>
                                     <option value="SPA">Spa</option>
@@ -604,6 +641,7 @@ ADMIN_HTML = """
                                     <thead class="bg-slate-50 text-slate-500 border-b border-slate-200 uppercase tracking-wider font-bold">
                                         <tr>
                                             <th class="py-3 px-3">Mã DV</th>
+                                            <th class="py-3 px-3">Thời gian đặt</th>
                                             <th class="py-3 px-3">Khách hàng</th>
                                             <th class="py-3 px-3">Thú cưng</th>
                                             <th class="py-3 px-3 text-center">Gói DV</th>
@@ -616,12 +654,15 @@ ADMIN_HTML = """
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
-                                        <template x-for="srv in adminServicesList" :key="srv.serviceId">
+                                        <template x-for="srv in (filteredAdminServicesList || adminServicesList)" :key="srv.serviceId">
                                             <tr class="hover:bg-slate-50 transition">
                                                 <!-- 1. Mã DV -->
                                                 <td class="py-3.5 px-3">
                                                     <button @click="openAdminServiceDetail(srv)" class="font-mono font-bold text-teal-600 hover:underline" x-text="srv.serviceId"></button>
                                                 </td>
+
+                                                <!-- THỜI GIAN ĐẶT -->
+                                                <td class="py-3.5 px-3 font-mono text-slate-600 text-[11px]" x-text="srv.createdAt || srv.timeBooked || '29/10/2026 15:45'"></td>
 
                                                 <!-- 2. Khách hàng -->
                                                 <td class="py-3.5 px-3">
@@ -699,15 +740,15 @@ ADMIN_HTML = """
 
                             <div class="flex flex-wrap items-center gap-2">
                                 <div class="relative w-56">
-                                    <input type="text" placeholder="Tìm theo SKU / tên SP..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:border-amber-500">
+                                    <input type="text" x-model="adminInventorySearchQuery" placeholder="Tìm theo SKU / tên SP..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:border-amber-500 font-medium">
                                     <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                                 </div>
-                                <select class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-700">
+                                <select x-model="adminInventoryCategoryFilter" class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-bold text-slate-700 focus:outline-none focus:border-amber-500">
                                     <option value="ALL">Tất cả danh mục</option>
                                     <option value="SELL">Dùng để bán</option>
                                     <option value="FACILITY">Dùng cho cơ sở</option>
                                 </select>
-                                <button @click="openRestockModal()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition flex items-center gap-1.5">
+                                <button @click="openAddProductModal()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition flex items-center gap-1.5 cursor-pointer">
                                     <i class="fa-solid fa-plus text-xs"></i>
                                     <span>Nhập Thêm Kho</span>
                                 </button>
@@ -734,7 +775,7 @@ ADMIN_HTML = """
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
-                                        <template x-for="item in inventoryItems" :key="item.sku">
+                                        <template x-for="item in (filteredInventoryItems || inventoryItems)" :key="item.sku">
                                             <tr class="hover:bg-slate-50 transition">
                                                 <!-- Checkbox -->
                                                 <td class="py-3.5 px-3 text-center">
@@ -769,21 +810,21 @@ ADMIN_HTML = """
                                                     <div class="text-[9px] text-slate-400 font-normal">Tự động trừ khi bán</div>
                                                 </td>
 
-                                                <!-- Trạng thái -->
+                                                <!-- Trạng thái (in_stock, low_stock, out_of_stock) -->
                                                 <td class="py-3.5 px-3 text-center">
-                                                    <span :class="item.status === 'Còn hàng' ? 'bg-emerald-100 text-emerald-800' : (item.status === 'Sắp hết' ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800')" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold" x-text="item.status"></span>
+                                                    <span :class="((item.stock_quantity ?? item.stock) <= 0) ? 'bg-rose-100 text-rose-800 border border-rose-200' : (((item.stock_quantity ?? item.stock) < 10) ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-emerald-100 text-emerald-800 border border-emerald-200')" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold" x-text="((item.stock_quantity ?? item.stock) <= 0) ? 'Hết hàng' : (((item.stock_quantity ?? item.stock) < 10) ? 'Sắp hết' : 'Còn hàng')"></span>
                                                 </td>
 
-                                                <!-- Thao tác -->
+                                                <!-- Thao tác: Nhập kho, Sửa, Xóa -->
                                                 <td class="py-3.5 px-3 text-center">
                                                     <div class="flex items-center justify-center gap-1.5">
-                                                        <button @click="openRestockModal(item)" class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition" title="Nhập kho">
+                                                        <button @click="openRestockModal(item)" class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition cursor-pointer" title="Nhập thêm kho">
                                                             <i class="fa-solid fa-truck-ramp-box text-sm"></i>
                                                         </button>
-                                                        <button @click="showToast('Sửa sản phẩm: ' + item.sku)" class="p-1.5 text-sky-600 hover:bg-sky-50 rounded-lg transition" title="Sửa">
+                                                        <button @click="openEditProductModal(item)" class="p-1.5 text-sky-600 hover:bg-sky-50 rounded-lg transition cursor-pointer" title="Sửa thông tin">
                                                             <i class="fa-solid fa-pen-to-square text-sm"></i>
                                                         </button>
-                                                        <button @click="showToast('Xóa sản phẩm: ' + item.sku)" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition" title="Xóa">
+                                                        <button @click="deleteInventoryProduct(item)" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer" title="Xóa sản phẩm">
                                                             <i class="fa-solid fa-trash-can text-sm"></i>
                                                         </button>
                                                     </div>
@@ -986,15 +1027,16 @@ ADMIN_HTML = """
                             </div>
 
                             <div class="flex items-center gap-2">
-                                <button @click="showToast('Thêm nhân sự mới')" class="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold shadow-xs transition flex items-center gap-1.5">
+                                <button @click="openAddStaffModal()" class="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold shadow-xs transition flex items-center gap-1.5 cursor-pointer">
                                     <i class="fa-solid fa-user-plus text-xs"></i>
                                     <span>Thêm nhân sự</span>
                                 </button>
-                                <button @click="showToast('Chế độ sửa thông tin')" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold border border-slate-200 transition">
+                                <button @click="openEditStaffModal(staffList[0])" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold border border-slate-200 transition cursor-pointer">
                                     Sửa thông tin
                                 </button>
-                                <button @click="showToast('Chọn nhân sự cần xóa')" class="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-xs font-bold border border-rose-300 transition">
-                                    Xóa bỏ nhân sự
+                                <button @click="deleteStaffPrompt()" class="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-xs font-bold border border-rose-300 transition flex items-center gap-1.5 cursor-pointer">
+                                    <i class="fa-solid fa-trash-can text-xs"></i>
+                                    <span>Xóa bỏ nhân sự</span>
                                 </button>
                             </div>
                         </div>
@@ -1083,17 +1125,17 @@ ADMIN_HTML = """
                                 <p class="text-xs text-slate-500">Danh sách khách hàng, hạng thẻ thành viên, mức chi tiêu và lịch sử giao dịch.</p>
                             </div>
 
-                            <div class="flex items-center gap-2">
-                                <div class="relative w-64">
-                                    <input type="text" placeholder="Tìm theo tên, SĐT..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:border-sky-500">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <div class="relative w-56">
+                                    <input type="text" x-model="adminCustomerSearch" placeholder="Tìm tên, SĐT, mã KH..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:border-sky-500 font-medium">
                                     <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                                 </div>
-                                <select class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-700">
-                                    <option value="ALL">Tất cả hạng</option>
-                                    <option value="PLATINUM">Bạch Kim</option>
-                                    <option value="GOLD">Vàng</option>
-                                    <option value="SILVER">Bạc</option>
-                                    <option value="BRONZE">Đồng</option>
+                                <select x-model="customerTierFilter" class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-bold text-slate-700 focus:outline-none focus:border-sky-500">
+                                    <option value="all">Tất cả hạng thành viên</option>
+                                    <option value="diamond">Kim Cương</option>
+                                    <option value="gold">Vàng</option>
+                                    <option value="silver">Bạc</option>
+                                    <option value="standard">Tiêu chuẩn</option>
                                 </select>
                             </div>
                         </div>
@@ -1115,7 +1157,7 @@ ADMIN_HTML = """
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
-                                        <template x-for="cust in adminCustomersList" :key="cust.customerId">
+                                        <template x-for="cust in (filteredAdminCustomersList || adminCustomersList)" :key="cust.customerId || cust.id">
                                             <tr class="hover:bg-slate-50 transition">
                                                 <!-- Mã KH -->
                                                 <td class="py-3.5 px-4">
@@ -1144,13 +1186,14 @@ ADMIN_HTML = """
                                                 <!-- Thú cưng -->
                                                 <td class="py-3.5 px-4 text-center font-bold text-slate-800" x-text="cust.petsCount + ' (' + cust.petsDesc + ')'"></td>
 
-                                                <!-- Tổng chi (In đậm) -->
-                                                <td class="py-3.5 px-4 text-right font-black text-slate-900 text-sm" x-text="formatCurrency(cust.totalSpend)"></td>
+                                                <!-- Tổng chi (Cộng dồn tất cả đơn hàng & dịch vụ hoàn thành) -->
+                                                <td class="py-3.5 px-4 text-right font-black text-slate-900 text-sm" x-text="formatCurrency(getCustomerTotalSpent(cust))"></td>
 
-                                                <!-- Thao tác 1: Lịch sử -->
+                                                <!-- Thao tác 1: Hồ Sơ Khách Hàng Toàn Diện -->
                                                 <td class="py-3.5 px-4 text-center">
-                                                    <button @click="openCustomerHistory(cust)" class="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl font-bold transition">
-                                                        Lịch sử
+                                                    <button @click="openComprehensiveCustomerModal(cust)" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-300 rounded-xl font-bold transition flex items-center gap-1.5 mx-auto cursor-pointer">
+                                                        <i class="fa-solid fa-address-book text-xs"></i>
+                                                        <span>Lịch sử</span>
                                                     </button>
                                                 </td>
 
@@ -1185,14 +1228,10 @@ ADMIN_HTML = """
                             </div>
 
                             <div class="flex items-center gap-2">
-                                <button @click="showToast('Thêm hồ sơ thú cưng mới')" class="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-xs transition flex items-center gap-1.5">
-                                    <i class="fa-solid fa-plus text-xs"></i>
-                                    <span>Thêm hồ sơ</span>
-                                </button>
-                                <button @click="showToast('Chọn hồ sơ cần xóa')" class="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-xs font-bold border border-rose-300 transition flex items-center gap-1.5">
-                                    <i class="fa-solid fa-trash-can text-xs"></i>
-                                    <span>Xóa hồ sơ</span>
-                                </button>
+                                <span class="px-3.5 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-bold border border-slate-200 flex items-center gap-1.5 select-none">
+                                    <i class="fa-solid fa-lock text-slate-400 text-xs"></i>
+                                    <span>Chế độ Chỉ Đọc (Dữ liệu khách hàng đồng bộ)</span>
+                                </span>
                             </div>
                         </div>
 
@@ -1302,6 +1341,7 @@ ADMIN_HTML = """
                                     <thead class="bg-slate-50 text-slate-500 border-b border-slate-200 uppercase tracking-wider font-bold">
                                         <tr>
                                             <th class="py-3 px-3">Mã DV</th>
+                                            <th class="py-3 px-3">Thời gian đặt</th>
                                             <th class="py-3 px-3">Khách & Liên hệ</th>
                                             <th class="py-3 px-3">Thú cưng</th>
                                             <th class="py-3 px-3 text-center">Gói DV</th>
@@ -1317,6 +1357,9 @@ ADMIN_HTML = """
                                             <tr class="hover:bg-slate-50 transition">
                                                 <!-- Mã DV -->
                                                 <td class="py-3.5 px-3 font-mono font-bold text-teal-600" x-text="srv.serviceId"></td>
+
+                                                <!-- THỜI GIAN ĐẶT -->
+                                                <td class="py-3.5 px-3 font-mono text-slate-600 text-[11px]" x-text="srv.orderTime || '29/10/2026 - 15:30'"></td>
 
                                                 <!-- Khách & Liên hệ -->
                                                 <td class="py-3.5 px-3">
@@ -1345,9 +1388,13 @@ ADMIN_HTML = """
                                                     <div class="text-[10px] text-slate-400" x-text="srv.payment"></div>
                                                 </td>
 
-                                                <!-- Trạng thái -->
+                                                <!-- CẬP NHẬT TRẠNG THÁI DROPDOWN -->
                                                 <td class="py-3.5 px-3 text-center">
-                                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800" x-text="srv.status"></span>
+                                                    <select :value="srv.shippingStatus || 'Chờ đón'" @change="updatePetShipServiceStatus(srv, $event.target.value)" class="bg-emerald-50 border border-emerald-200 rounded-xl px-2 py-1 text-xs font-bold text-emerald-800 focus:outline-none cursor-pointer">
+                                                        <option value="Chờ đón">Chờ đón</option>
+                                                        <option value="Đang trên xe">Đang trên xe</option>
+                                                        <option value="Đã trả bé">Đã trả bé</option>
+                                                    </select>
                                                 </td>
 
                                                 <!-- PetShip Dropdown điều phối -->
@@ -1389,11 +1436,13 @@ ADMIN_HTML = """
                                     <thead class="bg-slate-50 text-slate-500 border-b border-slate-200 uppercase tracking-wider font-bold">
                                         <tr>
                                             <th class="py-3 px-3">Mã đơn hàng</th>
+                                            <th class="py-3 px-3">Thời gian đặt</th>
                                             <th class="py-3 px-3">Thông tin sản phẩm</th>
                                             <th class="py-3 px-3">Khách hàng</th>
                                             <th class="py-3 px-3">SĐT & Địa chỉ</th>
                                             <th class="py-3 px-3 text-right">Tổng tiền & TT</th>
                                             <th class="py-3 px-3">Ghi chú</th>
+                                            <th class="py-3 px-3 text-center">Cập nhật trạng thái</th>
                                             <th class="py-3 px-3 text-center">Chi tiết</th>
                                         </tr>
                                     </thead>
@@ -1401,6 +1450,8 @@ ADMIN_HTML = """
                                         <template x-for="ord in petShipPhysicalList" :key="ord.orderId">
                                             <tr class="hover:bg-slate-50 transition">
                                                 <td class="py-3.5 px-3 font-mono font-bold text-sky-700" x-text="ord.orderId"></td>
+                                                <!-- THỜI GIAN ĐẶT -->
+                                                <td class="py-3.5 px-3 font-mono text-slate-600 text-[11px]" x-text="ord.orderTime || '29/10/2026 - 14:15'"></td>
                                                 <td class="py-3.5 px-3 font-semibold text-slate-800" x-text="ord.products"></td>
                                                 <td class="py-3.5 px-3 font-bold text-slate-900" x-text="ord.customerName"></td>
                                                 <td class="py-3.5 px-3">
@@ -1412,6 +1463,15 @@ ADMIN_HTML = """
                                                     <div class="text-[10px] text-slate-400" x-text="ord.payment"></div>
                                                 </td>
                                                 <td class="py-3.5 px-3 text-slate-500 max-w-xs truncate" x-text="ord.notes"></td>
+                                                <!-- CẬP NHẬT TRẠNG THÁI -->
+                                                <td class="py-3.5 px-3 text-center">
+                                                    <select :value="ord.shippingStatus || 'Chờ lấy hàng'" @change="updatePetShipPhysicalStatus(ord, $event.target.value)" class="bg-slate-50 border border-slate-200 rounded-xl px-2 py-1 text-xs font-bold text-slate-800 focus:outline-none cursor-pointer">
+                                                        <option value="Chờ lấy hàng">Chờ lấy hàng</option>
+                                                        <option value="Đang giao">Đang giao</option>
+                                                        <option value="Hoàn thành">Hoàn thành</option>
+                                                        <option value="Thất bại">Thất bại</option>
+                                                    </select>
+                                                </td>
                                                 <td class="py-3.5 px-3 text-center">
                                                     <button @click="openAdminOrderDetail({ orderId: ord.orderId, customerName: ord.customerName, customerPhone: ord.phone, total: ord.total, paymentMethod: 'cod', notes: ord.notes, status: 'PROCESSING', address: ord.address })" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition">
                                                         Xem đơn

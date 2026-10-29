@@ -3296,7 +3296,7 @@ CUSTOMER_HTML = """
                                     </div>
                                 </template>
                                 <!-- Nút bấm lớn màu đen "THANH TOÁN" -->
-                                <button @click="goToCartStep(2)" class="w-full py-4 rounded-2xl bg-black hover:bg-slate-800 text-white font-extrabold text-base transition shadow-lg flex items-center justify-center gap-2">
+                                <button @click="proceedToCheckout()" class="w-full py-4 rounded-2xl bg-black hover:bg-slate-800 text-white font-extrabold text-base transition shadow-lg flex items-center justify-center gap-2 cursor-pointer">
                                     <span>THANH TOÁN</span>
                                     <i class="fa-solid fa-arrow-right"></i>
                                 </button>

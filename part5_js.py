@@ -419,7 +419,13 @@ function superPetCareApp() {
             { id: 5, sku: 'SKU-BL-05', name: 'Xịt Khử Khuẩn Chuồng Trại Bioline 500ml', img: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=150&q=80', category: 'Dùng cho cơ sở', catType: 'facility', buyPrice: 85000, sellPrice: 130000, stock: 18, stock_quantity: 18, unit: 'chai', status: 'in_stock', statusLabel: 'Còn hàng' },
             { id: 6, sku: 'SKU-FL-06', name: 'Thuốc Nhỏ Gáy Trị Ve Rận Frontline Plus', img: 'https://images.unsplash.com/photo-1512069772995-ec65ed45afd6?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1512069772995-ec65ed45afd6?auto=format&fit=crop&w=150&q=80', category: 'Dùng để bán', catType: 'sale', buyPrice: 195000, sellPrice: 275000, stock: 0, stock_quantity: 0, unit: 'hộp', status: 'out_of_stock', statusLabel: 'Hết hàng' },
             { id: 7, sku: 'SKU-NP-07', name: 'Gel Dinh Dưỡng Virbac Nutri-plus 120g', img: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=150&q=80', category: 'Dùng cho cơ sở', catType: 'facility', buyPrice: 110000, sellPrice: 165000, stock: 5, stock_quantity: 5, unit: 'tuýp', status: 'low_stock', statusLabel: 'Sắp hết' },
-            { id: 8, sku: 'SKU-CC-08', name: 'Bánh Thưởng Súp Ciao Churu Gà & Sò Điệp', img: 'https://images.unsplash.com/photo-1574158622682-e40e69881006?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1574158622682-e40e69881006?auto=format&fit=crop&w=150&q=80', category: 'Dùng để bán', catType: 'sale', buyPrice: 32000, sellPrice: 50000, stock: 65, stock_quantity: 65, unit: 'gói', status: 'in_stock', statusLabel: 'Còn hàng' }
+            { id: 8, sku: 'SKU-CC-08', name: 'Bánh Thưởng Súp Ciao Churu Gà & Sò Điệp', img: 'https://images.unsplash.com/photo-1574158622682-e40e69881006?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1574158622682-e40e69881006?auto=format&fit=crop&w=150&q=80', category: 'Dùng để bán', catType: 'sale', buyPrice: 32000, sellPrice: 50000, stock: 65, stock_quantity: 65, unit: 'gói', status: 'in_stock', statusLabel: 'Còn hàng' },
+            { id: 9, sku: 'SKU-SH-09', name: 'Khăn Tắm Siêu Thấm Hút Sợi Microfiber Spa', img: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=150&q=80', category: 'Dùng cho cơ sở', catType: 'facility', buyPrice: 45000, sellPrice: 70000, stock: 35, stock_quantity: 35, unit: 'chiếc', status: 'in_stock', statusLabel: 'Còn hàng' },
+            { id: 10, sku: 'SKU-CL-10', name: 'Dung Dịch Vệ Sinh Tai & Kẽ Chân Bio-Groom 118ml', img: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=150&q=80', category: 'Dùng cho cơ sở', catType: 'facility', buyPrice: 90000, sellPrice: 135000, stock: 8, stock_quantity: 8, unit: 'chai', status: 'low_stock', statusLabel: 'Sắp hết' },
+            { id: 11, sku: 'SKU-RC-11', name: 'Thức Ăn Hạt Royal Canin Kitten Cho Mèo Con 2kg', img: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=150&q=80', category: 'Dùng để bán', catType: 'sale', buyPrice: 280000, sellPrice: 380000, stock: 52, stock_quantity: 52, unit: 'gói', status: 'in_stock', statusLabel: 'Còn hàng' },
+            { id: 12, sku: 'SKU-TG-12', name: 'Bột Cầm Máu Cắt Móng Chuyên Dụng Kwik Stop 14g', img: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=150&q=80', category: 'Dùng cho cơ sở', catType: 'facility', buyPrice: 120000, sellPrice: 180000, stock: 14, stock_quantity: 14, unit: 'hũ', status: 'in_stock', statusLabel: 'Còn hàng' },
+            { id: 13, sku: 'SKU-DR-13', name: 'Dây Dắt Tự Động Kèm Đèn Led Ban Đêm Flexi', img: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=150&q=80', category: 'Dùng để bán', catType: 'sale', buyPrice: 210000, sellPrice: 320000, stock: 22, stock_quantity: 22, unit: 'bộ', status: 'in_stock', statusLabel: 'Còn hàng' },
+            { id: 14, sku: 'SKU-SN-14', name: 'Xịt Dưỡng Lông Khử Tĩnh Điện Show Tech 500ml', img: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=150&q=80', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=150&q=80', category: 'Dùng cho cơ sở', catType: 'facility', buyPrice: 155000, sellPrice: 225000, stock: 12, stock_quantity: 12, unit: 'chai', status: 'in_stock', statusLabel: 'Còn hàng' }
         ],
 
         // MODULE 5: QUẢN LÝ HOTEL (20 PHÒNG CHÓ & 20 PHÒNG MÈO - GRID 5x4)
@@ -497,7 +503,7 @@ function superPetCareApp() {
                 email: 'binh.nguyen@petcare360.vn',
                 degree: 'Chuyên Gia Chăm Sóc - ĐH Nông Lâm TP.HCM (Tốt nghiệp Giỏi)',
                 specialties: 'Ngoại khoa, Phẫu thuật chỉnh hình, Cấp cứu 24/7',
-                bio: 'Hơn 7 năm kinh nghiệm công tác tại các bệnh viện thú y quốc tế. Trực ban phẫu thuật và chăm sóc đặc biệt.'
+                bio: 'Hơn 7 năm kinh nghiệm công tác tại các trung tâm chăm sóc thú cưng quốc tế. Trực ban và chăm sóc đặc biệt.'
             },
             {
                 id: 'PetStaff0002',
@@ -559,7 +565,7 @@ function superPetCareApp() {
                 avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
                 phone: '0988 554 433',
                 email: 'trang.dang@petcare360.vn',
-                degree: 'Chứng chỉ Khử trùng & An toàn sinh học Chuồng trại Thú y',
+                degree: 'Chứng chỉ Khử trùng & An toàn sinh học Cơ sở Chăm sóc Thú cưng',
                 specialties: 'Vệ sinh khử khuẩn buồng Pet Hotel, Khử mùi sinh học',
                 bio: 'Đảm bảo môi trường lưu trú của các bé luôn thơm mát và sạch khuẩn chuẩn 5 sao.'
             }
@@ -5978,11 +5984,37 @@ function superPetCareApp() {
         deductStockPermanently(order) {
             if (!order || !order.items) return;
             order.items.forEach(item => {
+                const qty = Number(item.qty || item.quantity) || 1;
                 if (this.isProductItem(item)) {
                     const prod = this.products.find(p => p.id === item.id);
                     if (prod && prod.reservedStock) {
-                        const qty = Number(item.qty || item.quantity) || 1;
                         prod.reservedStock = Math.max(0, prod.reservedStock - qty);
+                    }
+                }
+                // Đồng bộ trừ tồn kho thực tế trong Inventory Management
+                if (this.inventoryItems && Array.isArray(this.inventoryItems)) {
+                    const itemName = (item.name || item.title || '').toLowerCase();
+                    const inv = this.inventoryItems.find(i => 
+                        i.id === item.id || 
+                        (i.sku && item.sku && i.sku === item.sku) ||
+                        (itemName && i.name && i.name.toLowerCase().includes(itemName)) ||
+                        (itemName && i.name && itemName.includes(i.name.toLowerCase()))
+                    );
+                    if (inv) {
+                        const cur = Number(inv.stock_quantity ?? inv.stock) || 0;
+                        const newStock = Math.max(0, cur - qty);
+                        inv.stock = newStock;
+                        inv.stock_quantity = newStock;
+                        if (newStock <= 0) {
+                            inv.status = 'out_of_stock';
+                            inv.statusLabel = 'Hết hàng';
+                        } else if (newStock < 10) {
+                            inv.status = 'low_stock';
+                            inv.statusLabel = 'Sắp hết';
+                        } else {
+                            inv.status = 'in_stock';
+                            inv.statusLabel = 'Còn hàng';
+                        }
                     }
                 }
             });
@@ -6910,6 +6942,374 @@ Trạng thái đơn: ' + finalStatus + ' | Đã trừ kho vĩnh viễn.`);
 
         snapPetCamPhoto() {
             this.showToast('📸 Đã chụp và lưu ảnh bé cưng về máy!');
+        },
+
+
+        // ========================================================
+        // UPGRADES: CHECKOUT VALIDATION, ADMIN ORDERS, SERVICES, INVENTORY, PETSHIP, CUSTOMER & STAFF
+        // ========================================================
+        showIncompleteProfileModal: false,
+        proceedToCheckout() {
+            const hasProfile = Boolean(this.customerProfile && this.customerProfile.name && this.customerProfile.name.trim() && this.customerProfile.phone && this.customerProfile.phone.trim());
+            const hasPets = Boolean((this.pets && this.pets.length > 0) || (this.userPets && this.userPets.length > 0));
+            const hasAddress = Boolean(this.addresses && this.addresses.length > 0);
+            
+            if (!hasProfile || !hasPets || !hasAddress) {
+                this.showIncompleteProfileModal = true;
+                return;
+            }
+            this.showCartDrawer = false;
+            this.activeTab = 'checkout';
+            window.location.hash = '#checkout';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+
+        // ADMIN ORDER FILTERS & CSV EXPORT
+        adminOrderSearchQuery: '',
+        adminOrderStatusFilter: 'ALL',
+        adminOrderTimeRangeFilter: 'ALL',
+        showOrderFilterDropdown: false,
+        get filteredAdminOrders() {
+            let list = this.adminRecentOrders || [];
+            if (this.adminOrderSearchQuery && this.adminOrderSearchQuery.trim()) {
+                const q = this.adminOrderSearchQuery.trim().toLowerCase();
+                list = list.filter(o => 
+                    (o.orderId && o.orderId.toLowerCase().includes(q)) ||
+                    (o.customerName && o.customerName.toLowerCase().includes(q)) ||
+                    (o.customerPhone && o.customerPhone.toLowerCase().includes(q))
+                );
+            }
+            if (this.adminOrderStatusFilter && this.adminOrderStatusFilter !== 'ALL') {
+                const sf = this.adminOrderStatusFilter.toLowerCase();
+                list = list.filter(o => {
+                    const st = (o.statusText || o.status || '').toLowerCase();
+                    if (sf === 'chờ xác nhận' || sf === 'pending') return st.includes('chờ') || st.includes('pending');
+                    if (sf === 'đang xử lý' || sf === 'processing') return st.includes('xử lý') || st.includes('processing');
+                    if (sf === 'đang giao' || sf === 'shipped') return st.includes('giao') || st.includes('shipped');
+                    if (sf === 'hoàn thành' || sf === 'delivered') return st.includes('hoàn thành') || st.includes('delivered');
+                    if (sf === 'đã hủy' || sf === 'cancelled') return st.includes('hủy') || st.includes('cancelled');
+                    return st.includes(sf);
+                });
+            }
+            return list;
+        },
+        exportOrdersToCSV() {
+            const orders = this.filteredAdminOrders;
+            const headers = ['Mã đơn hàng', 'Thời gian đặt', 'Khách hàng', 'Số điện thoại', 'Địa chỉ', 'Phương thức TT', 'Tổng tiền (VNĐ)', 'Trạng thái'];
+            const rows = orders.map(o => [
+                o.orderId || '',
+                o.orderTime || o.orderDate || o.date || '29/10/2026 - 14:30',
+                o.customerName || '',
+                o.customerPhone || '',
+                `"${(o.address || '').replace(/"/g, '""')}"`,
+                o.paymentMethod || 'COD',
+                o.total || 0,
+                o.statusText || o.status || 'Chờ xác nhận'
+            ]);
+            const NL = String.fromCharCode(10);
+            const csvContent = String.fromCharCode(0xFEFF) + headers.join(',') + NL + rows.map(e => e.join(',')).join(NL);
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'Danh_Sach_Don_Hang_PetCare360.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            this.showToast('✅ Đã xuất dữ liệu đơn hàng ra file CSV thành công!');
+        },
+
+        // ADMIN SERVICE SEARCH & FILTERS & MODAL ACTIONS
+        adminServiceSearchQuery: '',
+        adminServiceCategoryFilter: 'ALL',
+        get filteredAdminServicesList() {
+            let list = this.adminServicesList || [];
+            if (this.adminServiceSearchQuery && this.adminServiceSearchQuery.trim()) {
+                const q = this.adminServiceSearchQuery.trim().toLowerCase();
+                list = list.filter(s => 
+                    (s.serviceId && s.serviceId.toLowerCase().includes(q)) ||
+                    (s.customerName && s.customerName.toLowerCase().includes(q)) ||
+                    (s.phone && s.phone.toLowerCase().includes(q)) ||
+                    (s.customerPhone && s.customerPhone.toLowerCase().includes(q)) ||
+                    (s.petName && s.petName.toLowerCase().includes(q))
+                );
+            }
+            if (this.adminServiceCategoryFilter && this.adminServiceCategoryFilter !== 'ALL') {
+                const f = this.adminServiceCategoryFilter.toUpperCase();
+                list = list.filter(s => (s.servicePackage || '').toUpperCase().includes(f));
+            }
+            return list;
+        },
+        getAvailableHotelRooms() {
+            const d = (this.dogRooms || []).filter(r => r.status === 'available' || r.status === 'empty').map(r => ({ id: r.id, type: 'dog' }));
+            const c = (this.catRooms || []).filter(r => r.status === 'available' || r.status === 'empty').map(r => ({ id: r.id, type: 'cat' }));
+            return [...d, ...c];
+        },
+        assignRoomToService(srv, roomId) {
+            if (!srv || !roomId) return;
+            const allRooms = [...(this.dogRooms || []), ...(this.catRooms || [])];
+            const room = allRooms.find(r => r.id === roomId);
+            if (room) {
+                room.status = 'occupied';
+                room.serviceId = srv.serviceId;
+                room.serviceCode = srv.serviceId;
+                room.petName = srv.petName;
+                room.customerName = srv.customerName;
+                room.guestName = srv.customerName;
+                srv.assignedRoom = roomId;
+                this.showToast('✅ Đã gán thành công bé ' + srv.petName + ' vào phòng ' + roomId + '!');
+            }
+        },
+        markAdminServiceUnpaid(srv) {
+            if (!srv) return;
+            srv.depositStatus = 'Chưa cọc';
+            srv.status = 'Chưa cọc';
+            this.showToast('⚠️ Đã chuyển trạng thái dịch vụ ' + srv.serviceId + ' thành "Chưa cọc"');
+        },
+
+        // ADMIN INVENTORY MANAGEMENT CRUD & SEARCH
+        adminInventorySearchQuery: '',
+        adminInventoryCategoryFilter: 'ALL',
+        adminAddProductModalOpen: false,
+        adminEditProductModalOpen: false,
+        editingProduct: null,
+        newProductForm: {
+            sku: '',
+            name: '',
+            category: 'Dùng để bán',
+            buyPrice: 100000,
+            sellPrice: 150000,
+            stock: 20,
+            unit: 'gói'
+        },
+        editingProductForm: {
+            name: '',
+            buyPrice: 0,
+            sellPrice: 0,
+            unit: ''
+        },
+        get filteredInventoryItems() {
+            let list = this.inventoryItems || [];
+            if (this.adminInventorySearchQuery && this.adminInventorySearchQuery.trim()) {
+                const q = this.adminInventorySearchQuery.trim().toLowerCase();
+                list = list.filter(i => 
+                    (i.sku && i.sku.toLowerCase().includes(q)) ||
+                    (i.name && i.name.toLowerCase().includes(q))
+                );
+            }
+            if (this.adminInventoryCategoryFilter && this.adminInventoryCategoryFilter !== 'ALL') {
+                if (this.adminInventoryCategoryFilter === 'SELL') {
+                    list = list.filter(i => i.category === 'Dùng để bán');
+                } else if (this.adminInventoryCategoryFilter === 'FACILITY') {
+                    list = list.filter(i => i.category === 'Dùng cho cơ sở');
+                }
+            }
+            return list;
+        },
+        openAddProductModal() {
+            this.newProductForm = {
+                sku: 'SKU-SP-' + Math.floor(10 + Math.random() * 90),
+                name: '',
+                category: 'Dùng để bán',
+                buyPrice: 120000,
+                sellPrice: 180000,
+                stock: 25,
+                unit: 'gói'
+            };
+            this.adminAddProductModalOpen = true;
+        },
+        submitAddProductForm() {
+            if (!this.newProductForm.name) return;
+            const stockQty = Number(this.newProductForm.stock) || 0;
+            const newItem = {
+                id: Date.now(),
+                sku: this.newProductForm.sku || ('SKU-' + Date.now()),
+                name: this.newProductForm.name,
+                image: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=150',
+                img: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=150',
+                category: this.newProductForm.category,
+                catType: this.newProductForm.category === 'Dùng để bán' ? 'sale' : 'facility',
+                buyPrice: Number(this.newProductForm.buyPrice) || 0,
+                sellPrice: Number(this.newProductForm.sellPrice) || 0,
+                stock: stockQty,
+                stock_quantity: stockQty,
+                unit: this.newProductForm.unit || 'gói',
+                status: stockQty <= 0 ? 'out_of_stock' : (stockQty < 10 ? 'low_stock' : 'in_stock'),
+                statusLabel: stockQty <= 0 ? 'Hết hàng' : (stockQty < 10 ? 'Sắp hết' : 'Còn hàng')
+            };
+            this.inventoryItems.unshift(newItem);
+            this.adminAddProductModalOpen = false;
+            this.showToast('✅ Đã thêm sản phẩm ' + newItem.name + ' vào kho hàng!');
+        },
+        openEditProductModal(item) {
+            if (!item) return;
+            this.editingProduct = item;
+            this.editingProductForm = {
+                name: item.name,
+                buyPrice: item.buyPrice || 0,
+                sellPrice: item.sellPrice || 0,
+                unit: item.unit || 'sản phẩm'
+            };
+            this.adminEditProductModalOpen = true;
+        },
+        submitEditProductForm() {
+            if (!this.editingProduct) return;
+            this.editingProduct.name = this.editingProductForm.name;
+            this.editingProduct.buyPrice = Number(this.editingProductForm.buyPrice) || 0;
+            this.editingProduct.sellPrice = Number(this.editingProductForm.sellPrice) || 0;
+            this.editingProduct.unit = this.editingProductForm.unit;
+            this.adminEditProductModalOpen = false;
+            this.showToast('✅ Đã cập nhật sản phẩm ' + this.editingProduct.sku + ' thành công!');
+        },
+        deleteInventoryProduct(item) {
+            if (!item) return;
+            if (confirm('Bạn có chắc chắn muốn xóa sản phẩm "' + item.name + '" (' + item.sku + ') khỏi kho hàng?')) {
+                this.inventoryItems = this.inventoryItems.filter(i => i.sku !== item.sku);
+                this.showToast('🗑️ Đã xóa sản phẩm khỏi kho hàng!');
+            }
+        },
+
+        // PETSHIP STATUS UPDATES & FILE UPLOAD HANDLERS
+        petShipStep1Photo: null,
+        petShipStep3Photo: null,
+        updatePetShipPhysicalStatus(ord, status) {
+            if (!ord) return;
+            ord.shippingStatus = status;
+            this.showToast('📦 Đã cập nhật trạng thái đơn ' + ord.orderId + ' thành: ' + status);
+        },
+        updatePetShipServiceStatus(srv, status) {
+            if (!srv) return;
+            srv.shippingStatus = status;
+            this.showToast('🚗 Đã cập nhật đưa đón bé ' + srv.serviceId + ' thành: ' + status);
+        },
+        uploadPetShipPhoto(event, phase) {
+            const file = event.target.files && event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    if (phase === 'step1') {
+                        this.petShipStep1Photo = e.target.result;
+                        this.showToast('📷 Đã tải ảnh kiểm tra sức khỏe ban đầu thành công!');
+                    } else if (phase === 'step3') {
+                        this.petShipStep3Photo = e.target.result;
+                        this.showToast('📷 Đã tải ảnh bằng chứng giao pet (POD) thành công!');
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        },
+
+        // CUSTOMER COMPREHENSIVE MODAL & SPENT LOGIC
+        adminCustomerModalTab: 'contact',
+        getCustomerTotalSpent(cust) {
+            if (!cust) return 0;
+            if (cust.totalSpend) return cust.totalSpend;
+            if (cust.transactions && Array.isArray(cust.transactions)) {
+                return cust.transactions.reduce((acc, t) => acc + (Number(t.amount) || 0), 0);
+            }
+            return 2850000;
+        },
+        openComprehensiveCustomerModal(cust) {
+            this.selectedCustomerTransactions = cust;
+            this.adminCustomerModalTab = 'contact';
+            this.customerTransactionModalOpen = true;
+        },
+        get filteredAdminCustomersList() {
+            let list = this.adminCustomersList || [];
+            if (this.adminCustomerSearch && this.adminCustomerSearch.trim()) {
+                const q = this.adminCustomerSearch.trim().toLowerCase();
+                list = list.filter(c => 
+                    (c.name && c.name.toLowerCase().includes(q)) ||
+                    (c.phone && c.phone.toLowerCase().includes(q)) ||
+                    (c.customerId && c.customerId.toLowerCase().includes(q)) ||
+                    (c.id && (c.id + '').toLowerCase().includes(q))
+                );
+            }
+            if (this.customerTierFilter && this.customerTierFilter !== 'all') {
+                const tf = this.customerTierFilter.toLowerCase();
+                list = list.filter(c => {
+                    const m = ((c.membership || c.tier || c.tierLabel || '') + '').toLowerCase();
+                    return m.includes(tf);
+                });
+            }
+            return list;
+        },
+
+        // STAFF MANAGEMENT CRUD
+        adminStaffModalOpen: false,
+        isEditingStaff: false,
+        staffForm: {
+            staffId: '',
+            name: '',
+            phone: '',
+            role: 'Chuyên gia chăm sóc',
+            shift: '8h-12h',
+            degree: ''
+        },
+        openAddStaffModal() {
+            this.isEditingStaff = false;
+            this.staffForm = {
+                staffId: 'PetStaff000' + (this.staffList.length + 1),
+                name: '',
+                phone: '',
+                role: 'Chuyên gia chăm sóc',
+                shift: '8h-12h',
+                degree: 'Chứng chỉ Chuyên môn PetCare Quốc tế'
+            };
+            this.adminStaffModalOpen = true;
+        },
+        openEditStaffModal(staff) {
+            if (!staff && this.staffList && this.staffList.length > 0) staff = this.staffList[0];
+            if (!staff) return;
+            this.isEditingStaff = true;
+            this.staffForm = {
+                staffId: staff.staffId,
+                name: staff.name,
+                phone: staff.phone,
+                role: staff.role,
+                shift: staff.shift,
+                degree: staff.degree || ''
+            };
+            this.adminStaffModalOpen = true;
+        },
+        submitStaffForm() {
+            if (!this.staffForm.name) return;
+            if (this.isEditingStaff) {
+                const s = this.staffList.find(st => st.staffId === this.staffForm.staffId);
+                if (s) {
+                    s.name = this.staffForm.name;
+                    s.phone = this.staffForm.phone;
+                    s.role = this.staffForm.role;
+                    s.shift = this.staffForm.shift;
+                    s.degree = this.staffForm.degree;
+                    this.showToast('✅ Đã cập nhật thông tin nhân sự ' + s.name + ' thành công!');
+                }
+            } else {
+                const newStaff = {
+                    id: this.staffForm.staffId,
+                    staffId: this.staffForm.staffId,
+                    name: this.staffForm.name,
+                    phone: this.staffForm.phone,
+                    role: this.staffForm.role,
+                    shift: this.staffForm.shift,
+                    degree: this.staffForm.degree,
+                    weeklySchedule: ['T2', 'T3', 'T4', 'T5', 'T6'],
+                    schedule: { T2: true, T3: true, T4: true, T5: true, T6: true, T7: false, CN: false },
+                    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+                    bio: 'Chuyên viên chăm sóc thú cưng tận tâm và giàu kinh nghiệm.'
+                };
+                this.staffList.push(newStaff);
+                this.showToast('✅ Đã thêm nhân sự ' + newStaff.name + ' vào hệ thống!');
+            }
+            this.adminStaffModalOpen = false;
+        },
+        deleteStaffPrompt() {
+            if (!this.staffList || this.staffList.length === 0) return;
+            const staff = this.staffList[this.staffList.length - 1];
+            if (confirm('Bạn có chắc chắn muốn xóa nhân sự "' + staff.name + '" (' + staff.staffId + ') khỏi danh sách?')) {
+                this.staffList.pop();
+                this.showToast('🗑️ Đã xóa nhân sự ' + staff.name + ' thành công!');
+            }
         },
 
         scrollToUrgentTasks() {
